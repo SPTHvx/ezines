@@ -1,0 +1,547 @@
+--------------------------------------------------------------------------------
+        INTERVIEW WITH ARISTOTLE / BLACK AXIS BBS / NuKE USA HQ
+--------------------------------------------------------------------------------
+
+
+
+
+
+1-------------------------------------------------------------------------------
+
+ Give me a short description of who you are!
+
+- Sure! - I'm a big mother-fucker with an attitude.  :)  I'm an old
+  rocker from the 70's who happens to now enjoy computers a great
+  deal and am rather pissed off at the way the AV has promolgated
+  fear in order to sell their software. As a result of this, I have
+  set out to fight all legislative issues relating to viruses by
+  exposing their happy-asses for what they really are!
+
+2-------------------------------------------------------------------------------
+
+ Why did you picked that alias, Aristotle?
+
+- Aristotle was among the first, if not the first, to study human
+  behaviour. I saw all the fancy, way-cool, hyroglyphic-handles when
+  I first got into this stuff and decided that I wanted to be different
+  by using a name that closely represented my way of thinking, but on
+  the other hand... I also agreed with George Bush's way of thinking -
+  wouldn't that have been silly for me to have used HIS name?
+
+3-------------------------------------------------------------------------------
+
+ Any thoughts behind your board name (Black Axis)?
+
+- It's a secret... I could tell you, but then I'd have to kill you!
+
+4-------------------------------------------------------------------------------
+
+ When did you discovered the world of computers?
+
+- Computers - around 1978... The neat shit, about 2 years ago :)
+
+5-------------------------------------------------------------------------------
+
+ How long have you been scene-active? (both "normal" and "underground")
+
+- I have always had a fascination with computers, especially in the area
+  of data control. He who owns the data (info) , is in control!  I got
+  active the first time I asked a question in the ViRUS_iNFO echo - The
+  acting moderator crawled on my ass like cheap underwear! Well, that
+  didn't really wash with me so I decided I would teach him the proper
+  techniques of being an asshole!
+
+6-------------------------------------------------------------------------------
+
+ How did you came into the virus scene?
+
+- Guido Sanchez, sysop of Nun-Beaters Anonymous BBS and cool-man
+  extraordinaire gave me 400 viruses - I took them and set up a board
+  called The Vx BBS. It was much like it is now - No ratios or crap like
+  that, and nobody (well almost) nobody was ever too LAME to log on!
+  You can imagine the results of the trading when I was the only person
+  on the globe that advertised a collection up for grabs :)  I got into
+  the "ELiTE" scene by a fellow by the name of Count Zero of Phalcon/
+  Skism. He managed to get me access on The Landfill BBS. (Still thank
+  you, CZ!)
+
+7-------------------------------------------------------------------------------
+
+ What part of the underground do you think needs improvements?
+
+- The intelligence factor!
+
+8-------------------------------------------------------------------------------
+
+ Positive/negative aspecs of the scene?
+
+- [Negative]
+  The bottom line is - People are too easily influenced by others.
+
+  [Positive]
+  Let me get back to you on this one...
+
+9-------------------------------------------------------------------------------
+
+ Which groups have you been involved with?
+
+- All of them from time to time... Hell, I know everybody and their
+  brother's dog! So, one way or another I have always had some inside
+  contact with all the groups.
+
+10------------------------------------------------------------------------------
+
+ Which group are you in right now?
+
+- Well NuKE went psuedo-lame so I decided I'd simply rip-off the name
+  and start my own little gathering... It's done pretty well thus far
+  - we have some of the same members <g> You reckon Nowhere Man is
+  pissed off about that?  <heh> You could steam a large lobster on his
+  ass! Ah well, come kick my ass!  :)
+
+11------------------------------------------------------------------------------
+
+ How, and when did you join NuKE?
+
+- I was talking to Rock Steady one day about something and out of the
+  blue he told me that if I wanted to fly the colors to go ahead and
+  do it... This was shortly before NK-INFO5 came out, I believe - Not
+  real sure! Was it some kind of religous experience or something, no...
+  More or less, he just put his "good housekeepping seal of approval"
+  on it!
+
+12------------------------------------------------------------------------------
+
+ What's your "position" (duty) in NuKE?
+
+- I'm the Minister of Defense!
+
+13------------------------------------------------------------------------------
+
+ How is NuKE currently organized?
+
+- The southern chapter runs like a clock! Up north, I don't see any
+  organization or structure. Rock is definitely running that clan, but
+  nothing is happening!  He is busy in school and other things in his
+  life and Nowhere Man seems like he's not doing anything but resting
+  on laurels  from previous creations like the DeathCow virus and the
+  VCL...
+
+14------------------------------------------------------------------------------
+
+ Who is the head person(s) in NuKE?
+
+- Sara Gordon  :) - Nah... Rock Steady is the group president for the
+  Canadian branch. (A tiny sub-wing off the main group in Virginia :)
+
+15------------------------------------------------------------------------------
+
+ Which contacts do NuKE got with other virus-groups around the globe?
+
+- I think everybody is pretty much connected to everybody these
+  days. I mean afterall, the advent of carrier pidgeons has made
+  communications a real breeze!
+
+16------------------------------------------------------------------------------
+
+ What does it take being a NuKE member?
+
+- It only takes the right Spirit... I would rather enlist all of China
+  into the ranks of NuKE and know that there was strength in numbers,
+  than to have a half dozen people in NuKE call all the rest of the
+  people in the world, lame or stupid!
+
+17------------------------------------------------------------------------------
+
+ Which members do NuKE got now?
+
+- Well, there's me and about half of Southeastern Virginia so far :)
+  Everybody wants a piece of the pie - who am I to tell them they
+  can't have it?
+
+18------------------------------------------------------------------------------
+
+ What do you consider as the biggest step that NuKE have done?
+ (Umm.. thats it from where did they became, umr.. 'world fame')
+
+- Nothing! Once global recognition was achieved, they all laid down!
+
+19------------------------------------------------------------------------------
+
+ About VCL, the 1.00 is probably the most 'fame' generator out there,
+ umm.. so.. when is the VCL200 out?! [Gee.. common 'n' boring question!]
+
+- No, your question are not boring, but waiting for the VCL 2.00 *is*...
+
+20------------------------------------------------------------------------------
+
+ NED (NuKE Encryption Device) was yet another Polymorphic Engine, what
+ was the responses about that one?
+
+- Most of them were " HAHAHAHAHAHAHA " from the AV and Phalcon/Skism,
+  but I personally think it makes great toast!
+
+21------------------------------------------------------------------------------
+
+ Which AntiVirus programs can detect/remove NED included in viruses?
+
+-  All of them! Somebody "butter-fingered" the NED out too early :)
+   ooops!
+
+22------------------------------------------------------------------------------
+
+ How many "mutations" can NED generate?
+
+- I don't have a clue!  It seems to crash and burn on the 5th
+  generation and nobody has really tried to fix it to my knowledge.
+
+23------------------------------------------------------------------------------
+
+ Will Nowhere Man continue with the NED project? (fixing that bug?)
+
+- Sorry bubba, but you'll have to ask him about that. Look for him
+  lecturing people on the NuKENET!
+
+24------------------------------------------------------------------------------
+
+ Why do you think almost no people use polymorphic engines in their
+ viruses?
+
+- Most people can't code! Look at me... I am the world's lamest
+  programmer! Did you ever see a virus with my name in it <g>
+
+25------------------------------------------------------------------------------
+
+ The Info Journals released from NuKE seems to be appreciated by the
+ public, urm.. why, this massive response, you think?
+ 
+- People respond like lemmings! The neat little trinkets that get
+  spilled out into the public are cool, but let's face it - people
+  like to hear about the thoughts and ideas of other people. P/S has
+  touched on this, but NuKE was always more of a personalized magazine.
+
+26------------------------------------------------------------------------------
+
+ Why did the info-journal changed from a "menu-based" journal, into a
+ text-forum?
+
+- An over-run by a sheer attack of lazy, I reckon! The intro is what
+  really helped push the mag into a global stance. Look around you!
+  Notice all the other magazines - how many of them do what the old
+  NK-INFO journals did? Those that do are generally thought of as
+  "way-cool shit"!  You have to understand, a lot of people get a
+  real "woody" from showing these mags to their friends that have
+  never seen them... The image helps!
+
+27------------------------------------------------------------------------------
+
+ Which viruses are NuKE responsible for? (exclude VCL by non-NuKEers)
+
+- <Didn't heard much of a answer here? let's continue instead!>
+
+28------------------------------------------------------------------------------
+
+ Which viruses have you in person written?
+
+-            <g> Who me?
+
+
+29------------------------------------------------------------------------------
+
+ How would you describe the "split" after NuKE IJ2 - when Dark Man and
+ some other guys had to leave?
+
+- Much like the split today between myself and the Canadian herd.
+
+30------------------------------------------------------------------------------
+
+ NuKE has in the past faced some trouble, for example the affair with 
+ RABID, the Australian bust with Talon, some more busts, etc. What do 
+ you thinks the group, still, after a period of umm.. 2«? year, still
+ going, umm.. strong?
+
+- Take a closer look at *who* the active voices are, or were! Look at
+  the change in ideology between Nk-INFO4 and 5 and again at NK-INFO6
+  and 7... That should give you some indication how and why NuKE made
+  such global noise as they did!
+
+31------------------------------------------------------------------------------
+
+ Is the police (and any other law-department) a treat to the exictense
+ of NuKE?
+
+- Not really - Viruses are not illegal in my country and the law
+  enforcement agencies also believe as I, in that the AV *is* blowing
+  things way out of proportion. They don't really care until some dork
+  actually uses one on a major system.
+
+32------------------------------------------------------------------------------
+
+ Future Plans (goals) in NuKE?
+
+- The "other" NuKE.. Well, I see them as fading into the dust of their
+  own exhalted glory and going out like wimpering dogs... Rock Steady
+  will always be considered a friend and I hate to see him "weenied"
+  around by a kid with less talent, so who knows his future...
+
+33------------------------------------------------------------------------------
+
+  How would you shortly describe the US-scene today, comparing to when
+  you started?
+
+- Everybody has everything and nobody is too lame anymore! cha-ching!
+  No longer must a person upload his first-born in order to download
+  some cheesy 10 year old textfile... All are equal!
+
+34------------------------------------------------------------------------------
+
+ What are you "facinated" with in the scene today?
+
+- Well, for starters... The length and detail of this interview are
+  really mind-boggling? Did you have anything a little longer winded :)
+
+35------------------------------------------------------------------------------
+
+ In which way have the scene influented in your "REAL" life?
+
+- It's made me quite a fair bit of money! The sale of computer viruses
+  is up these days. I've learned a great deal about programming and
+  people.
+
+36------------------------------------------------------------------------------
+
+ Why do you think it's important for groups to release magazine's,
+ news-letter, info-journals, etc? (Why does everybody realese them?)
+
+- It's a cult custom to write about one's accomplishments or beliefs.
+  People have always written something about themselves. Look at the
+  ancient civilizations of the world - Many of the groups and cults
+  wrote about themselves. So, it seems to pretty much inherent nature
+  to do it.
+
+37------------------------------------------------------------------------------
+
+ Which magazine do you considering as the best one available today?
+
+- Phalcon/Skism->
+  40HEX has always been the Technojournal of the underground, hands
+  down!
+
+  CRyPT->
+  CRyPT has always been the best for "Insider Gossip" stories and is
+  unrivaled by even some of the better commercial magazines.
+
+  NuKE->
+  NK-INFO was always fun to tinker with! The little extra trinkets in
+  the archive made it a sought after item.
+
+  No Foggy Idea->
+  DNA is too "Anarchic"... Nobody really does a quarter of what is ever
+  written about in those mags! The "nuclear-destructo" dribble is
+  getting really old!
+
+38------------------------------------------------------------------------------
+
+What part is the most important in a magazine?
+
+- Theg sentences must be constructed so that they make sense  :)
+
+39------------------------------------------------------------------------------
+
+ Which magazine would you like to leave the scene?
+
+- "The Anarchist Cookbook" - It is so old and outdated, yet every
+  "ELiTE" BBS in the world must have a copy... It's almost like a
+  requirement for running a H/P/V/A/C BBS. I wonder if there are
+  fines (geldstraffen) for not having it :)
+
+40------------------------------------------------------------------------------
+
+ Why do you run a VX bbs? What fun to you see with it?
+
+- Yes! People from all over the world call and exchange ideas and
+  information. This is, by far, the most valuable part of having
+  such a board! Look at yourself... You're in Sweden - The knowledge
+  about you and your people is invaluable to me. The world is drawing
+  closer and becomming a global community. Unless you learn all you
+  can about the people with whom you deal, you'll always be left in
+  the dark about what's going on around you! You can't gain this
+  knowledge from any textbook!
+
+41------------------------------------------------------------------------------
+
+ Do you fear getting "busted" for illegal activity?
+
+- Not in the least!
+
+42------------------------------------------------------------------------------
+
+ Which virus-group(s) do you think is the best?
+
+-  None really appear to be better than the others!
+
+43------------------------------------------------------------------------------
+
+ Which virus group do you personal am considering as the one who
+ have pushed up the scene most?
+
+- I know who has done this... Let me ask *you* who you think it is!
+
+44------------------------------------------------------------------------------
+
+ What's your opinion in using generators such as VCL, PS-MPC for making
+ "own" viruses?
+
+- The PS-MPC revolutionized the way viruses are written, but some
+  people fail to recognize this. Modular programming is an industry
+  standard much like the use of CASE tools. What is wrong with
+  borrowing segments from other people's code if you're going to
+  end up writing the same thing over again? Isn't that a prime example
+  of re-inventing the wheel? The PS-MPC was extremely helpful in
+  teaching me how to write in ASM! The code was simple, effective,
+  and easily manipulated into other variations. I give Dark Angel
+  an (A+)
+
+45------------------------------------------------------------------------------
+
+  What do you think about using Polymorphic engines for making the
+  virus harder to detect and clean?
+
+- In actuality, encryption schemes are easier to detect then most
+  people actually realize - How can decrypt a virus if you encrypt
+  the decryptor? Some part of the virus must remain unencrypted,
+  otherwise you have what is commonly referred to as garbage!
+
+46------------------------------------------------------------------------------
+
+ What do you think about board-crashing? (and why??)
+
+- This *is* lame! Board crashing is comparable to shooting fish in a
+  barrel. They are not nearly as technically skilled and are usually
+  totally defenseless against the underground elements. If you want to
+  really take on a challenge where the taste of victory is sweet, but
+  the cost of defeat is great... screw around with the military on the
+  Internet and trash some of their sites! They'll eat you for breakfast
+  when they finally get their hands on you - one more thing... Time is
+  on *their* side! Basically dude, it's like this... Why put yourself
+  in a position that could absolutely ruin your ass, over a lousy
+  computer program? It makes no sense to me!
+
+47------------------------------------------------------------------------------
+
+ How would you describe the (lame, greedy and corrupt!) AV-community?
+
+- I'll give you a "next issue" exclusive if you want it, but there is
+  too much to cover for this article. I will say one thing though...
+
+  "Have you ever noticed how much of a dick, Rod Fewster is?" He's the
+  Thunderbyte (TBscan) Australia representitive! Here's his FiDO address...
+  Send him my regards
+
+                            Rod Fewster
+                               at
+                        The Edge Of Reality
+                      Thunderbyte - Australia
+                        FiDONET (3:640\886)
+                           61-7-886-1886
+
+48------------------------------------------------------------------------------
+
+ Which AV-program do you think it's the best? (why?)
+
+- F-PROTECT - Frisk is reliable. You can always count on him having all
+  the latest viruses. His product makes a great BBS files list, and he
+  sells it relatively cheap to places that really need the coverage.
+
+  Thunderbyte is good, but Franz has an attitude problem! He can
+  criticize someone else product, but Lord help you if you talk
+  about his...
+
+49------------------------------------------------------------------------------
+
+ About the new laws coming up sometime, what do you think about that?
+ Do you think that really help agains new infections?
+
+- Not a chance! It will only serve to drive virus writing back into the
+  underground. Once it's there, who will know has been written except
+  those that write them? The laws only serve to pad the pockets of the
+  anti-virus software developers who *know* that viruses will continue
+  to be written.
+
+50------------------------------------------------------------------------------
+
+ Do you really think that the AV-persons would try to STOP the virus-
+ writers from writing viruses, even if it would result in them being
+ un-employed"?
+
+- Are you kidding? These fanatics are on some sort of "Ji-had"...
+  I almost think some of them have contemplated murdering a few virus
+  authors! The AV software developers are different... They *know*
+  where their livelihood is made!
+
+51------------------------------------------------------------------------------
+
+ How do you look at the future for the virus-community?
+
+- The virus scene has changed dramatically over the last 2 years and
+  will undoubtedly continue along the same track it is now following.
+  The fear of viruses will be overshadowed by the hatred for the virus
+  authors. More and more peer pressure will push these guys back into
+  the underground, thus starting the cycle of "Eliteness" all over
+  again! Old names will become folklore while new blood will step in
+  to conquer their achievements, thus unseating the ruling figures!
+
+  Wow... "Gee Mr. Aristotle, those are some powerful words!"
+
+  Yeah well, they look great on paper don't they! <g> In simpler terms...
+  Time will change the face of all things, yet none of us really know
+  how!
+
+52------------------------------------------------------------------------------
+
+ Which "meaning" do you think that the virus-groups has for the future
+ in the virus-scene?
+
+- I think a select few will cross some barriers with their programming
+  skills and come up with a real program... Whether it be the world's most
+  awesome MOD file or the world's most user friendly GUI, something has
+  to break the monotony of what we're seeing now.
+
+53------------------------------------------------------------------------------
+
+ Any advice for newcomer's in the scene?
+
+- Take your balls in hand and let NOBODY tell you that you're too lame...
+  Everybody starts off on the same foot!
+
+54------------------------------------------------------------------------------
+
+ How is the best way to contact you?
+
+-               ARiSToTLE
+        BLACK AXiS Vx - NuKE USAhq
+              804.599.4152
+  More viruses than your favorite hooker!
+
+55------------------------------------------------------------------------------
+ 
+ Something more you wanna say, but never had the opportunity to say
+ before?
+
+- Not really something that I have never had the opportunity to say,
+  but rather, thanks for the interview! I always appreciate the
+  opportunity to rag on a few folks :) Stay loose - Don't let anyone
+  tell you that you don't have what it takes... and if they do, steal
+  theirs!
+
+56------------------------------------------------------------------------------
+
+ Want to send any greetings?
+
+- Yeah... Yo Snake Eyes, Nostradamus, Norrin Radd, TimeLord, Firstrike,
+  Priest, Mammory Lips, er uh.. that's Memory Lapse :), Hellraiser,
+  Rock Steady, Savage Beast, Newbomb Turk, Odin, the toothless bitch
+  in Virginia Beach who still thinks viruses are illegal, and a dude
+  named Adapa Anu in Gonzales, Texas!
+                                            ...ARiSToTLE NuKE'94
+--------------------------------------------------------------------------------

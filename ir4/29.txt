@@ -1,0 +1,554 @@
+            DIFFERENT KINDA VIRUSES - FROM MY MESSED UP BRAIN
+            =================================================
+  
+  Here are my thoughts about all different kinda viruses. I don't think
+  that you all guys out there will agree with me on this article, but
+  that isn't the reason why I wrote it either. The debate is now open,
+  and you can freely quote me on thisone (If the correct source is
+  given, haha!, F-bull quote!).
+  
+  If you think I'm a dumb motha-fucker after reading thisone, great!
+  Then you must have thought about the 'problems' yourself. If you
+  agree me on the whole shit, I suggest that you go visit a shrink!
+  (grin!).
+  
+  I must admit that this article is both long, messy (see also:
+  jumbled, muddled, confused and totally mixed-up!), and can be real
+  hard to read. But why make the life easier than possible? (ummm?)
+  
+  But anyhow.. let's rock!.. Starting with the mutation question..
+  
+  MUTATIONS
+  
+  Mutations. Yes, we all have heard that word several times before.
+  The questions is "What's a mutation". The most common answers will
+  probably be like: 'a modification of an older already existing
+  virus'. Yeah, that's right? But then, what's a modification?
+  
+  A modification can be small, and it can be MAJOR. If I change the
+  'text' in a virus, and calls it a new one, it's really not any good.
+  Okey, there are not really too many people who just changes the text-
+  string in a virus, but I bet it has happend.
+  
+  Therefor, the word mutation isn't very appreciated, for example, I've
+  recieved messages about complaints for 'mutating' older viruses. I
+  think that my 'own' mutations are MAJOR (referring issue #3!). Let's
+  take some examples (first my own! - Eternity!) of different mutations.
+  
+  Some of the new functions added in that (ETERNITY!) virus was;
+--------------------------------------------------------------------------------
+    [If you give shits, don't read the text between the - chars OK?]
+  
+  Randomly self-encryption:
+  
+  This prevented ALL scanners available from detecting it. Yes, TBAV
+  only detected ONE single flag, ie 'flexible entry-point'. F-Prot,
+  Scan, etc couldn't find shits. The virus was already here 're-born',
+  ie undetectalbe.
+  
+  Get starting directory:
+  
+  This function just checked its location on the drive, so the dot-dot
+  method could be used, without showing up too much to the user.. Well,
+  it simply checked in which directory it was executed from...
+  
+  Clear file-attribs:
+  
+  It now also infected the read-only and hidden EXE files, so it could
+  spread more easy, and didn't give up to the 'safe' user, who hides,
+  or write-protects his files.
+  
+  Infections counter:
+  
+  If the virus is 'high' upwards in the directory tree, the user will
+  probably be quite suspicious when a fast programs takes lotsa more
+  time than it's supposed to do. (You know, search for more files,
+  clean the files attribs, open, infect, and then close it takes time
+  if you repeates the procedure too many times!). This function was set
+  to infect tree files each time an infected file was run.
+  
+  Dot-dot:
+  
+  This fancy little spreading-method, used by most of the non-resident
+  viruses is really good. Current dir infectors doesn't spread very
+  much, and the whole-directory-tree infectors are too slow. Lession-2
+  didn't spread very much I think. By adding this method, the virus
+  COULD spread out on the computer(s) pretty OK anyhow.
+  
+  Restore file-attribs:
+  
+  Restores the time/date attributes of the infected files, and leaves
+  no trace, except for the file-size increase in the infected files.
+  
+  Restore Directory:
+  
+  If the virus finds a [..] location, it will jump to it, search for
+  new files to infect, and do that stuff, until it has reached the
+  root directory. After it has reeched the \ dir, it'll simply just
+  change back to the original directory, where the infected file was
+  executed. This 'stealth' (laugter!) routine makes the user much less
+  suspicious.
+ 
+--------------------------------------------------------------------------------
+
+  Yes, that was some of the new functions included in that virus. Of'cos
+  it was actually lotsa other code changes to make the code compatible
+  with mine (the file-search routine, etc!) I therefor would like to
+  claim that my 'mutation' was MAJOR- nearly NEW! So, then comes a funny
+  question. Would anyone notice that this was a mutation from
+  Tormentor's EXE-lession, unless I said it was? Hardly.
+  
+  The word mutation or hack is often (too often!) translated into minor
+  changes. Some mutations are written later on by the same author (the
+  one who created the virus out from scratch!) to improve the virus.
+  Improvments can be like write it tighter (smaller/faster!), fix bugs,
+  make it undetectable to the new updates of the scanners, add more
+  functions, etc, etc..
+  
+  I don't see anything bad with mutating, and I'm not even embarrased
+  to release a mutation of an older virus. I'm not feeling embarrased
+  to say that I don't know the assembly language too good. What's wrong
+  with learning?
+  
+  But let's now go back to the interesting(hmm??) subject, mutations..
+  What should be included in a mutation? Well, that really depends on
+  how the original virus looks-like.
+  
+  I think that some of the most important thing is to make it
+  undetectable to the scanners. We started with doing that. Yes,
+  after making six viruses undetectable from Scan & Solomon's shit-kit
+  we released our first issue. I thought that was really fun. The
+  melon-heads who thinks that they're totally protected with Scan from
+  Mcafee deserves to get hit by a new variant!
+  
+  Other important things in new variants (mutations!) of viruses could
+  be stealth, encryption, dis-infecting, destructive-code, added
+  infection-ways, etc. The main goal should be to make it harder to
+  find and remove. A new variant of a virus should also be able to
+  travel around a bit, and not get detected by the latest Scan or
+  something before it's released. In our third issue, I included four
+  'hacks', all undetectable by ALL scanners available. Now that's from
+  my point of view good.. It's anyhow great stuff to annoy the local
+  geeks (smile!).
+   
+  The limit between a mutation or scratch can really be pretty close.
+  I've a few good examples up my sleeve.. One is if you makes a non-
+  resident virus into a resident one. Should that be classified as a
+  mutation? I think not. The code-changes between those ones are really
+  pretty big. Okey, I know that Patricia isn't sharing my point of view
+  (Mexican Mud & Death Rattle being HACKS from Vienna? nahh!..), but
+  she is one of the most dumbest bitches, known to man. But, the
+  question isn't what she thinks, the question is what your opinion is.
+  
+  Another good example is if you change the files to infect. If the
+  original virus infect com files. And the new one infectes COM files
+  along with EXE files? Now is the 'new' virus a mutation of the
+  original COM infector? I think that the virus here, by now infecting
+  COM and EXE files has changed drastically! But should it be considered
+  as a new one? And if you don't think that the virus is 'new', what
+  more should be changed/added before getting it into a new one?
+  
+  Okey, as the last example. If you re-write an overwriting virus to
+  become a non-overwriting infector, it's also a drastical change in
+  the virus. As a matter of fact, the code-changes aren't that big (the
+  first jmp constructions 'save/restore', the infection-marker, etc) in
+  the com-infectors (The EXE infectors aren't worth re-coding!), but
+  hell, it's functionally a completly new virus! If someone re-writes
+  an overwriting virus into a non-overwriting one, I personally think
+  that it should be classified as a new one! Do you agree with me?
+  
+  So, what can we now say about mutations? It can be really hard to
+  jugde if a virus is a mutation or if it's a new one. Again, this is
+  just my point of view. The more 'experienced' programmers will
+  probably think that I'm kinda pfucked up.. I might change thoughts
+  in the future, about what's mutation and what's not. There will
+  always be minor code-changes in viruses (text-changing - copy-
+  thefts!), but knobs will be knobs :).
+  
+  Now, let's move one step further in this article..
+  
+  SCRATCH
+  
+  Well, here comes yet another pretty (un?)interesting chapter in this
+  article, scratch viruses. I've now talked about mutations, and
+  therefor named the term 'scratch' some times. Now.. what's a scratch
+  virus? Something like 'a compleate *new* written virus', right?
+  
+  But then again, we'll have to ask ourself, what's the word 'new'
+  means. What I've learned from books is that 'new' described as for
+  example; 'not existing, seen, heard, introduced before'. Ie, some-
+  thing like brand new! Does this description match a non-resident
+  (see: direct action!) overwriting (see: dumb and very visible!) COM
+  infector!? NO WAY!
+ 
+  I think this chapter is going to be a bitch to write about.. Since
+  there's about over 4000 viruses out there in the wild for the moment,
+  and most of ‚m looks pretty much alike (both functionally and code!)
+  eachother. So, that funky term scratch, might just be a question of
+  definition.
+  
+  But now back to the overwriting viruses. All of them are really
+  pretty equal to eachother! Most of the viruses got the same routines
+  for; search files, clear file attribs, save the attribs, infect
+  (overwrite) files, set back the file-attributes. Nearly all of them
+  change directory with the 'dot-dot' method, searches for more files,
+  infect the files in the [..] location, continue to go down the
+  directory tree and overwrite the victims until it has reeched the \
+  directory (unless an infection-marker isn't included, wich seldom is
+  the case!). After it has overwritten all available files, it will
+  jump to its original location and just exit. Yeah!, most of the
+  viruses got all these functions the same, (or nearly the same!)
+  right?!
+  
+  Most of the over-writing viruses doesn't have an infection-marker,
+  most uses encryption (the other ones are even MORE boring!), most
+  prints a fake message, and most of ‚m also got some sort of pay-load.
+  Then how 'NEW' is a so called 'scratch' virus of the type non-
+  resident overwriting virus?
+  
+  Programming overwriting viruses are like 'modular' (take code from
+  A,B,C and maybe even D, and voila!, a *new* one?) programming. But
+  what's wrong with using already existing routines when they're
+  better, faster and smaller? I dunno! Nothing would I say. Time is
+  very limited, so why waste it?
+  
+  The only good stuff in a overwriting virus, is as I see it, the
+  encryption routine, and the payload. OK!, it might carry some anti
+  anti-virus routines, and some other fun stuff as well. But most don't
+  care too much about these silly viruses, and don't care too much
+  about how it's like anyway. 
+ 
+  Well, the overwriting viruses might be a bad example, b'cos there's 
+  actually people who doesn't count overwriting viruses to the virus-
+  caterogry. They surely replicate, but I think I rather call them
+  "replicating trojans" (quote: Dark Angel/Phalcon/Skism!).
+  
+  But let's now discuss another category of scratch-viruses.. 
+  The non-overwriting style of viruses..
+  
+  NON-OVERWRITING INFECTORS
+  
+  Non-overwriters are what most of the people means with the term virus.
+  They infect files, but they do not destroy them as the overwriting one
+  does! If a file is virus infected, the virus will run first, and then
+  execute the original program. Now, that's cool.. or shall we atleast
+  say more advanced than the visible, dumb, easy-coded and boring over-
+  writing ones?
+  
+  Most of the non-ow file-infectors infects the .COM files! Why you
+  might ask? (ok!, ok!, not you, the pro-virus programmer!) Well, that
+  is simply b'cos EXE-files are MUCH more complex & complicated than
+  the .COM files.
+  
+  Most(?) .COM infectors are also direct-action (non-resident!), b'cos,
+  well that depends on who you asks, some says that it's a hell of a
+  lot easier, other thinks that the resident ones are more simple..
+  But anyhow as a fact the direct-action infectors of .COM programs is
+  VERY common these days. 
+  
+  In the non-ow .com-infectors you can as well see some 'modular'
+  programming, though, they can also be original. I've seen some
+  examples of .COM infectors when it nearly is impossbile to notice
+  the difference between the infecting ways. There is, and will always
+  be 'standard' ways of file-infections. 
+  
+  But if a .COM infector uses one of those 'standard' ways to infect
+  the victims, what makes it into a new one? The personally touch with
+  the self-encryption?, the 'not-very-used' pay-load? The way it
+  searches files? The what?
+  
+  Well, I'll not say that you can't do a new non-ow .com-infector, but
+  there are really many so-called 'scratch' viruses that are more like
+  complete code-ripps from different other viruses. Of'cos, code from
+  many different viruses creates a new one, or um?
+  
+  But let's now also leave the COM infectors and hit for the other
+  types of file-infectors..
+  
+  OTHER NON-OVERWRITING FILE-INFECTORS
+  
+  Most of the other non-ow file-infectors, is hitting .EXE files. Well,
+  of'cos there are also viruses which infects the .SYS .OVR as well, but
+  they are not that common afterall. 
+  
+  The only advantage to infect other files than 'just' .COM and .EXE
+  files, is that the 'normal' user doesn't expect a virus to hit other
+  files as for example .SYS files. Now what's the adventage of doing all
+  kinda (COM/EXE/SYS) file-infectors? Of'cos you can also make .OVR
+  infectors along with some other no-so-common executables, but I will
+  discuss the 'rare' file-infectors in general. 
+  
+  Making a non-resident .SYS file-infector is really not worth coding.
+  The .SYS files are often just placed in the root-directory of the C:
+  drive. And from the root-directory they will not spread very much
+  (with the dot-dot method) anyway. The only motivation to write a non-
+  resident COM/SYS infector is if it got some destructive code inside.
+  Then the virus still can do naughty stuff with the computer, even if
+  the smart user cleans his .COM files (smile!). 
+  
+  Then if we go back to .EXE-infectors. I personally think that .EXE
+  files are excellent targets. EXE-files are often much bigger than the
+  .COM files, and therefor the file-increase will not be noticed that
+  easy. You can of'cos make an .EXE-infector much more 'personal' than
+  the .COM infectors of the reason there're so many ways of infecting
+  them. A normal computer also have more .EXE files on the hard-disk
+  than .COM files, this results in a hell of a lot easier way to find
+  WaReZ to spread them in (yeah!). 
+  
+  Okey.. Enough said about non-resident viruses.. let's now continue
+  this article with the resident viruses..
+  
+  RESIDENT CODE
+  
+  Resident viruses, yeah! Here comes a funny part.. Well, what makes
+  the resident viruses so funny? (Again!, this article is *not* toward
+  the PRO-virus programmer with 5X knowledge about viruses than me!)
+  As I see it, the resident viruses _nearly_ doesn't have any limits at
+  all. "The only limit is your own imagination" (quote: Macaroni Ted).
+  
+  Then, how far from the truth is that quote? How advanced can a virus
+  be? I dunno, and I'll not discuss it either. What I do know is that
+  the resident ones can be much more advanced than the direct-actions!
+  Let's take some examples on the advantages of making memory resident
+  viruses.. 
+  
+  First, they are usually much faster than the non-resident ones! This
+  b'cos of the file-search routine, the dot-dot method, the restore-dir,
+  etc, takes lotsa time and code!
+  
+  Then they can infect on different conditions. The most common is 
+  on execute, but when the virus is in memory, you can infect files
+  on nearly everything. This includes for example, creation, open,
+  close, copy, using the attrib functions, on a dos-dir, etc. Memory
+  resident infectors can also infect files in the 'background'. Yeah,
+  you name it... 
+  
+  Stealth. The resident ones can also hide much better. Size-stealth
+  (shows no file increace when the user does a DIR) and dis-infecting
+  (un-infects files when they're being opened "for any reason" :)).
+  Those stealth-functions together with some tricky encryption makes
+  the victim go nuts! Of'cos there are much more stealth-functions
+  available, but let's skip them. 
+  
+  That was some pretty tough examples of the advantages of the resident
+  viruses.. But there's actually lotsa more advantages with doing
+  resident ones as well. The payload for example surely can be more
+  fun (annoying!) than the ones used in non-resident ones. 
+  
+  Another good advantage with the resident ones is to combine them with
+  a boot-sector infector. This combination can easy cause havoc on the
+  infected system. Why? Well, mostly for that they always seems to come
+  back! The user doesn't expect a virus to be stored on the boot-sector.
+  As a good example, read our 2nd issue about the Predator#2 story.
+  Those suckers goes resident each time you've boot:ed up from a
+  infected drive/floppy, leaving no mercy to the victims (smile!). 
+  
+  Oh, I could write 100+ lines about resident-code and its advantages,
+  but let's simply say, that they spread faster/more and are a much more
+  advanced, than the direct-action ones!
+  
+  Well let's now hit for the next subject discussed in this article,
+  the use of different generators to create 'own' viruses. 
+  
+  VIRUS-GENERATORS
+  
+  We all have heard of VCL (Virus Creation Laboratory) from Nowhere Man
+  of NuKE. Nowadays there're many other virus-generators out in the
+  wild. We can name PS-MPC (Phalcon/Skism Mass Produce Code Generator)
+  and Gý, both from Dark Angel of Phalcon/Skism. Admiral Bailey of YAM
+  has also contributed with one of those generators, IVP. IVP or Instant
+  Virus Producer as he calls it is more a hack of PS-MPS with some
+  routines from VCL, than an own virus-generator, though he denied all
+  knowledge about it being nothing else than a re-written (C to TP) PS-
+  MPC hack.
+  
+  These generators have helped out the virus scene lots. The responses
+  on VCL should be enough proof about the appreciation of it. Nowadays
+  VCL isn't the 'leading' generator available, though it was the first.
+  Gý is the generator that I think is the best one available today.
+  Viruses in Gý generates compact, fully commented, source code. It
+  supports non-resident as well as resident COM/EXE infectors with
+  either multiple or semi-polymorphic encryption. 
+  
+  Now, that's good! No, that's not good, that's extremly good! But for
+  which purpose? All good scanners already got a detecting and even
+  removal for all virus generated in such tools before they can spread
+  out in the wild. And even if it wouldn't take 2- weeks to complete
+  their AV-programs detecting viruses infected with the new generator.
+  Would the creators of the tools really want to have 1000+ viruses
+  created by his cheesy program, just so he can be famous? I think not.
+  
+  I personally think that the MAIN reason is to help a person getting
+  started. Yeah, and these 'mass-producers' are maybe even the best
+  learning tools for viruses ever! Of'cos they're good for lotsa other
+  stuff as well. I can imagine the AV-screw-ups situation after such a
+  release. HAHA!, hard work!, right? ...and how many people who later
+  on makes new-strains, variants, mutations, hacks of viruses created
+  in a tool like VCL. Yes, they can easily start a havoc! (smile!)
+  
+  But I still think it's pretty 'lame' to release viruses generated in
+  such a toolkit anyhow (unless no modification is made!), though it
+  can be good for all the micro-ware-collectors :-). Well, so the
+  conclusion is that it's excellent learning-stuff, it's great for
+  publicity reasons, and it surely starts lotsa people into virus-
+  programming!
+  
+  let's now go one step further in this article.....
+  
+  COMPANION OR SPAWNING VIRUSES
+  
+  A companion is by some not spoken about as a virus since it doesn't
+  infect the victims, just creates a .COM with the same name as the
+  .EXE files. Still I do think of this as a sort of virus because it
+  can replicate. However, I don't think that spawning viruses will go
+  so far since when you copy an infected file, you can't copy the
+  hidden and read-only attributed .COM file with it, so.. I guess this
+  one's more like a little joke but can of'cos spread a lot and create
+  havoc if the circumstances are the right ones. You can find one of
+  this kind that's written by Metal if you check out the virus section.
+  I don't have so much more to say about this so lets go on.
+  
+  POLYMORPHIC VIRUSES AND ENGINES
+  
+  MtE - Dark Avenger's Mutation Engine was maybe the birth for the
+  polymorphic viruses. Nowadays the one who wants to use an engine for
+  the encryption in a virus got pretty many to choose between. The most
+  famous engines are as usual the ones released by the big groups. DAME
+  (Dark Angels Muliple Encryptor), TPE (TridenT Polymorhic Engine), and
+  NED (NuKE Encryption Device) is example of such engines. I dunno which
+  one is the best (what's best? The smallest or the one which generates
+  most variants?), and I really don't care too much either, since all of
+  the programmers behind those engines claim that their engine is the
+  wildest/most advanced/most compact/hardest to detect/etc/etc out
+  there. (No hard feelings please!)
+  
+  What I know is that all of them are VERY advanced, and makes major
+  trouble in the AV-community! But there's one funny question; who uses
+  these engines? There is really not too many viruses out in the wild,
+  which takes advantage of getting such a complex encryption as all
+  these engines allows. Why?
+  
+  Well, I can only speak for myself, but what I find really boring is
+  when all AV-programs finds a NEW virus before it's being released.
+  Yes, advanced or not, the AV-programs will catch it! Therefor I think
+  most of the folks make a less advanced, BUT not scannable encryption
+  for their viruses. Who cares about 6.000.000 variants if Scan detects
+  100% of them?
+  
+  Well, enough said about the engines.. You can however also (oh, is
+  this true, grin?!) make a virus polymorphic without using an engine.
+  It surely takes lotsa assembly knowledge in programming and
+  encryptions in general, but that is the best thing. If someone gets
+  struck with a memory-resident polymorphic steatlh virus, the situation
+  is really bad. First detecting it is a bitch, and it's not even worth
+  to try removing it!
+  
+  Oh.. what to add about polymorpic stuff, is that I today heard rumours
+  (umm!.. well, facts!) about a Swedish coder, who had programmed an en/
+  de-crypt routine, which had NO constant bytes in ANY victims. The idea
+  was to randomize the whole encryption-routines (xor, not, inc, dec,
+  sub, routate left/right/, add, etc.. etc..), as well as having the
+  usual polymorphic techniques.
+  
+  What I heard was that he claimed it could'nt be detected by using ANY
+  strings (not even wild-cards-strings!). Of'cos I doubt it! B'cos
+  it's somehow breaking the mathematic laws..
+  
+  But I wish him good luck with this project! (No names given!).. but,
+  anyhow, what I've heard about this person, is that he knows his
+  assembler really well.. So, we'll see if that program is out,
+  somewhere in time, or if it's just nothing but bogus, and empty
+  claims.
+  
+  Hm! I've now discussed the most common kind of viruses out there, that
+  includes mutations/hacks/scratch/non-resident/resident/overwriting/
+  non-owers/spawning/different victims/stealth and polymorphic stuff,
+  so what's left?
+  
+  Well what's usually more included in the different viruses out there?
+  Hm? Destructive routines, rings bells!?
+  
+  DESTRUCTIVE CODE
+  
+  We all have heard that all viruses are destructive, but is that really
+  true? I think not. "It's unknown what this virus does beside
+  replicate" (laughter!), might tell you a bit what most of the viruses
+  does. Yeah, most of the viruses just are just built to replicate,
+  nothing else. So I'll therefor also discuss my opinion about
+  destructive viruses. Let's first begin with what's for/against
+  destructive code.
+  
+  Against destructive code;
+  
+  Viruses with destructive code will most likely be discovered faster
+  than the non-destructive ones (of'cos only talking about non-over-
+  writing infectors). If files gets deleted/corrupted/truncated, or
+  sectors going to never-never-land, the user will probably get quite
+  suspicious. He'll then probably look for viruses (everybody blames
+  them!), and if he finds it, the virus will most probably be cleaned
+  from the system before it harms too much.
+
+  Then if all viruses were destructive, the AV-persons would probably
+  earn a hell of a lot more, b'cos destructive stuff scares the shit
+  out of the avarage user (lamer!). 
+  
+  Against non-destructive code;
+  
+  I guess most people thinks that a virus, which can't do any harm,
+  finds it less fun, and more boring than the destructive viruses. Then
+  if all viruses were just 'replicators' none would be scared of
+  getting struck with a virus (who cares about 500 extra bytes here
+  and there?). Now that's bad. People are supposed to be a little bit
+  scared about the term 'virus', or they should atleast care about it!
+  That's what most want! We want them to care, we want them to notice
+  what we've done, etc... and they'll most likely notice when they're
+  struck with a destructive virus (malicious-smilings!!).
+  
+  So, what to say now? I know however some people who hates destructive
+  viruses, and therefor doesn't program destructive routines. A good
+  (the best!) example of this is Trident. They're something like the
+  'good guys' in the virus-scene. I find their idea really good, we
+  don't need a reputation like 'computer-terrorists'.
+  
+  But why do I still then write destructive viruses? Or even worse,
+  encourage other programmers to include a little annoying piece 
+  of pay-load in their viruses? I really dunno, maybe b'cos I don't
+  find them good enough. The victims should notice them before the
+  computer says: BOOM!
+  
+  Victims who are to lazy to check his computer from virus-infection
+  deserves to get a lession! Then they'll probably pay more attention
+  to viruses, and maybe even learn how to discover them, etc. That's
+  not bad.. Okey, maybe a bit hard way of learning, but trust me, they
+  will however learn, which I find very important. They can't hide
+  behind Scan which finds shits! (Oh, someone tells me that I shouldn't
+  be a teacher, grin!).
+  
+  Then.. how should a destructive virus look like? I more like the
+  'ANOI'ing (God, you surely got one fucking awesome name!) viruses,
+  more than the higly destructive ones. Higly destructive viruses are
+  the ones that crash the whole fucking computer in notime. For example
+  the VCL.Olympic is such a virus. It too often destroys the computer,
+  before it can spread out.
+  
+  I think the best 'condition' in non-resident viruses is one day/month,
+  that's fair. But trashing all HD's when for example CTRL-ALT-DEL is
+  pressed is just too naughty. One random sector/hour is pretty fair I
+  think. Not too much, not to little. Of'cos I like when more than one
+  pay-load is included in a virus. That makes it more fun. One real
+  naughty, and a pay-load that won't blow very often, and one (or more)
+  that isn't destroying everything, is a real pain in the ass for the
+  victims!
+  
+  So.. that's all for this time, I guess. I had thought to write some
+  stuff about words as 'creativity', and 'originality', but that would
+  just result in people thinking that I'm even more stupid.. Well, also
+  as I said, this article wasn't really techically advanced, (and
+  somehow lacking, and full of flaws!!) and therefor not directed toward
+  the pro-virus programmer. 
+  
+  I hope you find it, if not good, interesting. We all can't think in
+  the same way, and since I encourage the freedoom of speech, I can't
+  stop you from make some rude replies about it either. Thats it!
+  
+                          = THE UNFORGIVEN =

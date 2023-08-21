@@ -1,0 +1,448 @@
+               IMMORTAL RIOT'S TIME LINE ISSUE #3 - #4
+               =======================================
+  
+  Yeah, since I had quite some good reponses on the last time-line I
+  asked myself, why not make another one? Oh.. In case you're
+  interested, this is however just the new stuff happened with us.
+  
+  I know that I already got a "what's new" article in this issue, but
+  that article is not as informative as this one is. This one is more
+  like "What's new major/minor/boring/phun stuff", or even "The complete
+  time-line since issue #3", or whatever!
+  
+  As usual (one time before!) I got exact dates on nearly all stuff, and
+  guess what, they're even correct! Some poeple thought that I just
+  made up and faked the dates on most of the stuff, ohh.. I'm not that
+  untrustworthy, if I say something, then it's also true!
+  
+  The format on the time is still YYYY-MM-DD, since that is the format
+  used in Sweden..
+  
+  Disclamer; This article was written under a period when I was a bit
+  drunk.. That probably resulted in too much gossip and un-interesting
+  material.. Don't say I didn't warn you!
+  
+  Okey, here we go..
+  
+  1994-01-06:
+  
+  This day the 3rd issue was released. It was first uploaded to Firedoom
+  Systems, from where it went world-wide. Okey, I know we said that it
+  was released the 7 of January '94, but that was just to fool the
+  traders to think it was a 0-days ware one day more :). From Firedoom
+  Systems it went to our dist-sites in Australia and USA, and then it
+  was sent all over internet. Hehe, -1 days stuff is fun to have, um :)?
+  
+  1994-01-07:
+  
+  After it (issue #3!) had spread like a wildfire over all the Swedish
+  boards, Mikael Larsson of Virus Help Centre, Sweden got, PISSED!
+  Through a leak by some dumb AV-person we got some inside information,
+  that said that Mikael Larsson (and the rest of the swedish AV-jerk-
+  team!) should send a note to the police about The Jugde's 'illegal
+  activity'. 
+  
+  The Judge really didn't liked this for many reasons. Easy said, he
+  wanted to stay out of trouble, and simply kick out our group. He
+  didn't know that he didn't do any illegal stuff at all. Of'cos I
+  told him that they simply couldn't win that battle b'cos it's not
+  illegal in any way whatsoever doing stuff that isn't forbidden by
+  law, which here is a fact!
+  
+  Sure, they knew they couldn't win, but they more like forced him to
+  close down our area. Why you might ask? First, the situation here is
+  kinda messed up about the whole goddamned virus-scene. The 'good-guys'
+  (AV-persons!) is a bunch of loosers, knowing shit about what's going
+  on. But as a matter of fact the most of the people believes them,
+  instead of us.
+  
+  They've great connections with for example the newspaper as well as
+  the rest of the public media. So fighting them will quickly result
+  in some pretty bad reputation in the newspapers, etc.. It has happend
+  several times before, and it'll most likely happen again. For example,
+  we all remember the 'real-name' publishing of the 10-top VX boards
+  here, The Demoralized Youth story, and also recently the bust of SHA
+  (Swedish Hacking Associations).
+  
+  But anyhow, a funnny thing with this story is that they first of all
+  leaked out the shit before they could nail our group itself! (I don't
+  get the point with taking down the board, when there's like 1000+
+  other boards out there!) And after some more investigations, we found
+  out that the AV-persons STILL buys illegal software from pirating
+  boards! This time it's Second front (TDT SHQ) which got paid. Oh,
+  they're the one dealing with illegal activity, and WE are the bad
+  guys? Scary thought!
+  
+  Another quite interesting thing is that they're so lame, and still
+  havn't located us at all! I give them a D-. I think (and hope!) that
+  they not will find out who we are, or something like that either..
+  Okey, if that will be the case, I can however deal with the publicity.
+  What I don't like is when they start checking your phone, etc. That
+  could quite easy result in a pretty huge phone bill. 
+  
+  To add here is that they claimed that The Judge himself was a virus-
+  spreader. This is nothing but PURE horse-shit! Mikael Larsson screamed
+  out that b'cos of that he saw that The Judge had uploaded our magazine
+  to Second Front (the board they're buying wares from!), how pathetic!
+  
+  Well I can tell these AV-arseholes that we'll not however buy yet
+  another of these 'Esmond Dury' stories! Face it! You're just wasting
+  your time, LOOSERS!
+  
+  1994-01-08:
+  
+  We got through The Flash in contact with yet another 08-dude, who was
+  up to set up an underground bbs, and therefor replace the great loss
+  of Firedoom Systems. After fixing various hardware stuff for him it
+  was all clear.. The Wizard's Lair was born, and this board became the
+  new Immortal Riot Swedish HQ.. 
+  
+  This day also Scan v108· was released. We noticed that Mcafee had
+  added a scan string for Extasy and Ravage. Okey, it's the same
+  strings, and it's in virlist.txt documented as just detecting
+  .COM files. Ohh, I feel so sorry for the one getting struck with
+  Ravage! (grin!)
+  
+  After some more debugging of the Desperado virus, by Mr. White, we
+  saw that it also infected EXE files (Sorry for the wrong information
+  about it in issue #3!).. We just didn't check enough..
+  
+  1994-01-10:
+  
+  Raver's 7.5 month duty of military service started this day. It was
+  surely a great loss for the group, though I don't think of him as;
+  Raver. I've now known him a la-la-la-la-long time (even before I
+  could perform a 'dir'), and this is just one, of many many interests
+  we've shared in the past.
+  
+  1994-01-11:
+  
+  Haha! rumours will never die! I heard that The Judge had been beaten
+  up by some people who hated viruses.. Of'cos this was just a bad hoax!
+  The funny thing was that everyone believed it! Hm!, how the fuck are
+  we now supposed to have more boards in Sweden, ;-)?
+  
+  1994-01-20:
+  
+  Oupps.. some 'bugs' found in my viruses, first there was a miss-
+  spelling in Paradise Lost (I did forget the last 'e' in Paradise),
+  which resulted in the swedish word 'Paradis', instead of 'Paradise'.
+  
+  And on line 222 in Human-Greed (also a virus by me) the ' ' should be
+  replaced with " ". But the one who can't fix that, probably doesn't
+  have too much of assembly knowledge anyhow!
+  
+  1994-01-21 (time: 15:18:25):
+  
+  I got such a nice letter from Garbage Heap of Phalcon/Skism, where
+  he in a few lines described our little piece of shit magazine.. You
+  can read my reply in some other article. Gee, thanks mate, couldn't
+  you've find another thing to dis-credit!?
+  
+  1994-01-23:
+  
+  LoC (Logical Coders) kicked out Lord Zero and wrote a 1994 bytes
+  long text-file, in which they described that they were a DEMO-GROUP,
+  and not as we had stated "the new swedish virus-writing group". Sorry
+  guys.. Btw, LumberJack, did you say that we were black-listed from
+  both Internet and CDN?? Ohh, how scary!
+  
+  1994-01-24:
+  
+  We got connection with Decker in Norway, a guy that is in IRA (eh?),
+  yeah, funny word, huh? 'Immortal Riot Associates', or whatever..
+  Anyhow, this connection was a great advantage for us, b'cos of the
+  police in Norway seems to more and more understand the scene (the
+  busts, etc should be enough proof on that one!) up there. Just hope
+  they don't have too much of a cooperation with the Swedish nerds!
+  
+  1994-01-24:
+  
+  There's a program on the Swedish Television channel 1, called 'Bullen'
+  (OK! OK! My father told me about it, I normally don't watch 13-14
+  years programs for problem child/youths, promise!), describing the
+  'scene'.
+  
+  Yah, these 'hackers' (see: 14-years old PD-GEEKS!!) described the
+  wonderful world of computer-communication.. Of'cos there was just
+  as usual NONE what-so-ever positive aspects on the scene at all!
+  The subjects disused was just as usual children-pornografy,
+  explosives, along with some other 'cyber-crimes' as well as economical
+  cheating and different 'break-ins'. 
+  
+  I find it 'not-very-strange' that we, computer users, have a
+  reputation as 'nerds'. I mean, who the fuck where these guys?? Get in
+  touch, and I'll describe what it's all about!.. Umm? but what was the
+  meaning with this text about 'Bullen'? Ahh, yeah, now I remember....
+  they didn't name anything about all this dangerous programs, called
+  viruses.. Ohh, holy shit man! Then does this mean that viruses aren't
+  a negative disease for the computers (Like destroying *everyting*,
+  infects *all* computers, EVEN the ones which are powered-off, right?),
+  or well? 
+  
+  1994-01-25:
+  
+  I finally got one of those 14-digits-card-number, that allowed me to
+  call our dist-sites.. This was the beginning of many many, long, and
+  expensive calls, that we all like... 
+  
+  1994-01-29:
+  
+  After some days of surfing around in the US-scene Beetle joined up
+  with his board (City Of Illusion) as a dist-site in the 818-AC.
+  
+  1994-02-03:
+  
+  I gave Patricia's BBS, Excalibur a call, and leeched VSUM. Ohh.. I
+  just asked myself why bother wasting the time it takes leeching that
+  peace of JUNK! "The reference of all known PC-viruses", UP MY ASS! I
+  also left some feedback's describing some errors in her's VSUM.
+  Of'cos she wasn't interested in fixing the fuck-up statements in
+  VSUM, nor to reply my mail.
+  
+  1994-02-04:
+  
+  We (Immortal Riot) were the top-news in the biggest Norweigian
+  newspaper, and even hot-stuff on Radio.Olso.. HAHA! Our kid-brother-
+  country seems to be a hell of a fun publicity place! (Thanks Decker!)
+  
+  1994-02-05:
+  
+  Jabberwocky and his board Paradise Lost joined up as a dist-site in
+  the 216-area code. Okey, this board ISN'T any HPV board at all! The
+  reason that I accepted him as a site is that he's pretty into the
+  'disk-magazine' scene. Nothing else.
+  
+  I also called up Patricia in the voice, but she refused to talk with
+  me! (It was like, umm.. like thisena!)
+  
+  Chris> Patti, this is The Unforgiven calling, are you there?
+  Patti> Ohh.. Umm.. NO!.. I can't take any critism, no, tell him that
+         I'll be back within 2 hours! I'm this cripple-pussy who just
+         don't dare to include viruses from groups of the reason of they
+         can tell the readers that I'm wrong about 80% of the statements!
+  Cris>  Sorry, she wasn't really in for the moment.. She will
+  Moi >  Yah, Yah!.. I know the story! (blahing!)..
+  
+  Anyhow.. This Cris was quite "Ok" afterall.. Though, he could really
+  learn to make better dissassemblies! (and not always tell that they're
+  too busy to include our viruses, specially not when we give fully 
+  commented source-code!) Shame on you!
+  
+  1994-02-06:
+  
+  Dark Angel (not the guy in Phalcon/Skism!) joined up as a dist-site
+  in the 203-area code, with his board Underworld Elements. This board
+  isn't the best one around (concering the HPV stuff), though the staff
+  behind UWE helped us out with some ansis..
+  
+  1994-02-10:
+  
+  We got F-Prot 2.11, and Extasy/Ravage was included in FOUR entries
+  in the real-program itself! Thanks to Mikko Hypponen (NOT!).. There's
+  however (as always!) replies (in some article!) on AV-persons
+  statement concerning our viruses/magazine/group. Go ahead and read
+  what that finish jerk wrote about us.. 
+  
+  1994-02-15:
+  
+  B-Real joined as a member in Immortal Riot, and Sub-Life was released
+  from the group b'cos of total inactivity! Gee.. He's 500m from me, and
+  I havn't heard from him since he joined in! (Except on some parties!).
+  
+  1994-02-19:
+  
+  Back on tracks after some days in Germany.. Hehe, Scavanger, did you
+  got Therese's number or what? Then, what're we waiting for??! Holy
+  smoke man!.. If the money allows we must do that shit again!.. Well
+  to the readers, I suggest a Germany trip.. Oh.. this is about viruses,
+  right?? Ohh.. All that girlie hunts can however result in you getting
+  some real naughty virus (Aids, does that ring a bell?!).
+  
+  1994-02-20:
+  
+  The Wizard's Lair opened for the public, and we started advertise
+  for it on all non-swedish boards. Our (Metal Militia's!) first
+  stealth virus was also ready this day (Invisible Evil!).
+  
+  1994-02-21:
+  
+  Michal Paris posted strings to some of our viruses from issue #3 all
+  over the fido-net. Ohh, I'm amazed! This guy wrote down nearly exactly
+  the text behind the ;comments in our sources (which we posted on
+  varios US-underground-NETS!), and there stood "Analyse by" haha!,
+  funny guy! :).
+ 
+  1994-02-22:
+  
+  62890 bytes of articles (without the .ASM'S!) were in our 3rd issue,
+  and to my great surprise I noticed that the the 2nd was bigger. 109391
+  bytes with the interviews, and 72020 bytes without them.. I guess I
+  checked that b'cos I know that the 4:th one should be far larger..
+  (How meaningless text can I possible write in our magazine, ummm??).
+  Though, I've heard that the size isn't what matters anyhow (grin!).
+  
+  1994-02-24:
+  
+  Today, it happened.. I got ahold of a whole cruel motha-fucking list
+  of 100 at&t cards, yeah! I called up Patricia (I refuse to talk to
+  you!) Hoffman, but as usual she said that she wasn't in.. 
+  
+  But I had some quite interesting talk with Chris Robinsson (again). 
+  Umm.. Well, we didn't make that 'NO GOD' trojan anyhow!
+  
+  1994-02-27:
+  
+  Today, I got ahold of Evolution #2 and #3 from YAM, gee, it was a
+  waste of time reading them.. But well, YAM/Canada, right? Ohh, yeah,
+  Sweden also won the ice-hockey final in The Olympic.Games over Canada,
+  with ease! this day.. Umm.. Yeah! 'Canada Canada, eat this' (grin!).
+  
+  1994-03-02:
+  
+  DN - 'Dagens Nyheter'(The Daily News - Swedens biggest newspaper)
+  wrote some stuff about us.. Of'cos Winterkvist was involved with it,
+  claiming that we were youth without any identity, and that our lives
+  were like a computer-game.. We wanted to be famous for something,
+  b'cos we didn't managed the REAL-life.. HAHA! That prick is so funny!
+  
+  They also wrote that our groups goal (This time not MW!) was to
+  produce new, dangerous viruses to spread, and destroy. Nothing else.
+  Is that true? Do this guy know what he talks about? Hardly.. Though,
+  he's been scene active the last 5 years or so.. Ha!, he just can't
+  have much of brains.. 
+  
+  But what I found most funny, was that DN even printed the interview
+  with ANOI (from Issue #2) in color! (One whole fucking page man!) and
+  said that our magazine, was a 'forum' for the secret underground-
+  groups. (Great publicity or what??).
+  
+  Hmm.. yeah, this was really funny.. Publicity that we didn't ask for,
+  and where our real-names weren't published. The whole 'underground-
+  scene' was under a period of 4 days described in DN.. And pretty OK
+  afterall too. 
+  
+  1994-03-06:
+  
+  I got ahold on ARCV Virus Summary DataBase, it was really quite "OK".
+  I thought that ARCV only had made some PS-MPC hacks.. Which turned
+  out to be dead wrong. Of'cos the descriptions were real-screw-ups in
+  Patricia's VSUM (the best ones weren't even included!). I guess the
+  groups in the future will think the same thing about us.. 
+  
+  I also got a message from Tuttle on Logikal Nonsense, who said that
+  he was selling viruses on CD-ROMs (including virus-collections and
+  our magazines), so dude, where's OUR share?? // Mr. Greed! (grin!)..
+  
+  1994-03-12:
+  
+  We recieved some information from Aristotle about a guy called Gory
+  Sadle who wanted to interview as many virus-programmers, etc as
+  possible, so well, we called him up, and told him what he asked for.
+  
+  It was like, the common, pretty boring questions! Like, what's your
+  motivation, why spread around destructive programs? What's fun with
+  it, etc.. 
+  
+  He had as well done interviews with for example Hellraiser, Rock
+  Steady, Aristotle, Sara Gordan, Urnst Kouch, Mark Ludwig, and many
+  many more. So wait for the Juni/Juli issue of Pc Computer(?) Magazine!
+  
+  1994-03-13:
+  
+  Shockware and his board, Logikal Nonsense joined up as a dist-site
+  in the 717-area-code..
+  
+  1994-03-15 - 1994-03-19:
+  
+  I got the interviews from the most members of TridenT! Showa-bunga
+  man! They turned out to be really 'OK' (or even very nice!) afterall.
+  The 'fighting' between our groups should now have stopped completly
+  (I hope anyhow!). And I'm looking forward with further good contacts
+  with this (excellent, yeah, that's true!) virus-writing group.
+  
+  So Tardy, we can all make a mistake here and there... The problem
+  is only that the humans most learn to forgive, and not to make them
+  again.. (over and over!) Nothing else.
+  
+  1994-03-20:
+  
+  Falcon joined as a dist-site in the 714-area-code, with his board
+  called 'West Coast Institute of Virus Research'. As the name might
+  say, it's (for once!) a PURE virus/anti-virus research board!
+  
+  1994-03-21:
+  
+  Today the end of anarchy is near (not!). Our well-known swedish
+  reporter Mikael Winterkvist has done it once again. A Swedish
+  newspaper named DMZ or Datormagazine (The Computer Magazine in English
+  that is) has started a BBS-council (RSBBS) together with the Swedish
+  states council of violence descriptioning! Mikael jumped into the game
+  as the face of our AV-jerk-team!
+  
+  They've said to only be out there to "clean up the mess" so to speak,
+  but hey, this one's greed makes me wanna puke! He is obsessed with
+  having power! There was one rule against viruses, including asm's and
+  one against other informational sources carrying these (like our
+  magazine). There was also lotsa other 'ethical' rules, like child-
+  pornografy, etc.. Umm!.. isn't this forbidding the freedom of speech/
+  write or even religion? Say, who's doing illegal stuff?!
+  
+  They will have year-meetings and a large union with sub-clubs in each
+  part of the country (our "mini-states" so to speak :)) plus a lot
+  more. This includes for example company support. Umm!.. well, after
+  a eventually 'bust' of us, we'll probably have a hard time looking
+  for job in that company! And oh!.. I guess there will be lotsa
+  companies joining up with him!
+  
+  They will make maps on where the virus-writers (and other what he
+  thinks is bad-guys) are located so they don't have to scan though the
+  whole fucking country without getting traces. Yessh!, it's like CARO,
+  though this organisation is much more complex build! Yaha! Like a
+  whole fucking goverment with lotsa rules and regulations! 
+  
+  This gives Mikael the chance to make his dreams come true, that is to
+  become a FÅhrer and have full power without any need of licking others
+  ass to get things done (They will be a lobbying group with lotsa
+  power, and influent- even to the real government!)
+  
+  He also said that their methods of doing stuff will go over the laws
+  in the hunt of destructive scum-bags! I don't care how lame the PD-
+  community may be, but if many joins up, and they're acting in illegal
+  ways, they will be a bit troublesome!
+  
+  Okey!, they're all mostly geeks, and they can't really think too much
+  for themself!, but with a leader like Mikael with this fucking awesome
+  persuasive powers they can (and will!) be a real threath towards us!
+  He can probably have them doing whatever he wants them too!
+  
+  For interested people, in Mikael's own corporation you can pay a fee
+  and be a full-member w/votingrights plus getting their magazine (ev.
+  as a hard-copy not decided yet) and some other things. Robbing 14-
+  year-olds on their hard earned week-money and playing k-spam, hey,
+  who's the criminal? What moral does this geek have?
+  
+  Geesh Mikael. Chill out man! This digital Third Reich with you as
+  FÅhrer (are we the jews!?) will not win! Don't try to be over the
+  law! You're not! As a matter of fact, not even close, um!.. I mean
+  born looser!
+  
+  So.. what I'm trying to say is that this is a sad development.. When
+  Mikael can't stop us in any legal way, he's building up a sorta own
+  'StÅrm-Abteilung' department to nail the shit outta us! Yessh! Enough
+  said!
+  
+  1994-03-30:         
+  
+  I recieved the interview from Urnst Kouch, which will be included in
+  this issue.. also, Scavanger was over this day and helped me out with
+  the english. (Thanks DUDE!)
+
+  1994-03-31: 
+
+  This day, me and Raver started to add the configuration shit to the
+  the magazine.. It surely looks nice, and I guess that the magazine
+  as it looks now, should be out within a period of approximately two
+  days! 
+
+		           = THE UNFORGIVEN =

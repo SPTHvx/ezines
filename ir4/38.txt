@@ -1,0 +1,245 @@
+--------------------------------------------------------------------------------
+           Interview with Beetle / Sysop of CoI Inc / USA
+--------------------------------------------------------------------------------
+
+ Give me a short description of who you are!
+
+- I'm a Beetle.  What more is there to say?
+
+ Why did you picked that alias, Beetle?
+
+- Well In the old days when I had no handle, I logged into a board and
+  was prompted for a handle.  I used Beetle Bailey just 'cause it was
+  the only I could think of at the time.  After a while people started
+  referring to me simply as Beetle.  It grew on me, and I eventually
+  changed it to just plain Beetle.
+
+ Any thoughts behind your board name (CoI Inc.)?
+
+- Well it originally started as The City of Illusions.  The story about
+  how that name came about goes like this:  I got the go ahead to
+  register Oblivion/2 (Yes I payed) and I wanted to get my board up
+  and running as soon as possible.  So I just threw any old name in the
+  registration form,  and that name happened to be The City of
+  Illusions.  Me and my Remote,  the Monk, both thought the name
+  sucked.  He came up with the idea of CoI Inc. and it sounded cool
+  and just kinda stuck.
+
+ When did you discovered the world of computers?
+
+- About 10 Years ago at the age of 6 when my dad bout an Apple ][e for
+  my family.  Since then I've been computing.
+
+ How long have you been scene-active? (both "normal" and "underground")
+
+- Well I've been really active in the underground BBS scene for about
+  a year and a half now, with about two years total BBS experience.
+
+ How did you came into the underground scene?
+
+- Well I was Pirating Apple Software way back in '84, but that was my 
+  neighbor's job, I just played the games.  He had a 300 Baud modem
+  and I'm not sure, but I think he ran a board.  I didn't start taking
+  an active role until about a year and a half ago when I started doing
+  the warez thing.  That lasted about 6 months, and I fell in love with
+  Hacking/Phreaking.
+
+ What part of the underground do you think needs improvements?
+
+- It all does.  The Warez scene has got to be toned down.  Warez ARE
+  neccesary,  but their presence is way too over emphasized.  The H/P
+  scene has to be revived.  In the Mid eighties it was at it's peak
+  and has never been the same since.  Monk and I were talking the other
+  night about this, and we were thinking that this paranoia just has
+  to go, and the information has to start to flow freely once again.
+
+ Positive/negative aspecs of the scene?
+
+- I can't think much to say positive right now, and the one BIG thing
+  plaguing the scene is the attitude behind it all.  If the Attitude
+  were to go, the scene as a whole would be vastly improved.
+
+ Which groups have you been involved with?
+
+- Argh... RIOT/THC/NuKE(Net)  I think there are a few others, but oh
+  well.
+
+ Which groups are you in right now?
+
+- COG/ELF/IR/COR
+
+ How would you describe the US-scene today, comparing to when you
+ started?
+
+- The scene has become much more infested since I entered.  In the
+  short time I've been here I've seen a rapid decline in all aspects.
+
+ Why do you think people spend so much time in front of their monitors?
+
+- Because we have no lives :)
+
+ About how ow much daily time do you spend with your computer/bbs?
+
+- Too Much - About 4-6 Hours maintaining the board etc...
+
+ What do you like that term 'computer-nerds'?
+
+- Well I've seen both cases of BBSers being total nerds, and really
+  cool people. I think it's just like real life.  Some are geeks,
+  some aren't.
+ 
+ In which way have the scene influented in your "REAL" life?
+
+- It's changed my attitudes about the government, but that's about it.
+  Three years ago I wouldn't have given a fuck about the FCC, CIA, NSA,
+  etc. but now I do care.  I watch what they do as best I can, but
+  that's about it.
+
+ Have you ever tried to describe the scene to some "non-computer"
+ friend? (or even a girl!), and do you think it's possible for
+ them to understand the 'fun' with it?
+
+- Yes I have.  I will explain as best I can to anyone who asks.  I've
+  talked to kids, adults, guys and girls, and most generally leave
+  thinking I'm really fucked in the head.  I've run into very few
+  people who ever want to talk to me about the scene a second time :).
+  Most people cannot understand why it's fun because they don't
+  understand computers themselves.  You have to be at a point where
+  you are deeply involved to begin to see what fun it is to Hack etc...
+
+ Tell me a bit how it's to tell your parents that you aren't "spending
+ too much time behind the computer, doing (to them anyways) nothing"?
+
+- Hahahah  Anyone reading this article knows exactly what it's like
+  (they're bugging me right now in fact)
+
+ Does your parents understands what you're doing?
+
+- Yes and no.  They know what I do, but I have them convinced that it's
+  legal.
+
+ Why do you think it's important for groups to release magazine's,
+ news-letter, info-journals, etc?
+
+- It keeps people informed.  That's about all they're good for.  A few
+  stand out above the rest, but most look just like the next one.
+
+ Which magazine are you considering as the best one avalibe today?
+
+-  The only one I read on a regular basis is Phrack.
+
+ Which magazine would you like to leave the scene?
+
+- As I said above, I don't follow the magazine scene well enough to be
+  familiar enough to know which ones suck, and which ones don't.
+
+ Why do you run a VX bbs? What fun to you see with it?
+
+- I don't really consider my board a VX BBS.  I see it more as an H/P
+  board. I do have a large Virus section, but the main Focus of CoI
+  Inc. Is Hacking Phreaking and Information.
+
+ Do you fear getting 'busted' for illegal activity?
+
+- Yes and No.  My fear is not constant, but when I fuck up or someone
+  else in my area does, I get scared as hell.  One of the Net's I'm in
+  recently got busted, so I have a few apprehensions, but it will most
+  likely just blow over.
+
+ Which virus-group(s) do you think is the best?
+
+- I would have to say NuKE.  The reason being is simply because they
+  have done so much.  The have made viruses almost mainstream to the
+  point where people can no longer ignore them.
+
+ What's your oppinion in using generators such as VCL, PS-MPC for making
+ "own" viruses?
+
+- I think it's lame unless you are just playing around.  If you can't
+  program one you shouldn't try to make it look like you can.  I can't
+  and I don't try to cover that up by using other people's code.
+
+  Umm!.. And what about using Polymorphic engines?
+
+- Once again, I Don't LIKE it, but in this case it's not so bad.
+  Part of the code would be yous, and you are just getting help
+  from another source as opposed to having it all done for you.
+
+ What do you think about board-crashing?
+
+- I think it sucks.  Even if a board is as lame as can be, to destroy
+  an individual's hard work (Running a board IS hard work) just sucks.
+  I hadn't really thought much about until I started a board and now I
+  can get the sysop's view of it all.  
+
+ How would you describe the (lame, greedy and corrupt!) AV-community?
+
+- I don't spend much time thinking about them, but I kind of have to
+  admire them for cashing in on the Virus community.  They also help
+  the Virus community along as well.  With their media hype of World
+  War 7 started by a Virus Author, it gives a sort of Infamy to the
+  Virus Community which is kinda fun.
+
+ Which AV-program do you think it's the best? (why?)
+
+- I dunno.  I don't use any :).  But when I do have a need for one,
+  I usually choose F-Prot as it does all that I need, and it does it
+  well.
+
+ About the new laws coming up agains the programming of viruses, do
+ you think that will help agains new infections?
+
+- Hahha... No.  Laws will not stop any Underground movement.  Maybe one
+  or two members will be lost, but many more will come.  Have laws ever
+  stopped any other crime?  Not totally.
+
+ Do you really think that the AV-persons would try to STOP the virus-
+ writing from writing viruses, even if that would result in them being
+ un-imployed?
+
+- No.  I think that if the real Virus community ever ceased to exist the
+  AV community would become a new Virus writing community in order to
+  protect their jobs.
+
+ Which "meaning" do you think that the virus-groups has for the future
+ in the 'virus-scene'?
+
+- Well the Virus groups in my opinion provide inspiration to up and
+  coming virus writers, and they also provide somewhere to learn.
+  I'm sure that many of the programmers out there learned by studying
+  others' code and hacking it and eventually developing their own.
+  In addition to that, Virus Groups provide a channel through which
+  viruses can be distributed quickly and efficiently.
+
+ Which virus-group/programmer do you look up to and why?
+
+- Urnst Kouch- The guy is amazing.  He knows his stuff incredibly well
+  and is always willing to answer your questions.  He writes a very
+  nice newsletter (Crypt Newsletter) that comes out looking very nice
+  each month. What more can I say?  He's a cool guy.
+
+ Any advice for newcomer's in the scene?
+
+- Be yourself.  If you were meant to be here, you will find your way.
+  If you pose as someone else, you may get somewhere, but you will
+  eventualy fall. If you need a place to start, look around your local
+  area and there is bound to be someone willing to help.
+
+ How is the best way to contact you?
+
+- ATDT 1-818-447-2667
+
+ Something more you wanna say, but never had the opportunity to say
+ before?
+                                 
+-                                 TYBO
+
+ Want to send any greetings?
+ 
+- Special Greetings to the Monk for without him CoI would be Non-
+  Existent.
+
+  Greetings go out to:
+  Hagbard Celine/Urnst Kouch/Tiphoid Mary/Dr. No/cjesus/Leisure
+  Larry/fate Rezz/Lord of Acid/Tobic/All CoI Associates/Everyone
+  I may have forgotten

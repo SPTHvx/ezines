@@ -1,0 +1,110 @@
+                        F-BULL 2.11 - IR-GANG
+                        =====================
+
+--------------------------------------------------------------------------------
+
+  What? First F-prot, then the finish bullentin from F-prot, and two
+  entries in the 211 bullentin. Oh, how nice of them! As usual, all
+  AV-articles are rubbish.. But let's anyway see what they (The Data-
+  Fellows) wrote about us (The new Virus gang, ahh, nice term!).
+--------------------------------------------------------------------------------
+
+  Immortal Riot: Yet Another Virus Gang
+  -------------------------------------
+  Swedish soil seems to provide fertile ground for raising virus groups.
+  We remember Beta Boys, Demoralized Youth and the Funky Pack of Cyber
+  Punks. Now a new group, Immortal Riot, has entered the scene.
+
+  As of latest knowledge, Immortal Riot consists of four members, all of
+  who have some experience in writing viruses. Thus far, the group has
+  published and distributed about thirty viruses. Most of these viruses
+  are new variants of existing strains.
+
+  The viruses the group has made or modified are not examples of
+  technical brilliance. The opposite, in fact. Some of them crash the
+  computer or do something else that clearly manifests their presence to
+  even the uninitiated. Others are just plain crude.
+
+  The group publishes its own electronic magazine, the Insane Riot,
+  which contains articles by the group members themselves and their
+  associates, source codes of viruses, and various back-patting and -
+  stabbing to other members of the virus community.
+
+--------------------------------------------------------------------------------
+
+  Source:
+      F-PROT version bulletin 2.11.Copyright (c) 1994 Data Fellows Ltd.
+
+--------------------------------------------------------------------------------
+		       HERE COMES MY REPLY!
+		       ====================
+
+  First, Beta Boys, Demoralized Youth, FPCP, that's just two groups. As
+  I can remember anyway. The Beta Boys have used the name F.P.C.P and
+  are nowadays called A.N.O.I. Then are we THAT "new"? Okey!, really
+  pretty new compared to Trident, and NuKE, but he can't however not
+  have got the information about us THAT fast afterall. New? Well, just
+  another question about definition, I guess.
+
+  Then the funny thing is that he 'excluded' Line Noise. I know that
+  they weren't too active and didn't release too many technical advanced
+  viruses, but heck - they still were a virus-writing group located in
+  Sweden.
+
+  Four members, well I really dunno, we got at the moment just ONE virus
+  writer, Metal Militia. Sub-Life has never written a virus, Raver is
+  in the army and has very limited time for computers. In fact when he's
+  home there's only one thing he's good for: PARTY! Yeah! C'mon, the
+  life is really much more important than some viruses, and the scene.
+  He still manages to work (tired, and with a huge hang-over hm?), add
+  code, and functions in the magazine. I'm just kinda lazy.
+
+  30 viruses? A bit too high, but okey, "works for me!" (Hunter!).
+  Then that we just make very simple, destructive and crude viruses is
+  really not very true. We have written some destructive viruses, but
+  some of our viruses are not destructive, crude at all. They are just
+  "replicators".
+
+  Then about our magazine, (You're in it now!) Insane Riot. Geee, have
+  this guy even looked through our magazine once? I mean the name, is
+  it really hard to get the name? The text-scroller, the articles, the
+  info files, etc, shows what the magazine is called, Insane Reality.
+  Jerk! 
+
+  Then anyhow, the articles. All our articles have been written by me,
+  or Metal Militia. "Associates", hardly. What does this prove to you?
+  Does this person have any idea what we've written in our magazine?
+  I think not. Then anyhow, it contains source code of viruses. That's
+  true, bravo, dick!
+    
+  "Various back-patting and - stabbing to other members of the virus
+  community". Haha! Does this man mean our "CENSOR" statement? Rabid
+  is dead, Censor is not given out any more. About the IVP from YAM,
+  the information I wrote was correct. About TridenT, we did apologize
+  for our "AMF" virus, and havn't written bad stuff about any more
+  groups.
+
+  Back-stabbing? In the virus community? Sounds to me like we're this
+  totally demoralized rag-group, we're not. I more would claim that we
+  always tell the truth about all kinda stuff. Ohh, that can of'cos
+  be considered as back-patting, um?!
+
+  I start to more and more dislike all wrong publicity given to us. I
+  have nothing against publicity as "The Unforgiven", if the
+  information given out is correct and true. What I don't like is when
+  someone's going around asking "My-Real-Name" stupid questions about
+  our group, and have complete wrong information.
+
+  The media (including the AV-media, such as BULL, etc) always seems to
+  exaggerate and make the information look much more worse than it is.
+  This is one of many reasons I'm not giving out my real-name, and not
+  to much information about me in private.
+
+  If I get a chance to point out how wrong information the AV-geeks
+  gives out about all kinda stuff (Patti is the living proof on that!),
+  I take it! I'd more say that I enjoy back-patting the AV-community,
+  not members (virus-programmers!) in the virus-community. But who
+  knows, this guy might know that all AV-wankers also writes viruses
+  aswell? Scary thought. Well, enuff said!.. Now big bang in the face!
+
+                          = THE UNFORGIVEN =

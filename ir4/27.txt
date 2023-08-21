@@ -1,0 +1,226 @@
+			ABOUT ANTI-VIRUS REPORTS
+			========================
+
+  In this article I'll include different 'descriptions' from the Anti-
+  Virus program's I've get my hands on. 
+
+อออออออออออออออออออออออออออออออ Immortal Riot ออออออออออออออออออออออออออออออออออ
+ 
+  Name: MMIR                                 
+  Alias: Immortal Riot
+  Origin: Sweden                                                               
+                                                                               
+  Immortal Riot is a virus writing group based in Sweden. They have            
+  written several simple and buggy viruses, which they actively spread.        
+  Some of these viruses were posted to Fidonet's INT.VIRUS conference          
+  as DEBUG scripts in the end of 1993.                                         
+                                                                               
+  Variant: Immortal.282                                                        
+  Alias: Extasy                                                                
+  Type: Resident  COM-files                                                    
+                                                                               
+  This virus contains text 'EXTASY! (c) Metal Militia / Immortal Riot'.        
+                                                                               
+  Variant: Immortal.392                                                        
+  Alias: Ravage                                                                
+  Type: Resident  COM/EXE-files                                                 
+                                                                                
+  This virus contains text  'RAVAGE! (c) Metal Militia / Immortal               
+  Riot', and infects also EXE files.                                            
+                                                                               
+  There is a large number of other viruses authored by this group.             
+                                                                               
+   Analysis by Mikko Hypp”nen / Data Fellows Ltd]                              
+--------------------------------------------------------------------------------
+		       HERE COMES MY REPLY!
+		       ====================
+
+  Yes, this description was included in F-PROT v 2.11 in the REAL
+  program itself..Wow :-) This is pretty unusual.. some of our other
+  (among many, Maria K, kiss, kiss..yours moi!, NOT??) was 'just'
+  included in the 'new.211' in the same packet..
+
+  First, in the column 'VIRUSES' in F-prot, you can find this text
+  under the signature as: MMIR, Immortal Riot, Immortal.282 and
+  Immortal.392. Yes, this is true, under 4 alias-names, pretty
+  confusing, huh?
+  
+  It's always funny to see what the AV label your viruses too. I mean,
+  John Mcafee, Patricia, and those people located in Santa Clara can't
+  have much fantasy. Nearly only 'size-names', boooring! (Thanks Homer!)
+
+  These names, hm?, I find that MMIR (Metal Militia/Immortal Riot?) OK!,
+  pretty strange, but still 'OK'. The other names were really quite all-
+  right too, with the exception for this 'Immortal Riot' name. Since we
+  have up-to-date created, mutated, and hacked atleast 20 viruses, I
+  find it quite stupid to label ONE virus after our group-name. And as
+  if that shouldn't be enough, Patricia has already labeled a virus:
+  Immortal Riot.
+
+  Then anyhow they have after some pretty long time figured out that we
+  actually are based in Sweden, and that we're are a virus-writing
+  group! Oh! I used to have a lower-ranged opinion about their
+  intelligence, but believe it or not, you CAN notice some smarts
+  moves afterall..
+  								     
+  Then, what I don't like (HATE!) is this: "simple and buggy viruses".
+  Okey, Extasy/Ravage WAS buggy! We've stated that too. (Check Insane
+  Reality issue #3). But the rest of our viruses?? NO WAY! Simple?, well
+  well.. I guess this guy isn't very "UP-TO-DATE" or what-ever..Nowadays
+  we have written some from scratch and we've written memory resident
+  stealth viruses as well. Simple and buggy? Hm!, it all depends what to
+  compare with.. Our latest one's are really pretty 'advanced' compared
+  to our first six mutations. But if you then compare them with let's
+  say a virus like Natas by Priest of Phalcon/Skism, it's really
+  nothing.
+
+  Then "which they actively spread". This is not very true, okey, we
+  posted the shit on int.vir, but the real spreading is in infected
+  programs (ie, EXE/COM). I don't think we spread our products much if
+  you compare with the other virus groups. Or well, we NEVER spread a
+  virus in executables - that's illegal! (hm? really true?)
+
+  We posted Extasy/Ravage in debug script, that's true. But the rest in
+  pure .ASM files! We did this b'cos of that we thought that we're going
+  to continue with m (like add size-stealth, self-encryption, etc).. It
+  didn't turn out that way since we noticed how buggy the viruses were.
+
+  Anyway, then who is this: Mikko Hypp”nen / Data Fellows Ltd, judging
+  from his name, he's from Finland. Yes, our neighbour country. Haha,
+  some guys in Texas, USA tought that I could call 'LOCAL' to Helsinke
+  in Finland (at Assembly '93). Well, Sweden is a small country, but not
+  THAT small! The distance is really kinda long to Finland, so since he
+  isn't in my 'territory' I really dunno much about him. But what I know
+  about him and those Finish jerks aren't very funny..
+
+  They're some of the top writers on int.vir who all of the time claims
+  how un-normal, demoralized, and lower-ranged human beings (you name
+  all negative word you can figure out!!) we (virus writers) are. He
+  claims that we're un-normal. Then what's normal?? Who the F*CK is
+  'average??',  I mean, like get laid 0.8 times per week, gets 2.2 child
+  per life, and eats 3.6 times per day. I don't know this 'average'
+  person. Do you :-)?
+
+  I find that VERY un-normal? (laughter!)..and I find myself VERY
+  normal. I KNOW Raver is, and most of the virus writers I've
+  chatted, talked or even met private are really normal, so to
+  speak. The 'computer-nerds' bullshitting must die out..
+
+  This person? Does he fuck his boyfriend (oh, all AV are faggots,
+  right? (nah!)) once a week, but only cumes 80% of the times? Has he
+  got three children, but one only with 20 out of the 'average' 100 IQs?
+  Does this sound normal? I hope not. Then anyhow, he continued with his
+  'analyse' - which was acutally very good. The names, size, texts, and
+  infection victims were true. He also said that they were buggy, that
+  was also true. Hm!, maybe this guy should take over Patricia's VSUM?
+  Anyway, getting back to the analyse and information about 'Immortal
+  Riot'.
+
+  "There is a large number of other viruses authored by this group."
+
+  Haha!, I kinda like that quote! Sounds great to me, always funny to
+  hear other people talk about you, and your group, without knowing
+  who you're. Then anyhow what's really a large number? Do this person
+  have our third issue? Is 20 viruses very much? I guess not. I've heard
+  some rumours (probably true!) that there are over 4000 viruses out
+  there, and more comes in every day. 20/4000, that's 0.5% of the
+  viruses. Now, the question is "To be or not to be.." WHAT? Nah, not
+  really, what this question is about, is, what's really a large number?
+
+  Now, that's something to think about, isn't it all 'MiCR0-WaR๎ dUD๎Z!'
+  Did you get the latest mega (Hi Jennifer!) super-virus generated with
+  IVP. You know the 'NOT-PS-MPC-hacked' generator which generates this
+  funky randomized NOPs, "thus makes it compleate UNDETECTABLE for SCAN
+  and other string-searchers". Yes, "No strings can be used to this
+  super-tool. It's just as powerful as MtE". Haha, the scene can be
+  really funny sometimes! And that virus which destroys your write-
+  protected disks, and blows away your monitor. Do you got those viruses
+  too? C'mon, there is lotsa viruses out there, lotsa crap, but please
+  don't try with all the horse-shit about the the totally faked up
+  functions & quantity.
+
+  Frisk (in swedish means that he isn't ill, virus infected - kinda nice
+  name for an AV)) and F-Prot is in my opinion one of the best AV-
+  products available. I use F-prot, it's really good. Data-Fellows are
+  great, they can make REAL dissassemblies and TRUE analyses, that's
+  good! Then, why am I this hard about m. Frankly said, I really
+  dunno. If they weren't from Finland and hadn't written "simple and
+  buggy" viruses, this article would have looked in another way. 
+
+  But it didn't turned out that way, and I hope that they continue to
+  add information about our viruses and group itself too! If they do
+  it in the right way, they'll of'cos be higly thanked too. But it's
+  seldom the case that the descriptions are true from the AV.
+  
+  Hm..  Now, let's hear what our friend Dr.Alan Solomon had to say about
+  the virus(es). We found this description in the 6.5 packet. I really
+  dunno if it's included in earlier versions, I just can't afford
+  upgrading it every month (laughter!).
+
+--------------------------------------------------------------------------------
+  Description:                                                      
+
+    IMMORTAL RIOT has been found in the field at     
+    least once. It is quite infectious, and                                     
+    results in minor damage (30 minutes). COM        
+    and EXE files are infected. COM: 282-392                                    
+    EXE: 392 bytes. The virus has a memory-       
+    resident infection system. It has minimum                                   
+    stealth capability. This virus is not           
+    encrypted. There are no other effects.                                      
+
+--------------------------------------------------------------------------------
+
+  Immortal Riot? (OUR GROUP NAME AGAIN!) "Has been found in the field at
+  least once". Does int.vir count? Or has various infected programs been
+  reported to Alan himself? Quite infectious, hm!, does that mean infect
+  on execute, open, ext-open and close? Or what is quite infectious? 
+
+  "Results in minor damage" What's minor damage? I mean, it wasn't
+  designed to make any damage "it's unknown what this virus does
+  beside replicate" (ref: VSUM). And I still havn't figured out what
+  30 minutes is? That's kinda weird I think, 30 minutes? Minor damage?
+  It does not make any damage at all, except that it might hang the
+  computer once in a while.
+
+  Then the stealth? Oh..I havn't found any stealth routines in it.
+  Minimum stealth is what I see as 'size-stealth'. But the rest of the
+  stuff is alright, it's not encrypted, and it surely was just
+  programmed to replicate.
+
+  There are lotsa discussions on swe.vir as well on int.vir which AV-
+  product are the best. The results of which one's the best are always
+  that Tbscan, F-prot, Scan, and Findviru (S&S Toolkit) are the best AV
+  available today.
+  
+  That might be true, but what I find strange is that S&S all the time
+  claims to be the 'most-user (see: lamer!) friendly'. I don't get
+  shits about its description! It's all kinda phucked described I think.
+  Do the avarage user understand terms as minor damage and 30 minutes?,
+  when I don't? Don't think so! What's quite infectious? There are flaws
+  in the explanations here I think. User friendly, up my ass!
+  
+  Yeh, that's all about what the AV-programs had to say about Extasy,
+  and Ravage. I don't think we have recieved any other reports from 
+  any other AV-programs (concerning our other viruses!), except for
+  CRIS - if you call them AV. 
+
+  Anyhow, CRIS is what I see as some pretty cool thing anyhow. They
+  help the scared users lots, by sending out their strings to the
+  new viruses. Um!.. Well, yeah, they gave out strings to viruses that
+  were included in Insane Reality issue #3.. This included Carpe Diem,
+  Doom, Eternity, and Human Greed (Where are the other ones!?!).
+
+  The information they gave out were also correct (nearly anyhow!).
+  Haah!, "they", well, they more like took our information that we
+  printed, and put out an identification string to detect them. 
+  However, Human-Greed could NOT be detected, since it was encrypted,
+  which they didn't mention!
+  
+  Anyhow, I wish CRIS my best, since I think they're the only AV giving
+  correct information, and help against new viruses. Oh!.. btw, 100h=
+  256dec, and not 255 as they wrote (talking about trashing), but the
+  important information was that it caused a bad screw-up, nothing else.
+  Now.. continue reading the rest of the articles too!
+
+                           = THE UNFORGIVEN =

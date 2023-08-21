@@ -1,0 +1,277 @@
+--------------------------------------------------------------------------------
+          INTERVIEW WITH URNST KOUCH / CRYPT NEWSLETTER / USA
+--------------------------------------------------------------------------------
+
+ Give me a short description of who you are!
+
+- "Urnst Kouch, editor of Crypt Newsletter."
+ 
+ Why did you picked that alias, Urnst Kouch?
+
+- "No reason - it's just a name."
+ 
+ How long have you been scene-active? (both "normal" and "underground")
+
+- "I don't closely distinguish the 'normal' and the 'underground', as
+  others.  To me, it's all the same - all part of computing.  People
+  use different jargon, wear different uniforms, have different
+  interests but motivations and behavior are pretty much the same.
+  Maybe that sounds heretical to you, but I assure you, it's how I
+  look at it."
+
+ When did you started your bbs? (why?)
+
+- "I started my system as a convenience - an easy way to talk to virus
+  programmers."
+ 
+ What to you think about the bbs-community (past and now-a-days)
+
+- "It's very stale.  But, unlike some, I don't think there ever was a
+  golden age of BBS'ing.  There were extremely focused computer
+  aficianados who broke ground with like-minded users. They were all
+  very into the idea of electronic communities.  But, all communities,
+  whether made of brick and stone or wires and chips have one common
+  factor, humanity. My hometown is, by and large, largely ignorant,
+  gossipy dickheads. It's stale and always has been.  BBS communities
+  are built along the same lines - clubby, like-minded individuals who
+  - by and large - enjoy trivial gossip which they're convinced is of
+  earth-shattering significance.  If you look in from the outside, it's
+  pretty stale, too. Different media, same old song and dance.  I must
+  confess, I don't think it will change much, unless you really buy into
+  the concepts of real-time pornographic chat lines or the hoarding of
+  software as socially invigorating developments.
+ 
+ How did you came into the virus scene?
+
+- "Back in 1992 around the time of the great Michelangelo hype, it
+  became necessary as part of my job at a newspaper to learn something
+  of computer viruses.  And it became readily apparent that I wasn't
+  going to learn anything of viruses by talking to 'experts' on
+  the subject, although they were all happy to sell me software, thank
+  you.  So I became determined to find viruses and virus source code
+  by myself, so that it could be determined what these programs did
+  at a very fundamental level."
+ 
+ What part of the underground do you think needs improvements?
+
+- "The underground could stand to be less adolescent and secretive.
+  When big corporations are secretive, everyone gets annoyed and cries
+  foul, so why is this a desirable trait in the underground?  I mean,
+  unless you're really a psychopath and into 'breaking the law, breaking
+  the law!', I don't get it."
+ 
+ Which groups/mags have you been involved with?
+
+- "Crypt Newsletter, that's it."
+
+ Tell me the background history of Crypt Newsletter?
+
+- "It's two years old and has been steadily monthly since I started it
+  with another fellow, since departed, by the name of Pallbearer.
+  For the first year, it focused primarily on virus issues, but for
+  the last year it's quickly branched into just about anything to do
+  with science, technology and computers that catches my fancy.  We
+  have a funny media critic known as Mr. Badger and the newsletter has
+  been extremely effective at lining the walls of my library with all
+  manner of books on science and technology which I get as review
+  copies.  And I do review them!  Much of the virus material in the
+  newsletter is serving as the basis for a book on the virus underground
+  which I'll be finished with around September."
+ 
+ Who is the persons behind Crypt?
+ 
+- "Originally, it was myself and Pallbearer.  Pallbearer dropped out
+  after a few issues.  Then Mr. Badger wrote me a letter I liked so
+  much I asked to publish it.  From there, I was able to
+  persuade him to contribute regularly.  There's Stormbringer, whose
+  contributed quite a bit of code, along with Nikademus, who lives
+  across the country from me.  And let's not forget the mighty
+  Kohntark who serves as what I like to call our Entropic Systems
+  Editor."
+
+ From where do you got all the support stuff for Crypt?
+
+- "Ummm, support stuff?  I'm not sure I know what you mean by that.
+  If you mean where it's distributed, I don't have a master plan.
+  I felt it was good and that if so, others would pick up the ball
+  without prompting and make it convenient for other people to find,
+  and that's pretty much what has happened."
+ 
+ Can everyone include stuff in Crypt Newsletter?
+
+- "Well, yes and no.  Yes, in that the door's always open and I'll look
+  at anything at least once.  No, in that the newsletter is rather
+  idiosyncratic in its style - and I like to keep it that way. It
+  gives it a consistent quality.  It's tough for people to hit that
+  style the way I like it, and if that's the case I generally don't
+  want to use their material.  I suggest try again next time or send
+  it around to someone who may be a better fit with what the contributor
+  produces."
+ 
+ Which other 'magazine' do you think is the best one available?
+
+- "It's poor form - and ungentlemanly, besides - to comment on 
+  competitors and colleagues."
+ 
+ Which group are you considering as the best virus-writing group?
+
+- "I'm inclined to favor TridenT, but that's because I like their
+  idiosyncratic thinking. Plus, they've always been generous of ideas
+  with Crypt.  This is meant as no slight to anyone else."
+ 
+ Why do you think it's important for groups to release magazine's,
+ news-letter, info-journals, etc? (Why does everybody realese them?)
+
+- "I'm for anything or anyone with a journalistic bent.  If it's 
+  important to you that a story - as you see it - be told, then it's
+  important to do some kind of magazine or publication.  You can't
+  depend on the mainstream to do it, or even get it right, so there
+  needs to be a balance between the do-it-yourselfer's and the 
+  corporate giants.  Plus, I think anyone can see that the press as
+  they've been taught to recognize it, is not particularly fair or
+  even free, which makes it essential that other points of view have
+  a venue to speak in, even if it's small."
+ 
+ Do you write own viruses?
+ 
+- "Yes."
+ 
+ Then, which one have you written?
+
+- "Hah.  I'll paraphrase 'The Prisoner.' That would be telling.
+ 
+ What do you think about destructive viruses?
+
+- "The term destructive viruses is a non-issue.  Consider a moment
+  what the average computer user - one who can barely figure out
+  Windows or DOS - thinks of the term virus, pounded in to him
+  by the media for the last three years.  Destructive virus is
+  redundant.  To him, all viruses, are destructive.  In fact, any
+  program which would complicate turning on the PC or make it
+  behave more weirdly than it already does, would be classified
+  destructive.  A virus that overwrites the hard file with trash
+  isn't much of a distinction from one that has no such code, to
+  this user.  So - it's purely an argument for programmers, basically,
+  . . . or brain dead computer journalists who feel it's a 
+  topic worth writing about.  Of course, we _know_ there are people
+  interested in viruses as tools for studying artificial life;
+  those interested in using virus-like action in house-keeping
+  software robots and certain individuals - in the military, as 
+  well as hobbyists - who write viruses to specifically corrupt 
+  data.  It's all part of a spectrum which is not of much 
+  interest to the average user and, to me, the differences have 
+  no particularly special social or moral value. It's just 
+  code, all part of the stuff of which viruses are made."
+ 
+ Describe the perfect virus:
+
+- "There is no more a 'perfect' virus than there are any 'perfect'
+  operating systems.  A 'perfect' virus would be 100 percent
+  undetectable and completely transparent on any system.  And then
+  how would you even know the virus was there?  You wouldn't.  
+  It's like the old argument, 'Does a tree falling in the forest 
+  make a sound if there's no one there to hear it?'  How can you 
+  tell?  Next question."
+ 
+ There is lotsa Polymorphic engines out there, but not too many seems
+ too use them, do you have a theory of why?
+
+- "Yes, polymorphic objects aren't truly plug-and-play.  They're poorly
+  documented and certain features of many carry over from
+  characteristics of the Mutation Engine, which wasn't particularly
+  relocatable.  So offspring of the MtE, so to speak, aren't
+  relocatable, which limits their ease of use.  That being the case,
+  most people will try and design their own engines from the ground up
+  without worrying about if others will use it.  Hence, they never
+  really became 'user-friendly.'"
+ 
+ Which engine do you considering as the best?
+
+- "Who knows?" 
+ 
+- Do you know/heard of any new virus-writing technics coming in the
+  near future?
+
+- "Yes, I suspect there will be a continued fascination with cramming
+  advanced stealth, tunneling, and multi-partitism into one virus,
+  along with active and passive anti-anti-virus code.  All this will
+  succeed in doing is guaranteeing the viruses won't do very well
+  off the drawing board, simply because they're overly complex, and
+  complexity breeds unpredictable bugginess."
+ 
+ What do you think the future is for writing viruses for WIN and OS/2?
+
+- "If and when it happens in a significant manner, it won't be done
+  by the virus programmers we see now.  They just have shown no 
+  real interest in the effort it would take to write successful 
+  replicating code for these operating systems.  Conceptually,
+  we should be seeing more imaginative applications of the term
+  'virus'.  This hasn't happened; there's been nothing really 
+  unique for at least a year."
+ 
+ Whats your oppinion about the AV-community?
+
+- "They're hard-scrabble businessmen with all the charm and panache
+   of a 60 pound bag of money-mad cockroaches."
+ 
+ Which AV-program do you think it's the best?
+
+- "No product endorsements from me, puh-leeze."
+ 
+ What do you think about the underground's future?
+
+- "It will continue to stumble along at about the same pace as
+  we've seen for the past two years.  Count on more lamers, if only
+  for the media-generated hype about the Information Highway."
+ 
+ What do you think about the government forbidding virus-writing?
+ Do you think this will help agains new infections?
+
+- "No, I don't.  Do you?  Of what possible value would such a law
+  prove against the primary replicators FORM, STONED and JERUSALEM
+  variants?  As for newer viruses which might - theoretically - become
+  prominent:  Anyone in the known virus underground won't be writing
+  them because the scene is far too well-publicized internally.  There
+  is no window of opportunity for new viruses which come from this
+  quarter to spread, if someone is trying to do so.  However, a loner
+  who keeps to himself _could_ write a virus which would have 
+  a longer window of opportunity.  If such occurs, law won't 
+  control such infections anymore than current criminal statutes 
+  curb serial killers."
+ 
+ What do you think about that term "computer nerds"?
+
+- "It's jargon stupid magazines staffed with reporter who use
+  word processors as manure shovels seem to like."
+ 
+ Do you considering yourself as a criminal (doing HP?)
+
+- "Not even close."
+ 
+ Your opinion about the punishment for all "cyber-crimes"?
+ 
+- "The record is that punishment for cybercrime tends to be out of
+  proportion to actual damage done, period.  Take it a step further
+  and you realize it's unconstitutional - remember the 'no cruel and
+  unusual punishment' statute in our Constitution? But hackers,
+  actually, have it no worse than any other of the cultural undesirables
+  in the US - like the poor, the nuts, the sick, foreigners, the
+  perceived minorities, anyone under eighteen - any group which is an
+  easy target for unreciprocated revenge gets the chop when it comes to
+  unfair punishment for presumed crimes. It's a 'let's get even' thing
+  which is satifying to the stupid proles - even though they're
+  targets, too. "
+
+ Can you be reached somewhere (on a board/e-mail address/internet)?
+
+- "ukouch@delphi.com on the Internet. BBS: 818.683.0854"
+ 
+ Something else you wish to say?
+
+- "Yes, if you think this kind of material is intriguing look for my
+  book on the virus underground late this year.  I guarantee it'll be
+  a good read."
+
+ Do you wish to send any greets?
+
+- "My friends and colleagues know who they are."

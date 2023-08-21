@@ -1,0 +1,280 @@
+        RESPONSES, THOUGHS, AND INFORMATION ABOUT INSANE REALITY
+        ========================================================
+ 
+  This article is about different responses, thoughts and other crap
+  concerning our disk-magazines.. Let's start from the first one..
+ 
+  Issue ONE;
+ 
+  I first thought that the first issue was awesome. It was the first
+  magazine ever released from Sweden, and it was among the first menu-
+  based underground/virus oriented magazine's out there. Evolution from
+  YAM was released earlier, but that wasn't any Swedish product anyhow.
+ 
+  The code was ugly. The menu-system was shit, and same goes for the
+  filebrowser, and music-system. The articles weren't any interesting,
+  and the viruses were really pretty lame too. The music-module was
+  ripped b'cos I lost my own (it sounded terrible anyhow!), and there
+  weren't any fancy VGA pictures either. And as if this shouldn't be
+  enough it was a pain in the ass to start it.. It was awfully slow!
+ 
+  What to add about the first issue was that it used a hell of a dumb
+  way of reading the articles into the browser. They (the articles!)
+  were encrypted on the hard-drive, and when you started the magazine,
+  it decrypted the file to a now un-encrypted file on the HD. When you
+  then chosed to read it, it read the 'TXT' file into the browser. This
+  was horrible! It needed two files for every article, and deleted the
+  un-uncrypted article/virus when you chosed the 'EXIT' option. The way
+  of showing the VGA-pictures weren't the best around either. It needed
+  a PIC/PAL file for every VGA, which were really annoying when you
+  perfomed a 'dir' in that directory. 
+ 
+  We also had to include a file called 'viruses.zip' where the .ASM
+  files were stored. This was b'cos of the magazine didn't had any
+  'save to file' function. Okey.. It had however a printing function,
+  but that wasn't working on a laser printer (try the not-documented
+  F7 key!), and who wants to write a 14000 bytes text of assembly-code
+  to a file, just to get confirmed that Scan and Solomon didn't find
+  them anyhow?
+ 
+  So.. what responses could we possible have on such an issue? Umm.. I
+  really dunno, since I didn't use 'The Unforgiven' on ANY board what-
+  so-ever in those days. I'd say that it sucks bigtime! Hope you agree
+  me on thatone!
+ 
+  Anyhow, it was just a start... and a first issue, when nor me or Metal
+  Militia was too much involved in the virus scene. Please don't judge
+  us for what we did in those days, and we'll for example not say that
+  64-DEC issue number 1-7 sucks bigtime too. (Someone who understood
+  the _joke_ with 64-DEC?? ;)). (No hard feelings please!)
+ 
+  Issue TWO;
+ 
+  Anyhow, about three month later the release of issue #1, our second
+  issue was out. Between the first and second issue many things were
+  improved (I think!). First of all, the magazine-code was completly
+  new written, by (then) our newest member, Raver. The new magazine
+  was programmed in C and ASM (The file-browser, and LOTSA other
+  routines as well was 100% asm!), which resulted in a hell of a lot
+  faster and tighter code. Then it was much more well designed, had
+  more functions, and it also looked better.
+ 
+  The articles were also a hell of a lot more interesting, and same goes
+  for the viruses included. The music-system was removed and the VGA-
+  pictures included were awesome! The interviews were appreciated since
+  we all love gossip of any kind! Until the release of the 2nd issue,
+  we also managed to convince WiCO to open up his board again and yes,
+  he did. When WiCO closed his board, The Jugde joined as sysop for our
+  Swedish HQ. We were no longer in the dark, which resulted in some
+  responses about our magazine and group.
+ 
+  Most of the people liked the idea with our magazine. It was a brand 
+  new style of magazine (how original I am!). Who expects a virus-
+  oriented magazine too support ansi and vga-art in a nice user-
+  friendly design?
+ 
+  Of'cos some people complained about what most of the persons liked
+  (I'll disuss this further about issue #3!), the menu-based idea, 
+  and even worst, the ART included. They just thought it was too mixed
+  up! Anyhow, the responses concering the ART (by 99%) was "yeah!, hell
+  of nice VGA stuff man!" (Thanks to The Sarge & WiCO!)
+ 
+  The responses about the viruses weren't really any better either. Some
+  people hated me for mutate older viruses, and even worse, put
+  destructive code and sick-messages in them. Though, we gave the
+  readers an oppurtunity to spread out 9 'new' and by Scan/Solomon
+  undetectable viruses. Hehe, back in those days we thought that using
+  Tbscan's heuristics mode was cheating! (smile!).
+ 
+  After the release of the second issue, people started knowing what
+  we were up too. The post on int.vir and swe.vir was it. They started
+  say.. "Who the FUCK is this group? Why do they spend their time doing
+  viruses when they release the source code anyway? What's Insane
+  Reality? Where do they live? What's their other handles? etc, etc.."
+ 
+  Most of the people thought that the magazine was good, but it could
+  be far better if we started with HPA support as well. We thought
+  about it for a while, and decided not to do that crap. Some people
+  also thought that we should change the text-based magazine to a
+  complete VGA-based one. (I know people who would think that should
+  be the lamest thing ever!), however we'll not do a VGA-based magazine,
+  b'cos of the reason that we simply just love this kinda interface!
+ 
+  Okey, so we all can say that the 2nd issue was far superior than the
+  first one, and that more people liked it very much. Okey, but then
+  again.. we continued, and bam!.. the third issue was out..
+ 
+  Issue THREE;
+ 
+  Less than 2 month after the release of the 2nd issue, the third one
+  was out. I personally thought (and still thinks!) something like
+  'Yeah!, it's awesome (just as with the earlier ones!).
+ 
+  The major improvments in the third one was the quality. The code was
+  nearly the same (some bug-fixes, and minor code-changes here and
+  there, but nothing that the user noticed anyhow!), and the idea was
+  still the same. 
+ 
+  What most people liked better in the third one were the viruses. Yeah,
+  Doom was such an example. It was something new from us. Three scratch
+  viruses were released from us, and the hacks were highly modified,
+  nearly new ones, I'd say. As a matter of fact, not ANY program found
+  ANY virus which we released in the 3rd issue! (And up-to-date:
+  1994-03-21, still doesn't! - how pathetic!) 
+ 
+  We had then also managed to get some foreign boards, and a pretty 'OK'
+  distribution system. This one was the first issue, which I know,
+  spreaded fast as hell, world-wide.
+ 		  
+  Now, many more people know about us, which resulted in pretty many
+  repsonses about the magazine. I'd say that about 99% of the people
+  who read it, liked it very much. But we all can't agree on everything,
+  and it's nothing wrong in thinking another way.. However, good, or
+  not, here's what I saw (to my great dissapointment!) from a well
+  known guy in a highly respected virus-writing group.
+  (Garbage Heap/Phalcon/Skism)
+ 
+  "I dont really think that IR-MAG is worth reading at this point.  It
+   has one of those annoying interfaces, and they havent progressed
+   their programming skills to the point where there are any interesting
+   articles.  But who knows. If someone showed me a copy of 40Hex-1,  I
+   would say the same thing. Of course, we at least spoke english :-) "
+ 
+  Yeah, how nice from Garbage Heap/Phalcon Skism to write such a nice
+  message about our magazine (NOT!). I havn't found anything wrong in
+  doing what we think is good.
+ 
+  I'll of the reason that he's such a 'respected' man in the virus-
+  community and has been around for such a long time, write a special
+  reply concerning his message. Here we go!
+     
+                      -- HERE IT STARTS --
+ 
+ "Then don't read it!, It's all up too you. We're 'scene-guys', we DO
+  other stuff to the scene than 'just' virus-programming. You might not
+  find it interesting b'cos you know the shit. Our goal is to tech
+  ourself, not you.. What we do is LEARN, and after we've learned, we
+  share it. I don't find anything wrong with that..
+ 
+  And by the way.. First, I find 40hex1-7 not very good. After the
+  release of PS-MPC in issue 8 it was good. Even extremly good. If you
+  complain about our programming skill, and viruses, feel free. It's a
+  democracy  we live in and I surely encourage the freedoom of speech,
+  write and think what so ever you want!
+ 
+  But however, I havn't seen any programs/viruses from you in person. I
+  know that Dark Angel, Priest and Memory Lapse (and maybe even more
+  guys from P/S) is 'ranked' around the top of all virus-writers in the
+  world. But does that necessary have to mean, that everyone in Phalcon/
+  Skism is THAT good? I think not. 
+ 
+  The idea behind this magazine is that *everyone* can read/learn/enjoy
+  it! It's not just directed toward persons in the somehow narrow-minded
+  virus-community. And what I've learned is that our 'annoying
+  inferface' is much more appreciated than pure text-mode "magazine's".
+  (From the avarage PC-user anyhow!) If you feel uncomfortable with the
+  user-friendly interface, simply use the F1-key and get your .00? text-
+  files! (Is that asking too much?)
+ 
+  And did you notice something, we are ALL are from Sweden and we don't
+  write or talk perfect english. Do that sound strange to you? I admit
+  that my english isn't the best around, and there's nothing I can do
+  about it. Sorry. Ahh, I could however write in swedish instead. Wow,
+  would that be a cool thing to do? (I think not!).
+ 
+  Don't consider this reply as a 'rag' towards you in peson, or your
+  group, we simple just got different views of ideas, nothing else."
+ 
+ 	                --- END OF REPLY --
+ 
+  So.. that material is what we have seen from persons in the PURE virus
+  community. (The ones who hate _everything except TASM, DOS, and TEXT!)
+ 
+  I know that YAM got the same responses on their magazine, I didn't
+  disliked Evolution b'cos of their interface, the opposite in fact. 
+  But however, I think our magazine is more informative and interesting
+  than the one relesed by YAM (There was a lack of original source codes
+  in Evolution, I think). 
+ 
+  Then however, I assume that most of the people ain't lying when they
+  said that they liked our 3rd issue. Even TridenT told us that it was
+  'OK', and that's not bad!.. I think that our magazine can however be
+  read by the major public, all people involved with nearly any scene!
+ 
+  It's a way of expression.. Hm! I think I've seen a slogan going
+  something like this: "Insane Reality - our way to express freedoom"...
+  It's basicly all about having fun, getting in touch with different
+  people around the globe, discussing different ideas, ideologies,
+  exploring the computer, and of'cos learning.
+ 
+  We don't publish Insane Reality to our self-congratulation, nor
+  showing it and screaming "We're the best - fuck the rest".. I think
+  the scene is FAR too serious, and the words 'selfish assholes' has
+  more and more become a new type of persons. The title 'lamer' can be
+  given to everyone, and the attitude is getting more and more like
+  'make competitors, not friends'.
+ 
+  This is a sad development in the scene.. I dunno for how long this
+  will continue, but if that is the case, the PC-scene will be
+  destroyed. It's starting more and more to become like the amiga-
+  scene, there rag-wars, fame, and back-stabbing is what counts. 
+ 
+  Anyhow, back to the reponses.. 
+ 
+  Well, the other stuff included (design/VGA/articles) was also
+  appreciated. Most of the people said that it was a good looking,
+  funny, but on the same time also an informative magazine. This is
+  seldom the case, and I'd like to give my best to the people who said
+  that. Thanks.
+ 
+  A few people also thought that we were a new 'RABID', going around
+  rag-ing, back-stabbing other groups/persons in the virus-community.
+  I don't think we do. We do however allows EVERYONE to support, and
+  include stuff in our magazine, which probably has resulted in a few
+  rag-stuff. Though, these stuff, is NOT encouraged from us, but we'll
+  however not censor anything! It's what it's all about.. information-
+  freedom!
+ 
+  Then, how will the responses on this (the 4th) issue be like? I think,
+  that most of the people will like it very much. We've got great
+  support from different persons, and groups around the globe. And
+  of'cos the quality of the stuff included has raised again.
+ 
+  The design will most likely be changed a bit. That b'cos of that I
+  find it fun to annoy the "TEXT 'n' ASCII - everything else is lame"
+  geeks. Well, not really. But the fact is, that I enjoy art. Ansi,
+  VGA, viruses and other creativity that I consider as art. 
+ 
+  I know that everyone can't share this thought, but let's put the
+  question in another way.. If Insane Reality was a text-forum, would
+  we then have had as many readers (see: fans ;)) as we got now? Hardly!
+  Would the world have paid as much attention to what we did if they had
+  to read about us in their favourite lister? I think not!
+ 
+  What we do, is somewhat original. And if I get an idea, I won't end 
+  it up halfway! I wanted to change our magazine a bit between the
+  2nd and 3rd issue, but I didn't have any time for that. Now, in the
+  4th issue, I had the time, and some stuff was changed. For example,
+  I took back the interview column, included viruses from other groups,
+  and viruses, which shouldn't have been out in case I didn't included
+  them. 
+ 
+  Some design in the magazine 'look' was also changed. The configuration
+  menu was new.. Menu-logos and different file-browsers was a new idea.
+  I know however some people who will hate the new interface, the rest
+  not-so-narrow-minded persons will probably like it. Anyhow, I didn't
+  kill that impulse that told to me to do it.. (blah blah! or whatever!)
+ 
+  But also, as I said in the first issue, "we'll include what-so-ever we
+  find interesting".. That's also what we're about.. having fun.. when I
+  find what I'm doing boring, I'll most likely stop doing it. Okey.. all
+  stuff can't be fun, but the rule is, Carpe Diem! Or as some other
+  group says "Make every day a party day!". If you find something you
+  do, more a duty to the scene (people expects you to do.. etc!), then
+  drop it.. 
+ 
+  Oh.. well, I dunno the responses about the 4th issue, but as I see it
+  now, it surely looks good.. it's quality, and it's an Insane Reality..
+  What more could you possible demand?.. Umm.. well, better rush.. 
+ 
+                           = THE UNFORGIVEN =

@@ -1,0 +1,344 @@
+--------------------------------------------------------------------------------
+      INTERVIEW WITH THE WIZARD / THE WIZARD'S LAIR / IR SWEDISH HQ
+--------------------------------------------------------------------------------
+
+ Give me a short description of who you are!
+
+- Well, I guess I will put it real short then. ;-)
+  I'm the sysop of The Wizards Lair (the board with all the aka's).
+  And I guess I'm also a little part of Immortal Riot since I'm running
+  as their HQ! I guess I also can say that my board is located in
+  Swedens capital Stockholm!
+
+
+ Why did you picked that alias, The Wizard? 
+
+- Perhaps because wizards is probably the most negative pool of what
+  I will ever be! Because I'm WAY to lazy to be called a wizard!
+  But I guess I also choosed that handle because alot of friends of
+  mine, those who doesn't know anything about computers, always keep
+  calling me "wizard" on computers. 
+
+
+ When did you discovored the world of computers?
+
+- It was NOT "back in the good old C64-days". Nope. I first discovered
+  computers in 1981. Back then IBM was marketing a new computer called
+  PC (and I guess everybody out there knows about it). And one of my
+  neighbours had had as a hobby making computers since the sixties.
+  And when he bought his first PC I begged and nagged on my parents
+  'till they bought me one as a birthday present. This was in the
+  spring of 1982 and the computer was an IBM PC 4.77Mhz with a 8088
+  processor and one 360Kb floppy diskdrive! Well time went on and I was
+  pooking around with the PC to leanr what I could do with it. Then
+  about a year later, in 1983, I got my hands on a harddisk, now this
+  was great. The capacity was 5(!)Mb and I thought that I never could
+  fill it up! Then, in the fall of 1985, I also got a modem from my
+  neighbour and it was a manual RACAL-modem at the amazing speed of
+  1200 baud! Now it was time to conquer the world!!
+
+
+ How long have you been scene active, and how has it grown?
+ (totally, and in the HVP scene)?
+
+- I have been active in the "scene" since 1985. And back then there
+  really wasn't any "scenes", every board had everything. And since
+  everyone calling with computers mostly where big enthustiacs of
+  computers and then also, of course, interested in everything about
+  calling for free and how to crack and diskcopy games. Then in 1987-88
+  something happend... A couple of boards started that only allowed
+  commercial games and programs that were cracked. And with these
+  boards several "cracking-groups" began to popup. Well... since the
+  games where getting bigger and USR released their HST-standard, and
+  I couldn't afford such a modem, I lost contact with the growing
+  "scene". So I resigned to the PD/Programming-scene instead. Ofcourse
+  I was still hooked up with a bit of hacking, but not as much as
+  earlier. But then in 1991 I bought a USR HST 14400. Now I could call
+  again. But now alot of things had happend. Many boards had opened
+  and there were not only "cracking-groups" but also "courier-groups".
+  And after that the "warez-scene" has just been going down the drain!
+  Worst was it at some point in time when INC, which was the biggest
+  group then, came up with the idea that only persons in "cracking-
+  groups" were allowed to get all the new cracked games! But luckily
+  no other groups hooked up on the idea. Well, this was my look at
+  the "scene".
+
+ How did you come into the "underground" scene?
+
+- Hmm.. I guess that my last question answered that question. But WHY I
+  came into the "underground" scene was because I was finding it
+  exciting, fun and more interesting than the PD scene that was back
+  then.
+
+ What part of underground needs improvments (mainly Sweden!)
+
+- I guess both the virii scene and the hacking/phreaking scene needs
+  more people interested. And until I started my board it needed one.
+  But now that I have started one I guess what's needed is more people
+  interested in viruses and hacking/phreaking. Right now I guess that
+  there are pretty many people in Sweden that are interested in
+  viruses and calling for free but they are more like - Yeah! Gimme
+  an CC and I will supply YOU!!! - Just the old 3LiT3-D00DZ to cut it
+  short. But still there must be some people that doesn't call around,
+  but are interested in viruses and hacking/phreaking... I hope they
+  reads the mag and try to find the number. One important thing to
+  remeber is: ASK AROUND! That's the best way to find the number to
+  my board, because I don't advertise for it.
+
+ Which groups have you been involved with?
+
+- Since this isn't my original handle and since I don't want to give
+  out my real handle at this moment. I'm afraid I can't tell you all
+  what groups I've been involved with.  :-(
+
+ How would you describe the underground scene today, comparing to
+ one-two year(s) from now (mainly Swedish!)?
+
+- If you go back just one year, then your at the break up of hacking
+  and phreaking in Sweden. But if you go back two years, then your at
+  the beginning of the end of the Tormentor era. And right now there
+  is a new era in virii and H/P in Sweden that is growing. So I'm not
+  sure whether it was better in the earlier days when the scene was
+  about to break up. Because then, atleast, no one knew it was breaking
+  up! But I still think it is better now, since we're looking at a new
+  great era in undergroundcomputing that is growing in Sweden right now.
+
+
+ How would you describe the Swedish underground comparing to the
+ American?
+
+- In the US everyone is let in a board. There are also ALOT of under-
+  ground-boards. And some boards only allow H/P and some boards only
+  allow viruses. That's the BIG differance between the US-scene and
+  the Swe-scene. And also in Sweden the AV-guys think they are such
+  hot-shots that they probably get a hard-on everytime they think
+  they will caught a virus-board and gets able to report it to the
+  police!
+
+ Positive/negative aspects of the scene?
+
+- I guess it's pretty good. One negative thing is that I just can't let
+  anyone on my board as I'd like to, just because of all the AV-guys.
+  This also puts another negative aspect since I can't put up my
+  board's number everywhere since that would draw the attention to
+  the AV-guys! I can only say I hate them!
+
+ Which virus group do you personally consider as the one who have
+ pushed up the scene most?
+
+- I really don't know. I guess it's Phalcon/Skism or perhaps TridenT.
+  But I really don't know since other groups like ARCV made alot of
+  viruses. And also I don't think I'm the one to judge since I've
+  missed alot of things when I'm not into programming viruses myself!
+
+ What's your oppinion in using generators such as VCL, PS-MPC for
+ making "own" viruses?
+
+- I guess it's a way for the non-programmers to make "their own
+  viruses". Perhaps they are nice to look at and to show what you
+  can do. But since there really isn't any differance between the
+  viruses made with them I think they are pretty worthless.
+
+ And using polymorphic engine's like to make viruses harder to get
+ rid off?
+
+- That I think is better, much better than generators. Since engine's
+  are not especially easy to include if you don't know how to program.
+  And that's the key to the whole thing; If it's an easy thing to use
+  and then it makes all those warez-guys to use it, and that's not
+  good!
+
+ How do you think a magazine should look in general?
+
+- I'm not sure really... since I haven't read any magazines lately I'm
+  not sure what I like... But earlier I know I hated those graphical
+  magazines. Text-magz where much better. But also if the user-
+  interface is bad in the magazine. Then the texts gets bad too! And
+  in such cases I think it's better with just plain textfiles!
+
+ Why do you think it is important for groups to release a magazine
+
+- If they don't release files at all, then the people wont notice them,
+  and whats the meaning to have a group if not to be noticed by someone,
+  eh? And then we also have those who releases several hundred files in
+  a short while. In such cases it might be better to gather them up in
+  collections like magazines. So that people easy can get their hands
+  on all the texts, and not only a couple of them.
+
+ What do you think should be included in a magazine?
+
+- It all depends... It all depends whether it's a local magazine, for
+  local buddies. In such cases, perhaps a couple of interviews with
+  local dudes could be nice. But one thing to remember is, no
+  replicating! I mean whats the use of replicationg stuff? Ofcourse,
+  if it's a local magazine I guess replicating "hard-to-find" texts
+  could be good... But never in the long run!
+
+ Which magazine do you think is the best one available today?
+
+- I really don't know. But I know I like this mag, and I also like
+  NuKE's Info-Journals... else I don't know really.
+
+ Which magazine would you like to leave the scene?
+
+- I really don't know, since I haven't had the time to read lots of
+  magz lately. But I really do HATE all the persons that think their
+  hot-shots and starts a mag. And then releases ONE issue and then
+  just dissaperes right away again!
+
+ Are you considering yourself as "criminal" while doing stuff like
+ VX, phreaking, etc?
+
+- Nope.. Why should I? I'm not doing anything wrong. I have my board
+  mainly as an information-exchange... And hopefully my board wont go
+  down because of that!
+
+ Why do you run a Vx-bbs?
+
+- Why!? - Because I worship all those little creatures running around
+  the world, infecting different computers! Also, if you're into
+  writing viruses, or if you're just as dedicated as me, then, by all
+  means! CALL MY BOARD and help me starting some new interesting virus-
+  discussions!
+
+ What do you think about board-crashing?
+
+- I can't say I love persons that are into board-crashing.. But
+  sometimes it's the only thing to do to stop some PD-boards, or
+  even worse.. AV-boards!
+
+ How would you describe the (lame, greedy and corrupt!) AV-community?
+
+- Well... I don't know really... But I guess that GREED is a good word
+  to use to describe them, although... not strong enough. But else, I
+  really don't care about them! I just laugh at all the crap that
+  Winterkvist and his fagget-friends keep telling the press.
+
+ About the new laws coming up sometime (31/6-94???), what do you think
+ about that?
+
+- I think it's weird and totally wrong! I mean, aren't you allowed to
+  do what you want on your own computer?!? I consider programming as
+  an art. And in such case aren't you allowed to paint whatever you
+  like?! And how about the so-called 'freedom of speach' then? I can
+  only say... SUCKERS!!
+
+ Do you really think that the AV-persons would try to STOP the virus-
+ programmers from writing viruses, even if that would result in them
+ being unemployed"?
+
+- Nope.. more on the way of helping virus-writers with new ideas and
+  such.. and also I wouldn't be surprised if swedish AV-guys would want
+  to by new viruses, and I'm sure that several other AV-guys, like
+  McAffee and perhaps Fridrik Skulauson, buys new viruses or virus-
+  sources.
+
+ How do you look at the future for the virus-community?
+
+- Hopefully the virusprogrammers will come up with a new and far better
+  encryption, that would make todays scanners way to slow to use. I also
+  hope that more people will become interested in virus-writing.
+  Especially under new OS' like OS/2, NT and normal Windows. I also
+  hope more people starts writing viruses under other OS' that are a
+  little bit diffrent than DOS, like Unix or perhaps VMS. (Because it
+  would be great to have a couple of viruses to use when you're out
+  there hacking different companies!)
+
+ Do you close your board if some twit (Winterkvist alike) writes "bad"
+ articles, about you and your board?
+
+- Well, at this moment, I'm pretty sure I wont quit. But you never know
+  what I will do if the press gets to much involved. Perhaps I will
+  only change the phonenumber and go down to a more secure way of
+  working (ie. locking out all the persons I don't know to well!) But
+  I'm pretty sure I wont shut the board down!
+
+ Which "meaning" do you think that the virus-groups has for the future
+ in the  virus-scene?
+
+- I think it's much better if a virusprogrammer is hooked up with a
+  group instead of working at his own. Because if you're in a group
+  you have others to discuss with and to exchange ideas with. Ofcourse
+  you can always call up a Vx and discuss things with others. But
+  that's not the same thing!
+
+ Any hints for newcomer's to the scene?
+
+- Learn to program assembler! (Don't work with Pascal or such.. it's of
+  no use!) Don't try acting a big shot using generators or by making
+  viruses in C or PAS! Try checking out other virussources that's all
+  the advices I can give You since I really isn't into virus-writing
+  myself! ;-O (Much to lazy!)
+
+ Which virus-group/programmer do you look up to and why?
+
+- I don't know really... I still remeber the little blunder some weeks
+  ago... when I chatted with a TridenT member and asked, seriosly, if
+  they were any good! Gee... I must have had a complete blackout then!
+  (Because I already knew that they made TPE!) But, else I don't know
+  whom to look up at.. but now that I've heard some more about the old-
+  timers in ARCV, I guess I look up to them a little bit too!
+
+ How is the best way to contact you?
+
+- By calling my board! That's the absolute best way to contact me. But
+  you can always try to reach me through any Immortal Riot member I
+  guess... Just tell 'em what you want and, hopefully, they will pass
+  it through to me! ;-)
+
+ Do you think it's sick and a bad idea to include interview's with
+ our "associates" when you risk to be called a "terrorist". Member
+ of IRA (Immortal Riot Associates)?
+
+- HAHA!... No, I don't think so. Although that Winterkvist and perhaps
+  some other AV-guys would like to bust my ass I don't think I have
+  anything to worry about. 
+
+ Something more you wanna say, but never had the opportunity to say
+ before?
+
+- Naah! Don't think so.. My REAL thoughts aren't worth writing down in
+  this little magazine! ;-)
+
+ Want to send any greetings?
+
+- Well I guess I can send some... (in no particullary order:)
+
+ Mr Magic  - Man, You're great hope that You will stay cool and not
+             party too much in the future even if You broke it with
+             Your girl!
+
+ Himzo     - Hope You will keep Your job... So that I can continue to
+             recieve new numbers and codes to diffrent companies!
+
+ The Flash - I just wants to say: Thanks Man! For helping me out with
+             my board! And, hopefully, it will work better now that
+             I've got a new modem.
+
+ The Unforgiven - Thanks for complaining so much at me! So I learn that
+                  I'm not GOD or something like that! ;-)
+
+ The Knight of Darkness - Gee! I HATE that long name of Yours! ;-) I
+                          think I will start calling You: Knighty! or
+                          perhaps Darky! ;-) Well, I hope SDCNET will
+                          get better, and that more people start writing
+                          more letters!
+
+  Also, a BIG greet to ALL the dudes in Immortal Riot. Thanks for a
+  great mag! And perhaps, in the next issue, I will contribute with
+  some stuff too!!! (And I can only hope that there will be a next
+  issue!!!)
+
+  And now a BIG question that goes out to all Scandinavians! Where are
+  You!?! Aren't there *ANY* H/P/V-dudes in Finland for example... I
+  know it's hard time calling out in Norway right now with all the
+  busts BUT if You get the chance, try calling my board and let's see
+  if we can join You guys in on SDCNET! SunDevilsNet - The Scandinavian
+  NET!
+
+  And also a word for virus-writers all over the world. Keep on writing
+  viruses. And if You like too; please call my board and upload them!!
+  (Now with a fully working modem and a brand new harddisk to fill!)
+
+  And last, but not least... A BIG thanks too everyone out there that's
+  helping me to piss off AT&T and other phonecompanies!

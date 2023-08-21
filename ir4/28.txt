@@ -1,0 +1,237 @@
+		      PATRICIA M HOFFMAN AND VSUM
+                      ===========================
+  Article-Info:
+  
+  Gack! C'mon, please!, read this whole article, specially VSUM vs IR
+  (our) comments about My Little Pony by Macaroni Ted of A.N.O.I. As
+  usual, the articles are full of other bull-shitting just to piss you
+  off as much as possible?! Well, hrm! nahh!.. not really.. ;).
+  
+--------------------------------------------------------------------------------
+
+  Something happend.. Today (1994-02-03) I as the first Swede, 
+  in the whole country of Sweden (thats it 8 millions Swede's and one
+  non Swede's. Oh!, please not this facism shit again!!), I recieved
+  VSUM. I even leeched it from her very own board! Oh! How expencive!
+  Haha!, it's so funny to see that $0.00 blinking in the right corner
+  in the Terminate screen. 
+  
+  Yes, that's true, why bother leeching this piece of junk every month?
+  To confirm to yourself that's full of rubbish and note that not any
+  virus you or your group have written, programmed and created are
+  included in this "The reference of ALL known virus to PC". Haha!
+  Phunny little joke!!
+  
+  Then when I sat there 'on-line' reading the VSUMX401 summary list,
+  I noticed (as usual!) that she once again had excluded our viruses.
+  I mean, heck!, this girl (see: bitch!) must have serious problems,
+  thats it!
+  
+  Anyhow.. then I noticed that "My Little Pony" was included. Aha,
+  great, she can't have screwed up that description when we commented
+  it in our third issue, I thought. Of'cos I was in fact, dead wrong!
+
+  She does probably want rag! And well, Patti, you'll! Those 3-4
+  letters should be enough proof about that we'll defend ourselves,
+  and not give up as some fucking cripples! HAHA!, Your move, bitch!
+  Will you create an "anti-swede" column in next VSUM?
+  (hint, hint!).
+  
+  But what the most annoying thing is, is that this bitch, is making 
+  major money out of fooling every scared little PD-geek, who thinks 
+  he'll get the right information about a virus, and then by having 
+  the correct info, also be able to clean his computer (See: "Delete 
+  infected files"), when the AV-programs can't clean it. 
+
+  Yes, this is true, she pays a secretary, a dissassembler, and herself
+  from the money she makes on that crappy product. VSUM also got its own
+  office, lotsa computers and VMB's. Yessh! This costs lotsa money,
+  money that she is stealing from the naive persons who has registrated
+  VSUM. 
+
+  Patricia isn't interested in give out the correct information about
+  the viruses! All she cares about is the money! (Yet another case of
+  greed, I guess!) If she was interested and concerned about the one
+  reading VSUM, she'd have changed the information given to her! She
+  would also have included all the viruses that she gets her hands on! 
+  But she doesn't, and will never do! This b'cos of that she totally ignores
+  you! She is what I find a greedy, selfish and corrupt bitch!
+
+  To prove to you, that she is wrong, I'll include her description
+  about My Little Pony (for further studies about it, check out the
+  source given in this issue!).
+
+--------------------------------------------------------------------------------
+  
+  VSUM: About My Little Pony:
+  
+     Known variant(s) of Cybercide are:             
+     MLP-1321: Received in November, 1993, MLP-1321 is based on the     
+          Cybercide virus described above.  MLP-1321's size in memory   
+          is 1,600 bytes, hooking interrupt 21.  Once memory resident,  
+          it infects .COM programs, including COMMAND.COM, when they    
+          are executed or opened for any reason.  Infected programs     
+          increase in size by 1,321 bytes, though the file length  
+          increase will be hidden when the virus is memory resident.    
+          The virus is located at the end of all infected programs.     
+          The program's date and time in the DOS disk directory    
+          listing will have been updated to the current system date     
+          and time when infection occurred.  The following text is      
+          encrypted within the MLP-1321 viral code:      
+          "simple simon met a pieman going to the fair        
+           said simple simon to the pieman let me take your ware"  
+          "- my little pony - copyright(c) 1993 Cruel Entity and   
+           A.N.O.I. -"               
+          ">>> A.N.O.I <<<"               
+  
+          As with the original virus, the DOS CHKDSK program will  
+          return file allocation errors on all infected programs   
+          when the virus is memory resident.  Execution of infected     
+          programs may result in a system hang.          
+          Origin:  Sweden  November, 1993.          
+                           
+--------------------------------------------------------------------------------
+  Our comments about My Little Pony:
+  
+  Well, first of all, I wouldn't call this a "variant" on Cybercide
+  since the infection-routine isn't the same. OK! OK!, The resident
+  code is the same (that's why TBAV & F-PROT & SCAN finds it as
+  "Cybercide", but how about the rest of the stuff? Not very much alike I
+  think (except for its functions!)).
+  
+  First let's talk about the encryption. She stated that the virus was
+  encrypted. I can only say, NO WAY! Hah! She couldn't have cared about
+  the dissassembly that much. She must have seen the text in the
+  memory, but not in the files, and then of'cos thought it was hidden
+  (encrypted) in the files. 
+
+  The reason why she didn't notice any text in the file was that this
+  virus is what she calles it "full stealth virus", ie dis-infecting!
+  Um!, I didn't see much of that described in her description!
+
+  But the file-stealth, stuff she told about was correct! But not
+  the file-size! Haha, it's 1307 bytes, and not 1321 as she said it
+  was!
+  
+  Then we come to the infection-ways. She told us that it infected
+  .COM files when they were executed and opened. Gee! It fucking dis-
+  infect the files when they're opened, and well, it INFECTS files when
+  they're touched with a dos-dir! Unlike CyberCide, which performed a
+  dir-slow-down, My Little Pony doesn't!
+
+  This one starts infecting files after all files in the whole directory
+  has been shown, and the user looks at them. This was a pretty smart 
+  move, I think. Of'cos she didn't care to write about it. She didn't
+  noticed the dir slow-down, and supposed that it wasn't infecting the
+  files under a dos-dir, how lame!
+  
+  Then if we go to the update of time/day after infection, rubbish!
+  This virus (as most of the viruses out there today!) saves and re-
+  stores the date & time attributes after the file is infected.
+
+  Then if we go for the next point on which we can attack her on,
+  the system-hangs. Nah!, Patti, it isn't buggy at all! Trust me!!
+  Ohh.. it does however create these CHKDSK fuck-ups, but that isn't
+  a bug, it's not just code added!
+  
+  But anyhow, the text-strings included and the origin was correct,
+  bravo! HAHA!! So, tell me now honestly, wasn't her statements just
+  PURE rubbish?! 
+
+  Ahh, by the way, this was also (as usual!) destructive! She didn't
+  mentioned too much about it being destructive! Who cares about 1307
+  bytes more in the files, when it isn't destructive? Oh!, she must be
+  quite malicious not to mention that routine!
+  
+  So, well Patricia, hope you didn't think this critism was too rough?
+  You can't live with the truth, can you? But let me tell you the truth,
+  and nothing but the truth. Fact is that you are a real-screw-up, a
+  born looser! You don't believe in what's right, and are just in this
+  business for the money, nothing else!
+
+  I understand if you hate us, this is b'cos of that you can't face the
+  reality.. Yes, the Insane Reality ;).. You can't no longer hide 
+  behind the lies! We do inform the crowd about VSUM, and it's lack
+  of correct information given, and will however continue doing that
+  until the time when people understands what's right and what's
+  wrong! And trust me on this one Patti! We'll win!
+
+  Oh, Patricia also describes DNR to be CyberCide related.. Isn't there
+  any limits for what she can make up?
+
+--------------------------------------------------------------------------------
+  VSUM - about DNR:
+  
+    See:  DNR                  
+  
+    Virus Name:  DNR                      
+    Aliases:     Drive Not Ready               
+    V Status:    New                      
+    Discovered:  November, 1993                
+    Symptoms:    .COM file growth; File date/time changes; Message; TSR;     
+       Programs which open a lot of files may not function properly     
+    Origin:      Unknown                  
+    Eff Length:  331 Bytes                
+    Type Code:   PRsCK - Parasitic Resident .COM Infector          
+    Detection Method:  ViruScan V109+, VirexPC, VBuster 3.96+, F-Prot 2.10g+,
+        CPAV 2.1+,              
+        NShld V109+                  
+    Removal Instructions:  Delete infected files              
+                           
+    General Comments:                     
+     The DNR, or Drive Not Ready, virus was submitted in November, 1993.     
+     Its origin or point of isolation is unknown.  DNR is a memory      
+     resident infector of .COM programs, including COMMAND.COM.  It may      
+     be related to the  Cybercide  virus.           
+                           
+     When the first DNR infected program is executed, the DNR virus will     
+  
+     When the first DNR infected program is executed, the DNR virus will     
+     install itself memory resident as a low system memory TSR of 2,048      
+     bytes, hooking interrupt 21.  At this time, the virus will also    
+     display the following message on the system monitor:          
+                           
+        "Drive Not Ready."                
+                           
+     Once the DNR virus is memory resident, it will infect .COM programs     
+     when they are executed.  Infected .COM programs will have a file   
+     length increase of 331 bytes with the virus being located at the end    
+     of the file.  The program's date and time in the DOS disk directory     
+     listing will have been updated to the current system date and time      
+     when infection occurred.  The following text string is visible within   
+     the viral code in all DNR infected programs:        
+                           
+       "Drive Not Ready"                 
+                           
+     The DNR virus uses one file handle each time an infected program   
+     is executed.  As the number of available file handles slowly       
+     decreases, the system user may find that programs which concurrently    
+     open a large number of files may fail to function properly.        
+                           
+     Known variant(s) of DNR are:              
+     DNR-ROM Bios: Received in November, 1993, DNR-ROM Bios is a 397    
+         byte variant of the DNR virus described above.  Its size and   
+         usage of memory is the similar.  It displays the following     
+         message when it becomes memory resident:        
+         "ROM BIOS not compatible"             
+         Programs infected with DNR-ROM Bios will have a file length    
+         increase of 397 bytes with the virus being located at the      
+         end of the file.  The above message text string, as well as    
+         the following text string, is visible within the viral code:   
+         "WHY_ME"                    
+         Origin:  Unknown  November, 1993.          
+                           
+     See:   Cybercide                
+--------------------------------------------------------------------------------
+  IR comments on DNR:
+  
+  DNR???? What is this virus?? See and cry! Ah, I'm not judging the
+  DNR-virus for being lame, however, compare this with CyberCide or
+  My Little Pony, and you'll notice, that it isn't alike eachother!
+  It's not relative! Not even close! (Both functionally and code!)
+  In fact, VERY different!
+ 
+  So.. I think Patricia should go visit AA some time! She can't have
+  much of brains, I think.. 
+  
+                              = THE UNFORGIVEN =

@@ -1,0 +1,82 @@
+                   WHAT'S HAPPENED SINCE ISSUE #3
+                   ==============================
+
+  Okey, this is what's new about us in general, but for a more detailed
+  level on what's happened, etc, I suggest that you read the new time-
+  line included! 
+
+  MAGAZINE CODE:
+
+  Yeah! We (that's Raver!) have added some code in the magazine itself
+  to this issue. The configuration menu is what's new, and I find it
+  really good looking too. So, check the configuration stuff with the
+  different menu-sets and file-browsers up! It surely is yet another of
+  those sweet 'n' crazy idea coming right away from my some sick brain.
+  
+  VGA & ANSI:
+
+  We've in this issue got ansis from two members of ice! That resulted
+  in that the interface is even more cool looking. Of'cos our old
+  logos can be chose as well. The VGA-stuff included is also what I
+  find nice looking. Thanks goes out to The Sarge and B-Real for this!
+
+  INTERVIEWS:
+
+  Since we recieved lotsa complains about why the interview column was
+  deleted in the third issue, I decided to take it back. This time, 
+  there were no 'locals' interviewed. As a matter of fact, you'll 
+  probably recognize most of the names in the interview column. It might
+  be a bit of Trident favoured, but we did our best to cover as many
+  different persons as possible. However, we managed to interview such
+  nice and 'famouse' persons as Urnst Kouch and Aristotle. Also we 
+  interviewed some of our sysops around.
+ 
+  The Wizard was choosen b'cos of that we'd like to 'describe' the
+  swedish scene a bit, and couldn't interview our selves- who might be
+  the only ones here in Sweden with greater knowledge about it than him.
+  Wow, wouldn't that be a bit too much of ego-tripped interviewing our-
+  selves (grin!). Beetle was choosen b'cos of that we'd like to have a
+  general aspect of the scene. Ie what the now-very-virus-interested
+  persons think about different kinda stuff.
+
+  However, we tried to reach some other persons as well, but 1) they
+  didn't show up or 2) they were too lazy to take the time for it.
+  So.. anyhow, hope you like the idea with the interviews! (Gossip, rag,
+  and back-stabbing is what we all like?! <g>).
+  
+  VIRUSES:
+
+  This time we (Immortal Riot) were a bit lazy with the virus-stuff. As
+  a matter of fact, not me (The Unforgiven), Raver and B-Real wrote any
+  virus at all. Well, not worth publishing anyhow! But however Metal 
+  Militia saved our ass by writing 5 different kinda viruses. Yeah, this
+  time he experimented with most virus techniques. This includes
+  stealth, non-ow COM & EXE. Spawning and also some kinda crazy
+  (original) ideas. Puh! So we can still call us a virus-group!
+
+  Also we got the original source-codes to Macaroni Ted's latest work.
+  Yep, this time the source codes to both CyberCide and My Little Pony
+  are included. As well as some other viruses which we picked out from
+  places where the source couldn't spread out. Enough said about the
+  viruses.. Just check the virus column out by your self!
+
+  IR BOARDS:
+
+  First, I'm terrible sorry for what happened one day after the release
+  of our third issue. Um, that is when Firedoom Systems left as our HQ.
+  All who called Firedoom Systems after they saw the third issue, I can
+  only say: Blame the AV! Fuck them corrupt suckers!
+
+  But however, we managed (again) to put up a new Swedish HQ. This time,
+  known as The Wizard's Lair. Trust me.. it's definatly worth a call. 
+  Anyway, we've also expaned our BBS-distribution system bigtime. Oh,
+  for more information, just read the 'How to contact us' article
+  included. 
+
+  OTHER:
+
+  Of'cos lotsa other stuff has happened as well. But for more info
+  about it, simply read the timeline article included. Thats it, now,
+  continue reading the articles included!
+ 
+                         = THE UNFORGIVEN =
