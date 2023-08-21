@@ -1,0 +1,174 @@
+	             AVP 2.00 Virus-reports
+		     ======================
+
+  Well, here's what a anti-virus toolkit, called AVP, has to say about
+  our viruses. I included it, b'cos of it's the only anti-virus program
+  that I know with decent descriptions about viruses! So, I hope the
+  world will pay more attention to this nice product in the future..
+
+   Riot family                                                 
+   ÍÍÍÍÍÍÍÍÍÍÍ                                                    
+                                                                  
+   Riot.282,392                                                   
+   ÄÄÄÄÄÄÄÄÄÄÄÄ                                                
+  These are a harmless memory resident parasitic viruses. On
+  execution they copy themselves into interrupt vector table
+  and hook INT 21h. They write themselves at the end of the
+  files on file execution or closing. "Riot.393" hits the
+  files on opening and renaming also. "Riot.282" infects
+  COM-files only, "Riot.392" infects both COM and EXE. These
+  viruses contain internal text strings:
+                                                               
+  "Riot.282": EXTASY! (c) Metal Militia / Immortal Riot
+  "Riot.392": RAVAGE! (c) Metal Militia / Immortal Riot
+                                                                
+  Riot.426,428,441,451
+
+   Riot.426,428,441,451
+   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  These are a dangerous not memory resident parasitic viruses.
+  They search for COM-files of current directory and write
+  themselves file's ends. In some cases "Riot.426,428"
+  displays the message "ARBEIT MACHT FREI!" or erases disk
+  sector. The viruses contain internal text strings also:
+
+  "Riot.426,428": The Unforgiven / Immortal Riot Sweden 01/10/93          
+
+  "Riot.441": Naked Truth!  Hi-Tech Assasins - Ready To Take On The World
+      // DEATH TO ALL - PEACE AT LAST  //  The Unforgiven / Immortal Riot
+                                                                                
+  "Riot.441": Naked Truth!  Hi-Tech Assasins - Ready To Take On the World
+      // DEATH TO ALL - PEACE AT LAST  //  The Unforgiven / Immortal Riot
+
+                 [ þ ^^^ He actually wrote it twice! ^^^ þ ]
+   Riot.789                                                             
+
+   Riot.789     
+   ÄÄÄÄÄÄÄÄ                                                     
+  It's a dangerous not memory resident virus. By using the   
+  masks "*.COM *.EXE" it searches for .COM- and .EXE-files of    
+  C: drive and overwrites them. It creates the C:\INFERNAL.IR    
+  file where it writes the message:                                  
+                                                                           
+  Infernal Demand! (c) Metal Militia / Immortal Riot                
+  Your misery is our pleasure!                                         
+  Your nightmare is our dream!                                      
+  Your hell is our paradise!                                      
+  Your lost is our demand!                                            
+  Your cry is our laugh!                                            
+  And your fate is ours!                                               
+                                                                                
+   Riot.1126                                                         
+   ÄÄÄÄÄÄÄÄÄ                                                            
+  It's a dangerous not memory resident parasitic virus. It     
+  searches for .COM-files of directory tree and writes itself  
+  at their ends. On 2nd of every month it erases disk sectors. 
+  In some cases it leaves a memory resident program which      
+  hooks INT 08h and displays:                                  
+                                                                       
+  Maria K lives..                                             
+  Somewhere in my heart..                                     
+  Somewhere in Sweden..                                       
+  I might be insane..                                         
+  But the society to blame..                                  
+  The Unforgiven / Immortal Riot
+--------------------------------------------------------------------------------
+  Okey, that was all about the "Riot.Family", hopefully later versions
+  of AVP will contain a hell of a lot more viruses in the Riot.Family!
+  Anyhow, since we started with hacking older viruses, we also claim
+  credits for some of ‚m.
+--------------------------------------------------------------------------------
+  Leprosy family                                           
+  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍ                                           
+  There are very dangerous non memory resident viruses. They
+  overwrite .COM- and .EXE-files of directories of current
+  drive. The infected file display "Program too big to fit in
+  memory" and return to DOS when starting, these files are not
+  restored. Some versions of viruses of "Leprosy" family can
+  erase FAT of the current drive. The viruses contain the text
+  strings "*.EXE *.COM .." and [varies depending on which variant]
+
+   [ þ Well, myne Leprosy variant only trash the first 256 respecivly
+   the 700 on drive C and D: the 10:th any month, so.. þ ]
+
+  "Leprosy.664"
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Betrayal is a sin, if it comes from another..
+  The Unforgiven / Immortal Riot                        
+  Dedicated to Ellie! - Lurve you!
+  Sweden 15/09/93                                               
+--------------------------------------------------------------------------------
+  However, since we "monitor" the swedish scene, I'll also include what
+  the A-V persons wrote about the latest swedish creations.
+--------------------------------------------------------------------------------
+  Cybercide
+  ÄÄÄÄÄÄÄÄÄ
+  It's a dangerous memory resident parasitic virus. It hooks   
+  INT 21h and  writes itself at the end of .COM-files on                  
+  FindFirst/FindNext DOS calls. On  opening the infected file             
+  the virus disinfects it. It hooks INT 09h, 1Ch  also and                
+  calls trigger routine from these handlers. On typing "anoi"
+  on  keyboard the virus adds "iS AROUND!", on pressing                 
+  Alt-Del the virus  displays chars 'A', 'N', 'O' and 'I' in
+  four corners of the screen. In  depending of system timer it            
+  either displays color cross in background  (looks as Swedish
+  national flag), or plays the tune (the Imperial March  from             
+  "The Empire Strikes Back") and displays the message and then
+  hands  computer up:                                     
+
+  ÄÄÅÄÄÄ     I hereby proclaim this computer as the property
+             !! ALL HAIL DARTH VADER !! 
+
+   [ þ Check up the demo-function in AVP- it's really nice! þ ]
+                                                                 
+  or erases random selected disk sector by the string:
+                 >>>  A.N.O.I  <<<                                         
+
+  This virus contains the internal text strings also, some of
+  them are written backward:
+
+  nam nesut agn†m dem „nk mo „nk ,marfkcig xeR sluloraC                
+  ruh nes egn„l r”f ,n„ in snniM                             
+
+   [ þ ^^^ The above text is a sorta dedication to our old king 
+           who died the year 1709, called KARL XII. A true
+           looser, who lost about 50% of Sweden to Russia,
+           though a symbol for all facists in Sweden þ ]
+
+  YTITNE na ot LEURC eb reven
+
+  ynollef ELIV a si GINKLAWYAJ
+
+  ... I SHALL FEAR NO EVIL ...                                          
+  **CYBERCIDE** -- FLOATING THROUGH THE VOID                  
+  -=CYBERCIDE=- 01-30-1993 * COPYRIGHT (C) 1992-93   A.N.O.I  
+
+   [ þ Yep, a quite alright description of Cybercide þ ]
+
+  Desperado                                                   
+  ÄÄÄÄÄÄÄÄÄ                                                   
+  It's a dangerous memory resident parasitic polymorphic      
+  virus. It  hooks INT 21h and writes itself at the end of                
+  COM- and EXE-files are  executed or opened. It deletes the              
+  files with name CHKLIST.MS, it contains  the internal text               
+  strings:                                                               
+                                                                          
+  DrW-2                                                                 
+  Dr White - Sweden 1993                                                 
+  Desperado Virus - Written in Malmo...F02E                             
+  SCANCLEAVSHITOOLMSAVCPAVVSAFF-PRVIRSTBAVTBSCTBCLTBUT-V  UTSCUT
+                                                                        
+  and does not infects the files with the names from the last  
+  string:  SCAN.EXE, CLEAN.EXE, ... -V.EXE.                               
+
+             [ þ Also, very good described! þ ]
+--------------------------------------------------------------------------------
+  IR comments on AVP:
+
+  Ok. As one can see, the information given is very good. Heck, I havn't
+  seen an error yet! And beside that, it's got quite allright heuristic
+  features, able to detect many complete new, encryted viruses! And it
+  also got a very funny demonstration about computer viruses! Do check
+  it up!
+
+                        = The Unforgiven =

@@ -1,0 +1,339 @@
+       Alternitive code to avoid detection from heuristic scanners
+       ===========================================================
+
+  I shall in this article discuss a few tricks how to use alternitive 
+  code to avoid detection from anti-virus scanners with heuristic 
+  features. Well. It may be a small article with only a few subject 
+  discusses, but rather than copy this code start to think how the 
+  program you should defeat works, and then write your own code to avoid 
+  it.
+
+  Virus symptoms
+  컴컴컴컴컴컴컴
+  There's a few routines that all parasitic viruses must include.
+  The first one is about the delta offset, and the latter write the
+  virus to a place from where it can replicate.
+
+  The delta offset
+  컴컴컴컴컴컴컴컴
+  To get the delta offset is a trick that all parasitic viruses have 
+  to use, since the position where the infected programs are loaded into
+  memory varies depending on how big the targetted file is.
+
+  Then, there is a simple way to get the delta offset:
+
+  Virus_Start:
+  Call Get_Delta
+  Get_Delta:
+  pop si
+  sub si, offset Get_Delta
+
+  Okey, how does this work? The call pushes the ip (Instruction pointer,
+  i.e, the location where we are in the code) onto the stack. Then, this 
+  location is poped into si and (when compiled) the original offset of 
+  Get_Delta is substracted from si, giving you the delta-offset. 
+  Plain and simple, huh?
+
+  Tbscan - Entry Point
+  컴컴컴컴컴컴컴컴컴컴
+  Yeh. The above code works perfectly, however it will be detected by
+  the heuristic scanners (read: Tbscan) as "Flexible entry point" or
+  it might as well detect it as: "Suspicious jump construct", that is
+  if you use stupid jump loops to avoid detection. I quote TBAVs 
+  documentation for a more detailed information about these flags.
+
+  "E - Flexible Entry-point
+  The program starts with a routine that determines its own location
+  within the program file. This is rather suspicious because sound pro-
+  grams have a fixed entry-point so they do not have to determine this
+  location. For viruses however this is quite common: about 50% of the
+  known viruses cause this flag to be displayed."
+
+  J - Suspicious jump construct.
+  The program did not start at the program entry point. The code has
+  jumped at least two times before reaching the final start-up code, or
+  the program jumped using an indirect operand. Sound programs should not
+  display this kind of strange behaviour. If many files cause this 
+  warning to be displayed, you should investigate your system thoroughly.
+
+  Whelp, how are we then going to defeat TbScan? Well, since the
+  delta offset usually has to be in a un-encrypted area of the virus
+  it makes it a bit more tricky. I.e, we have to use alternitive code!
+
+  FAQ-1 (Frequently asked Question) about this article
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  But if we encrypt the rest of the code, Tbscan will not be able
+  to trace down the rest of the code, and only that flag isn't enough,
+  right?
+
+  Answer
+  컴컴컴
+  Yes, that is correct, but even if you encrypt the virus (or the whole
+  goddamnit targetted file) there is a slight risc that it will detect 
+  your decryptor, or even decrypt your encrypted virus, resulting in 
+  that Tbscan detects all virus-sympthoms. Yes, from TBAV 6.20, it 
+  decrypts (some) encrypted viruses. It also got two flags to detect
+  your decryptor, b'cos encryption is *THE WAY* to avoid detection
+  from it (something Franz really hate).
+
+  Tbscan - Encryption detection
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+  Again, I quote Tbav's (great) documentation:
+
+  "# - Decryptor code found
+  The file possibly contains a self-decryption routine. Some copy-protec-
+  ted software is encrypted so this warning may appear for some of your
+  files. If, however, this warning appears in combination with, for 
+  example, the 'T' [Invalid time-stamp] warning, there could be a virus 
+  involved and TbScan assumes the file is contaminated! Many viruses 
+  encrypt themselves and cause this warning to be displayed."
+
+  Yes, if a program only contain that flag, it'll not give a warning to
+  the user, however if all files contain both the "#" flag, the "E" flag,
+  they will receive a warning. But if 'only' one of those flags is shown
+  in all the scanned file, the user will most likely be quite suspicious.
+
+  But since Tbscan is a great program, it can also detect your decryptor
+  with the "G" (Garbage instruction) flag. Let's examine what that mean!
+
+  "G - Garbage instructions.
+  The program contains code that seems to have no purpose other than
+  encryption or avoiding recognition by virus scanners. In most cases
+  there will not be any other flags since the file is encrypted and the
+  instructions are hidden. In a few cases this flag will appear for
+  'normal' files. These files however are badly designed, which is the
+  reason the 'garbage' flag appears.
+
+  Okey, it's a flag specially for SiC, I guess ;) ). No, actually if
+  your virus got some bad structure with lots of totally meaningless
+  jumps and dummy op-codes this flag that will be displayed. Why?
+  Well, b'cos when we call the decryptor the jump-construction will look
+  quite dumb, and that's what Franz outsmarted!
+
+  FAQ-2
+  컴컴�
+  "So, how can we now prevent your virus to avoid detection from
+  detecting the flexible entry point flag?"
+
+  Method 1
+  컴컴컴컴
+  Actually the code is very simpel, and you should be familiar with
+  both the routines used, though maybe not slapped togheter.
+
+  Virus_start:
+  xchg ax,ax
+  mov ax,0fa01h
+  mov dx,5945h
+  int 16h
+
+  call get_delta
+  Get_delta:
+  pop bp
+  sub bp,get_delta-virus_start
+
+  ... rest of code virus code ...
+
+  Is that it? Yes, that's it! Hrm, what it does is simpel. First it 
+  exchanges the ax register with itself (Dummy no-operation, that is 
+  equal to a NOP). Then, it knock's out Vsafe from memory, and after 
+  that, we get the delta offset. Try it out! It worked for me and Tbscan 
+  didn't report it as flexible entry point! The code looks quite ugly but 
+  by darn, it works!
+
+  Also, you could write some other code instead of knocking down MSAV
+  from memory, but since I put two useful routines into one, I think
+  it's okay anyhow. Or as we say in a swe-english:
+  "I smashed two flies in one smash". (grin)
+
+  That's all from me, now, it's Raver's turn!
+
+  More anti-tbav
+  컴컴컴컴컴컴컴
+  Well, the description above works (as The Unforgiven said), but it
+  might be good to know some more theory about it. So, I shall now
+  present some other ideas, and code examples for you..
+
+  Since I'd get quite suspicious if all my files had a "flexible entry
+  point" I decided to do something about it. It was quite clear that
+  the standard pop instruction caused the flag and therefor we must use
+  an alternative way to get the value on the stack without poping it!
+
+  In Carpe Diem and Doom I used the code described here:
+
+  Outdated method
+  컴컴컴컴컴컴컴�
+  start_of_virus:
+
+      call get_offset
+  get_offset:		
+      mov di,sp
+      mov bp,word ptr ss:[di]
+      sub bp,offset get_offset
+      inc sp
+      inc sp
+
+  To understand this it's important to know how the stack works. The 
+  first value on the stack is located at ss:[sp] (in memory). When a 
+  word is poped from the stack it reads this word to the specified 
+  register (usually bp or si) and adds 2 to sp. In this code, we put 
+  sp in di and use ss:[di] and then manually add 2 to sp, which gives 
+  us the same result as a pop bp.
+
+  However, TBAV has now updated the heuristic features to also detect
+  the code described above. So I'll now present another (better) way to 
+  avoid a flexible entrypoint flag, which is used in my latest virus, 
+  Digital Pollution.
+
+  Method 2
+  컴컴컴컴
+  entry_point:
+      mov sp,102h
+      call get_bp
+  get_bp:
+      mov bp,word ptr ds:[100h]
+      mov sp,0fffeh
+      sub bp,offset get_bp
+
+  Since the first three bytes of the infected file will be restored later
+  we can use these bytes as a temporary storage place. In this example I
+  use it to put the sp to point to this offset (cs:100h). When call 
+  get_bp is executed the ip-value will be located at offset 100h. Then 
+  it's just to get that value and restore the sp to 0fffeh, which is the 
+  default value for sp.
+
+  As you can see from these two examples, the way to avoid a "flexible 
+  entry point" flag is to manipulate the stack in a non-standard way. By 
+  now you should probably have some own ideas how to fool TBAV and other 
+  heuristic scanners - It's always best to be original!
+
+  Tbscan - Decrypts new viruses
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  Ok. The Unforgiven back on the keys again. Well, it's all clear that
+  Tbav is the best anti-virus programs available today and then, 
+  naturally it is our mission is to defeat it!
+
+  Well, since the release of 6.20, it was even harder to cope with the
+  improvments in it! Why? Well, I quote the whatsnew.620:
+
+  **************************** Major update! ****************************
+        A breakthrough in the battle against polymorphic viruses!
+
+  TbScan now has the ultimate answer on encrypted viruses. To cope with
+  the ever increasing amount of polymorphic viruses, polymorphic engines,
+  encryption engines, etc. we implemented a real code emulator in TbScan.
+  This code emulator automatically decrypts any encrypted virus without
+  any information about the specific virus. The current version decrypts
+  MTE, TPE, URUGUAY, DSME, DAME, DESPERADO, NED, KRUEGER, SMEG (pathogen
+  and queeg) PHANTOM_1 and many other viruses reliably. This has several
+  implications:
+
+  Well, let's skip the rubbish, what he mean is that he by now, can
+  detect polymorfic viruses with scan strings and also easily distinguish
+  between different viruses which have been encrypted by the same engine. 
+  Funny for him, isn't it?
+
+  But he continues with a statement, that is more brag than fact.
+
+  Tbscan - brag
+  컴컴컴컴컴컴�
+  "The combination of heuristics and a generic decryptor makes a real 
+  joke of even the most complex polymorphic viruses at forehand, even
+  before we have received a copy of these viruses!"
+
+  Well, this isn't quite true. For example, I've written four xor-
+  encrypted viruses to this issue, where tbscan 6.22 cannot detect 
+  one singel flag in any infected file! Raver's Digital Pollution 
+  as well as some viruses from Metal Militia are also complete 
+  undetectable from Tbav since he cannot decrypt them!
+
+  Gee.. what a fuck-up-ment statement isn't the brag above then? Heck,
+  an xor-encryption is what 99% of the encrypted viruses uses, and
+  if the above quotation should be true, he should laugh about our
+  encrypted viruses as well. ...but he isn't!
+
+  Then, why can't he decrypt them? Heh. I actually don't really know 
+  since I havn't bother to taken it apart. Anyway, I still got the 
+  solution to how to defeat his decryptor. It's really quite a piece 
+  of cake, or a cheesecake as The Attitude Adjuster would have said!
+
+  Just place the encryption somewhere else, and if he still decrypt 
+  your virus, continue to move it around until he fail to decryp it!
+  Hm. Maybe not the best solution, but trust me, it works! He cannot
+  decrypt any encrypted virus since he sometimes fail to detect the
+  "#" or the "G" flag described above! Then, if he fail with detect
+  your encryption routine, how the fuck can he then decrypt it?? :).
+
+  But there was more improvments in 6.20, for example this:
+
+- TbScan is now even better able to determine the program entry point,
+  no matter how the route to the viral code is implemented. 
+
+  Tbscan - changing because of us
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+  Hehe, do you know why he changed that in his program? Well, let me
+  say b'cos of two products, Carpe Diem and Doom! Yah, he just couldn't
+  stand our alternitive code! But however, the above quotation is as
+  well brag and empty claims! Hence, this article is the proof about 
+  that!
+
+  Also, Franz often changes his program after how new viruses are
+  written. The above is probably (as I said) as a result of Carpe Diem 
+  and Doom, then, the below is as a result of The Lemming virus created 
+  by a nice "Aussie-Nuker" who want to remain anonymous :).
+
+  "A final word about the emulation. The emulation performed by TbScan 
+  is purely software based. No instruction of the file to be examined 
+  will ever be 'executed'. "
+
+  Tbscan - more flaws
+  컴컴컴컴컴컴컴컴컴�
+  Well well well, what's now left in this anti-tbscan article? Hm? Yeh,
+  now I remember! You know Tbscan's code-analyzer (Heuristics) features?
+  This program works really quite alright, but it surely got a few flaws,
+  and that's the key behind getting undetectable viruses!
+
+  Let me give you an example about 40HEX (Write to file or device):
+
+  Write_Virus:
+  mov ah,40h			      ; Write the code
+  mov cx, virus_end - virus_start     ; Write all of the virus!
+  lea dx, [bp+virus_start]	      ; Write from virus_start
+  int 21h                             ; No comments!
+
+  Yes, you probably recognize the above code? Right!? It surely works,
+  but again, it's not good b'cos Tbscan can detect it with the "F" flag.
+
+  F - Suspicious file access
+  TbScan has found instruction sequences common to infection schemes 
+  used by viruses. This flag will appear with those programs that are 
+  able to create or modify existing files.
+
+  Yes. Sure the file got suspicious file access, but that's not what's 
+  important. No. What is interesting is how we can cheat Tbscan!
+  Well, it's really all trivial.
+
+  Just (for example) exchange the:
+
+  mov ah,40h
+
+  to:
+
+  mov ah,41h
+  sub ah,1h
+
+  or:
+
+  mov ah,30h
+  add ah,10h
+
+  That's it! No more, no less! How does that work then? Well, since
+  Tbscan's read what kinda instruction there is in the function register 
+  line by line (like a dissassembler!) it's clear that the first example
+  look like it would delete a file! (41h/int21h) Pretty logical, eh?
+
+  Closing words
+  컴컴컴컴컴컴�
+  So now, create your viruses with (if necessary) alternitive code
+  to avoid detection! It'll cost you some bytes but hell, it's worth it!
+
+		        = The Unforgiven & Raver =

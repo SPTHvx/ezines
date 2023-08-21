@@ -1,0 +1,171 @@
+                     England Smells   
+                     ==============
+  
+  It's happened.. AGAIN! We all remember the A.R.C.V. bust that was done
+  by the New Scotland Yards CCD (Computer Crime Division) which is more
+  or less led by the well-known Alan Solomon. This time it's another one
+  from England that's in deep shit. A dude that we've heard a lot about
+  lately, after his release of SMEG (a new polymorphic encryption engine,
+  called "Simulated Metamorphic Encryption Generator") and a couple of 
+  viruses using it.
+  
+  His "break-thrue" was mostly during May this year when they spread
+  like wildfire in Great Britain. And once again Solomon saw his
+  chance to sell more copies of his AV, thereby getting even more
+  famouse than before. With the help of the above mentioned security
+  organisation he executed a bunch of search warrants and arrested a
+  suspect that was later released after bail had been paid.
+  
+  He'll have to go back there sometime in November again though, possibly
+  to stand trial if the feds has enough evidence and people wishing
+  to sue him at this time. All I can say's, it SUCKS! Here follows
+  the article asking for people being affected to step forward, and
+  (quoting) "scratch one for the good guys". SHEESH!
+  
+--------------------------------------------------------------------------------
+  
+  Appeal for Information
+  
+  *** URGENT *** [ Damn right it's urgent.. otherwise they'll have no
+                   case against him ]
+  
+  On Wednesday 13/7/94 officers from Devon & Cornwall Constabulary Fraud
+  Squad together with officers from the Computer Crime Unit, New
+  Scotland Yard executed a number [ a *NUMBER* of them? They're not even
+  destructive damn it!!!!! ] of search warrants under the UK Computer
+  Misuse Act in Plymouth. The investigation was in connection with the
+  authorship and distribution of computer viruses known as PATHOGEN, 
+  QUEEG and GERM, together with the encryption engine SMEG. 1 man was 
+  arrested. He has been bailed to return to a Police Station in Plymouth 
+  at a date in November. [ Why does Solomon hunt everyone? He's making 
+  money on it ain't he? ]
+  
+  The investigating officers are appealing for anyone who has suffered
+  an attack by these viruses to contact the Computer Crime Unit at New
+  Scotland Yard on 071 230 1177 (UK) or +44 71 230 1177 (International)
+  [ Perhaps one should do an interview with these morons sometime, eh? ]
+  
+  Scratch one for the good guys! [ Sheesh, go scratch your ass instead..]
+  
+  Please guys, if you have been hit by Pathogen come forward... [ NOT! ]
+  
+  Regards, [ yeh, yeh.. ]
+  
+  Richard Ford
+  Editor, Virus Bulletin
+  
+--------------------------------------------------------------------------------
+  
+  So, let's see what the AV-wankers has to say about those little
+  beauties, eh? Here we go, starting off with S&S International
+  (Solomon's co-op), letting them tell us all about Pathogen & Queeg
+  since they'd the best description avalible at this moment (?).
+  
+--------------------------------------------------------------------------------
+  
+               New viruses: SMEG.Pathogen, SMEG.Queeg
+  
+  S&S International, developers of Dr. Solomon's Anti-Virus Toolkit, have 
+  discovered two dangerous new viruses running wild on British computers. 
+  
+  The two new viruses, Pathogen and Queeg, have both been written using
+  what the virus author, The Black Baron, calls the Simulated Metamorphic
+  Encryption Generator (SMEG).
+  
+  The viruses are highly polymorphic, using an intensely variable and
+  large encryption loop. This means that each infection of the virus
+  looks completely different to those seen before, making the job of
+  writing a reliable detector extremely difficult.
+  
+  Pathogen and Queeg are memory-resident, polymorphic infectors of COM 
+  and EXE files. If Pathogen triggers its payload (between the hours of 
+  17:00 and 18:00 on a Monday evening) BIOS level writes are made to the 
+  first 256 cylinders on heads 1-4 of the hard disk, and the following 
+  message is displayed:
+  
+   Your hard-disk is being corrupted, courtesy of PATHOGEN!
+   Programmed in the U.K.  (Yes, NOT Bulgaria!) [C] The Black Baron 1993-4
+   Featuring SMEG v0.1:  Simulated Metamorphic Encryption Generator!
+   'Smoke me a kipper, I`ll be back for breakfast.....'
+   Unfortunately some of your data won`t!!!!!
+  
+  The line and other messages contained within the viruses suggest the
+  author is British and a fan of the cult science-fiction television
+  comedy series, Red Dwarf.
+  
+  Dr Solomon's Anti-Virus Toolkit has the ability to find both viruses
+  using an "Extra driver".
+--------------------------------------------------------------------------------
+  
+  An equal minded thinker
+  컴컴컴컴컴컴컴컴컴컴컴�
+  Yeah! Atlast a destructive fellow, using a good old 256 trashing
+  routine. He's the only one except for Doctor Revenge and us that
+  I've lately seen skipping the boring nice guy image and started to
+  follow the roads of terror instead. I mean, who really cares if you
+  get a virus that ain't destructive? Ok, sure it's annoying but you'll
+  have all the time in the world to remove it.
+  
+  If we instead think of a case with one of ours (like Digital Pollution).
+  Fine, it doesn't affect your .EXE files but if you just get infected
+  somewhere you'll always have it, slowly suffering from CMOS crashes and
+  once in a while your polite INT25 suddenly turns into an INT26.
+  
+  Slowly corrupting and crashing so when you atlast notice it each drive
+  and back-up will be (more or less) useless so to speak. I don't really
+  see any special difference between XOR's and Polymorphic ones. It
+  sure's hell a billion times better encryption, but those who can break
+  an XOR can usually do the same with the Polymorphic one so what's the
+  point?
+  
+  I don't think it's bad or anything and every programmer being able to
+  create one should, but nothing else really matters than on which
+  conditions and which files it infects and the resulting damage. There's
+  a lot of polymorphic engines out there (even though SMEG may be one of
+  the best?) like MTE, TPE plus another ten or fifteen and not too many
+  of them have been used by others than their own inventors/authors.
+  
+  Black Baron uses BIOS write's (int 13h) instead of INT26 for the nuking
+  part (Just like Tormentor always used to do some years ago). A Swedish
+  virus named DESPERADO looks quite alike thisone and it has replicated
+  quite a bit. Even though Black Barons creations has mostly stayed in his
+  homecountry they look to be pretty feared by the society and security 
+  parties anyhow. (Just look at the first "article" and you'll get my 
+  point..) But they might however shake the world sometime anyhow..
+--------------------------------------------------------------------------------
+  
+  Now we'll take a look at another of his viruses (not using SMEG this
+  time) which is probably one of his first ones. (Dunno how many he's
+  written though) Straight out of AVPs Virus Information, the GERM virus.
+  
+--------------------------------------------------------------------------------
+  
+   GERM.255
+  
+   It's a not dangerous memory resident parasitic virus. It copies itself
+   at the address 0050:0100, hooks INT 21h and writes itself at the end
+   of COM-files executed. Every 256th generation of this virus displays:
+   
+   GERM. (C) The Black Baron U.K 93
+  
+   It contains the internal textstring also :
+  
+   Better SMEG than dead
+  
+--------------------------------------------------------------------------------
+  
+  Well, not much help there but it did described the very basics of it.
+  Sometimes they forget to mention if it's encrypted, but atleast they
+  don't screw-up a description a'la VSUM :) As you see, once again the
+  magic number 256 in it, now it has to do with the generation counter.
+  
+  About the Black Baron
+  컴컴컴컴컴컴컴컴컴컴�
+  After what I've heard, the person in question (Black Baron) lives in
+  Southhampton and is around 20 years of age. I'm really starting to
+  like this guy, just to hope the feds don't waste him. (Co-operations
+  that wish to sue someone can be quite dangerous sometimes) So, good 
+  luck man, if they really intend to pull this thrue you're gonna need 
+  it!
+  
+                          = Metal Militia =

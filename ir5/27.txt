@@ -1,0 +1,291 @@
+  		       Anti-Virus results
+  		       ==================
+  
+  Well, since some of our viruses has been out for quite some time, I
+  wanted to see how reliable the most popular anti-virus programs could
+  detect and identify them. (Scan/F-Prot/Tbscan/AVP/FindViru/MSAV)
+  
+  The test was done quite roughly, i.e. I just scanned the original
+  copy of the viruses, which naturally gave the programs with heuristic
+  features an great advantage. But here's the results anyhow.
+--------------------------------------------------------------------------------
+  Scan 2.10
+  ÄÄÄÄÄÄÄÄÄ
+  C:\ANTI-V\MISERY.COM
+  	 Found the LEPROSY.SURFER virus
+  
+  Wrong! Though, this was based on Leprosy!
+  
+  C:\ANTI-V\RAP.COM
+  	 Found the LEP664 virus
+  
+  Wrong! Rather Leprosy.613!
+  
+  C:\ANTI-V\DESTRUCT.COM
+  	 Found the BAD BOY 3 virus
+  
+  C:\ANTI-V\THETHING.COM
+  	 Found the BADBRAI2 virus
+  
+  C:\ANTI-V\FFIRE.COM
+  	 Found the SEVENTH_.473 virus
+  
+  C:\ANTI-V\NAKED.COM
+  	 Found the ASH.280 virus
+  
+  Wrong! Mine was 456 bytes!
+  
+  C:\ANTI-V\FADE.COM
+  	 Found the CREEPER.475 virus
+  
+  Wrong! Creeper.645
+  
+  C:\ANTI-V\JUSTICE.COM
+  	 Found the SKISM805 virus
+  
+  C:\ANTI-V\INSANE.COM
+  	 Found the LEECH.UNK1 virus
+  
+  C:\ANTI-V\INF.COM
+  	 Found the TRIVIAL.BANANA virus
+  
+  Wrong! Trivial.Demand
+  
+  C:\ANTI-V\ARBEIT.COM
+  	 Found the SEVENTH_.332 virus
+  
+  Wrong! Seventh_.430 virus.
+  
+  C:\ANTI-V\HUMAN.COM
+  	 Found the TRIVIAL.BANANA virus
+  
+  Wrong! Trivial.Greed
+  
+  C:\ANTI-V\EXT.COM
+  	 Found the MMIR.EXTASY virus
+  
+  C:\ANTI-V\RAV.COM
+  	 Found the MMIR.EXTASY virus
+  
+  Wrong! MMIR.RAVAGE!
+  
+  Summary report on C:\ANTI-V\*.COM
+  
+  File(s)
+  	Analyzed: ..............      27
+  	Scanned: ...............      27
+  	Possibly Infected: .....      14
+  Time: 00:00.02
+--------------------------------------------------------------------------------
+  IR comments about Scan:
+  
+  Well, Scan only detected about 50% of our viruses! and as that 
+  shouldn't be enough he detected many of them wrong! Yes, wrong! 
+  B'cos when we released hacked viruses, Scan couldn't catch any 
+  of them! So he's updated his strings, but added wrong information
+  about ‚m. Well, I let the result speak for it self! 
+--------------------------------------------------------------------------------
+  F-Prot 2.13
+  ÄÄÄÄÄÄÄÄÄÄÄ
+  Virus scanning report  -  9. May 1994   19:22
+  
+  F-PROT 2.13 created 13. July 1994
+  Virus search strings created 30. June 1994
+  
+  Method: Heuristics
+  Search: \ANTI-V\*.COM
+  Action: Report only
+  Targets: Boot/File/Packed
+  Files: Standard executables
+  
+  Scanning MBR of hard disk 1
+  Scanning boot sector C:
+  \ANTI-V\MISERY.COM  Infection: Leprosy.664.B
+  \ANTI-V\DESTRUCT.COM  Infection: Bad_Boy.B
+  \ANTI-V\CARPE.COM  Infection: Carpe_Diem - Generation 1
+  \ANTI-V\THETHING.COM  Infection: Bad_Brains.554.B
+  \ANTI-V\RAP.COM  Infection: Leprosy.664.A
+  \ANTI-V\FFIRE.COM  Infection: Seventh_son.473 - Generation 1
+  \ANTI-V\RIOT.COM  Infection: Nina.D
+  \ANTI-V\FADE.COM  Infection: Creeper.472
+  \ANTI-V\MOONLITE.COM  Infection: New or modified variant of Moonlite
+  \ANTI-V\JUSTICE.COM  Infection: Rythem.808.B
+  \ANTI-V\NAKED.COM  Infection: Ash.451 - Generation 1
+  \ANTI-V\ETERN.COM  Possibly a new variant of Glitch
+  \ANTI-V\INSANE.COM  Possibly a new variant of Leech
+  \ANTI-V\MARK-X.COM  Infection: New or modified variant of Marked-X
+  \ANTI-V\MARIA.COM  Infection: Phalcon.Maria_K
+  \ANTI-V\HUMAN.COM  Possibly a new variant of Trivial
+  \ANTI-V\AMF.COM  Infection: Seventh_son.426 - Generation 1
+  \ANTI-V\UNKWN.COM  Infection: Maaike.757
+  \ANTI-V\INF.COM  Infection: Trivial.Infernal
+  \ANTI-V\EXTASY.COM  Infection: MMIR.Extasy - Generation 1
+  \ANTI-V\RAVAGE.COM  Infection: MMIR.Ravage - Generation 1
+  \ANTI-V\PARALOST.COM  Infection: New or modified variant of Lesson_I
+  \ANTI-V\COKE.COM  Infection: Possibly a new variant of Trivial or Ear
+  \ANTI-V\LISA.COM  Possibly a new variant of Trivial
+  
+  Results of virus scanning:
+  
+  Files: 27  (18 KB)
+  Scanned: 27  (18 KB)
+  Infected: 19
+  Suspicious: 5
+  Disinfected: 0
+  Deleted: 0
+  Renamed: 0
+  
+  MBR's: 1
+  DOS boot sectors: 1
+  Infected: 0
+  Suspicious: 0
+  Disinfected: 0
+  
+  Time: 0:04
+--------------------------------------------------------------------------------
+  IR comments about F-Prot:
+  
+  Well, he detected 24 of 27 viruses which is a quite okey result, I 
+  think! But hm, Maiike.757 as our Unknown Enemy? I guess the Maiike.250
+  and Unknown Enemy.757 is pretty much alike? Also, he had some file-
+  size messed up on some viruses, but that's of less importance, really. 
+  And (unlike Mcafee) he's excused b'cos he often found our hacked 
+  viruses before we relased them and then, it's totally meaningless to 
+  update the program for our viruses.
+--------------------------------------------------------------------------------
+  Tbscan 6.22
+  ÄÄÄÄÄÄÄÄÄÄÄ
+  Thunderbyte virus detector v6.22 -
+  
+  TbScan report,  07-27-1994  19:45:49
+  
+  Parameters:  ll=2 hr na ba lo ap el \anti-v\*.com
+  
+  C:\ANTI-V\MISERY.COM infected by Leprosy related {1} virus
+  C:\ANTI-V\DESTRUCT.COM probably infected by an unknown virus
+  C:\ANTI-V\CARPE.COM infected by Carpe_Diem virus
+  C:\ANTI-V\INV.COM might be infected by an unknown virus
+  C:\ANTI-V\THETHING.COM probably infected by an unknown virus
+  C:\ANTI-V\RAP.COM infected by Leprosy related {1} virus
+  C:\ANTI-V\FFIRE.COM infected by Seventh_son virus
+  C:\ANTI-V\DOOM.COM probably infected by an unknown virus
+  C:\ANTI-V\RIOT.COM infected by Nina virus
+  C:\ANTI-V\FADE.COM might be infected by an unknown virus
+  C:\ANTI-V\MOONLITE.COM probably infected by an unknown virus
+  C:\ANTI-V\JUSTICE.COM infected by Leprosy related {1} virus
+  C:\ANTI-V\NAKED.COM infected by Ash virus
+  C:\ANTI-V\ETERN.COM infected by Eternity virus
+  C:\ANTI-V\INSANE.COM infected by Leech virus
+  C:\ANTI-V\MARK-X.COM infected by Riot.Marked virus
+  C:\ANTI-V\MARIA.COM infected by Phalcon virus
+  C:\ANTI-V\HUMAN.COM infected by V2pX virus
+  C:\ANTI-V\AMF.COM infected by Seventh_son virus
+  C:\ANTI-V\UNKWN.COM infected by Riot.Enemy virus
+  C:\ANTI-V\INF.COM infected by Trivial.Demand virus
+  C:\ANTI-V\EXTASY.COM infected by MMIR virus
+  C:\ANTI-V\RAVAGE.COM infected by MMIR virus
+  C:\ANTI-V\PARALOST.COM infected by Paradis virus
+  C:\ANTI-V\PSYC.COM infected by Psichosis virus
+  C:\ANTI-V\COKE.COM infected by Burma virus
+  C:\ANTI-V\LISA.COM infected by Lisa virus
+  
+  Found 27 files in 1 directories, 27 files seem to be executable.
+  0 files were checked for changes, 0 files have been changed.
+  
+  27 files are infected by one or more viruses
+--------------------------------------------------------------------------------
+  IR comments on Tbscan:
+  
+  Wow, 100% detection rate! However, some stuff were actually wrong!
+  He detected Human Greed as the Vp2X virus and Coke as Burma.
+  In the case of Coke, the problem was that Tbscan's scan-string was
+  placed in the routine that knocked Vsafe out from the memory!
+  
+  But one really annoying thing in Tbscan is that the info section sucks!
+  Let me give you some "rubbish" in it!
+  
+  Eternity  - He told me that it was a COM/EXE infector, when it just
+              infects EXE files.
+  
+  Moonlite  - He told us that it couldn't be found with strings, b'cos
+              it used a trivial encryption-scheme. That is not correct
+              since it uses a simple xor encryption.
+  
+  Invisible - He didn't mention anything that it was a resident
+              size stealth virus!
+  
+  Psichosis - Psychosis (just a little miss-spelling!)
+  
+  Riot.1203 - Psychosis? Well, this isn't our's, I think. And if it was,
+              it doesn't use a trivial encryption scheme!
+--------------------------------------------------------------------------------
+  AVP 2.00
+  ÄÄÄÄÄÄÄÄ
+  Scan info:
+   
+   Test mode:        Analyzer  Warnings  Unpack
+   ßßßßßßßßßßßßßßßßßßßßßßßßßß \ANTI-V (*.com) ßßßßßßßßßßßßßßßßßßßßßßßßßßß
+     \ANTI-V
+      amf.com                 : virus Riot.426 detected.
+      carpe.com               : virus Type Com suspicion. (469)
+      coke.com                : virus Type Com suspicion. (0)
+      etern.com               : virus Type Exe suspicion. (461)
+      extasy.com              : virus Riot.282 detected.
+      ffire.com               : virus Type Com suspicion. (470)
+      human.com               : virus Type Com suspicion. (641)
+      inf.com                 : virus Riot.789 detected.
+      justice.com             : virus Type Com suspicion. (804)
+      lisa.com                : virus PS-MPC-based detected.
+      maria.com               : virus Riot.1126 detected.
+      misery.com              : virus Type Com suspicion. (593)
+      moonlite.com            : virus Type ComTSR suspicion. (473)
+      naked.com               : virus Riot.451 detected.
+      paralost.com            : virus Type Com suspicion. (303)
+      psyc.com                : virus Type Com suspicion. (1202)
+      rap.com                 : virus Leprosy.664 detected.
+      ravage.com              : virus Riot.392 detected.
+      thething.com            : virus Type Com suspicion. (751)
+  
+  Statistics:
+         Detected:     8 bodies of
+                       8 viruses
+  
+         Warnings:    11
+  
+          Scanned:    27 files
+                       1 directories
+        Scan time:     0 min 8 sec
+--------------------------------------------------------------------------------
+  IR comments about AVP 2.00:
+  
+  Well, 20/27 isn't bad at all! Actually I don't understand why the world 
+  havn't paid more attention to this anti-virus program! Heck, it's just 
+  as good as F-Prot! It got good heuristic features, though not as powerful
+  as Tbscan, I think.
+--------------------------------------------------------------------------------
+  Then, we have Alan Solomon! Haha! What a joke! FindViru 6.52 did just 
+  detect one virus! (Phalcon in Maria.com); have a great laugh at him! 
+  He probably has hunted virus writers instead of updating his package!
+  
+  Msav found three viruses (Leech/Leprosy/Seventh Son), which actually
+  was better than I thought it would be :). Though, the program still 
+  sucks!
+--------------------------------------------------------------------------------
+  So, the (short version of the) results is this:
+  
+  #  Product:         Infected:    Found:      Percent
+  
+  1. TbScan 6.22      27            27          100.00%
+  2. F-Prot 2.13      27      	    24          88.888%
+  3. AVP 2.00         27            20          74.741%
+  4. Scan 2.10        27            14          51.852%
+  5. Msav             27            03          11.111%
+  6. Findviru 6.52    27            01          0.0370%
+  
+  Well. That's much about it.. Hm, I had my thoughts about releasing
+  strings to all of our earlier creations, since I don't want you to
+  be infected with ‚m when we've newer, better and more destructive 
+  viruses out there.. But if you want good-strings for any virus, 
+  just register Thunderbyte anti-virus and try the /extract option!
+  
+  		        = The Unforgiven =

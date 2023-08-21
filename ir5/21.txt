@@ -1,0 +1,498 @@
+                   What's happened sicne issue #4
+                   ==============================
+  
+  Since I have been a bit lazy since the release of issue #4, I didn't
+  really care much about what happend, etc. which resulted in that our
+  "famouse" time line with exact dates cannot be included. However, I'll
+  do my best to describe the "news". 
+  
+  This article is pretty long, since it also includes some other 
+  information and thoughts that I hope you find interesting. But okey, 
+  let's start with the normal stuff.
+  
+  Magazine code
+  컴컴컴컴컴컴�
+  Some stuff has as usual been re-written, optimized and changed. 
+  Though, I don't think you will notice any major improvments unless 
+  you are a dedicated dissassemblerer. One new feature is however that
+  it saves your configuration. Why didn't we include such a trivial 
+  function the last time? Heh. The truth is really that the release 
+  version or IR#4 was actually an "internal Immortal Riot beta version!"
+  Mo more! :). 
+  
+  We had thought to change/add a shitload in the code, but since babes 
+  and parties is of much more priority, we couldn't care less. Heh. I 
+  know this sounds a bit strange, but it's really the truth.
+  
+  Vga and ansi art
+  컴컴컴컴컴컴컴컴
+  We deleted our vga-column b'cos some people found it quite annoying
+  to download such a "huge" package. Well, I don't really think that
+  3 minutes downloading is very horrible, and beside that the vga.dat 
+  file included could (later on) be deleted. Well, we actually received
+  a nice picture from The Sarge, but it'll end up in our next issue
+  b'cos of the lack of time (Sorry Sarge!).
+  
+  Then, how about the ansis? Well, since I havn't been able to call out
+  lately I couldn't contact any good artist, which resulted in that
+  we have to use (some of) the one's used in the forth issue. Well, I
+  actually received a logo from Incubus the same day as we released 
+  IR#4, but since he thought he was "used" by us he wanted some cash for
+  the ansi(s) he created!
+  
+  Oh? How ungrateful can a person really be? Heck, he received a shitload
+  of calling cards, just b'cos I was nice, not for "licking his ass" so 
+  he should draw (ripp?) us some more. Ok, I didn't pay shits for
+  those cards, and couldn't care less about 굆, but I find his behaviour
+  really fucking lame! Or as we say in Immortal Riot, as a greedy geek! 
+  Hehe. Yeah, fuck you Incubus, your greedy geek!
+  
+  Interviews
+  컴컴컴컴컴
+  Whelp what can I say now? Heh. Well, no interview's this time!
+  Why? Well, the main reason is that I hadn't thought about releasing
+  this issue as soon as we did. I.e, no organizing, just a quick impuls!
+  
+  And if you think that isn't any good exchause I got another :). Heh.
+  I didn't find any interesting person's to interview, this b'cos I have
+  not called out since the release of IR#4. Haha. We could however do 
+  some interviews with the local lamers that screamed out "I want to be
+  interviewed in our next issue, pleaseeee!" :). Though I don't want to 
+  waste more bytes than necessary (grin!).
+    
+  Viruses
+  컴컴컴컴
+  Here, we have improved, both in quality as well as quantity. Ok, my 
+  creations sure aren't any super-duper, multipartite, polymorfic full 
+  time stealth virus that you might whip up within notime. The opposite 
+  in fact. They all are "simple" file-infectors. However they're all 
+  complete undetecable and highly destructive which I think is the most
+  important :). Heh. You might hate seeing more of those "cheesy" or 
+  "so-fucking-common" viruses out there, but I only compete with myself 
+  and couldn't care less if you tell me if they suck or not.
+  
+  But anyway, you will see no more mutations nor overwriting viruses
+  from me! "That was a stage we all had to pass..." and if you do, 
+  they're (most likely) fake!
+  
+  But since Immortal Riot got more members than me, there's naturally
+  other viruses released from other persons in this issue. Ok. Let's
+  start with Raver. He's (in my opinion, even if he doesn't share it!)
+  done something "worthwhile". It's called Digital Pollution and it's
+  an encrypted memory resident infector, complete undetectable and 
+  carrying a shitload of original pay-loads!
+  
+  This virus was though written in a hurry, and that's all my fault!
+  Why? Well, actually b'cos I told him that there was no chance in the
+  world that we should release IR#5 before his "duty-period" was over.
+  Ok. I was wrong :) and he had to hurry up pretty fucking much with it,
+  which (of'cos?) resulted in that he wasn't too satisfied with it. 
+  However, I'm very glad that it even was finished as well as one can be
+  pretty sure to see some really cool viruses being written by this 
+  person in the (nearest?) future!
+  
+  Then, Metal Militia.. Well, in this case, I'm not to blame, instead
+  blame him! For what? Well, his version's of (nearly all) the viruses 
+  releases by him to this issue was thought to be continued. I.e. they
+  are not really finished, though still working.
+  
+  However, he rather took his boat and went away for a short holiday
+  (dissapearing right before the release of the issue, just like he
+  always does...) So I guess the viruses realeased by him here doesn't
+  show his fully capacity.
+  
+  Then, we got B-Real who is a decent programmer, though he still 
+  hasn't  written a virus, yet. He hopefully will.. it's just a question 
+  of time.
+  
+  But we have also in this issue included original source code, hex-
+  scripts and dissassemblies to viruses that aren't created by us.
+  For instance Maiike.250 and the Tai-Pan virus. Those b'cos of they 
+  were both reported "in the wild" (Nice term, eh?). It was also 
+  thought that Macaroni Ted (ex Cruel Entity) should contribute with
+  a really beautiful virus. Though, he didn't make it until the 
+  "dead-line", so this will have to wait..
+  
+  We also thought about including fully commented dissassemblies of 
+  Dr.White's famouse viruses (Desperado and Junkie), but they have 
+  to wait to the next issue! (If we bother about 굆, that is)
+  
+  You'll also notice that this issue is a bit more focused on assembly
+  programming, virus related articles, ideas, etc. rather than the 
+  blabbeling articles :). Of'cos this will never be a pure techno-
+  journal (like 40hex) b'cos I like this blabbeling-blabbeling too much!
+  
+  So now, the "articles" also contain assembly source code, so check
+  굆 all out!
+  
+  Boards 
+  컴컴컴
+  First, I'm terrible sorry that The Wizard's Lair hangs once in a while.
+  This will hopefully soon be fixed! Then, there has also been some 
+  trouble with some of our other boards. I think Beetle and his board 
+  Coi, inc. was down b'cos of AT&T. But I don't really know what he's up
+  to now. Heck, who want to check it up when some strange "digitalized-
+  voice" say "This number can't be reached for the moment due to security
+  investigations"?? Eh?
+  
+  Anyhow, then we had Aristotle's Black Axis as a US-distro. Heh, you 
+  have to be "deaf, dumb and blind" not to hear about the Aristotle
+  and the NuKE rag. Well, I tried to care as less as possible about the
+  situation, and being (as a true Swede) as neutral as possible. And to
+  prove that, I had two "enemies" (Falcon & Aristotle) as IR-sysops,
+  which resulted in some minor trouble :).
+  
+  I was asked (several times) "Who do you _weird guy_ take party for?"
+  Huh? Well, I told 굆 both that I was neutral! And I'm neutral b'cos
+  I don't have all facts that I want to have. However, I do agree with 
+  NuKE that Aristotle is a master in "social engineering", b'cos he tells
+  you exactly what you want to hear. But let's not drag up that shit 
+  again, it's a of less importance since his board (now) is down, and 
+  hopefully the air is (a bit more) cleared.
+  
+  Then we've expanded our distribution-site list with two boards. The
+  first was Decker's board in Norway called Hack'n Hard, and the other 
+  one is called Tax-Hole and placed somewhere in Germany. I think our 
+  earlier magazine's should be available on those bbses in case it's 
+  a local call from you.
+  
+  I was also asked from a couple of persons if they could be distro
+  or (even) headquater's for our grop.  Well, I actually don't remember
+  all of them, but some thought their baord was hot shit. For example 
+  this: "/<-RaD /<0dE /<iDz WhErEZZZZ WoRlD" that could be reeched at
+  +01-810-348-0421 :) You see, we don't want no more of those k-RaD
+  WaReZ boards (Underworld Elements is more than enough!) so, if you're 
+  one of those, there's no reason to apply!
+  
+  However, everyone can be some sorta "IR-disto". All you have to do is
+  to set up an Immortal Riot area from where your users can download our
+  magazine's for free! No more, no less! But if you do, then don't claim
+  that it's a IR-distro, it's just a "sorta" distro :).
+    
+  Faked-up-Time-Line
+  컴컴컴컴컴컴컴컴컴
+  Well.. shit I don't know what to write about, b'cos I don't really
+  know what's happend, etc :). But I give it a try..
+  
+  A quick impuls
+  컴컴컴컴컴컴컴�
+  After the relase or IR#4 I actually didn't do shits until ...now!
+  Heh. Not for "Immortal Riot" anyhow if you get my point. And after
+  about four month of doing shits, seing our "one year birthday" getting
+  closer for each day and everything I all sudden got a impulse (Yah, 
+  I'm famouse for those, right..) that told me "Release the mag, release 
+  the mag!". So heck, what was I suppose to do, eh? Of'cos I decided to 
+  release it!
+  
+  Sure.. but the problem was this; I hadn't done shits, neither had
+  Metal Militia, Raver or B-Real, so let's say that this issue and all
+  it's content was made in a period of less than 7 days (Promise!)
+  
+  Growing up - being an adult?
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  But anyhow, let's look back a few month. I graduated from my old
+  school the 8:th of June, and I think Metal Militia and B-Real 
+  quitted their's that day as well. We all will however continue to 
+  study. Heck, I don't want to be an adult, working 08.00 to 17.00 
+  every fucking day!
+  
+  The slaughter of Mikael Winterkvist part 1
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  But let's also talk about the virus-scene a bit.. Ok starting with
+  the very feared Mikael Winterkvist (sysop on Computer Security Center,
+  faggot reporter and the main person behind RSBBS), hahaha I had never
+  actually seen him before the release or IR#4, but now I have :).
+  
+  The story goes something like this.. A school-dude to me called me
+  up late one day saying that (using his word) "the faggot" was on TV. 
+  Well, I was actually not far from puke all over! Haha! You know he's 
+  been telling the papers/TV-channels that virus writers are social 
+  failures, "maladjusted misfits", ugly demoralized assholes creating
+  viruses b'cos we don't make the real life and to get our revenge
+  to the society? Right? Heh. Guess what this geek looks like?
+  
+  Well, if I could decribe him to you I would tell you, however I can't 
+  really! Hm, okay, I know he's about 36 years old, but he look's like 
+  17:ten or something! He got more spots than I had when I was 14:ten,
+  and that were quite a few! Then, he's pale (spent to much time in 
+  front of the computer, lam-o, eh?) and extremely ugly! ...and keep in 
+  mind that this isn't only my decription of him, it's rather what all
+  except his wife(?) would describe him as!
+  
+  Heck, when he's describing virus writer's, I think he's describing 
+  himself! Say Mikael, who's the social failure? Who's doing this b'cos
+  of one can't stand the real life, and think one is cool b'cos of
+  doing this? Sure aren't me, looser!
+  
+  The rise of Winterkvist
+  컴컴컴컴컴컴컴컴컴컴컴�
+  But anyhow, the massacre of Mikael isn't over yet! Well okey, he was 
+  actually "hot-shit" here in Sweden after the bust of SHA, but since 
+  that, he's going down the drain! So, let's talk about the rise and fall 
+  of this person!
+  
+  Winterkvist as Esmond Dury
+  컴컴컴컴컴컴컴컴컴컴컴컴컴
+  He first got "fame" b'cos of the well known real-name publishing
+  of the top ten VX boards in Sweden. Here he cooperated with a person 
+  called Mikael Larsson (sysop of Virus Help Center), but this person 
+  was only used by Winterkvist. "All credits, fame and money to me, 
+  please!". (as I said before, he's a greedy geek!)
+  
+  Of that reason Demoralized Youth, The Beta Boys and Line Noise
+  (*.* of the virus writing groups in Sweden) quitted doing viruses,
+  and closed down their VX-boards.
+  
+  I quote F-Bull 2.07 about what happend after..
+  
+  "the virus situation in Sweden has been very peaceful of late - 
+  doubtless the Swedish Hack Rapport had a hand in this."
+  
+  Winterkvist - building his third reich
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  Yes. From this time the "Swedish hack Report" as well as his own mail-
+  meeting become very appreciated. Then he was all sudden an "expert"
+  concerning "hackers, virus writers and other keyboard criminals", and
+  if a paper/television-channel needed any information he was the person
+  to ask! Mikael Larsson soon enough became an "back-ground" character!
+  
+  Winterkvist and the bust of SHA
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+  But Winterkvist was only appreciated by the pd and some elite-wanna-
+  be's and not by (what were left of) the underground! So, the famouse 
+  group called SHA (Swedish Hacking Ass.) released the full CBI of 
+  Winterkvist, and as a result of that, they got (by Winterkvist) 
+  busted bigtime! (That was a pure personal revenge from his side!)
+  
+  The fall of Winterkvist part 1
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  But now we did something that really pissed of Winterkvist. Heh. 
+  We posted all of our sourcer's on anti-virus-net's, opened VX boards, 
+  created chaos as well as started to make fun of him! Now he started to 
+  look "weak" b'cos of we defeated him all the time! 
+  
+  He first quitted doing his "hacker-report bulletin", b'cos no one cared
+  about what he wrote anyhow! (We're in control, OBEY!) Then he also 
+  dropped his own, beloved mail-meeting, and for a short period there 
+  was complete "anarchy" on his ex-meeting :). Something I love to take 
+  credits for!!
+  
+  Huh? But we want him to go down deep! So, we posted more sources on
+  swe.vir, as well as on his old meeting (I think). Now he hated
+  us ever more than before! He had to cut out swe.vir from his board, 
+  b'cos he said that he didn't want to help us with the "virus-
+  spreading" so to speak and cried out for help on the meetings as well 
+  as in the "news bulleting" on his very own board. "How are we going 
+  to stop this?". (Sub, cough, snort)
+  
+  Whelp! What happend now? Mikael looked weak, and nothing ever happend
+  with the so powerful RSBBS (You know, his "sturm-abteilung" department
+  to hunt scum-bag's down!). Heck, the situation in Sweden is (from his
+  view) worse than ever! 
+  
+  Sweden - a country where anarchy rules
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  Viruses which are created/released from Sweden pops up daily! Swedish
+  viruses are reported in the wild! Reports on hacked/crashed boards, 
+  infected as well as crashed harddrives are posted frequently on the 
+  "warning-nets". There's chaos and anarchy out there! ...and he and 
+  his (few) followers don't have enough power to clean it up!
+  
+  First, let's start with the viruses created in Sweden. Desperado and
+  Junkie shaked the world! Tai-Pan spread like a wildfire in Sweden, and
+  our viruses as well as the one released from A.N.O.I. has indeed nuked 
+  quite a few harddrives!!
+  
+  Sweden - and the faked up laws
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  Then, nothing happened with the computer law! Yes Mikael we're laughing
+  at you, b'cos there's nothing you can do of the reason that there's no 
+  law that forbid us to create viruses! ..and hopefully there will never 
+  be! (and be my guest, try to prove that we spread them!.. hahahah!)
+  
+  Hm. Talking about laws, I've some inside information concerning that!
+  Actually I kinda "know" one politican whom has written a proposition
+  to the government in which he want to forbid the creating, spreading,
+  sharing and even the possession/ownership of viruses! Ever heard 
+  something that stupid?
+  
+  Ok. Let's analyze that proposition! If writing viruses get's illegal,
+  people will create 굆 as an objection about to the new law!! People
+  will spread their viruses, (which most likely will be a hell of a lot 
+  more destructive!), including some text about the "facism government" 
+  which forbids the human rights, i.e. the freedom of speech, etc. 
+  
+  Then, if someone really get struck with a virus, he's a criminal?! He
+  possess a virus! That's fucking illegal! ...and if he want to get help
+  with removing it (i.e giving it away to someone else, that is a 
+  programmer, so this person can make a a-v program to it!) he can be 
+  put in jail or pay a shitload of money for breaking the law concerning
+  exchanging viruses?
+  
+  Sweden with a facism government
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+  What kinda democracy is this?! None! Sweden is said to have the best
+  democracy in the world! But is this democracy? Aren't you allowed to
+  do what you want with your own computer? Aren't you allowed to share
+  a fucking source-code (read: text file!) with your best friend? 
+  Something is wrong here! and I know what's wrong!
+  
+  Sweden got politicans that are living in a dream world! They think
+  forbidding everything is the solution to everything. Well, this has
+  several times been proven wrong, but if the new laws are followed 
+  or not, is of less importance, they think. Yah, politicans sucks! 
+  Why can't we let anarchy rule and instead of have laws, trust the 
+  human moral?
+  
+  Me - a confused anarchist?
+  컴컴컴컴컴컴컴컴컴컴컴컴컴
+  Hm. What more? As you can see, I've changed my mind about a whole lot
+  of things. Some call me confused, some people a nazist, other's an 
+  anarchist. Ok, put it this way, I've been more politically concerned
+  b'cos of I've get a few reports about non-criminals such as virus-
+  writers, getting busted. What's happening with our society?
+  
+  Blame the European Community
+  컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+  I tell you this, EU - or the European Community is the reason! More
+  security agency's (EuroPol for instance) start to pop up! But they do
+  not really know what to do but however they still gotta nail someone 
+  for something, right? So, what they do is to bust some people that 
+  havn't done anything illegal. Black Baron for example! Sure he have 
+  written a few viruses, but is that really illegal? No way! But Heh. 
+  I think Metal get kinda pissed on me if I steal "his" article so, 
+  no more in this article about that.
+  
+  But back to the security agencys. Sure as hell people are afraid of
+  them! Heck, they can fuck with your life real bad if they want! They
+  can beat you up if they want, b'cos even if you sue them, who are to 
+  be trusted? And as a result of this, the underground has to remain
+  underground :). Who makes profit of that we have to be underground? Do
+  we? Hardly! Do the a-v? Most likely, and that's why I think that some
+  of them (Alan Solomon) are busting virus writers! Even if they don't
+  win in the court, it'll scare a few "real-name-writers" into the 
+  underground and if someone is underground, people are "afraid" of 
+  them, and buys protection (anti-virus) and they a-v vendors earn 
+  lotsa money! (Selling protection? Somehow remind of the Mafia, 
+  isn't it?)
+  
+  So Alan, I don't really think you're willing to get rid of the viruses!
+  You're rather a smart, greedy and selfish asshole! Fuck you!!
+  
+  What's happening worldwide
+  컴컴컴컴컴컴컴컴컴컴컴컴컴
+  What's happening worldwide is really quite impressing. I mean virus 
+  writing groups has always been the king of the mountain (scene), it's 
+  always we that draw the main attention. Why?
+  
+  Well, I asked the same kinda thing a couple of days ago, and I think
+  I got the answer! Look back and see what virus groups that has existed!
+  First, there was Rabid, then Phalcon/Skism, NuKE, Demoralized Youth
+  TridenT, Virulent Graffitti, YAM, Immortal Riot, etc. etc. What does
+  we all have in common? We create viruses, eh? Sure, but that's not what
+  I'm getting at.. We're releasing magazine's, journal's and other 
+  quality information!
+  
+  Viruses will be remembered
+  컴컴컴컴컴컴컴컴컴컴컴컴컴
+  If a waregroup releases 2 games/day they get kinda "fame" in the scene.
+  The member-boards sysops, crackers, etc. are (for a short time) 
+  hot-shot's. No doubt about it! But to the world-outside programs and
+  games are so common, so they don't really care about who cracked,
+  supplied or couried them. Right? They don't thank the persons doing 
+  all that job for them! Why? B'cos human's are in general quite 
+  ungrateful! But if some people harm them (like we do) they'll most 
+  likely care about us! But that was b'cos we create viruses, and not 
+  magazine's, right?
+  
+  Magazine's - appreciated
+  컴컴컴컴컴컴컴컴컴컴컴컴
+  Yeh. Sure, but there's something extra with magazine's. People love 굆!
+  They're free, easy to get your hand on, informative and they're funny!
+  Also, it's a question about quantity. If you release a cheesy virus as 
+  a plain textfile, they will only put it in your collection area among
+  3.000+ others! I.e. it'll not be noticed! But if the same virus is 
+  included in a magazine, it'll draw plenty of attention!
+  
+  It's not the quantity...
+  컴컴컴컴컴컴컴컴컴컴컴컴
+  For example, look at Phalcon/Skism's 40HEX. They have released 13 
+  magazine's in a period of about 3 years! Still they're well known to
+  the "scene-guys" as well as non-computer users! And the're most likely
+  to be remembered for a long time.. 
+  
+  But consider a wares group who release 13 games in a period of 3 years.
+  Heh. People would laugh on them call them lamers, loosers, etc. So,
+  what's the difference? Well, first, we create something that lives!
+  
+  Viruses lives...
+  컴컴컴컴컴컴컴컴
+  I quote a germany virus writers:
+  
+  "You feel something wonderful has happened when you've produced one. 
+  You've created something that lives. You don't know where it will go 
+  or what it will do, but you know it will live on."
+  
+  Yah, viruses live on their own! "Somewhere in time...", but consider a
+  game. Huh? The best games (like Civilization and Doom) are played one 
+  or two month. No more. Also, what wares-groups do, is not creating. All
+  they do is "destroying". Cracking games.
+  
+  Destructive creating
+  컴컴컴컴컴컴컴컴컴컴
+  But demo-groups also creates stuff? Will they be remembered? Who for 
+  instance remember The Space Pigs? They released the first VGA-demo 
+  ever! Back in those days, it was hot shit! Do you remember them? Some 
+  maybe, but not too many! Well, they're now known as "Digital Illusion".
+  Yah, the one who released Pinball Dreams/Fantasies, etc. But you 
+  probably didn't know that, right?
+  
+  TSP created something good, something that people liked, but I don't
+  think they will be remembered anyhow! Why? Well, it's the question
+  about harming again. Demos most certainly doesn't harm your machine! :)
+  
+  But some demo groups are as well releasing magazine's, right? Well,
+  for example World Charts from Future Crew. That was beutiful, I think.
+  I remember they released it, but not what were in it! But on the same 
+  time I remember everything said in virus-magazine's! "Which viruses 
+  that were included, what they did, etc. Why? b'cos I am more
+  interesting in viruses? No! When I first started with viruses, I was
+  a hell of more interested in demos than viruses! But I still can't 
+  remember what they wrote about! Why?
+  
+  Well, it's b'cos they write their charts (i.e, who's the best, etc);
+  only last for a few month. Then, it's outdated! A virus lives, and 
+  that's b'cos I remember them so much better!!
+  
+  Rabid - still alive!
+  컴컴컴컴컴컴컴컴컴컴
+  So. That's why for instance people still talk about Rabid, etc. People
+  don't (normally) talk about The Space Pigs, but people might talk 
+  about Rabid b'cos of a virus in their Data Rape still causes 
+  infections! ...and then they'll most likely care!
+  
+  The a-v blabbler's
+  컴컴컴컴컴컴컴컴컴
+  Also, we do got the anti-virus blabbler's to thank for all attention!
+  The other "scene's" doesn't have this kinda person's that all the time
+  is blabbeling. The a-v might blabbel about the danger that a nuclear-
+  war can be started with a virus, that a virus can manipulates your 
+  bank-account, for how much they destroy, etc. and for that, I'm 
+  actually grateful! I like attention, no doubt about it! It's just like 
+  the real life, if you're well known, it also feels good.
+  
+  What's wrong with getting "fame"? It's not any compensation that all
+  a-v thinks, saying that we're failures in our real lifes. The opposite 
+  in fact. If one person like fame to his handle, he most likely like 
+  fame in his real life as well. But let's not get into the subject 
+  about the motivation why we create viruses, it varies! You can't get 
+  the same story from two different writer's, and that's something the
+  a-v and the press never will understand!
+  
+  Closing words
+  컴컴컴컴컴컴�
+  Ok. This was quite a mixed-up article, including a shitload of 
+  different stuff. But oh well, I didn't feel like seperate them
+  into smaller articles, hope you don't mind!
+  
+                          = The Unforgiven =  
