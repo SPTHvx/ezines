@@ -1,0 +1,56 @@
+    
+    Dist/Contact Info
+    +---------------+
+
+    The distribution list definately has grown since the last issue,
+    and there are a few more to come.. just waiting on people to get
+    phone lines :).  If you want your bbs to be added to this list,
+    email me at the address below.  If there's a bbs close to yours
+    already in the list then it isn't really worth it.
+
+    We've just about totally given up with echomail so I doubt you'd
+    be able to get in touch with us through CRIS/NuKEnet.  You could
+    try leaving a message in alt.comp.virus or look for any of us
+    in #virus on IRC.  Due to the summer break our email addresses
+    have kinda died.  You can still get in touch with us at
+
+    meta@thumper.loa.com
+
+    Eventually we'll be re-reachable at our normal addresses of
+
+    meta@tmok2.tmok.com
+    (please send to this instead of meta@tmok.res.wpi.edu)
+    vlad@trisection.mit.edu  <- antigen's email
+
+    Through internet you can get our magazine a few different ways,
+    either ftp from
+    ftp.fc.net     : /pub/deadkat/virus/vlad
+    aql.gatech.edu : /pub/virii/vlad
+    ftp.netcom.com : /pub/br/bradleym/Zines/VLAD
+    world wide web : http://nether.net/~halflife
+                     (http://tmok2.tmok.com/~meta when tmok gets back up)
+    or see if lamerbot is on irc (usually on #vx) and type
+    /msg lamerbot get Zines/VLAD/vlad#?.zip
+
+    Anyways, here's the list of BBSs you can get all of our releases
+    from..
+
+    Board                    Number          Sysop       Country
+
+    W.C.I.V.R Node 1         714-772-7039    Falcon      America
+    W.C.I.V.R Node 2         714-533-9615      ""          ""
+    Area 51                  908-526-4384    Kalvin        ""
+    The Fringes              506-861-7200    Downtown    Canada
+    Arrested Development     +31-77547477    Omega       Holland
+    Darkland BBS             +45-45974344    Darkman     Denmark
+    Wizard's Lair            +46-86586541    The Wizard  Sweden
+    Tron BBS                 +49-3995422037  Tron        Germany    *
+    * login VLAD pwd PARIS
+    Destiny Stone ][ Node 1  +61-92462553    RipMax      Australia  *2
+    Destiny Stone ][ Node 2  +61-92463491      ""          ""       *2
+    *2 login VLAD pwd SITE
+    UiS                      +60-35210772    Pop         Malaysia
+    Black Adder              +97-26514404    Nimrod      Israel
+
+    Metabolis/VLAD
+

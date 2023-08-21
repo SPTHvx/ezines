@@ -1,0 +1,130 @@
+ 
+
+                       The Slovakian Virus Scene
+                                  by
+                              Qark [VLAD]
+
+
+ Since the death of Bulgaria as the virus centre of the world two or three
+ years ago, America's recent decline (another story) and the death of
+ Trident in the Netherlands, the normal places we think of as virus capitals
+ have moved.  Sweden has always been a hotbed of activity, but recently
+ Taiwan, Australia, Russia and Slovakia have improved in focus.
+
+ Slovakia is a small country, being the 'other' half of the former united
+ czechoslovakia, but it has two virus groups, and a seemingly large interest
+ in computer viruses.
+
+ When the MtE used to be a very popular polymorphic engine, there was
+ another, not so well known but advanced polymorphic virus called
+ Slovakia 4.0, the last member of the Slovakia series. It was as good as
+ the MtE, although it used different techniques. This virus became quite
+ common in Slovakia.  At that time, SCAN only used algorithmic detection
+ for two things, the MtE and the Slovakias.  Also, according to Patricia
+ Hoffmans VSUM these two were the only strongly polymorphic systems.
+ Slovakia 4.0 was the last virus this author has created (as far as is
+ known).
+
+ The most famous virus from Slovakia must be OneHalf virus by Vyvojar. It is
+ the second part of the Explosion series. It has spread all over Europe
+ and reached the US, thus being clasified as a "common virus". OneHalf
+ is a light polymorphic COM/EXE/MBR infector. It utilises a special
+ construction of jumps to distribute the decryptor into 10 pieces all over
+ the host code (kind of what Commander Bomber does, but in simplified form).
+ Removing the virus using the popular "FDISK /MBR" usually causes the user
+ serious trouble as two tracks are encrypted each time the computer is
+ rebooted and the virus decrypts the data on the fly, so the system becomes
+ addicted to the virus.  This makes it a very popular topic in [anti]virus
+ forums.
+
+ Level_3 is the third and final virus in the Explosion series. It implements
+ EMM1_0 (Explosion's Mutation Machine 1.0), one of today's most advanced
+ polymorphic engines. There are 2 phases of decryption, one is a linear and
+ about 700 bytes long, full of conditional jumps (it emulates it's own
+ code to determine instruction flow). The first phase decrypts the real
+ decryptor of the virus (which is a simple loop). This is why it can't be
+ discovered by a simple decryption routine detector. TBAV only catches a few
+ samples by mistake. The source code can be found in 40hex-14.
+
+ Vyvojar (the author of the viruses mentioned above) announced the end of
+ his virus writing activities because of school graduation and being busy
+ with different things. This is the end of the career of a virus writing
+ great.
+ 
+ Although unknown by most, Slovakia is also home to a virus writing group
+ with three members called the Slovak Virus Laboratories (SVL) who have
+ written a few quality viruses.  The members of the group are JohnyX,
+ Mengele and The Professor.
+
+ The following is a translation of an article they wrote for a popular
+ Slovakian magazine.
+
+ This article was originally published in a computer magazine called
+ PC-REVUE issue 2/95 in a column "VIRUS RADAR", which is dedicated to new
+ viruses in Slovakia. This article was translated from the Slovak language,
+ with notes indicated using square brackets.
+
+ ------8<-------------------------------------------------------------->8---
+
+ On the computer, at the end of the year 1994
+
+ Dear friends, we wish you all the best in the New Year 1995, in the name of
+ the Slovak Virus Laboratories (SVL).  We have picked this unusual kind of
+ New Years Greeting (well, we write unusual viruses as well, and one must
+ admit they're not the worst either), because we are sure that our favourite
+ VIRUS RADAR will mention it. To show our goodwill, we enclose the source
+ code of SVL 1.2, which has been discussed recently (we really are the
+ authors, don't doubt it).
+ A few words about SVL: we're cheerful guys, who are interested in Fred
+ Flintstone's philosophy (except our Development Chief, who is only
+ interested in girls and beer), as well as in writing tasty and juicy
+ viruses.  The group was founded spontaneously about 3 years ago in a bar,
+ while discussing the advantages of vodka combined with juice against pure
+ vodka.  First we did nothing, but then we started to do some freelance
+ production.  We have achieved several successes, we even got into the
+ newspapers (we have to mention one successful boot virus, the last one in
+ former Czechoslovakia [translator's note: Czechoslovakia split into Czech
+ and Slovakia in 1993; the "successful boot virus" seems to be J&M, which
+ formats partition table on November 15, although I assume that the virus
+ comes from Czech originally]).
+ Also in August we managed to do something, partly because one of our
+ irresponsible members forgot to change the text in the source to "GET AWAY
+ FROM THE COMPUTER, IT'S SUMMER !!!" and left it the way it was (he had to
+ be extremely polite to all SVL members for a month). After a time of
+ lethargy we released SVL 1.1 and 1.2.  In order to prevent rumors about
+ preparing something like SVL 1.5896, we announce that there is not and
+ never will be any version 1.x (besides 1.1 and 1.2). However, the world
+ keeps turning round pervertly and so we will keep writing viruses, which
+ will keep the writers of antiviral software alive (they should at least
+ support Ahmed Semtex's group in their fight against the Windows threat).
+ Shouting "LET'S ATTACK IN THE NEW YEAR" [translator's note: it rhymes in
+ Slovak language, of course :)], we prepare hot news - SVL 2.0 -  It will
+ appear on your computers in the first or the second half of the year.
+ Actually, it is our personal response to EXPLOSION [translator's note:
+ Explosion is the first one of the row "Explosion, One_Half and Level_3"].
+ Finally, we would like to send some hot STEALTH greetings to our favourite
+ Virus Radar, Vyvojar [note: that's the nick of the guy who wrote the
+ Explosion series]. Addititonally, we would like to express our unlimited
+ admiration to the players, who broke the Guiness Record (none of us has
+ ever played a computer game for more than 40 hours) [note: there was an
+ attempt to beat the Guiness Record in length of playing the computer games
+ in Bratislava (the capital of Slovakia) in December '94. The current record
+ is about 175 hours]. We wish you enough cheap and high-quality software and
+ don't forget:
+ If you don't want to have your computers infected, don't buy them!!!
+
+ Yours Sincerely,
+                        Press Manager of SVL
+
+ P.S.  The only virus that infected us in 1994 (besides flu, we all caught
+       it) was OneHalf. We congratulate the author and we offer a meeting
+       sometime in the future.
+
+
+ ------8<-------------------------------------------------------------->8---
+
+ Another quality virus from Slovakia is the Lion King virus which is a
+ polymorphic stealth COM/EXE infector written by an unknown author who
+ identifies himself as LST.
+
+

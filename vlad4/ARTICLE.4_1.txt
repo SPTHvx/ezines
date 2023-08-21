@@ -1,0 +1,177 @@
+
+
+  Virus Descriptions
+  +----------------+
+
+  Andropinis                    -       Author: Rajaat
+                                        Origin: United Kingdom
+                                        Type:   Multipartite infector of COM
+                                                files and the hard disk
+                                                master boot record.  Uses
+                                                anti-heuristic tricks to
+                                                avoid TBScan.  Full stealth
+                                                on the infected MBR.
+                                        Note:   This is not a VLAD virus but
+                                                a contribution by an
+                                                independant author.
+
+  Super Virus-2                 -       Author: Burglar
+                                        Origin: Taiwan
+                                        Type:   TSR Polymorphic Semi-Stealth
+                                                infector of COM and EXE
+                                                format files.  Uses 286
+                                                instructions and has a
+                                                payload where it writes a
+                                                hello message to the screen.
+                                                Finds the original Int21
+                                                using the Int30h trick.  Uses
+                                                Int2f AH=13h to get the
+                                                original Int13 and sets Int13
+                                                to this before infecting.
+                                                Semistealth as it hides the 
+                                                file size on functions 11 and
+                                                12. Uses unusual undocumented
+                                                methods to go resident. 
+                                                After opening the file to
+                                                infect, the virus duplicates
+                                                the file handle, closes the
+                                                original handle, and
+                                                continues to infect using the
+                                                new handle.  Uses the
+                                                Phantasie Polymorphic Engine
+                                                which makes the virus hard to
+                                                detect without the use of
+                                                difficult algorithmic
+                                                scanning.
+                                        Note:   This is not a VLAD virus but
+                                                a contribution by an
+                                                independant author.
+
+  VTBoot Variant 18             -       Author: Dark Fiber
+                                        Group:  Australian Institute of
+                                                Hackers (AIH)
+                                        Origin: Australia
+                                        Type:   Full stealth floppy boot
+                                                sector, hard disk MBR
+                                                infector.  Most remarkable
+                                                for its small size.
+                                        Note:   This is not a VLAD virus but
+                                                a contribution by an
+                                                independant author from a
+                                                different group.
+
+
+  Ebbelwoi Subversion Qux-7     -       Author: Sirius
+                                        Origin: Germany
+                                        Type:   Semi-Stealth infector of COM
+                                                files.  Is semi-polymorphic.
+                                                (Three stable bytes)
+                                        Note:   This is not a VLAD virus but
+                                                a contribution by an
+                                                independant author.
+
+  Ender Wiggin                  -       Author: Rhincewind
+                                        Origin: Unknown
+                                        Type:   Parasitic TSR COM infector.
+                                                Infects by writing itself
+                                                into the empty cluster space
+                                                behind the end of files.
+
+  WinSurfer                     -       Author: Qark and Quantum
+                                        Origin: Australia
+                                        Type:   Parasitic TSR NewEXE
+                                                infector.  One of the only
+                                                windows based viruses in the
+                                                world, this creation only
+                                                runs in protected mode,
+                                                infecting the windows
+                                                executable upon execution.
+
+  Antipode V2.0                 -       Author: Automag
+                                        Origin: France
+                                        Type:   Parasitic semi-stealth
+                                                resident COM infector.
+                                                Specifically targets TBAV,
+                                                containing many tricks to
+                                                defeat and bypass the
+                                                resident utilities and
+                                                scanner.
+
+  Bane                          -       Author: Quantum
+                                        Origin: Australia
+                                        Type:   Full stealth EXE header
+                                                virus.  Writes itself into
+                                                the space at the end of the
+                                                EXE header and will stealth
+                                                reads to that same place by
+                                                monitoring int13 reads.
+
+  RHINCE                        -       Author: Rhincewind
+                                        Origin: Unknown
+                                        Type:   Not a virus at all, but a
+                                                small, compact polymorphic
+                                                engine.  Generates random
+                                                code which, when executed,
+                                                writes a small xor decyptor
+                                                to undo the encryption.
+
+  Tasha Yar - II                -       Author: Quantum
+                                        Origin: Australia
+                                        Type:   Full Stealth TSR COM/EXE
+                                                infector.  Contains a payload
+                                                where infected files can't
+                                                be deleted, and if a fossil
+                                                driver is detected, an ansi
+                                                is sent to the modem.
+
+  Replicator                    -       Author: Darkman
+                                        Origin: Denmark
+                                        Type:   Resident EXE infector.
+                                                Unencrypted, semi-stealth
+                                                virus with an error handler.
+                                                Infects all EXE files in
+                                                the current directory when
+                                                the user changes drive or
+                                                directory.
+
+  Antigens Radical Tunneler 2.2 -       Author: Antigen
+  (ART v2.2)                            Origin: USA
+                                        Type:   The most advanced tunneler
+                                                ever made, surpassing even
+                                                the previous version.
+                                                It no longer uses int1 and
+                                                the trap flag, instead it
+                                                calculates the length of the
+                                                instruction, copies it
+                                                into a buffer and executes
+                                                it.  Get's past every AV
+                                                TSR it has been tested
+                                                against.
+
+  Good Times                    -       Author: Qark
+                                        Origin: Australia
+                                        Type:   Polymorphic TSR COM/EXE
+                                                Infector.  Flexible entry
+                                                point on COM files because it
+                                                checks the code for jmp/call
+                                                instructions.  Is only
+                                                polymorphic due to use of
+                                                the RHINCE engine.
+
+  DOS Idle                      -       Author: Darkman
+                                        Origin: Denmark
+                                        Type:   Resident COM/EXE infector.
+                                                Uses trivial 16bit xor
+                                                encryption.  Has an error
+                                                handler, no stealth, hooks
+                                                int 28h and infects the
+                                                owner of the environment.
+
+  Neither here, nor there       -       Author: Metabolis
+                                        Origin: Australia
+                                        Type:   Direct action infector of
+                                                COM files.  Unusual in that
+                                                it prepends half the virus
+                                                body and appends the other
+                                                half.
+

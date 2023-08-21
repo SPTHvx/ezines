@@ -1,0 +1,7 @@
+
+ If you don't have a VGA monitor, or you're sick of watching the
+ intro to the magazine then just put any old crap on the command
+ line and it will skip it.
+
+ Metabolis
+

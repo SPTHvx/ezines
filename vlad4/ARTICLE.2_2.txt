@@ -1,0 +1,790 @@
+
+
+                            F I G H T   B A C K  !
+                          --------------------------
+
+                          (c) 1995 by Sauron's Mouth
+
+
+ 1. READ THIS!
+
+ This document is dedicated to all virus writers which think that just barely
+ finishing a virus is a good job. It's lame! There are thousands of primitive
+ viruses which don't have stealth, aren't polymorphic or don't even have any
+ retro structures. A lot of viruses aren't bug free and won't spread far.
+ If you aren't skilled enough to code a full-stealth virus or a polymorphic
+ engine and feel great when finishing another lame non-resident virus then
+ stop reading this.  Most likely this stuff is beyond your wildest dreams.
+ AV's are invited to read on. Just see how weak your 'protection' is.
+
+ In this document you will find tricks to bypass or disable AV software and
+ ways to make the life of the AV people even harder. I will not give you
+ complete sources, try yourself. If you write viruses just to infect other
+ people or destroy data then piss off. Coding is fun, and this should be the
+ only reason to make viruses. But let's start with the real stuff.
+
+
+ 2. BASIC STRUCTURES
+
+ Most AV programs have weak spots. Some of the AV programs have A LOT of weak
+ spots. But before starting with retro structures I suggest you consider this
+ for your virus:
+     - Don't infect programs with internal overlays. They will be corrupted
+       or won't work anymore after infection. It's very easy to check this:
+       compare the real file size (maybe with i21/4202 CX=DX=0) with the code
+       size indicated in the EXE header (offset 2 and 4 plus paragraphs in
+       header) It's also a good idea to check for 40h at offset 18h in the
+       EXE header.
+
+     - Don't (!) reset INT 13h while infecting files. This will corrupt your
+       hard disk very fast when a disk cache is used.
+
+     - Set all registers (AX-DX, SI/DI/BP) to zero before returning to the
+       host program. This will prevent trouble with programs which require
+       command-line parameters.
+
+     - Use extra memory. It's very easy to use UMB, HMA or EMS memory.
+       See i21h/5803h (DOS-UMB), i2Fh/4310h (XMS-UMB/HMA) and i67 (EMS).
+       Keep in mind that when staying resident in the HMA you can only use
+       INT 13h for reading/writing. INT 21/3F and 40 don't function there.
+       There's still some virus scanners which just scan the memory up to
+       640K, for example TNTVIRUS and it's derivates CPAV & MSAV.
+       Don't resize the last MCB or reduce the top of memory. There's a lot
+       of tools which can detect this.
+
+     - Set INT 24h to [MOV AL,3 / IRET] while infecting files. This will
+       suppress error messages when infecting files on write protected disks.
+       This is stupid, but there's still viruses which don't do this.
+
+     - Wipe the file attributes before opening a program and restore them
+       after the infection. Viruses that can't infect READ-ONLY files are
+       lame.  Also keep the file time stamp during infection.
+
+     - Setup a correct new stack for infected EXE files. Don't use CS=SS
+       but SS=CS+1 and avoid odd SP values. To make the testing of cleaners
+       a bit more difficult you should also increase MINIMAL PARAGRAPHS
+       NEEDED in the EXE header. If you make this, the AV people can't use a
+       simple file compare to validate the cleaned file.
+
+     - Use anti-heuristic structures. There's alot of virus scanners with
+       heuristics now. F-PROT isn't that good, but TBSCAN and AVP are really
+       good at detecting unknown viruses.
+
+       Don't use
+
+          CMP AX,4B00h      but maybe     XCHG AX,BX
+          JE  Label_1                     CMP  BX,4B00h
+                                          XCHG AX,BX
+                                          JE   Label_1
+
+       There are thousands of ways of varying this. Be creative!
+       Especially the example above is very often detected, for example by
+       the heuristic memory-scanning (!) of AVP.
+
+       There are other structures you should really avoid:
+
+       CMP [0],"Z"       (Search for last MCB)
+
+       MOV [1],8         (Mark MCB as system area)
+
+       SUB [3],xxxx      (Cut MCB by xxxx paragraphs)
+
+       MOV AX,2521h      (Hook INT 21h)
+       INT 21h
+
+       MOV [84],xxxx     (Hook INT 21h directly)
+       MOV [86],cs
+
+       MOV AX,[413] /    (Modify top of memory)
+       MOV [413],AX
+
+       CALL $+3          (Get current IP)
+       POP SI
+
+       CMP [xxxx],"ZM"   (Check for EXE file)
+       CMP AX,"ZM"
+
+       CMP [xxxx],"XE"   (Check for COM or EXE extension)
+       CMP [xxxx],"OC"
+
+       MOV DI,100h       (Restore the header of a COM program)
+       MOVSW
+       MOVSB
+
+       MOV [100h],xxxx
+       MOV [102h],yy
+
+       MOV AX,100h       (Jump back to COM starting IP)
+       PUSH AX
+       RET
+
+       MOV AX,100h
+       JMP AX
+
+       MOV AX,F592h      (Installation check)
+       INT 21h
+       CMP AX,2343h
+
+ 3. ADVANCED STRUCTURES
+
+ 3.1 Full-stealth (file level):
+     Many viruses just have semi-stealth, but it's very easy to make a virus
+     full-stealth. In my opinion this belongs to the basic structures of a
+     virus, and every virus should be at least full-stealth.
+
+     There are two ways to achieve full-stealth:
+
+     1. Clean infected programs at i21/3Dxx. This has some advantages but
+        causes many other problems. It won't work on write protected disks,
+        it's slow (ok, most people uses disk caches) and very primitive.
+        It's effective against MSAV/CPAV anti-stealth and should
+        be enabled when MSAV.EXE or CPAV.EXE is executed.
+        (But who's is using this rubbish anyway?)
+     2. The more professional way is to clean infected files during reading.
+        Just intercept the following i21 functions:
+        AH=11/12 - Just do normal semi-stealth (SUB ES:[BX+1C],Vir_Length)
+        AH=4E/4F - Same as above
+        AH=3F    - This is the most difficult part of the code. First of all,
+                   check if the opened file is infected. You should store the
+                   complete original file header behind the virus code if you
+                   infect a file, you'll need it now.
+        AH=40    - Check if the file is infected and if true clean it before
+                   allowing the write access.
+        AX=4202  - You don't have to handle 4200 or 4201. Just take care of
+                   subfunction 2 because it sets the file pointer relative to
+                   the file end. Allow the interrupt and subtract the virus
+                   size from the resulting DX:AX pointer.
+        AX=4B01  - This is used by debuggers. Just clean the file completely
+                   before allowing this call.
+
+        The following situations must be handled with i21/3F:
+
+         0        18h
+         ########################################################
+         # Header # Program        # Virus    # Original Header #
+         ########################################################
+         +++++            (Read access from 0 to <18h)
+           +++            (Read access from >0 to <18h)
+         +++++++++====    (Read access from 0 to >18h)
+              ++++==      (Read access from >0 to >18h)
+
+         In this case the read access is just around the file header.
+         Just copy the neccessary part from the original header into
+         the read buffer. Be careful, the read access could start at
+         file offset <> 0.
+
+         ########################################################
+         # Header # Program        # Virus    # Original Header #
+         ########################################################
+                     ============
+                         ==========+++++
+                                     ++++++++++++++++++
+
+         The first case can be ignored. The second one crosses the border
+         and reads into the virus area. In this case just cut the read to
+         the legal program area. If you change the CX of the read remember to
+         restore it before returning to the host program! The third case is
+         very easy to handle, just return Carry=0 and AX=0 to the host.
+         You should check the ranges BEFORE the read access. If not, you
+         must also handle the correct setting of the file pointer.
+
+         ########################################################
+         # Header # Program        # Virus    # Original Header #
+         ########################################################
+            ++++++=================++++++++++++++++++ (Read access)
+
+         Of course your virus must be able to handle combinations of the
+         mentioned situations.
+
+     Some virus coders obviously don't know the RETF 2 operand. If you have
+     to abort an interrupt and need special flags use RETF 2 instead if IRET.
+     Example:
+
+                 CMP     AX,4202h                ; Set file pointer?
+                 JNE     Lbl_1
+                 CALL    Check_If_Infected       ; File is infected?
+                 JNE     Lbl_1
+                 PUSHF                           ; Call i21
+                 CALL    CS:DWORD PTR [Old_Int21]
+                 JC      Lbl_2                   ; Error?
+                 PUSHF
+                 SUB     AX,Virus_Length         ; Adjust with virus length
+                 SBB     DX,0
+                 POPF
+         Lbl_2:  RETF    2               ; Return without restoring the flags
+
+         Lbl_1:
+
+     A good way to check your stealth routine is FC and CHKSAFE and a binary
+     file viewer.
+
+     How to mark infected files? Most stealth viruses add 100 years to the
+     file date or set the seconds field to 60 or 62. Don't use this! A lot of
+     AV programs detect this (primitive heuristic) and also some AV-TSRs
+     will warn the user about files with an illegal time stamp. (TBFILE)
+     I've seen two solutions for this problem:
+
+       1. Just set a static 'legal' time stamp, maybe SECONDS=2 or a complete
+          new time stamp as 4-1-94. Keep in mind that you can't restore this
+          back to the original state when intercepting i21/11/12/4E/4F.
+          Some integrity checkers will warn the user if the time stamp has
+          changed, regardless as to whether the other file attributes are 
+          'unchanged'.
+       2. Size padding is quite complicated in combination with full-stealth
+          when you want to return the original file size. You have to open
+          the file and get the stored information. This is done by Havoc or
+          N8FALL, but this also slows down the execution of DIR when no disk
+          cache is activated. Padding means that you round up the file size
+          when infecting a program. Havoc uses a padding size of 1Fh bytes.
+
+     CHKDSK will cause trouble when intercepting i21/11/12. Those faked file
+     allocation errors are very easy to detect, and you really should think
+     of a way to suppress these errors. The errors are caused by intercepting
+     INT 21h/11/12 which gives results that dont match the directory entries.
+     An easy way is used by Natas. It checks the PSP of the current program
+     at the execution of i21/11/12. At [PSP:2C] you can find the name of the
+     current program and if this is CHKDSK Natas doesn't intercept i21/11/12.
+     It's also possible to check the name when i21/4B00 is called and disable
+     the intercepting of i21/11/12 until CHKDSK is terminated with i21/4C.
+     This is done by Tremor.
+     But it's very easy to rename CHKDSK and fool a lot of stealth viruses.
+     It's possible to intercept CHKDSK, no matter which name it has. Just
+     disable the semi-stealth code when i21/32h is called and enable it with
+     i21/4B/4C. This call is used by many disk tools and of course by CHKDSK.
+     As most other tools use i21/4E/4F it doesn't matter if you disable the
+     handling of INT 21h/11/12.
+
+ 3.2 Full-stealth (sector level)
+     This is only interesting for multipartite or boot sector viruses.
+     It's very easy to do, most sector viruses have this already.
+     But you also should take care of sector WRITES into the MBR. If you
+     don't redirect this the virus could be wiped very easily, no matter
+     if it's active or not.
+     Sometimes sector-stealth viruses just intercept the reading of the
+     first sector and won't hide the change if more than one sector is
+     read. Take care of this!
+     You should also hide the used sectors at cylinder zero on the hard disk
+     and the additionally used sectors on floppy disks.
+     It's a good idea to block INT 13h/0A/0B (Long read/write) and to use
+     stealth at port-level as it is demonstrated with the Megastealth virus.
+     For port-level stealth you have to hook INT 76h or INT 15h (function
+     91h).  This kind of stealth is effective against many AV programs, for
+     example against Invircible's 'LookThrough' feature.
+     But keep in mind that port-level stealth can be disabled by just
+     resetting INT 15h and INT 76h. (ADinf)
+
+     The boot sequence is critical. Take care of QEMM which reloads the
+     partition and of TBUTIL which is able to immunize the partition.
+     There's two sector viruses which can bypass an immunized partition,
+     GoldBug and Havoc. The immunized partition just checks for changes at
+     [0:413], INT 13h and the boot sector. GoldBug hooks INT 10h, cleans
+     the partition and reinfects it after DOS is installed. Havoc patches the
+     partition code directly to avoid warnings.
+     Windows with it's 32 bit disk-access will also cause trouble for
+     multipartite viruses. Again Havoc and GoldBug are examples how to bypass
+     this problem. Havoc adds the command-line parameter '/D:F' when WIN.COM
+     is executed, GoldBug intercepts i2F/1605h and removes it's INT 13h
+     routine from the interrupt chain until Windows is terminated.(i2F/1606h)
+
+ 3.3 Polymorphic encryption
+     This is used to make detection of the virus more difficult, but many of
+     the so called polymorphic engines are a joke and can be detected using
+     scan strings with wildcards. Many virus coders are of the opinion that
+     an engine should create as many garbage instructions as possible and
+     forget to vary the main encryption operands. In fact, SMEG and DSCE
+     are very difficult to detect. SMEG because of it's huge decryptors which
+     causes TBSCAN and AVP to slow down extremely and DSCE because of it's
+     anti-heuristic structures. It just builds the actual decryption loop
+     during execution. But both engines add too much senseless rubbish into
+     the decryptor. TPE doesn't create quite as complex decryptors but these
+     decryptors look more 'smooth', which causes problems for the scanners.
+     Here are some examples which you should avoid:
+
+     - don't use too many single byte operands like NOP, STI, CLI, CLC, ...
+     - don't use branches with zero length offsets (JMP $+2, LOOP $)
+     - don't use too many equal MOV REG,xxxx in a row
+     - don't use instructions which are not created by TASM/MASM
+       That would set another flag for TBSCAN. (Flag '@')
+     - don't use the standard anti-debugging tricks like OUT 21,AL
+       or INT 1/3 manipulation
+
+     Some methods to stop TBSCAN and AVP from decrypting the virus code:
+
+     - make several layers of encryption
+     - use 286/386 opcodes. This will cause flags with TBSCAN but you could
+       use them in the second decryptor level.
+     - don't use linear code. Branch alot.
+     - use do-nothing i21h functions like AH=4D, 54h, i16H/01 and others.
+       TBSCAN will stop decrypting if it finds such calls.
+     - Fake PKLITE, DIET or LZEXE decompression headers. TBSCAN will just
+       say "LOOKING" and won't scan this file.
+     - make use of stack tricks (see encryption of Witch virus)
+     - use CPU queue tricks to fool TBAV and AVP
+
+       Example:
+
+                 ORG 100h
+
+                 MOV     CX,200h
+                 MOV     CS:BYTE PTR [Lbl_1],5
+ Lbl_1:          MOV     AX,666h
+ Lbl_2:          MOV     SI,OFFSET Encryption_Area
+                 XOR     CS:WORD PTR [SI],AX
+                 MOV     CS:BYTE PTR [Lbl_2],0bfh
+                 INC     SI
+                 INC     SI
+                 LOOP    Lbl_1
+                 JMP     DI
+
+       The first MOV [Lbl_1],5 will turn MOV AX,666 into an ADD AX,666h, and
+       the MOV [Lbl_2],0bfh will turn the MOV SI into MOV DI.
+
+       In general, the decryptors must look 'smooth' but must also be complex
+       enough to fool the scanners. It's not very easy to make a 'successful'
+       polymorphic engine. And you must consider if the virus will get too
+       long with a complex engine. Speed or complexity, it's your choice.
+
+
+ 4. RETRO STRUCTURES
+    It's very easy to attack AV programs as they usually don't take any
+    precautions against direct attacks. I wonder about this. How stupid are
+    are those coders? In my opinion it's close to an invitation to break
+    their security measures, don't you agree? :)
+
+ 4.1 Attacking the programs and data files
+     The simplest thing is to delete the checksum files like CHKLIST.CPS,
+     CHKLIST.TAV, CHKLIST.MS, \BOOT.CPS, \BOOT.TAV, IVB.NTZ, \BOOT.NTZ,
+     \PART.NTZ, SMARTCHK.CPS, ANTI-VIR.DAT, \NCDTREE\*.*, \AV.CRC, AVP.CRC
+     and others. In most cases the programs create new files without warning
+     the user.
+
+     You should also take care of the configuration files. If you delete
+     Integrity Master's IM.PRM, all old checksums will become useless as IM
+     creates random keys every installation. Deleting Invircible's \IV.INI
+     and IVB.INI will cause that IVB switch back to old IVB.NTZ file name.
+
+     Deleting the scanners is not a good idea because the user will most
+     likely notice the virus at once.
+
+     An interesting way to infect the partition is to modify \PART.NTZ or
+     \BOOT.CPS (or .MS / .TAV). These files are not encrypted. If you insert
+     the virus into these files no AV-TSR will warn the user. Next bootup
+     IVINIT or BOOTSAFE will warn about the 'changed' partition and most
+     likely the user will allow the programs to 'restore' the partition. Poor
+     fool. He just infected the system by himself. If your virus has sector
+     stealth you should delete \BOOT.CPS or \PART.NTZ when the virus installs
+     first time during boot up.
+
+ 4.2 Faked parameters
+     Once your virus is in the hands of the AV crowd it will take just days
+     or even hours until their scanners are updated. Even if the virus is so
+     heavily polymorphic that they can't write an alogrithmic method for the
+     virus they will quickly include a string for the memory checking. But
+     imagine if scanners didn't scan memory at all. That would be great! Then
+     just add /NOMEM (or equivalents) to the command line at execution of the
+     scanner. Keeper.Lemming fooled TBSCAN this way.
+
+     Suggested parameters:
+
+     F-PROT.EXE:         /NOMEM /COMPAT
+     AVP.EXE             /M
+     TBSCAN.EXE:         CO NM
+     TBSETUP.EXE.        RM
+     SCAN.EXE:           /NOMEM (/BOOT)
+     AVSCAN.EXE:         /NM
+     ANTIVIR.EXE:        /NM
+     IVB.EXE:            /S or /V
+     VSAFE.*             /D
+     TSAFE.*             /D
+     WIN.COM:            /D:F (For multipartite viruses)
+
+     If you add CO to TBSCAN's command line then don't forget to patch the
+     screen display of 'FILE SYSTEM: DOS' back to 'FILESYSTEM: OWN'.
+
+ 4.3 Disable the shields
+     Everyone knows how to disable VSAFE:
+
+     MOV AX,FA01h
+     MOV DX,5945H
+     INT 16h
+
+     You can find this call in nearly every new virus. But obviously the
+     virus coders haven't noticed the change in VSAFE (CPAV) and TSAFE (TNT).
+     This call is now useless!
+
+     A more effective way to disable TSAFE, TBDRIVER, SDRES, NAVTSR and
+     others is to patch the TSR in memory.
+     TBDRIVER could be disabled very easily. Since version 6.2x upto 6.3x
+     and newer versions NOTHING has changed in this TSR. The TBDRIVER-INT 21h
+     looks like this:
+
+     EB 05        JMP Label_1
+     EA xxxx yyyy JMP FAR PTR Old_Int21
+     Label_1:
+
+     Just patch the 5 to 0 and TBDRIVER is disabled. No more tracer blocking,
+     memory checking, file control and scanning. Well, there is a problem
+     with this patching. Where is the TSR located?
+     If the user loaded other TSRs after TBDRIVER the INT 21 code is hidden.
+     Well, what about tracing through INT 21 and checking the code during
+     the tracing process? This works fine, as demonstrated in Havoc.
+     If you don't want to use a tracer then scan through the MCB chain.
+     TBUTIL immunized partitions, VSAFE/TSAFE and NAVTSR could be disabled
+     in the same way.
+
+     If this is too much code then just call i21/4B00 with a non-existant
+     name or not enough memory free after you hooked INT 21. TBMEM stores the
+     current memory map and interrupt list when i21/4B00 is called and
+     compares it when the program terminates with i21/4C. The faked i21/4B00
+     call will force TBMEM to 'forget' the clean environment and your virus
+     can install without any problem.
+
+     Another possible solution is to stop installation and infection when the
+     virus notices AV-TSRs in memory. This is very easy, for example check
+     the MCB chain for names like 'VSAFE', 'TBDRIVER' and so on.
+     The TBAV TSRs can be detected by opening 'TBDRVXXX', 'TBDSKXXX' or
+     'TBFILXXX'. This are names of the installed devices and if you can open
+     them, the TSRs are active in memory.
+
+ 4.4 Tunneling
+     Well, tracing is not the best way to find the original i21 and i13
+     entries. All good AV-TSRs can disable tracers. There's a much better way
+     which needs DOS 5.0 up to 6.22 and the DOS=HIGH setting.
+     (It's also possible with DOS=LOW)
+
+     Well, just take a look at this:
+
+     MOV AH,52h
+     INT 21h
+     MOV BX,109Eh
+
+     Execute this and look at ES:BX. This is the entry-point into the DOS
+     kernel. This method works fine with EMM386, QEMM or 386MAX and there
+     are no other TSRs behind this, only plain DOS.
+     If you are careful you could check if this entry-point looks like:
+
+     90             NOP
+     90             NOP
+     E8 xx xx       CALL xxxx
+     2E FF 2E yyyy  JMP FAR CS:[yyyy]
+
+     There's no similar way for INT 13, but you could use direct port access
+     instead.
+
+ 4.5 Memory and MCB stealth
+     Some users have eyes (yes, no joke :) and will see that the amount of
+     free memory is decreasing. A way around this problem is to release the
+     memory of the virus during the execution of the system info tools.
+     Just intercept i21/4B00 and check for CHkdsk, MEm, SYsinfo, SI, MFt, MI
+     and others. If such a tool is being executed set the MCB marker back to
+     zero and at i21/4C00 back again to 8 (system area).
+
+     You maybe already noticed that your virus couldn't infect TBSCAN.EXE
+     without setting off it's selfcheck alarm, no matter how good your full-
+     stealth code is. The first step is to add 'CO' to the command line, but
+     TBSCAN.EXE also checks it's MCB size in memory. Well, no problem at all.
+     Just subtract the virus paragraph size from the word at [MCB:3] before
+     returning to the host. This is only neccessary for EXE files which have
+     the MAXIMUM PARAGRAPHS NEEDED entry set below FFFFh. COM programs always
+     take all free memory and can't be MCB-stealthed.
+
+     Example: (taken from Havoc)
+
+                 MOV     AH,62h
+                 INT     21h
+                 MOV     ES,BX
+
+                 PUSH    BX
+                 DEC     BX
+                 MOV     DS,BX
+                 MOV     BX,Old_MCB_Length
+                 CMP     BH,50h
+                 JA      Lbl_1
+                 MOV     AX,DS:WORD PTR [3]
+                 SUB     AX,BX
+                 SUB     DS:WORD PTR [DI+12h],AX
+                 MOV     AH,4Ah
+                 INT     21h
+     Lbl_1:      POP     BX
+
+     How to calculate 'Old_MCB_Length':
+
+                 MOV     AX,WORD PTR [MAX_PARA_NEED]
+                 CMP     AH,FFh
+                 JE      LBL_2
+                 MOV     AX,WORD PTR [SIZE_IN_PAGES]
+                 CWD
+                 MOV     CX,20h
+                 MUL     CX
+                 SUB     AX,WORD PTR [PARA_IN_HEADER]
+                 ADD     AX,WORD PTR [MAX_PARA_NEED]
+                 ADD     AX,10h
+     Lbl_2:      MOV     WORD PTR [Old_MCB_Length],AX
+
+     MAX_PARA_NEED, SIZE_IN_PAGES and PARA_IN_HEADER are taken from the
+     uninfected EXE header.
+
+ 4.5 Anti-Bait
+     If an AV researcher gets your virus he most likely wants to infect his
+     own baits. And there're a lot of programs which create baits in order
+     to catch active viruses. To make their job a little bit harder your
+     virus shouldn't infect files smaller than 5000 or even 10000 bytes and
+     ignore files that have the current system date (month and year) set.
+     Baits are usually newly created and have the current date as time stamp.
+     If your virus avoid such files, the baits will never get infected.
+
+ 4.6 Slow polymorphic
+     Normal polymorphic engines mutate with every new infected file. But
+     remember when Tremor popped up in March '93. At this point the virus
+     was already well-known to most of the AV community. But several months
+     later F-PROT and TBSCAN still couldn't detect Tremor reliably. The
+     reason for this is that Tremor mutates quite slowly. If you infect some
+     programs on the same date the decryptors won't look much different.
+     But then set the system date to the next day or month. Surprise! Now the
+     decryptors look completely different. Usually the AV researchers don't
+     have enough time to test a virus completely and because of this F-PROT
+     and TBSCAN missed Tremor in many files. Tremor's successor Havoc uses
+     the same way to confuse the researchers and again F-PROT and TBSCAN
+     still don't detect 100 percent of all samples.
+     But you could make the research even more difficult. Tremor checks the
+     system time and date during every infection in order to randomize the
+     decryptor construction. So it's very easy to code a bait-launcher which
+     varies the time and date before it creates and executes a new bait file.
+     But what will happen if the virus generates new random numbers at every
+     installation ONLY? This will slow down the polymorphic engine extremely
+     but the researchers have to restart the computer for every new bait file
+     which should be infected with a different encryption.
+     Well, most AV companies create more than 10000 files for one polymorphic
+     virus. Imagine the time they must waste now. 10000 times rebooting!
+     Believe me, this will drive some of the AV researchers mad :)
+
+ 4.7 'Non-curable' infections
+     Most viruses infect files in the standard way. They just modify the file
+     header and add the virus code at the file end. This kind of infection
+     can be cured very fast with TBCLEAN, NAV and Invircible which use data
+     files for curing. To prevent this you could infect files like Commander
+     Bomber or One_Half do. Insert pieces of code into random positions.
+     This is very effective, but will make full-stealth impossible.
+
+     Multipartite viruses like Stoned.Empire.Monkey.B, or GoldBug or have
+     a method to prevent simple removing with FDISK /MBR. First of all your
+     virus must have sector-stealth. The trick is to wipe the partition data
+     except for the virus code and the boot marker AA55h. If the virus isn't
+     active the hard disk becomes inaccessible. If the user then tries
+     FDISK /MBR all data is lost! Remember, without sector-stealth this
+     can't work and the system will hang next bootup.
+     One_Half has another life insurance. It encrypts the hard disk, one
+     sector at every system restart. Because it uses a random key all data 
+     gets lost if you just remove the virus from the partition without
+     decrypting the rest of the partition.
+
+
+ 5. SURVIVAL AND INFECTION STRATEGY
+    I think I don't have to waste space to tell you that non-resident viruses
+    are the most boring thing one could do. Agreed?
+    Well, some virus coders think that infecting as many programs as possible
+    in the shortest possible time intervall makes their virus better and
+    spread much further. What I'm talking of is commonly called
+    fast-infector. (Or was it piggybacking? :)
+    In my opinion fast-infection is also the fastest way to get the virus
+    detected by even VERY stupid users. Fast-infectors slow down the system
+    in such a way that their detection is just a question of time.
+    Invircible even checks the free disk space before and after opening
+    programs during it's checks.
+    The next point is what victims the virus should infect. Viruses that only
+    infect COM don't spread far. Just have a look into the directories
+    of your hard disk. Count COM files and compare it with the number of
+    possible EXE victims. Infecting SYS files is a interesting job to do, but
+    will never make the virus spread further than without that ability.
+    Just a waste of space.
+    The same goes for strange and incompatible infection methods like DIR-2,
+    Circus Cluster or Assassin use. The routines they use are very effective
+    concerning their stealth abilities. But DIR-2 crashes with DOS 5.0 or
+    above, Circus Cluster will most likely never find fitting EXE files and
+    Assassin will be wiped with the next execution of DEFRAG or SPEEDISK.
+    Again, this is pure waste of time. Such viruses will never spread far.
+    Viruses using 'standard' methods of infection spread furtherest as the
+    past shows.
+    It's a good idea to stop infecting when the virus notices the presence of
+    advanced antivirus software like TBAV. In this case the user is most
+    likely advanced and will notice the virus quite soon.
+    And as some viruses already do, disabling the stealth code when using
+    backup software (BACKUP, CPBACKUP) or archiver like ARJ, PKZIP or LHA
+    will help to spread the virus even further. If the virus manages to
+    infiltrate into the users backups it could survive much longer.
+    Finally, don't upload your virus to any VX BBS. Almost every AV guy has
+    access to a lot of these boards and your virus will be in the hands of
+    the AV researchers within little time. In this way, it will never spread
+    in the wild.
+
+
+ 6. THE 'PERFECT' VIRUS
+    The following text has been extracted from 'POSSIBLE VIRUS ATTACKS' by
+    Vesselin Bontchev, Virus Test Center. (Well, everyone should know him)
+    It contains some good ideas, so why not use them?
+    Thanks Vesselin! :)
+
+ --------------------------------------------------------------------------
+
+ Almost all the attacks described above have been "tried" by the virus
+ writers, by implementing them in some virus - at least to demonstrate
+ that it is possible and "can be done." However, most of these viruses
+ have been "demonstration-only" and not able to spread widely.  Let's
+ try to imagine what can be done by just combining the different kinds
+ of attack listed above.  This (imaginary) virus will be a slow
+ infector, so we shall name it Kuang [Gibson].  Since it combines only
+ the currently known infection techniques, it is just a matter of time
+ before such viruses begin to appear.  The reader is invited to try to
+ figure out him/herself how well such virus will spread and how well
+ prepared is the line of anti-virus defense that s/he currently uses
+ against such viruses.
+
+ Kuang comes with an infected utility that you get from a BBS or a
+ public archive site, from the boot sector of a data-only diskette that
+ you have forgotten in your boot drive, or from a shrink-(re)wrapped
+ commercial package produced by a company that decides to save some
+ money on the quality assurance procedures.  When you execute it, it
+ installs itself in memory in such a way that comparing the listings of
+ MEM/DEBUG before and after the RAM infection will not show any
+ differences.  This is possible by installing the virus in some holes
+ in the operating system (like the Tiny virus), in the video memory
+ (like the StarShip virus), and some other places.
+
+ After it becomes active, Kuang does not infect anything at once.  If
+ you now turn your system off, it will be gone - until the next time
+ you execute the infected utility.  However, it carefully watches for
+ any executable object being modified and infects it.  Since it is a
+ multi-partite virus, it is able to infect almost anything - boot and
+ master boot sectors, COM and EXE files, overlays, device drivers (like
+ the SVC 6.0 virus), .OBJ files, libraries...  The only condition is
+ that some modification is performed with the object - that is, a
+ Create or Write occurs to it (like the Darth Vader, StarShip and
+ Compiler viruses do).
+
+ The virus will spread slowly - mostly when the user copies files or
+ formats diskettes.  When infecting the files, Kuang uses multiple
+ infection strategies.  It tries not to modify the intended file size -
+ if the file contains a block of zeroes (or even of any single byte
+ that is repeated over and over), the virus uses this area to put its
+ body (like the Phoenix and Squisher viruses do).  If an EXE file has a
+ sufficiently large EXE header, the virus compresses the relocation
+ items (like the Phoenix.2000 virus does) in order to free space for
+ its body.
+
+ Kuang watches for a file with an archive extension (ARC, ARJ, HYP,
+ LHZ, PAK, ZIP, or ZOO) for being opened.  When this happens, the virus
+ changes its behavior.  It becomes a fast infector - it begins to
+ infect all executable files (executable in the broad sense, including
+ .OBJ files and libraries) when they are opened (not only when they are
+ modified) and to disinfect them when they are closed (unless they are
+ newly created).  This behavior remains until the archive file is
+ closed.  This will ensure that all files being archived will go into
+ the archive infected and all files extracted from the archive will be
+ infected too.
+
+ During the infection/disinfection of the files during archiving as
+ described above, the virus uses the tunneling technology (like the
+ Frodo virus) to avoid the possibly present monitoring programs.  (This
+ technique is not needed during the normal slow infection, since then
+ the user will not be surprised by a message that a file is about to be
+ modified - because it was the user him/herself who initiated the
+ modification.)
+
+ Furthermore, while active in memory, Kuang uses the stealth technology
+ (like the Number of the Beast virus), in order to prevent from being
+ detected by simply comparing the copy of the file with the original or
+ by using the /V switch of the COPY command.
+
+ Just in case somebody detects it, Kuang uses armouring tricks (like
+ the Whale or Fish viruses), in order to make the code more difficult
+ to disassemble, debug, and understand.
+
+ Additionally, it uses a polymorphic technique, comparable with the one
+ used in the V2Px viruses, or in Dark Avenger's Mutating Engine (MtE),
+ so that even when detected and disassembled, it will be extremely
+ difficult to produce a scanner that will be able to locate and
+ recognize it with 100 reliability...
+
+ At last, the virus can be made to be Novell NetWare-aware and to
+ exploit any security holes in the settings of the directory and file
+ rights.  As described in [Cohen92], under Novell NetWare it is not
+ trivial to setup all the protection rights and attributes in a way
+ that will make virus spread impossible.  There are many LANs out
+ there, which are not configured in a secure way.  Therefore, a clever
+ virus should be able to exploit this.
+
+ --------------------------------------------------------------------------
+
+    I don't fully agree with that text. Slow infectors can be intercepted by
+    AV-TSRs. At least diskettes and the partition should be infected as
+    fast as possible to allow the virus to activate at the next system
+    restart. Also, it's nearly impossible to have full-stealth combined with
+    a header infecting virus. Vesselin obviously never wrote complex viruses
+    before. :) Infecting OBJ or libaries is interesting, but a waste of space
+    which should be used for a proper polymorphic engine instead.
+    What I would call 'heavy impact' is a virus which infects EXE programs,
+    the partition and boot sectors of disks, with full-stealth routines, a
+    good polymorphic engine and enough retro abilities to disable the most
+    common AV programs. This is not very difficult, and One_Half, Havoc,
+    Gold_Bug and Natas are already designed in this way.
+
+
+ 7. POLYMORPHIC CODE CONSTRUCTION
+    Finally, I have an idea for those who are still interested in writing
+    complex viruses. Up to now, every virus construction kit is very
+    primitive. The better ones include polymorphic engines, but so far I've
+    seen neither BW or NLRG caused any problems for AVP. I have a better idea
+    to make detection impossible. Why not use polymorphic code generation
+    instead of just adding polymorphic encryption?
+    AVP and TBSCAN simply trace through the decryptors and scan the virus
+    with normal scan strings. But imagine if the virus code itself is changed
+    every time? Of course, this is too complex for a virus and must be
+    included in a construction kit.
+
+    Example:
+
+    Instead of simply using
+
+         MOV     AH,4Eh
+         MOV     CX,37h
+         LEA     DX,[BP+xxxx]
+         INT     21h
+
+    the construction engine should be able to build things like this:
+
+         MOV     CL,37h
+         MOV     AL,4Eh
+         XCHG    AL,AH
+         MOV     CH,0
+         MOV     DX,BP
+         ADD     DX,xxxx
+         INT     21h
+
+    or
+
+         SUB     CX,CX
+         OR      CL,37h
+         MOV     AH,1Eh
+         ADD     AH,30h
+         CWD
+         OR      DX,BP
+         SUB     DX,-xxxx
+         PUSHF
+         CALL    CS:DWORD PTR [Int_21]
+
+    Each instruction must be done randomly every time you create a new virus.
+    Don't use any fixed pattern, or scan strings will be possible again.
+
+    If you do this for the complete virus, code detection will be VERY
+    difficult. The AV researchers will have to invoke your kit many times in
+    a row to get all possible mutations and if you use slow polymorphic code
+    generation they'll probably never find all possible mutations.  Code
+    decryption will not help against this. Even better, your virus doesn't
+    need a lengthy polymorphic engine any more!
+    Think twice, this is the final impact for the AV comunity.
+
+
+                              END OF DOCUMENT
+
+
+                      

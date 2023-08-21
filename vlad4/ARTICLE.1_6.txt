@@ -1,0 +1,21 @@
+
+    The VLAD hidden area
+    +------------------+
+
+    As per usual there's a secret part of the magazine which must
+    remain out of the hands of the authorities.  It is imperative
+    that only those of the VX sector get to read this information.
+    
+    To get to the secret area you must type in the password from
+    the main menu, it will then verify your status and give you
+    access if you pass.
+
+    Most people doubt the existence of this secret area but it
+    exists in each of our magazines.  If you have vlad#1 try typing
+    VLAD from the main menu, this should prove things for you.
+
+
+
+
+
+

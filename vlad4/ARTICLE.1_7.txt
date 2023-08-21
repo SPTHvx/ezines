@@ -1,0 +1,58 @@
+
+    Magazine help!                               by qark/metabolis
+    +------------+
+
+    Well this issue we have a rather unique intro to the magazine, it
+    was coded by Quantum and most of the graphics are by NCL93DeV of
+    Immortalia Team.
+
+    The ansi screens used in this magazine are by Lethe, thanks to
+    him for the great designs.  Much like last time he was called upon
+    at rather short notice to do the job.
+
+    Part of the secret area in this issue was coded by Neuron, as
+    per usual he comes up with the goods.
+   
+    This issue Metabolis decided to do the file_id.diz so thanks to
+    him for the leet ascii (hehe).
+
+    Coding the mag!
+    +-------------+
+
+    Well much like the last issue the magazine is coded in 100% asm,
+    there haven't been many modifications to the source except for the
+    addition of the animation code at the beginning.
+
+    Using the mag!  (aka the morons section)
+    +------------+
+
+    If you wish to skip the VGA intro and piccy put anything on the
+    command line.  That should do it.
+
+    The Magazine is very simple to use and move around.  If you are having
+    trouble then you have some serious problems!
+
+    Anyway here is a quick rundown on the keys:
+
+
+                           The Main Menu
+                           +-----------+
+
+        DOWN THE MENU ---------------------- DOWN Cursor Key
+          UP THE MENU ---------------------- UP Cursor Key
+         RIGHT A MENU ---------------------- RIGHT Cursor Key
+          LEFT A MENU ---------------------- LEFT Cursor Key
+    SELECT AN ARTICLE ---------------------- ENTER Key
+                 QUIT ---------------------- ESCAPE Key
+
+                           The Reader
+                           +--------+
+
+                   UP ---------------------- UP Cursor Key
+                 DOWN ---------------------- DOWN Cursor Key
+            PAGE DOWN ---------------------- PAGE DOWN Key
+              PAGE UP ---------------------- PAGE UP Key
+              THE TOP ---------------------- HOME key
+              THE END ---------------------- END key
+     EXIT THE ARTICLE ---------------------- ESCAPE Key
+

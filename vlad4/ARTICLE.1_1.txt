@@ -1,0 +1,112 @@
+
+    Introduction
+    +----------+
+
+    Well I don't think the release date has been held back this time,
+    mostly because I didn't really give any definite release time,
+    this was a good decision I think.  This is issue is as usual pretty
+    much packed full with viruses and related information.
+
+    Hopefully the code contained in this issue is definitely bug free,
+    we haven't had the best past for this but we're checking things out
+    a little better now.  If you find one, email me and I'll kill
+    whoever did it :).
+
+    The group has expanded once more, there are now seven of us, and
+    it's definitely the last addition to the group.  Although I said
+    the same thing last issue, I think it's definite this time.  Now
+    we have a decent amount of members it means I can take a rest
+    (shya!).
+
+    Quantum makes his appearance with his two viruses, Bane and
+    Tasha Yar Mark II.  It's Mark II because he originally wrote
+    Tasha Yar as his "application" virus and when it actually came
+    to testing the virus, it didn't work! hehe so it's a rewrite of
+    the original.  He also wrote half of the windows virus, which
+    is something I have no clues about :).
+
+    Much like last issue there's a contribution (or two) from
+    everyone in this issue.  Not as many as some people would have
+    liked but there aren't any more spaces anyway :).  We've pretty
+    much fulfilled our goals in virus authoring so now we have to
+    think up some new ideas for us to do.  We may write a
+    com/exe/newEXE infector just to expand the technology but who knows.
+
+    The work up to this issue was a little slow to begin with since
+    people's commitments at university/college kinda cut down on
+    productivity.  At last though, it's here and it's an impressive
+    assortment of code.  There are plenty of independant submissions
+    which makes the magazine more interesting.
+
+    VLAD now has a world wide web page, at the moment it's at
+    'http://nether.net/~halflife' but it will eventually be moved
+    to 'http://tmok2.tmok.com/~meta'.  So when you can no longer
+    reach the page at nether.net you know it has moved :).  On the
+    page you can read about our progress towards the next issue and
+    there are hypertext copies of vlad#2-4.  There are also links to
+    other virus pages around the place, so check them out also..
+
+    Well that's just about all I have to say with relevance to us,
+    now I'll pass along a little news of what has been happening in
+    the virus scene.
+
+    The group mentioned in vlad#2 & 3 AIH has now officially split
+    up.  They were responsible for the Aussie Parasite family and
+    the Aussie Tiny viruses.  A couple of the members have gone onto
+    cracking games whilst Dark Fiber has joined NuKE.
+
+    He's not the only person to join NuKE recently.  There are three
+    other additions to the group.  Virogen and Diddler from USA, and
+    Stalker X from South Africa.  On the other hand, Mr.Twister has
+    quit the group and is off to do bigger and better things :).
+
+    Red_a and Blonde have joined Immortal Riot so there's another
+    couple of helping hands to get their Insane Reality magazine
+    out.  The Unforgiven tells me he has some full stealth viruses
+    ready to put out so issue 7 of insane reality should be
+    something to check out.
+
+    The scene with Aristotle seems to have quietened down, I've
+    given up reading echomail so I wouldn't have a clue what's
+    going on there.  Although if you get yourself a copy of the
+    Chiba City times #3 check out his MBC v2.0 for a little message
+    about us on exit.
+
+    40hex issue 14 has finally been released, after a while of
+    saying it'll be out next week (every week ;) garbage heap
+    finally got it done.  It's definitely worth checking out.
+
+    It seems Urnst Kouch just can't keep things to himself, in
+    his latest issue of the crypt newsletter he managed let slip
+    more private info about another virus author.  Although he
+    emailed me after vlad#3 and told me that the mentioned person
+    knew all about it (re crypt #29) the same cannot be said for
+    this case.  Here's a little hint for everyone, if Urnst wants
+    to speak to you, you keep your mouth shut :).
+
+    Our friend Zvi Netiv the author of Invircible that lovely
+    AV package has finally done himself in.  He has been banned
+    from Fido's virus and virus_info echos.  Before he got himself
+    kicked out, he implied Vesselin Bontchev was the Dark Avenger,
+    and he said that Vesselin's phd was taking him so long because
+    he's slack.  Vesselin hit back by posting a message claiming
+    that IV is a trojan because it will overwrite a file called
+    'sofia' in the root directory.  Actually, Zvi isn't too popular
+    with a lot of people at the moment, due to his criticism of
+    opposition anti-virus software, with Frans Veldman (TBAV) and
+    Wolfgang Stiller (Integrity Master) both taking offence at
+    some of his comments.
+
+    Quite a few of our viruses from vlad#3 have now been added
+    to the growing list of scanned viruses by TBAV and F-Prot.
+    Although not all, I'd say they picked the wrong ones to scan.
+    Since hemlock still isn't detected when it's TSR due to the
+    various stealths.
+
+    I haven't seen too much happen around me lately so I don't
+    have that much info for this issue, but I hope you got something
+    out of the little I did have to say.
+
+    Metabolis/VLAD
+
+

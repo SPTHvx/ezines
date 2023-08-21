@@ -1,0 +1,195 @@
+
+ Taiwan Interviews
+ +---------------+
+
+ Just after vlad#3 was released I interviewed the two Taiwanese virus
+ authors I know, Dark Slayer and Slash Wu.  I thought it would be
+ interesting to hear what it was like from each of them and compare
+ the results.  It certainly is interesting to read them.  There are a
+ few discrepencies between the two but in general I'd say they don't
+ hate each other too much :).  Anyway, without further ado.. here's
+ the interviews.
+
+ Dark Slayer Interview
+ +-------------------+
+
+ Meta: What made you choose the name Dark Slayer?
+ Dark: After reading an article called 'Introducing Dark Avanger
+       and Dark Angel' on magazine, I realize that I need a cool
+       name like theirs. When I was thinking and listening the
+       Slayer's CD ( a Metal Band ), suddently I found 'Slayer '
+       cool enough. That's why I called ' Dark Slayer '.
+
+ Meta: Could you give us a short description of yourself?
+       (age, hobbies, study/work etc)
+ Dark: I am a 19 years old boy. I like swimming, playing basketball,
+       listening Heavy Metal, playing Computer, reading novel and so
+       on. I am a college student and my major course is electrical
+       engineer. I live in dorm. Although I called 'Dark Slayer' but
+       I never write any destructive virus. To me, writing virus is
+       just for research and fun.  
+
+ Meta: How many years have you been coding ASM?
+ Dark: About 3 years.
+
+ Meta: Do you know any other languages?
+ Dark: Yes! I can write C, Basic and 8048 micro-assembly.
+
+
+ Meta: What have you written so far?
+ Dark: I only wrote about 10-15 viruses so for. They are MacGyver
+       ( 1.0a, 1.0b, 2.0, 2.2, 3.0, 4.0 ), Connie I/II, Ray Gong
+       ( This is the only boot virus I wrote), New 512 ( or DS-512 ),
+       Skid-Row ( version A, B, C; C version can infect files via
+       directly HD I/O ), Assassin ( first version and BugFixed 
+       version) and two engine ( DSME v1.0, DSCE v1.0 ). The other
+       virii for testing purpose are unnamed.
+
+ Meta: What made you write these programs?  (also what made you learn
+       assembly?)
+ Dark: The reason made me to write virus is: I love to fool others.
+       I bought a book called 'Introduce to Assembly' and started
+       to study it.
+       Finally I wrote my first virus, an over-written virus. When
+       I studied more and more technique, I was attracted in writing
+       virus. Writing virus has so many tricks like polymorphic,
+       hidden, compress/decompress and so on ( ex: DIR-2, 512,
+       Phoenix... ) that I can't ask myself stop writing.
+
+ Meta: How is the virus scene in Taiwan?
+ Dark: In fact, virus writers in Taiwan are not so many than you
+       though.  We don't like you guys (espically guys in U.S.)
+       have many free time for writing virus. We have thousands of
+       homework to study. :(
+       In Taiwan, AV writers are as many as virii writers, but most
+       of their products like shit.
+
+ Meta: Have you ever been involved in any groups?
+ Dark: I had organized a group once. My group didn't have so many
+       virus writer.  This caused my group smaller and smaller. :(
+       I am the only one in this group.
+
+ Meta: Are there any virus laws in Taiwan?
+ Dark: I'm not familier with law, but I heard there are some law
+       about virus writing. By now, I haven't heard any one busted.
+
+ Meta: Do you spread your own programs?
+ Dark: I put my virus into some shareware/pd espically anti-virus
+       program and then I upload the file to BBS. This will cause
+       my virii spread soon. Most of my virii will infect one executable
+       file when you are using it.
+
+ Meta: Who is your favourite virus coder?
+ Dark: I like Dark Avenger. When I began to study virus , he is my aim.
+       Espically his Mutation Engine, it really cool.
+
+ Meta: Do viruses travel fast in Taiwan?
+ Dark: Viruses spread so soon 'cause Taiwan is a small island. :)
+
+ Meta: Which anti-virus product do you think is the best?
+ Dark: I think TBAV is so not bad although its holes are so many.
+       Many people don't like it, but I think it really good.
+
+ Meta: Are there any greets you want to give, or anything else
+       you want to say?
+ Dark: I don't like Slash Wu. ( He is a virus writer in Taiwan. )
+       This guy In fact, his stuff are not technique enough. You
+       can say that GPE 1.0 is copied from DSME 1.0 . He always
+       said how good his virii is and how suck my stuff is. Sometimes
+       he act just like a AV writet and let you though he is a good guy.
+
+       Greets to:
+       Metabolis: Your VLAD is really cool. I like it and I'm looking
+                  forward to your windows virus!!!
+       Priest: You always have so many cool idea, and I'll make DSCE better.
+       Qark: I like your virii and I hope your virii will be better.
+       Dark Angel: It's my pleasure to see you on irc. I like your DAME.
+       Garbage Heap: It's so nice to chat with you on irc. 40hex is good
+                     sutff.
+       King Dan: Thanks for your help on IRC.
+       Lookout: Hi, camry wanted me to say hello to you. Right now he
+                is busy on his master's exam.
+       Dark Avenger: I would like to thank you for your cool idea -
+                     Mutation Engine.
+       Nowhere Man: Although I haven't seen you, but I knew you for
+                    a long time.
+       P/S group: I wish I could organize a group like yours. Your viruses
+                  are all cool.
+       NuKe group: When the NuKe infoJournal 9 will be released?
+       TPE group: I love your TPE :)
+       and greets to all virus writer, Good Luck!!!
+
+ Slash Wu Interview
+ +----------------+
+
+ Meta: What made you choose the name Slash Wu?
+ Slash: I love Heavy Metal, especially Guns N' Roses, and the guitarist
+        Slash is my idol, so I choose "Slash" as my name, and "Wu" is my
+        last name, I like it, that's all!
+ 
+ Meta: Could you give us a short description of yourself?
+       (age, hobbies, study/work etc)
+ Slash: I was born on XX/XX/74 (a 20 year-old boy, single). I live in
+        Taipei Taiwan.  I love music, playing E-guitar, Asm, and pingpong,
+        etc... I'm a 5-year junior college student (I think I'll attend
+        the university, Bless Me!).
+
+ Meta: How many years have you been coding ASM?
+ Slash: I've been coding ASM since I was a 17 year-old boy. It's been
+        about three years...
+
+ Meta: Do you know any other languages?
+ Slash: Yeah, I can also use C, C++, V-Basic, & so on...
+        But ASSEMBLY is still my favorite.
+ 
+ Meta: What have you written so far?
+ Slash: 1. Computer Rubber v1.00, v1.01 ['92/9]
+        2. Super Virus - I (for research) ['93/x]
+        3. Guns N' Roses Polymorphic Engine v1.00 ['94/2], v2.00 ['94/5]
+        4. Phantasie Mutation Engine v1.00 (the latest product) ['95/1]
+    
+ Meta: What made you write these programs?  (also what made you learn
+       assembly?)
+ Slash: I was attracted to virus since 1992. At that time, I realized
+        that I must learn ASM first before I could understand virus.
+        And so, I started to learn ASM. Later, I traced the first
+        --- Black Friday. Then I took interest in MtE, and wrote GPE
+        and the following PME...
+ 
+ Meta: How is the virus scene in Taiwan?
+ Slash: There are many new groups came out, but their experience is
+        not enough... so their product is ...!@#$%... Yet, Dark Slayer
+        is good.
+ 
+ Meta: Have you ever been involved in any groups?
+ Slash: Nope, I have never been involved in any groups, only myself.
+ 
+ Meta: Are there any virus laws in Taiwan?
+ Slash: Nope, I have never heard of such a specific legislation in Taiwan.
+ 
+ Meta: Do you spread your own programs?
+ Slash: Nope, I only do some research.
+ 
+ Meta: Who is your favorite virus coder?
+ Slash: If I have to name one, perhaps Dark Avenger is my favorite coder
+        for he introduced the MtE theory.
+ 
+ Meta: Do viruses travel fast in Taiwan?
+ Slash: Not quite so, because once there emerges a virus, it would soon
+        be sent to AVers for a resolution.
+ 
+ Meta: Which anti-virus product do you think is the best?
+ Slash: If I have to name one, perhaps ThunderByte B.V. Anti-Virus could
+        be the best.
+ 
+ Meta: Are there any greets you want to give, or anything else
+       you want to say?
+ Slash: First, I want to extend thanks to Metabolis for giving me the
+        chance to introduce myself, I am glad to know him.  further, I
+        wish that the virus authors would not create any destructive
+        virus. It's okay to do some research or experiment, but not
+        to cause any damages... That's all!
+        At last, Greetings to all virus programmers.
+
+ Metabolis/VLAD
+

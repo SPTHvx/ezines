@@ -1,0 +1,360 @@
+
+
+   Viruses in the News
+   -------------------
+
+   On the 16th of February, 1995, the media across the Australia were
+   crowing the news, that the Australian Taxation Office had to close down
+   due to a computer virus infection.  This story received front page
+   notice in the newspapers, and a prominent place in the television news
+   bulletin of every station.  
+   
+   The Australian author quaintly identifies himself as "Harry McBungus"
+   and is responsible for four 'no frills' viruses, although it is unknown
+   which version was responsible for this incident.  The same author has
+   appeared in the press many times, namely when his 'X-Fungus' virus shut
+   down the SUNCORP bank, and when 'Dudley' similarly infected the company
+   responsible for Australia's international telephone linkage (OTC).
+
+   Here is a sampling of the stories surrounding the event:
+   (All real names/personal details censored)
+
+     The Courier Mail, Thursday, February 16, 1995
+     Page 1 of 2
+
+     [Picture Attached]
+
+     THIS is the Brisbane teenager whose computer virus made the
+     Australian Tax Office's massive computer network "crash"
+     last week.  The "No Frills Virus" that <Real Name>
+     created when he was a high school student three years ago
+     shut down the ATO national network for a full day, and
+     anti-virus experts were still working on cleaning up the
+     problem three days later.  However he now is a university
+     student and wants to use his knowledge as a virus writer to
+     help people make their computers more secure.  And he was
+     surprised that the monster he created was still wreaking
+     havoc.
+
+
+     Page 2 of 2
+
+     [Techo-Terror]
+
+     <Real Name>, 18, used to be known in the computer
+     underground as Harry McBungus and Terminator Z, and now is a
+     <Personal Details>.   The No Fills Virus was one of a number
+     he wrote while a Year 11 student at <Personal Detail> "as a
+     programming exercise". Since then it has spread around the
+     world and become one of the most prevalent computer viruses
+     in Australia.   When it struck last week, all the ATO's 26
+     branches had to be isolated while the virus was finally
+     tracked down to a branch in the Melbourne suburb of Box
+     Hill.  A computer virus is a malicious program which can
+     alter, damage or destroy files and computer memory and may
+     attack and spread without its victim's knowledge.  There are
+     at least 2500 known viruses worldwide and new ones are being
+     added at the rate of 40 to 50 a month.  <Surname> yesterday
+     described the ATO virus attack as a ghost from the past that
+     had come back to haunt him. "I thought it (No Frills) had been
+     dead and buried long ago.  There is no way I ever would have
+     imagined three years ago it would still be around now. "This
+     is no something I can look back on and say: 'Yeah! I'm
+     really glad that happened.'  I'm not embarrased about it,
+     but it is something I could have done without." He was
+     interviewed by Queensland police when his first version of
+     No Frills infected more than 100 computers at Suncorp in
+     April, 1992, but was not charged.  It also got into Brisbane
+     Grammar School's computers.  "I told them I had not spread
+     the virus, and they seemed to accept that." But he admits
+     that as a 15-year-old he had boasted to his school mates
+     about the virus and showed serveral of them how he had
+     written it. "Somebody stole the codes and within a few weeks
+     it was circulating around Brisbane computer bulletin boards."
+     "When I heard it was circulating I contacted one of the
+     anti-virus companies and offered them the codes so they
+     could combat it. They didn't take them.  They just called
+     the police." It is not illegal to write viruses, but anyone
+     knowingly infecting a computer with a virus can be charged
+     with a variety of offences.  <Surname> said it was a mystery to
+     him how a virus got into the Tax Office.  "It should have
+     been picked up by any of the modern anti-virus software."
+     "The fact it wasn't detected is pretty disgusting. Even
+     once it was discovered it should have taken only five
+     minutes to isolate and a few hours to get rid of - not
+     days." He is described by associates as a computer genius
+     who probably knows more about virues than most people around
+     the world.  But he said: "I moved on from writting viruses
+     some time ago.  It was never intended to do any damage or as
+     a ploy to become infamous. There are bigger and better
+     challenges out there than writing viruses and one of them is
+     combating what other people can come up with.  It's harder
+     to stop a virus than to write one." He created two versions
+     of No Frills, and it was the second that hit the Tax Office.
+     Other versions, written by others using Harry's original
+     codes, occasionally appear.  Although not as damaging as
+     some viruses, No Frills will often randomly destroy up to a
+     third of the files on an infected computer by overwriting
+     them. "It was no written as a destructive virus.  It doesn't
+     have a destructive code, but due to an oversight on my part
+     there is a flaw in it which can cause it to corrupt some
+     types of files. I learned a lot about programming and
+     computer system architecture in doing it, but I never
+     intended it to get into circulation." Australian computer
+     vandals are believed responsible for dozens of viruses which
+     have caused millions of dollars in damage worldwide.
+     Hundreds of companies in Australia are hit by viruses each
+     year, in spite of outlaying thousands of dollars for
+     anti-virus protection.  Figures from the US show the average
+     virus attack takes almost 2 1/2 days to eradicate.  Even
+     then, a quater of the companies hit by a virus can expect to
+     be re-infected within 30 days.  Viruses can be programmed to
+     attack on contact or to sit dormant like a time bomb, set to
+     go off on a specific date.  Australian viruses with names
+     such as Puke.393, Aussie Parasite, Dudley and Incest have
+     created havoc in both private enterprise and government
+     departments.  Dudley, Incest and some versions of Aussie
+     Parasite originated in Queensland.
+
+
+        PLAGUE THREAT
+        -------------
+
+[GLOBAL VIRUS ASSAULT]
+
+
+
+     AN international computer terrorist group, with several
+     members in Brisbane, is threatening to unleash 1000 new
+     computer viruses at once.
+
+     If successful they could create worldwide chaos and do
+     billions of dollars in damage to business, government and
+     prossibly military computer systems.  United States experts
+     say a planned virus attack had the potential to shut down a
+     country's entire infrastructure, simultaneously striking
+     everything from banks to communication systems and air
+     traffic control towers.
+
+     Australian business and government departments each spend
+     thousands of dollars a year on anti-virus protection, with
+     many organisations orperating up to three anti-virus systems
+     which are upgraded quarterly to keep pace with new viruses.
+
+     But such a massive release of new viruses could render their
+     protection systems useless.
+
+     On March 6, 1992 a single virus - known as the Michaelangelo
+     Virus - shut down 10,000 computer systems worldwide,
+     destroying all of their files.
+
+     The group known overseas as Nuke and in Australia as Puke
+     has put out an underground newsletter to computer virus
+     writers calling on them to withhold all new viruses until
+     1000 had been gathered worldwide.
+
+     Their aim is to release all of the new viruses at the same
+     time on to computer bulletin boards, including the massive
+     30-million-member Internet.
+
+     Anti-virus software companies admit such a scheme has the
+     potential to cause worldwide chaos and do billions of
+     dollars in damage to business and government computer
+     systems.
+
+     However, they doubt the ability of the organisation to
+     stockpile so many viruses.
+
+     Marketing director of Brisbane-based Leprechaun Software,
+     Len Groves, said most virus writers got so excited about
+     what they could not wait to get it into circulation.
+
+     There are about 2500 known computer viruses in circulation
+     and three or four new ones appear each week.
+
+     Puke has members throughout Australia and has been in
+     existence for at least five years.
+
+     At least two of its members have been charged by Federal
+     Police recently with computer related offences.
+
+     Computer virus damage costs Australia tens of millions of
+     dollars each year.
+
+     Viruses are man-made rogue programs which reproduce and
+     mutate, attaching themselves to other computer programs and
+     files and spreading in much the same way as a biological
+     virus.
+
+     Many of the viruses are harmless and some are even humorous,
+     but many are extremely contagious and very damaging,
+     destroying all data and the operating system on computers
+     they infect.
+
+     Infected computer networks have to be closed down - often
+     for days at a time - while they are "disinfected".  Even
+     then, they are likely to be hit again by the same virus two
+     or three weeks later.
+
+     Companies have been put out of business permanently after
+     losing all of their data, because they had failed to make
+     back-up copies.
+
+     Queensland State Government departments were hit by viruses
+     seven times in the two years from mid-1994, but were lucky
+     to suffer only minor damage.
+
+     The most serious case cost $40,000 to fix.
+
+     Several viruses have turned up at sites on the Gold Coast
+     and in Townsville, but nowhere else.  Other viruses have
+     spread further afield.
+
+     Two years ago "Harry" had a falling out with Puke, and a
+     short time later a virus named Dudley appeared on the scene.
+
+     It was almost identical to No Frills, but an anonymous caller
+     to Leprechaun told them it was members of Puke trying to get
+     back at "Harry" for something.
+
+     They wanted him to be blamed.
+
+     Since then another version also allegedly written by a Puke
+     member called Oi Dudley, has appeared.
+
+     Recently an underground group, called Vlad, has surfaced in
+     Brisbane.  One of its first efforts was the Incest Virus.
+
+     Vlad often checks into Leprechaun's public access bulletin
+     board to "have a look around" and taunt the virus busters.
+
+     Like graffiti vandals, virus writers often sign their work
+     and include strings of text (sometimes encrypted) in the
+     virus programs.  The contents can range from foul to
+     foolish.
+
+
+        TAXMAN STOPPED BY VIRUS
+        -----------------------
+
+     The Australian, Tuesday, February 21, 1995
+
+        Teenager's anxiety and delight with own virus
+        ---------------------------------------------
+
+     Queensland teenager <Real Name> feels a mixture of anxiety
+     and delight every time his No Frills virus throws another
+     large business into turmoil.
+
+     No Frills latest target is the Australian Tax Office, but
+     its list of victims over the past three years includes
+     Telecom and SunCorp, Queenslands largest financial institution.
+
+     <Surname> was a 15 year old schoolboy when he produced the
+     prototype of No Frills.
+
+     It referred to itself in an internal message as K-Mart and
+     gave its author the nom de code of "Harry McBungus".
+
+     The virus infected SunCorp in February, 1992, forcing the
+     company to quarantine 100 desktop systems and 12 servers
+     while it was purged and damaged files were repaired.
+
+     Even as SunCorp was setting its house in order, <Surname>
+     was working on the streamlined version that became No Frills.
+
+     He claims it escaped into the public domain via a games
+     diskette.
+
+     Almost a year to the day after the SunCorp infection, a
+     version of No Frills in an encryption wrapper ran wild in
+     Telecom's International Business Office computers.
+
+     The attack forced Telecom to first isolate, then rebuild Novell
+     networks linking about 1000 PC's.
+
+     The five-day containment and clean-up exercise involved an
+     international effort and a 30-member Telecom Tiger team.
+
+     <Surname> claims Telecom's use of the McAfee anti-virus
+     software exacerbated the problem, which included the
+     disconnection of 15 servers.
+
+     "They started scanning their systems with McAfee, which couldn't
+     find the virus," he says.
+
+     "But every time McAfee opened a file to scan it, the virus
+     infected it.  That's how most of the infection happened."
+
+     There were no public reports of major No Frills outbreaks
+     last year, but the ATO attack has put the virus back in the
+     spotlight.
+
+     <Surname>, a <xxx xxx xxx> student at the <xxx xxx xxx>, says
+     the virus was written to infect executable overlay files, not
+     destroy data files.
+
+     But he concedes it could become confused by header information
+     in some data files and infect them by mistake.
+
+     "Basically, it's just a straight-forward virus," <Surname> says.
+
+     "I don't derive pleasure out of destroying things; I'd be a
+     skewed human being if I did."
+
+     "I'm not sitting here feeling happy because it's trashing
+     thousands of computers."
+
+     <Surname> admits, however to feeling elated on hearing of the
+     Tax Office's problems.
+
+     "I do feel some joy that it's out there going strong, not just
+     sitting in some virus archive," he says.
+
+     <Surname> maintains some contact with the virus community, but
+     he says writing viruses is no longer a passion.
+
+     "It's just one of those things you play with for a while, thinking
+     it's cool, and then move on."
+
+     These days, <Surname> is more interested in his <xxx xxx>;
+     he thinks working with biological viruses would be fascinating.
+
+     He would also like to do "something productive" with computer
+     viruses, such as research, but fears his past may bar him from
+     a career in the industry.
+
+     "Even if I don't get into legal trouble for something like
+     what happened with the Tax Office, having my name connected
+     with No Frills will probably eliminate any future for me in
+     computers," <Surname> says.
+
+     "If I was advising anyone I'd tell them to think about the
+     consequences further down the track and not just look five
+     minutes ahead, like I did when I started writing viruses."
+
+     Overall, <Surname> doesn't regret writing No Frills.
+
+     "As a programming exercise I think it was good," he says.
+
+     "But when you weigh up everything that has happened, well,
+     I've never sat down and thought about it, but it may have
+     been for the worst, mainly because of the anger it caused.
+
+     "You live and learn.  You see that more things happen
+     than you realised at the time.
+
+     "People suffer and stuff like that.  I don't think people
+     deserve to have viruses happen to them."
+
+     In keeping with his new-found desire to do something positive
+     with viruses, <Surname> nominates a Russian anti-virus package
+     called AVP as among the best he's seen.
+
+     He likes the detailed and accurate technical information it
+     supplies on various viruses.
+
+     Other reccomended anti-virus packages on <Surname>'s shortlist
+     include Thunderbyte Scan and FPROT.
+
+

@@ -1,0 +1,25 @@
+
+ What's next ?          by qark
+ +-----------+
+
+ Well, although we said it for three issues we finally chalked off the
+ windows virus.  But will VIP ever be released ?  Who knows.. I have done
+ four or five versions of it now, but have been dissatisfied with them
+ all.
+ 
+ Since we have done so much in such a short time we have reached a small
+ dilemma as to what we should be concentrating on next. Here's a few ideas:
+
+  Super Virus           - Infects just about everything, including windows
+                          executables.
+  Super-Retro virus     - Attacks every AV software under the sun.
+  Polymorphic Engine    - Every second VLAD member plans on doing one of
+                          these ;)
+  Win-95                - We'll conquer this when it comes out ;)
+  Surface Engine        - An engine that goes through the entry code of a COM
+                          or EXE file, and allows a virus to insert a jump to
+                          the virus body basically anywhere.
+  Anti-Invircible virus - An interesting AV program, for sure.
+
+ That ought to keep us occupied.
+

