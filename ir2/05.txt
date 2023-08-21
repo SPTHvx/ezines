@@ -1,0 +1,29 @@
+             HELP FOR MOVING AROUND IN THE MAGAZINE
+             ======================================
+
+        This issue works pretty much like the last issue
+        with a few exceptions. The article viewer has
+        some new functions and the mouse support is extended.
+        
+        To move around in the menues just use the arrow keys
+        or the mouse and press enter or the left mouse button
+        to make a selection. You can also use the highlighted
+        shortcut keys to make your selection.
+        
+        There are two new improved functions in the article
+        viewer (Except for a new great look!). Copying articles
+        to files and printing articles. To use these functions
+        just press the F1 or F2 key. To exit the viewer press
+        ESC, enter or the right mouse button. To scroll
+        around in the articles use the up/down arrow to scroll
+        one step or PgUp/PgDn to scroll a whole page. You
+        can also press and drag the mouse on the scroller bar.
+        
+        When watching an VGA picture just press ESC or any
+        mouse button to return to the menu.
+
+	If you still don't understand how to move around in
+        the magazine, I suggest that you go grab some extra
+	IQ, or do something drastical! Go buy a Macintosh! 
+
+                            = RAVER =

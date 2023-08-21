@@ -1,0 +1,76 @@
+   		      SCAN REPORTS FROM ISSUE #1
+   		      ==========================
+   
+   This text will be about the Mcafee Scan. Everybody who've changed
+   on a virus a bit just to fool his scan, knows that he gets kinda
+   pissed of on you! And when he don't know who you're he can't get
+   his revenge. So, the question is how he gets his revenge? Well, 
+   we (Metal Militia), mutated 6 viruses, which purpose was just 
+   to be "renaissanced". He succeded in fool Scan (v106 which was
+   the latest one then, and Dr Alan Salomons FindViru 6.20).
+   
+   Then we released completely source codes to all the viruses in the
+   first issue, which was very well spread in countries as Sweden/
+   Usa/Netherlands/etc/etc..So, we can suppose that many people 
+   actually have some virus sources now, and hopefully will people
+   continue spread/mutatate/hack the sources we included in the first
+   issue of Insane Reality.
+   
+   I really don't think he likes all hacks or mutated viruses of the
+   simple reasons that they often cause just as much damage as completely
+   new ones (If the virus then have pretty similar effects). The different
+   between a hack and a brand new virus, is that the new one takes much 
+   more time to finish, and not that many are cabable to code it. Then 
+   anyhow, he released his scanv107 about 3-4 weeks after we released our
+   first issue, and guess what?..A new "string" for our mutations had
+   been added, and well, I suppose he can't use our "own" mutations names 
+   in his "virlist", but %œ?!, what a bore he really is! I'll give you
+   some	examples...We (or well me then:)) "labeled" the mutations after
+   six very good Metallica texts, and well, here is what they were called..
+   
+   And justice for all, Misery, Fade to black, Fight fire with Fire,     
+   Senseless destructions, and The thing that should not be.
+   
+   Then little John found the most boring mutation names I've ever
+   heard, the "mutations" became Leprosy 564 [OW], Bad Brains 2 [OW],
+   7th Son 473 [7SON], Creeperc [CreepC], and Bad Boy 3 [BB3].
+   
+   I know you can't get your "own" virus name because you just mutate
+   a virus, but Hey!, that's not my demand! I want some "colored" names,
+   for example Leprosy [IR1] or something like that, but well, you can't
+   get it all, can you? Note!, his scan v107 did "just" find five of
+   our six mutations, he forgot to add the 808 mutation called 
+   "...justice for all" in his v107 and v108!!. I don't know why, I know
+   that the virus works, and if someone (ab)use it, it might cause some
+   trouble..Really hopes so...John will regret what he often forgets.
+   
+   So, now in this issue, some (or huh?) "new" (scratch) viruses are
+   included, The first is just a non-resident overwriting virus,
+   but if his fucking scanner finds it later as some "MINI-300" or 
+   similar, I'll just kill him! All overwriting viruses are pretty
+   similar eachother, but well, I rather would like to call the 
+   "copying" overwriting viruses to C-OW:ing ones (Copying Overwriting
+    ones), anyone who agree with me?
+   
+   Metal's non-overwriting RES/COM and RES/COM/EXE is now finished to.
+   And then I don't want to see some "untrue" names on them. The
+   viruses are called EXTASY! and RAVAGE!, and if he labels them 
+   to some fucking mutation name, he'll fucking die..Metal got _SOO_
+   many viruses under production, so I don't really know a shit what
+   he's doing right now (sounds strange eh?). Our last mutations was
+   just a few bytes code-changing, but what if the whole infect-routine,
+   encrypt/decrypt/install/etc routine are changed, you've just kept
+   some others routine, for example (sounds strange this but anyway),
+   if you have "stolen" the infect routine (non-overwriting stuff),
+   from one virus, the encrypt/decrypt routine from one, the install
+   to memory from one, and the "infect identification" from one?..
+   What will the AV-poeple then do?..Huh?..Say that it's some sort
+   of hack virus from A,B,C,D and E virus?..nah!..that don't work!
+   Someone tell me! I don't know?? Will be some "new" virus, right?
+   
+   Anyway..If you reads this John..Enjoy! Then the magazine is very
+   well spread around. And that's exactly what we wants! So..get
+   around names right (I've spend some time figuring some "nice"
+   names out), and I really hate time wasting! Thats's all..
+   
+   	       	           = THE UNFORGIVEN =

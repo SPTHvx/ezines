@@ -1,0 +1,87 @@
+                    WHAT HAS HAPPENED SINCE ISSUE #1
+     		    ================================
+     
+     In this article, I gonna tell you a bit about what have happened,
+     with our little mag since we released our first issue of "Insane
+     Reality". I really hope that you have looked at the first issue, 
+     cuz we spend quite a hard time to finish it. Okey, I start with
+     all differents about the magazine itself, and then I continue with
+     group news and shit likes that..here we go..
+     
+     		         - NEW MAGAZINE CODE -
+     		       
+     First of all, the entire magazine code itself has been changed,
+     and as I see it, to the better way. The first issue was written
+     in TPascal6, while the second (and most likely the common ones
+     too), are written in C. The magazine will now just need only one
+     .exe file for working (not as the lasts one, who needed a .dat
+     file for every single little shitty article). It also needed
+     a .pic/.pal for every VGA included, which made the code huge. 
+     If we includes to many VGA'S the program will not fit in memory,
+     cuz one picture (320*200*256) takes 64000 bytes in memory, and
+     well, you only got 640 Kb avalible. So, a .DAT file where the
+     pictures are stored might be a good (necessary solution)..So,
+     the code is much smaller than the first one, and the lister is
+     much more fancier than the other one. The menu-system is changed,
+     and the mouse-symbol is awesome cool! Well, enough about the new
+     mag, just check it by your self..If you don't like the magazine
+     code, I really feel sorry for you!
+     
+     		           - GREAT VGA -
+     
+     We have in this issue asked a great VGA-Artist if he could	do
+     some nice artworks for us, and he accepted it, and started with
+     some VGA'S. He's called The Sarge, and used to be in Fairlight
+     nowadays, he's in Rebels/PC. He's now done 4-5 VGA'S for us, which
+     I finds to be in real high	quality. I don't know if he is capable
+     to draw as many pictures that I want him to, cuz he's right now
+     working very hard with the GFX to a Rebels demo called SargeWars.
+     Anyway, if he gets some spare time, he might continue with some
+     drawing for us. We've also asked another person "B-Real" for a
+     vga-logo, and well, he drawed a pretty nice one. I have done
+     three pictures, and Wico (great artist), have drawn a hell of a
+     logo! So..we got many VGA'S in this issue. Enjoy it hm..not.
+     
+     		            - IR BOARD -
+     
+     We looked a while for how we could get a Immortal Riot board.
+     And after a time, we contacted WiCO, and well, he was just about
+     to put up Inner Circle again. So the choice wasn't really too
+     hard. Demoralized Youth was formed on Inner Circle. Note, we're
+     not trying to be a new "DY". The reason of we chosed WiCO to be
+     a IR sysop was that he really don't care if some lamers writes
+     articles about him, and he just seems to enjoy bad publicity.
+     Now when WiCO closed his board, we	contacted The Judge at his
+     bbs (FireDoom Systems), and he accepted being some sort of HQ.
+     For more info about this board, dial it up, and check it out! 
+     
+     	                    - NEW MEMBER -
+     
+     Immortal Riot has now expanded with a new member. He's called
+     Raver, and a really nice guy. This Raver is the person who have
+     done the magazine code for issue #2, and well, he haven't really
+     done a virus yet, but he's getting	more and more interested in it.
+     He is a great coder in the C-language and also coding very well
+     in	assembler. He will probably later supply us with some scratch
+     viruses he has written. But for the moment he's just interested
+     in "ordinary" programs (booring;)). Hehe..nah, kidding..once more
+     you'll have your interest in the real things! 
+     
+     		       	   - MORE VIRUSES -
+     
+     I have also started doing some virus-mutations, and well, I ain't
+     no good in assembler, but hey! You gotta start somewhere. So for
+     the moment, I've mutated six viruses, and more to come. The first
+     virus I ever mutated was the 808 virus from P/S, but when I saw 
+     that Metal Militia	also had played around with it, I couldn't 
+     release my	version. I've also figured (smart as always;)), that
+     a virus must have some sort of funny think in it. A funny thing 
+     might be a "joke" as in CyberCide or the Yankee Doodle virus, 
+     there a tune is being played. But it can also be a cruel "joke".
+     A joke which fits in my sick brain is certainly some sort of
+     dangerous joke, for example a hd trasher. In my version of Leprosy
+     now called Raping Betrayals, I've for example added a sector over-
+     writer. So, it's right now a little more destructive. But don't 
+     blame me..The society is to blame..
+     		
+       		          = THE UNFORGIVEN =     

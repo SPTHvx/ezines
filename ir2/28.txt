@@ -1,0 +1,157 @@
+   THE PREDATOR VIRUS #2 FROM PHALCON/SKISM STRIKES IMMORTAL RIOT!
+   ===============================================================
+   
+   Well, first off all, this article is kinda "embarrasing", but
+   afterall, we believe in democracy, information-freedom, and a 
+   society without any censorship at all. That's the reason that
+   I included this little text into the magazine. I'll start from
+   the beginning, so pay some attention please!
+   
+   The whole thing started when I leeched a file from the excellent
+   bbs called FireDoom Systems. The file was some sort of credit card
+   number calculator, which was described in the "file_id.diz" as 
+   supporting cards as Visa, Mastercard, American Express. I thought
+   that if it worked (against all odds), it would be an easy way to
+   get your hardware, and decrease your phonebills. If it didn't work,
+   (or worked) it would be the perfect way of get our "Ravage" virus a
+   bit spread out, so all the "illegal" card abusers got some hard time
+   removing it..Well, hate to say this, but Phalcon/Skism had "cal-
+   culated" (ha ha ha) exactly the same thoughts as I had, yes, the
+   "ware" was infected, but not with Ravage..with Predator Virus #2..
+   
+   But why didn't I noticed that the "ware" was infected by some
+   virus (I always checks the "suspicious" stuffs out before starting
+   them), and so I did here too. I saw that the file was packed with
+   Pklite, and started the "Dislite" program aswell. But "Dislite"
+   told me that the Calculator had some "strange" header or something
+   like that, and it couldn't be dislited..Strange I thought..Dislite
+   "always" works as it should,	but anyway, curious as always I started
+   the program. And now	I got a bit "scared", the calculator was written
+   in 1990! So there wasn't really any chance at all, that it would work
+   in October 1993! 
+   
+   I closed down my system right away, and turned it on some seconds
+   later (cleaned the memory)..Haha I thought, and removed the cal-
+   culator from my harddrive, thinking that either it was a virus or
+   not, I was free from it..(DEAD WRONG!)..This virus was HARD to get
+   rid off! Thrust me on that! First off all, the virus had absolutely
+   no bugs at all, and I didn't noticed that my computer was under 
+   attack by this "shitty" (sorry Skism) little destructive piece of
+   code. The virus was pretty "big" (2448 bytes), but since it used lots
+   stealth functions, (file-size hiding etc), I didn't noticed it, well,
+   not before it was too late. The first time I noticed it, was when I 
+   looked at the new VGA, which will be included in this issue, and VPIC
+   told me that the file (vpic.exe) had grown, and would not run. 
+   
+   Metal Militia called me up, and I gave him my copy of VPIC (I just
+   thought that I had played around with some unpacked or something like
+   that, so I didn't bother too much about VPIC), then Metal Militia
+   opened that file, and ha ha ha very funny he told me, looking at the
+   text string "Predator virus #2  (c) 1993  Priest - Phalcon/Skism". 
+  
+   He thought that I was making some bad joke, (this virus wasn't in 
+   VSUM, and he just thought that I had written "the text" by my self).
+   I told him that I hadn't, and after some minutes he believed me..He
+   started the vpic.exe file I gave him.
+   
+   The first thing the virus did with my computer was to copy itself to
+   the boot-sector (i.e goto memory each time you'll re-boot your C
+   drive). When resident it will infect some .com and .exe programs,
+   which are executated, copied or (well, don't really sure if all data
+   I give you are correct, but anyway, here comes my "diagnose") opened.
+   The virus also plays around with your FAT, thus making it to a 
+   destructive virus. It will randomly put together some parts of files
+   placed on a sector with other files (for example, I got a combined 
+   .EXE file with some dully .TXT file). It crosslinks files on your
+   harddrives, check with "chkdsk", and well, if you got 5-6 pages with
+   cross-linked files after 10 minutes of "normal" computing, you surely
+   got it! The stealth functions seems to be kinda random (huh?). First
+   of all, you will not see that a file is infected (file lenght and all 
+   attributes are saved and restored), and the encryption seems to be a
+   bit strange. I looked at the boot-sector, and couldn't see the 
+   "Predator.." text, so I thought..hmm..not a boot-virus then, PUH!,
+
+   But now, I know better..In the most of the programs I didn't see the
+   text-string, with "Predator", but in some, for example my text-editor,
+   and VPIC, it was there. I also noticed that the command.com grew in 2
+   steps (strange!). I got one version with file lenght increased with
+   2448 bytes (yes, the virus-size), but then I recieved one, which had
+   grown with 2773 bytes. The last version contained the "text-string".
+   Anyway, I tried to remove it by first delete	the files that I thought
+   I had started, but I failed with that (most of my files was actually
+   infected), so I didn't bother to save the other ones.
+  
+   Metal Militia started "cleaning" his computer by using the "SMASH"
+   trojan released by Phalcon/Skism, and told it that it should delete
+   exe/com files. Myself called Raver up, knowing that he had written
+   some sort of "Remove" program. I started it up, and deleted all 
+   executables (even .SYS files), and thought that I finally was rid
+   of this nasty bastard!..DEAD WRONG AGAIN!
+   
+   What I didn't know then, was that it did infect the boot-sector, well,
+   I more supposed that he hadn't written a BSV. Phalcon/Skism had never
+   done such a thing before (right?). And why should this version of it
+   be a BSV? (I got the answer), YES!..I got infected, right!! I thought,
+   ohh shit! Now we'll never release the second issue of our magazine, 
+   gee, what a sin! Hehe..(and justice for all)..and this was my punish-
+   ment for all "bad" things I had caused the computer-world..Anyway, I 
+   copied some files from Raver's computer (most Norton Utilities stuffs),
+   and saw the NDD or (Norton Disk Doctor). I started up the program,
+   and it told me immediately that it was something wrong with the boot-
+   sector. I made the UNDO-file, and Peter (Norton) continued his work..
+   Finally I was rid off this shitty little virus! Power to you Peter!
+   							
+   I'm really sorry if my "diagnose" is full of rubbish, can't help it!
+   I didn't disassemble the virus, and don't really care about all 
+   functions in it, since it was extreamely hard to "clean". I'd suggest
+   everyone who gets it, to delete all files, and then start NDD. It 
+   might have some (many?) more functions in it, it was 2448 bytes, and
+   I know what a P/S member can do with that "big" code..Anyway..
+   continue read this article, cuz it ain't finished yet..
+
+   Well, this was the 100% true story about the Predator virus #2.
+   My mind is kinda splitted about the whole fucking virus-shit right
+   now. I surely adore Priest for doing this virus, but at the same 
+   time I hate him! He've caused us (specially me), LOTS of TROUBLE!
+   And well, what can he say to his defence? Not very much! Since 
+   there isn't any potential "risk" at all that someone just "stoled"
+   it from his computer, and started spread it around. Nah..He have
+   probably written it for spreading and for evil purposes only. 
+   Just like we do..So, isn't this just some sort of double-moral? 
+   Yes, I can't figure out something else to call it..Anyway, now I'm
+   clean, I'm fine, except for that I must re-install all programs,
+   and search for all great utilities I've lost..Hmm..gonna be some
+   sort of boring weekend!
+   
+   What have I then learned from this? Well..lots of things! First..
+   make backups, and a virus (visible and destructive ones), will
+   hardly cause you any trouble at all. Then, Priest is a hell of
+   a coder (hate to admit that), this virus contains excellent code
+   (hate to say that too), and Phalcon/Skism are alive and kicking.
+   Then, well, if we come to the more destructive kinda things,
+   this will be some sort of inspiration of writing better viruses,
+   a res/bsv/com/exe/fat will hopefully come from us somewhere in
+   time..(hehe)..not now, but when we're capable to create it, it 
+   surely will be world-wide spread! What more? Hard to say! That's
+   for sure! But even if you learn some things from this, I can
+   hardly say it was a pleasure...Ain't phun to learn the hard way!
+   
+   Anyway, when I now finally am clean from this sucker, I saw some
+   AV-product out there. This AV-product is PURE shit! The author, of
+   it Mr Destroyer/TDT/TUNC has really made a fool of himself! When
+   his program is executed it will "scan" all .EXE/COM/SYS for the
+   text-string: Predator virus #2 (C) 1993 Priest - Phalcon/Skism.
+   And if a file contains that string, it'll just delete it! And what
+   lame "AV"-util is this? The virus is to "99%" encrypted, and files
+   will not normally contain that text..And what happend with the Boot-
+   Sector? The virus will drop itself to the boot-sector the very first
+   time it's being run..Can this little "AV" shit rescue you from the
+   Predator #2 virus?..Nops! No way! I don't wanna mess around with TDT,
+   of that simple reason of many members are from Sweden, but this is
+   lame! I can't find another word for it! Make some real AV-utils or
+   let it be! This is just lame! Making the user think he's clean from
+   it, when he isn't..Aha..smart idea! So..you like viruses right huh?
+   Can't find another way of looking at it! Anyway, this is getting far
+   too long..better rush..take care!
+   	       
+		 	   = THE UNFORGIVEN =

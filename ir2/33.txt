@@ -1,0 +1,204 @@
+--------------------------------------------------------------------------------
+                  Interview with Wico / Ex Inner Circle 
+--------------------------------------------------------------------------------
+
+
+
+
+IR> When did you enter the Computer/PC Scene ?
+
+
+WICO> Well my first computer was an ABC 80, then i was among the 10
+      first person's in Sweden to get the new incredible Vic20 computer!,
+      from that i moved along the most old Atari models, Sord M5 (a BIG
+      flop!), Vic 64, Amiga, lots of PC models. Well i it was actually
+      BamBam/THG, and Metal Gear/INC who talked me into the PC Scene at
+      the time around 1989
+
+
+IR>   Did you those days had any plans at start bbs those days..?
+
+
+WICO> I was already running an Amiga Board when i entered the PC scene...
+
+
+IR>   ..and when did you first got into the modem-world ?
+
+
+WICO>  Heu!, thats a LONG time ago around 83-84 i would guess! 
+       i got a POWER FULL 1200bps modem YeH!
+
+IR>    Which groups have you been involved with ?
+
+WICO>  Puh! Well i wont mention the first groups i formed on the c64 time!,
+       coz they	was way to lame!, But i started in amiga groups like Aurora
+       mainly a Demo trainer group, i was an original supplier for Classic
+       (which recently was re-born on the amiga scene!), i was into Scoopex
+       (a real legend in the Amiga scene!)... Well when i moved ahead into
+       the IBM Scene i started in THG, then RAZOR and INC EUROPE.
+
+IR>    How did you became a site for DY ?
+
+WICO>  Well it just happend!, Tormentor lived in the same town, he had just
+       started with virus, so had i, i had opened a virus section on my bbs
+       like 1month before i came in contact with Tormentor, and then it 
+       just happend somehow!
+
+IR>    Can you tell me a bit how DY was formed ?
+
+WICO>  It was totally formed by Tormentor
+
+IR>    Which position you Wico got at the starting at the group ?
+
+WICO>  Well we didnt assign any special position's, i was just a part of
+       DY and i runned our board, and spread our products. We just had a
+       great time and enjoyed messing with the Swedish Shareware dudes!
+
+IR>    Why did you (Tormentor) choice the name "Demoralized Youth" ?
+
+WICO>  You gotta have some kind of name!, and DY was a great name for a
+       virus group., Why do you call your group Immortal Riot?
+
+IR>    Which members did DY got from the beginning ?
+
+WICO>  Well Tormentor started the hole thing, then more and more of us
+       joined in i really can't remeber who joined when and stuff like
+       that!
+
+IR>    Which members did DY had ?, and what was your position in DY ?
+
+WICO>  Well! i can't tell, it was a while ago, and all boozing & drugs
+       have made my mind real fucked up... and which member we had aint
+       that important, what we made is what should be remebered
+
+IR>    How was DY organized ?
+
+WICO>  Where we organized? <grin>
+
+IR>    Is Demoralized Youth still in business, or are you completely
+       retired ? 
+
+WICO>  Well i can only talk for myself, and i am still in biz but not
+       under Demoralized Youth
+
+IR>    Can you describe the virus scene in sweden ?
+
+WICO>  Dont you know that yourself? haha!!, Well it has been quite lame
+       for a while, but it's getting more active again!!! You're the one
+       who should descripe this to the readers, you're the one who knows!!
+
+IR>    How do you think DY was compared with the other groups,
+       like Phalcon/Skism, NuKE ?
+
+WICO>  If we hadnt quited we would be along the TOP today i think!
+
+IR>    Which virus-group, do you think rule ?
+
+WICO>  my personal opinium would be Phalcom/Skism, Dark Angel is really
+       great!
+
+IR>    Who do you think is the perfect virus coder ?
+
+WICO>  A guy without a life, sitting in front of his computer 24/hrs a day,
+       without any attentions getting a real girlfriend, he is happy with
+       his lovely right hand.
+
+IR>    Which country is the most talent in virus coding ?
+
+WICO>  Boring Question!!!, move a head please
+
+IR>    Which virus-group, are you considering as the most lame ?
+
+WICO>  Well the most lame one's is hard to tell since they are so lame,
+       so i even havent heard of them!!!
+
+IR>    Do someone  release anything as 'DY'nowdays ?
+
+WICO>  No!
+
+IR>    What's your oppinion about board-crashers ?
+
+WICO>  If you cant protect your system against 'board crashers' or whatever,
+       you deserv to get a lession.
+
+IR>    About PCExpress, 1.00 what do you think about it?
+
+WICO>  Well, quite a nice BackDoor indeed!, i think i Nuked about 15-20
+       boards in  a couple of hours!
+
+IR>    What do you think about Mikael Winterkvist?
+
+WICO>  (FOTNOT: About he's buying pirated software)
+       HahA!, Well Mikael Winterkvist is a REAL Screw-Up!, i suppose that
+       all non-swede's dont know a shit about this melon-head, but he's a
+       guy who published lotsa information about Virus Coders/Boards and
+       stuff!!, Well he used to buy (c)opyrighted software from me like, 
+       3D Studio, Windows NT and such stuff that would take to long time
+       downloading from my board!, and he leeched around 200mb of wares
+       too!
+     
+       When he published me and other's as virus spreaders i went to attack
+       him, with the information that he bought	(c) software, he then said
+       it was to collect evidence of me selling (c) stuff, when i then 
+       wondered if he really needed to download over 200mb, and buy (c)
+       wares for around 500US$ to get enough evidence, after that he was
+       quitet for a while, i had really blown away his image as a 100%
+       legal computer owner, who  never would use pirate stuff.
+
+IR>    About Swedish Virus Laboratory, why did it closed?
+
+WICO>  I had a break from the Computing during the last months when his
+       board still was active, so i really dont know why he closed. 
+       Tormentor is nowdays studing on 'Chalmers Tekniska H”gskola'....
+
+IR>    What do you think about the other scenes comparing to
+       the virus scene ? For example Piracy vs Virus 
+       or Piracy vs Hacking etc ?
+
+WICO>  It really can't be compared!, but i am getting pleasure from both
+       scene's so i wouldnt choose between one of them!
+
+IR>    Have DY ever been in "war" with some other group, or person, 
+       or someone else?
+
+WICO>  Depends on what you mean with the word 'war', as a Virus group
+       we wanted to Nuke as many as possible! you can call that a DY
+       vs Everyone if you  want!
+
+IR>    What do you think about 'rag-wars'between two diffrent groups ?
+
+WICO>  meaningless, we should fight toghter against our enemies!
+
+IR>    What is your oppinion about Anti-Virus Asses, like our own 'Mikael
+       Larsson', and well, the bigger ones too, like John Mcafee or Dr
+       Alan Salomon ?
+
+WICO>  I understand them, they are making major money on there anti-virus 
+       products!, I respect them as smart buissniss person's, i am a busi-
+       ness person myself, and all we care about is to make as much money
+       as possible! they choosed Anti-Virus i chooses to sell Computers...
+
+IR>    How would you define yourself, when you're looking in the mirror ?
+
+WICO>  That's not up to me to judge, but my girlfriend think's i am the
+       sexiest man on the planet, i have never got any problem getting a
+       chick, they just seem's to fall for me at the first sight!! You
+       know, Swedish, Blond, Blue eye's, Going on gym 3-4times a week.... 
+
+IR>    So, why are you a pervert ?
+
+WICO>  I'm a PERVERT?, Hue! - i just luve to pop the cherry of young lovely
+       girls! But if you think i am a Pervert you should see my girlfriend!
+       She's the most sex-fanatic person i ever has meet!!!! She even 
+       make's me exhausted!!!!!
+
+IR>    Have you ever got hurt in your ears by a bitch screaming loud ?
+
+WICO>  Nah! if they start screaming too much i put my dick into her mouth
+
+IR>    How was this interview comparing to the other you have seen in
+       magazines ?..the worst, or the badest ?..hehe..l8r fella !
+
+WICO>  <no comment>
+
+IR>    Thanks for this Wico! Catch ya later on!

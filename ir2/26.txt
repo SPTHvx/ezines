@@ -1,0 +1,121 @@
+   			SWEDISH VIRUS HISTORY
+   			=====================
+   
+   Umm.. I don't really know where to begin, but since DY was first as a 
+   group, and made the second virus in Sweden (the first one was Swedish
+   Disaster), i'll start with them i guess..
+   
+   What i have heard Tormentor started out with the TORMENTOR virus -  
+   a hack of MURPHY - which sent lots of people's drives to never-never 
+   land. About 400 reported infections in Sweden (and lots of nuked
+   drives as well i guess). His first version however had a bug so it
+   didn't went off, but the later 10 (?) version surely did :)) There
+   was some real fighting on "SWE_VIR" in those days, when you also 
+   think about his 1701 mutation aswell) I wasn't into this scene at 
+   the time, so all i know is what i've heard from people that knew him.  
+    
+   After a while he started making viruses from scratch, like for example
+   the 'CREEPING TORMENTOR' that nuked your drives if you typed in a
+   special word, and he also made a small 'virus lesson' for people to
+   learn how to make non-overwriting stuff, so i must say that he helped
+   the Swedish scene up on it's	feet. Then other people in DY made viruses
+   like YOUTH, PCBB, Silence of the lambs, and so on. DY had some nice
+   connections like DiRE in Finland, and Charlie in Norway. I've also
+   heard that a friend to Tormentor called Spider got good connections
+   with diffrent virus-systems located in Bulgaria...
+   
+   DY (in Sweden) quitted with the destructive kind of programming for
+   about one year ago from now, and I must say that the whole swedish
+   virus scene broked up totally since the "bust" of all the VX bbs:es.
+   (Look under Mikael Winterkvist).
+   
+   DY (Demoralized Youth), are still writing some viruses, but I can
+   hardly say they're any group, since Tormentor, and all other coders
+   in Sweden stopped with the virus coding when Tormentor quitted. A
+   Dreamer in Norway (Hello Charlie?), have coded Bizarre (a RES/
+   Polymophic/COM/SYS). And also the Hitler virus (a.k.a 'Dreamer') 
+   A RES/COM/Size-Stealth virus. He still signs with the "DY". Some
+   sort of a "one-man-crew".  
+   
+   Then there were some other groups around aswell, and they were named
+   BETA BOYS and LINE NOISE.
+   
+   BETA BOYS had some connections in Finland, with a dude there named
+   Firefly. They made some viruses like SWEDISH BOYS, (DEATH)-RATTLE,
+   MEXICAN MUD and so on..(Read the interview with A.N.O.I). These
+   viruses were very "OK", and now, when i have heard about all "mis-
+   takes" with the BetaBoys viruses (VSUM), i dare to say that this group
+   was a very active virus writing group. They have NOT hacked viruses
+   like vienna, just because the infected files are marked with "seconds
+   62". The VSUM-crap failed with un-encrypt some message in some virus 
+   too, and some other "routines" were left out. This viruses written by
+   The Beta Boys, was surely good... 
+   
+   LINE NOISE.. (the other virus "writing" group) ripped their names
+   from the dude in INC, and the leader had ripped his handle too
+   (MORBID ANGEL). What a creative brain they must have (:-)). They
+   made some non-resident, over-writing *.COM "infectors", like BANANA
+   (MINI-45 hack), MINI-45B (another MINI-45 hack), MINI-35 (YET another
+   MINI-45 hack), DRUID (non-resident ow-crapp), BLOOD LUST (yet another
+   non-res ow crapp). Their last virus (PRIME), was a non-ow .COM 
+   infector, which didn't changed directory (gee, four more lines to add
+   a "dot-dot", and you didn't managed that your lazy suckers). Shortly
+   said nothing to scream hurray for..Morbid Angel surely had a great bbs
+   (Swedish Virus Exchange), you could say that they (the board then:)),
+   atleast pushed the scene up a bit.
+   
+   Now everything was fine until one special looser showed up, making
+   money by dragging other people in the shit.. (guess who?) YES, the
+   one and only..Mikael Winterkvist (SysOp on Computer Security Center,
+   and reporter), he called around under the handle 'ESMOND DURY'. He
+   said he was from Italy, and had nuked alot of systems, aswell as that
+   he was wanted by the police there. The thruth you ask? Just as i said
+   before.. only a reporter but a very well paid one, after selling his
+   article to many of the Swedish newspapers. This way the scene went
+   down for a long while. One person got away from the shit because of
+   that his father was a reporter on another news-paper, and could have
+   given MW some shit too if he'd started trouble with 'his boy'. This
+   person was MORBID ANGEL / LINE NOISE, the sysop on Swedish Virus
+   Exchange (A.K.A The Bermuda Triangle).
+   
+   Two new virusgroups has now started to make a new era, that's us, and
+   ANOI (A New Order [Of] Intellegence). They have released two viruses 
+   until date, both resident, *.COM infectors on a "DIR". One named 
+   'CYBERCIDE' and the other 'MY LITTLE PONY'. Both are aswell "stealth-
+   sizer's" disinfectors on the file when it's opened (for exampled 
+   "scanned" with Mcafee). They're not encrypted since there were no
+   need to encrypt a file when the virus will un-infect the file when
+   it's opened. Encryption routines are also very easy to set a "string" 
+   to, since they're very "personally". The viruses they've coded have
+   pretty similar effects, but they're still both coded out from scratch,
+   which means, My Little Pony are NOT a hack or modification on Cyber-
+   Cide. 
+   
+   OK, now you know this.. but how did WE started you ask? Oh, well..
+   here we go again.. (very short, but anyhow..)
+   					       
+   I had been in the business for a short period (« a year or something),
+   and made some viruses out of others scraps when i met the other leader,
+   known as The Unforgiven. He was totally new in the modem-world, but was
+   a fine young man, with great ambition, plans, and hope, so i chosed to
+   join up with him. We thought of a name for a while, and he came up with
+   the name we still have now.. 'IMMORTAL RIOT', which perhaps give you a
+   slight idea of what we're up to (mega-smile!) Then we made some muta-
+   tions, and released a magazine. In that we DIDN'T had any H/P/A and so
+   on.. just pure virus style. And as some of the larger groups says, it's
+   at least better to learn one thing than to go around talking shit about
+   being an phreaker just for having some AT&T's in it or something, right?
+   This article will probably end up in our second issue, so we're still
+   kind of new, anyways..
+   
+   I then got my hands of a letter in VL-ISSUE, which said that C.T.H 
+   (Chalmers - The famoust Technologic School located in Gothenburg) had
+   had been infected by a polymorphic, resident, bootsector, COM/EXE/SYS
+   virus.. and the one that had to fix the computers was almost about to
+   start crying.. then when he sent it to Dr. Salomon and Mcafee. It was
+    a non-resident, *.COM and *.EXE infector, didn't even change library.
+   HAHA, what a jerk, didn't even check things up first.. oh, well.. if 
+   the world's like that.. it will be easy to get famouse (mega-smile!)
+   Anyhow, i hope you enjoy this magazine, and have a nice day..
+   
+   		     	      = METAL MILITIA =

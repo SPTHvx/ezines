@@ -1,0 +1,456 @@
+             Interview with MR.X / HSI                            
+	     =========================
+
+IR>   What is HSi all about?
+
+
+
+MR.X> Well, i can not really tell you to much about what HSi are all
+      about, thou this would probbly ruin alot of operations. One thing
+      i can tell you is that we deal with alot of fun things as Contract
+      Nukes and Contract Hacks. We really don't care what we have to do,
+      it's only a matter of money. Ones upon a time, there was a guy that
+      wanted us to do some nasty things with a network called Cancernet,
+      We took the money the guy offered us and burned it infront of him. 
+      (we are not animals.. Even if sixpack is pretty close.. :-)
+
+
+
+IR>   How did HSi start?
+
+
+ 
+SiXPACK> Yeah, Mr.X and Lloyd started the group, but Lloyd suxed
+         real bad, so we kicked him out when I joined in! 
+
+
+MR.X> Well, let me put it like this, LLoyd was a rather cool guy in the
+      begining, but the money made him find out what the word "greed",
+      really stod for. He tricked many of my friends with false 
+      information and made alot of guys, very angry. It would have been
+      a bad thing to keep him in the group, so we closed his account and
+      changed all the passwords and in-dials to the HSi-Network.  
+ 
+IR>   When did you enter the Computer Scene ?
+
+
+MR.X> This makes me remember the golden years of my old ZX80. 
+      The memory banks were limited to one kilobyte, but that did
+      not stop me from spending day and night infront of the computer.
+      If i'am correct the date i first unpacked my first computer, would
+      be somewere around 1980. That makes 13 years of struggle to get to
+      the top :-) Hi, Sammy, Pete + all the rest in the former SCCS.
+ 
+IR    Did you those days had any plans at all at start
+      a bbs those days..?
+
+MR.X> I've allways dreamt of the perfect BBS, but in the 80's the speeds
+      and hardwares were to slow to fit my demands :-)
+ 
+IR>   ..and when did you first got into the modem-world ?
+
+MR.X> I've been ONLINE since 1989, if you would add up all my privious
+      phonebills you would get enough money to pay the full price of a
+      Cray-1. In the begining i paid for all my calls, i learned the
+      hard way that you can not keep on calling forever if you gotta
+      pay the fucking bill. Sometimes when the bill arrived i had to
+      sell some snow, inorder to get the money. This will make you
+      understand that my phonebills were HUGE. I were (and still are)
+      operating on a non-digital line and even the scanning costs me
+      money :-(
+ 
+IR>   Which groups have you been involved with ?
+
+MR.X> In the first years of my computer madness i were a member of the
+      TCB (the code brothers). I went on the the SCCS, when the C-64
+      arrived to our PO.BOX!! I stayed there until 1989.
+      I spent two years on my own, reading everything there was to read
+      about H/P/V. The year was now 1991 and i saw a huge
+      light in the sky and heard the drunk sailer say Mystery seems to
+      be a cool bounch and they bought you a couple of beers at the
+      FP-TRIP to denmark... Hi Wayrah, Jian and all the rest.
+      Jian got himself a huge phonebill and the group lost him, to the
+      streets :-) I went back to my studies... In 1992, me and Lloyd formed
+      HSi. The rest is history...
+ 
+IR>   When did you started to Phreak & Hack ?
+
+MR.X> I started in 1989, so that makes it 4 years today :-)
+ 
+IR>   How was HSi formed, and by who ?
+
+IR>   HSi were formed by me and LLoyd in 1992. I called him up and said 
+      that we should gather our forces and make the world trumle of fear
+      :-)
+
+      take a look at the text below, it was sent out to alot of big 
+      "customers".
+
+
+                                   HADES
+                           HACKERS iN DEEP SHiT
+
+
+WHAT IS HADES?
+--------------
+
+ HADES IS A GROUP OF THE ELITE HACKERS!
+ HOW WILL HADES OPERATE?
+ HADES WILL HACK AND SELL INFOMATION TO ANYONE WHO CAN PAY FOR IT!
+ WHAT WILL HADES DO WITH THE PROFIT?
+ THE PROFIT WILL BE SPLITED BETWIN ALL THE MEMBERS!
+
+
+WHAT CAN HADES DO FOR YOU?
+--------------------------
+
+ 1.WE CAN HELP YOU TO "GET" INFOMATION FROM OTHER COMPANYS. WITH OUR HELP
+   YOUR COMPANY CAN GET UTLIMATE CONTROL OVER ANOTHER COMPANYS RESOURCES.
+
+ 2.WE CAN OFFER YOU A FOOLPROF SECURITY SYSTEM AGAINST HACKERS LIKE US!
+
+ 3.WE CAN BE YOUR COMPUTER SECURITY ADVISOR!
+
+
+WHAT WILL THIS COST YOU?
+------------------------
+
+ SERVICE 1: THIS WILL ALL DEPEND UPON WHAT YOU WANT US TO DO WITH THE OTHER
+            COMPANY. WE CAN STEAL INFOMATION FROM THEM, BUT ALSO CREATE
+            A BIG MESS INSIDE THE OTHER COMPANY. WE WILL DO WHAT EVER YOU
+            WANT US TO DO.
+
+ SERVICE 2: WE WILL CHARGE YOU 1500US$ FOR THE SOFTWARE AS A STANDARDCOST
+             + 50US$ / 1000 LINES OF SOURCECODE. THIS WELL BE DEVELOPED BY
+            OUR OWN PROGRAMMING STAFF. THE INSTALATION WILL BE FREE OF 
+            CHARGE.
+
+ SERVICE 3: THIS WILL BE THE CHEAPEST SOULTION. WE WILL CHARGE YOU 600SKR
+            FOR EVERY STARTED ADVICE-HOUR. OR 450SKR FOR SINGLE ADVICES.
+            IF WE TELL YOU SOMETHING WRONG, YOUR MONEY WILL BE RETURNED 
+            AND	THE NEXT 3 HOURS WILL BE FREE OF CHARGE.
+ 
+
+ NOTE!!!
+  YOU WILL PAY FOR ALL OUR PHONE-COSTS WHILE SCANNING FOR THE COMPANY
+  COMPUTER WHILE WE ARE HACKING FOR YOU!
+
+IR>   HOW CAN YOU CONNTACT HADES?
+
+
+MR.X> YOU WONT REACH US, WE WILL CONTACT YOU...
+
+ 
+IR>   Which position did you got at the start in the group ?
+
+Mr.X> Number one, what else could i be? I were born as a leader :-)
+ 
+IR>   Why did you (and the others) choose the name "Hades International"?
+
+MR.X> I came up with the name, the others had nothing to do with it.
+      HACKERS IN DEEP SHIT sounded like a good name :-) And we are
+      in trubble with the FEDS so that makes us International right?
+ 
+IR>   Which members did HSi had from the beginning ?
+
+MR.X> Well, in the begining it were just me and LLoyd.
+ 
+IR>   Any added or removed members since then ?
+
+MR.X> Yes, we add and remove alot. One of our policys are to not make a
+      offcial memberlist. A normal HSi member does only know the name of
+      two other HSi employers and he has the phonenumber to one of them.
+      We must operate in this form to make things safe. If i would list
+      all the members right now, there would be some heavy shit falling
+      down on'em. If you wonder if a certain guy is a member, just ask me,
+      if you know my number.
+ 
+IR>   What's your "help" to the scene ?
+
+MR.X> Help? We ain't doin' anything for free :-) We spend many hours
+      on research that helps the moderate phreak to get the latest
+      information about security problems and movments within the
+      fedral screw-ups.
+ 
+IR>   I've heard something about a virus division, in HSi is this true ?
+
+MR.X> Yes, we do have a Virus and Trojan section in HSi. If this
+      interwiew would be held within a certain range of phreaks,
+      i might would have told you something more about that. Our
+      programming staff develops customiszed Trojans and Viruses
+      for all systems that we need to gather information from.
+      My board (Room 212) will reopen in one month on a new number
+      with 3 nodes-ringdown and the best selection of HSi viruses
+      and trojans. There will also be a wide selection of other
+      viruses and trojans online. We prommise you 1.44 GIGABYTES
+      of PURE H/P/V. If you belive that you are the best, you'll
+      get a personal invitation. :-)
+ 
+IR>   What do you think about HSi comparing to other Hacking groups ?
+      For example SHA ?
+
+MR.X> I could not be the judge of that. SHA are not to be called
+      a hacker group, i would prefer to call them a informer group,
+      if you catch my drift.
+ 
+IR>   Which Hacking Group are you considering as the best nowdays ?
+
+MR.X> Well, there are many H/P groups out there, some of them deal
+      only with system 75's and some of them deal with everything
+      they can get their hands on. The best H/P group out there is
+      and will allways be R.O.T (Hi Lord.IBM).
+ 
+IR>   Can you name some organisations/people you have hacked ?
+
+MR.X> I can not make a list of them. That would ruin my future as
+      a military system operator :-)  (46-31-160342) :-)
+ 
+IR>   How do you think of yourselfs on a scale between 1-10 ?
+
+MR.X> I can not rank myself, that would be like telling everyone that
+      my EGO is the best since the great swedish vikings :-)
+ 
+IR>   Do you have any sites contacts abroad ?
+      .. and do you have any "big" contacts abroad ?
+      .. and Hacked MailBoxes or phone-conf PBX's ?
+
+MR.X> Sure we do. Contact Sixpack if you want the NUP's and numbers...
+      Big Contacts??? Does At&T operators and Fedral-fuck-ups count?
+      :-) We do love VMB's and 700- Pbx's :-)
+ 
+IR>   Name some things that you have released as HSi ?
+
+MR.X> Phreak School, Fuck the AT&T, Scanlist, Offcial Warnings and
+      lotsa more... All those files will be avilible at the new
+      Room 212.
+ 
+IR>   Have you ever had any trouble with the cops and why ?
+
+MR.X> Trubble, that is my middlemame. I've got no truble with the
+      Swedish Cops (they are so damn corrupted anyway :-) But
+      i can make the list of dudes that wants my ass very long,
+      The FEDS would like to boil my ass and that is a fact.
+ 
+IR>   Have you ever been in war with any other group(s) ?
+
+MR.X> We don't belive in wars. The H/P world must remain friends.
+ 
+IR>   Who do you think is the best hacker alive today ?
+      .. and the best phreaker alive today ?
+
+MR.X> As i said before a hacker or a phreak can not be the best of
+      everything. He can be the best of something in the spectrum
+      of hacking or phreaking but not everything. There are alot of
+      skilled hackers and phreaks out there. They all belong to groups
+      like R.O.T and HSi. 
+ 
+IR>   Which ways of phreaking are the most risky nowadays ?
+
+MR.X> Everything is risky if you don't know how to handle it :-)
+ 
+IR>   Tell us a bit about the T.PHRAUD bust some while ago ?
+      (Note!) changed his name into the right one, huh?)..
+
+MR.X> Hihihihi you spelled his name wrong. But you'll have to deal with
+      his anger and not me :-) I had dinner with him 7 days before he got
+      busted for abusing DATAPAK. I told him (and he knew himself) that
+      the Swedish Telecom knew about him. Still, he said "I don't care..."
+      Look what happend :-) Cu around Ted .
+ 
+IR>   You turned down your bbs (Room 212) becuz of that eh ? why?
+
+MR.X> Our dear friend TED had a auto-logon script to my board and alot
+      of captures. I did not like the risk of being brought to justice.
+ 
+IR>   What's your oppinion about board-crashers ?
+      .. and about all BBS systems with backdoors ?
+      .. and about Laric / PCE 1.00 Author, (full of B-Doors!!)
+
+MR.X> I really don't mind them. Infact i love them. Hi Wico :-)
+      Backdoors are great, they make the world spin around...
+      AND LARIC are my favorite backdoor maker, :-)
+ 
+IR>   Have you ever made a board close ? and which & why ?
+
+MR.X> atdt 01146www31160342 Hack, hack, anyone there :-)
+ 
+IR>   What's your defination of a Mega-Lamer ?
+
+MR.X> A 14 years old trader from Stockholm, Sweden.
+ 
+IR>   Which H/Group are you considering as the most lame ?
+
+MR.X> I don't bother to remember the name of lame H/P groups :-)
+ 
+IR>   What do you think about other scenes comparing
+      to the H & P scenes ? (Piracy vs. Hacking,
+      Piracy vs. Phreaking and so on ?)
+
+MR.X> You could not compare The H/P scene with any other scene. I dislike
+      piracy and say the famous words "Viruses to the pepole!".
+ 
+IR>   Why do you love to Phreak/Hack ?
+
+Mr.X> It keeps my brain BUSY... Ring, BUSY!... Redial :-)
+ 
+IR>   Your best H/P memories ?
+
+MR.X>
+
+------------------------------------------------------------------------------
+
+Subjekt: System Netblazer.
+
+------------------------------------------------------------------------------
+
+Logon: - Secret -
+Password: - Secret -
+
+
+brouwer:Top> who
+user      time          from
+secret  May  8 03:14  line00
+brouwer:Top> ?
+Available commands:
+configure>      disk>           echo            help 
+history>        list>           logout          passwd 
+reboot          sessions>       shutdown        tty 
+top>            wall            who             write 
+
+This is the main-menu that you will see, after that the correct password
+is enterd. We used a Root account. 
+
+"?" will display the main menu again. "TOP" will display the main menu from
+all the sub directorys.
+
+"Who" will tell us if there is anyone ONLINE. Very usefull to know if the 
+Root account is active.
+
+"Passwd" will change your password <--- Pretty logical eh?
+
+"Write" will send a message to any node. "Hey Root, sorry about deleting
+the entire system..."
+
+"Shutdown" Does what is sounds like. It shuts down the entire system.
+
+The rest of the command set is rather boring to explain...
+
+--------------------------------------------------------------------------------
+
+brouwer:Top> configure < This takes us to the configure menu
+brouwer:Top>Configure> ? < List the configure command-set
+Available commands:
+accounting      alias>          arp>            asy>
+debug>          destination>    dialout>        grep 
+group>          hostname        interface>      ip>
+line>           message>        more            msglog 
+phonelist>      ppp>            save            security>
+servers>        setconsole      slip>           snmp>
+syslog>         syslogto        source          time 
+top>            up>             user>           ? 
+brouwer:Top>Configure> time	< Display/Set the Time
+Current time is Sat May  8 03:15:20 1993
+[you may enter a non-numeric value (e.g. "cancel") to cancel data entry]
+Enter the year [93]: 
+Enter the month number (1 to 12) [5]: 
+Enter the day of the month [8]: 
+Enter the hour (0 to 23) [3]: 
+Enter the minute [15]: 
+Enter the current second [20]: 
+no new value entered; time not changed
+brouwer:Top>Configure> syslogto < Turn of the logfiles...!!!!
+syslog off
+
+This system is kinda dumb. You can do alot of things, like turning of
+the logfile. I'am sure that you will find ALOT of other things to
+preform on this system. The Dialout is just great...
+
+
+brouwer:Top>Configure>Alias> top <---  Back to main menu
+brouwer:Top> ?
+Available commands:
+configure>      disk>           echo            help 
+history>        list>           logout          passwd 
+reboot          sessions>       shutdown        tty 
+top>            wall            who             write
+ 
+               
+brouwer:Top> sessions <--- Take us to the intersting part
+brouwer:Top>Sessions> ?
+Available commands:
+abort           bang            binary          close 
+connect         continue        dial            disconnect 
+eol             escape          fg              finger 
+ftp             jobs            kill            list 
+ping            rlogin          send            talk 
+telnet          terminal        top>            up>
+
+
+Yes.. The world of Internet at the touch of a key...
+
+Thanx for reading dis... If you have any qustions you can reach me at
+the following boards:
+
+FINAL ECLIPSE - ND 1 - 206-653-4790
+FINAL ECLIPSE - ND 2 - 206-658-1785
+MAPHIA        - 3 RD - 415-362-7463
+PHUNLINE      - ND 1 - 916-481-2306
+6-FEET UNDER  - ND 1 - NOT-FOR-YOU
+ROOM 212      - ND 1 - NOT-FOR-YOU
+
+
+ 
+IR>   Something you wanna tell the crowd, but never have got any
+      oppertunity to say ? ..Say it now !
+
+MR.X> The last thing i wanna tell you is to take care. We would not like
+      to read about any more at&t busts and you can avoid to get busted
+      if you are carefull. The phreaks of today does not stay in business
+      for a long time. They get busted. Don't become greedy, that is my
+      final advice. And remember that a wonderfull thing will happen on
+      Oktober the 16teen...
+ 
+IR>   ..and Finally time for the greetings / Dis-Greetings to ?
+
+MR.X> In no-order what-so-ever,
+
+
+	The Swedish Telecom
+	At&t
+	MCi
+	Sprint
+	Volvo
+	Asea
+	Lund Research Center
+	Jack Tarmiel
+	Lawrence G. Roberts
+	IBM
+	AMIGA
+	USROBOTICS
+	VISA
+	MASTERCARD
+	AMERICANEXPRESS
+	Dr.DOS
+	LORD IBM
+	SAMMY
+	Wico
+	RIOR
+	ACIDHEAD
+	THUNDERHAWK
+	SIXPACK
+	ALTER EGO
+	TEDDY
+	BOCCABERRY
+	ALEX
+	PHANTER
+	STEPHANIE
+	PETE
+	FBI
+	CIA
+	MOSSAD
+	SSS
+	INTERPOL (NOT THE PIRATE GROUP - THE REAL THING)
+
+	AND ALL THOSE I FORGOT,
+        
+		   = THE UNFORGIVEN & METAL MILITIA =

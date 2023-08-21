@@ -1,0 +1,120 @@
+                        SWEDISH VIRUS FUTURE
+    		        ====================
+    
+    In this text I gonna tell you my thoughts about the future for
+    viruses here in Sweden. Well, I don't expect everybody do share
+    the same thoughts as I,this is just my sick mind in hard pro-
+    duction..
+    
+    Okey..First of all, we only got two active virus writing groups
+    here in Sweden. Since DY or Demoralized Youth now are completely
+    retired. It's ANOI and of-cuz Immortal Riot..<..hehe..>
+    
+    DY was absolutely the most active virus writing group here in
+    Sweden for a long time. And I don't expect any other group to be
+    so famous as they were. I've read articles about DY in every decent
+    newspaper, in many computermagazines, and even in porno-mags.
+    (Or..hehe..heard some rumors about that last thing then:))
+    ..Well, we had some other swedish virus writing groups, for
+    example Beta-Boys, Line Noise etc. And also some independent virus
+    coders, but anyway, for more information about the past read Metal
+    Militia's article about that.
+    
+    I think we in the a soon future will have a itty bitty tiny little
+    virus-scene here. This is of the simple reasons of we're in
+    business (...NOT!..)..hehe..nah! actually kidding! Okey, for
+    talking seriously, it's of the reasons that more viruses are
+    programmed, mutated, released and hacked from here. 
+    
+    We got ANOI, who are writing good resident viruses out from
+    scratch. We (Immortal Riot) are getting better too.. Metal Militia
+    has started doing resident scratch viruses (..And not then over-
+    writing ones..) He's right now working on a RES .COM/.EXE with
+    that FAT-routine which will be like the one in the Predator#2
+    virus written by Priest of Phalcon/Skism. We'll see when he will
+    finish that..But then, watch out :)!
+    
+    Then Raver might also start doing some viruses, he knows the
+    assembly language quite OK, so there'll probably not be that hard
+    for him. He is just a bit lazy with virus-coding. (..To bad for
+    us..). But I really understands him, his studies is really a big
+    pain in the ass! Puh..I would never stand it! Then we got me, I'm
+    just fooling around with Mcafee and Alan a bit, not any active
+    coder, don't expect to much from me in the virus scene in the
+    nearest..feeling kinda lazy..
+    
+    More viruses are released from here, not just new-mutated viruses.
+    Many old ones are also hitting our boards. All this because we have
+    got some virus boards up again. Wico was the only board here who got
+    viruses for new-users. And The Judge virus conference will probably
+    give some inspiration to some other sysops over the country...
+    (I hope anyway)..
+    
+    Many new sources has also been released lately, myself will probably
+    post all our new mutations in .ASM on the FIDO-NET. I don't do this
+    for just showing up "Look, I am able to hack, or mutate a virus so
+    scan can't catch it". Nah!..that's not the reason! Who can't fool
+    Mcaffe's Scan?..A turtle?!..Well, a turtle might fail with that
+    yes!..<hehe>. The reason of releasing sources for free is to show
+    the crowd how easy it really is to fool the common virus-scanners.
+    I can't say it's _THAT_ easy to cheat F-prot/TBScan, (never tried),
+    but the most common scanners are still Scan and Salomon. B-cuz
+    of that simple reasons that they're being released so often!
+    
+    Now when people are getting viruses, they might get some interest
+    in the subject, they might start writing their own, or mutate or
+    hack old ones. I don't agree with many virus-groups, who are feeling
+    embarrased to release a hacked or just modified virus, I think it's
+    good! But if the "new" (..most groups who are hacking viruses are
+    new in the virus-scene..) group claims that they did it all from
+    scratch, it's lame! I think that if you are borrowing any routine
+    from another group, or virus, you MUST credit them!! In _ALL_ our
+    mutations we've credited or greeted the scratch coder of it, and
+    we'll continue with that (anyhow as long we are hacking/mutating
+    viruses).
+    
+    The quality of the viruses nowdays might not be the best, or
+    atleast the viruses I bring you ain't very good. Just simple
+    mutations or hacks, don't know where the limit between a hack or
+    mutation is being drawn?.. Well..what can I say to my defence?..Humm..
+    that's a hard one! I am not able to do a res/com/exe/sys/bsv out from
+    scratch, and I have never claimed myself to be an assembly phreak,
+    but anyhow, I'm trying my best to bring you viruses! I hope you don't
+    mind if you see a mutation of some of your viruses here.
+    
+    The future will be full of hack, mutations, and simple viruses such
+    as overwriting ones. That's a fact we just have to live with! (:-))..
+    
+    Then we got all this US-groups, for example PHALCON/SKISM, and
+    NUKE, They're really doing great viruses. And if we could get the
+    traders with lots of AT&T's a little more interest in virus-"trading"
+    (Gack, hate to say "trading" with viruses)..We might get the latest
+    40HEX, the latest .ASM, the latest hints, and the latest routines
+    coming right away from the states. So releasing a virus or two lame
+    as cool, might have one bright side afterall. This is one of many
+    reasons of we're releasing viruses to the major public. 
+    
+    Then we got all the independent coders. We ain't got _THAT_ many
+    virus coders here, but take Bulgaria as an example! They don't got
+    any virus-groups, but they're still the (?) best in virus coding.
+    Not just the famous Dark Avenger are writing quality viruses there.
+    I hope all independent virus coders will release their viruses here
+    too, it's NOT illegal nor is it demoralized! It's just FUN! I know
+    MANY demo-coders who've written QUALITY viruses here (NO NAMES),
+    but they just don't release them! They think, Ohh!..So, it wasn't
+    any harder to create a Parasite Resident COM/EXE/BSV infector,
+    including many routines, for example fat-curruption hide in memory,
+    trick _ALL_ scanners avalible, etc etc.. This is sick! Goddamnit
+    release them! It's not hard to use two aliases (I'm:)) So..all
+    independent virus-coders, spread your viruses to the crowd! Spread
+    the .ASM on CDN/FIDO and the rest of the "pd" NETs! Show the folks,
+    what you've written! Don't prove just to yourself! Let the other
+    poeple also know what an "Your 2:nd Handle" are capable too! 
+    
+    So..you might not share the same thoughts or what-ever I've written
+    here, but afterall, I am only a genius (:-)). Ain't no gypsy, so
+    the future might be something else (Winterkvrist, do NOT, I repete,
+    do NOT dare to destroy anything what we've (or will), build!).
+    That's all..enjoy!
+    
+    		          = THE UNFORGiVEN =    

@@ -1,0 +1,85 @@
+                     RESPONSES SINCE ISSUE#1
+                     =======================
+
+	This text will deal with what people said about the
+	first issue. I have asked around a little bit among
+	them who're dealing with the underground/piracy scene.
+	If you don't got the first one yet, I suggest that
+	you get it right away! Cuz if you ain't, you certainly
+	have missed something in the virus history ;) hihi..nah,
+	kidding actually!..Anyway, go grab it on some board
+	around you (?), or well	give a call to some Swedish
+	Elite-board, for example FireDoom Systems.
+
+	Since nobody, and I really mean NOBODY knew that we were
+	doing a disk-mag, they couldn't have any suggestions at 
+	all, and we just released the first issue when nobody
+	knew there was a group called Immortal Riot. Now, some
+	folks knows about us, and I've seen many questions about
+	for example, who are Immortal Riot? What other handles do
+	they use? Have they called themself something else before?
+	Where do they live? etc etc..
+
+	So, now I think some people know about us, and what we're
+	doing. When I asked what they thought about the first 
+	issue the repondence was quit ok, but it could be far
+	better if we did so, and if we did that, included more of
+	that etc etc..
+
+	Many people wanted to have interviews with other people
+	around, more VGA/ANSi, original MODules, Hacking/Phreaking
+	support, AT&T lists, Anarchy texts and a complete under-
+	ground issue. This would just became a complete mess, we
+	can't do a phreak-magazine better than PHRACK. If some-
+	one wanna get _ALL_ Phreaking/Hacking news, why	don't you
+	just download the latest phrack. Well, then you might ask
+	why we're doing a virus-mag, when there's 40HEX out there?
+	Well..ofcause we can't beat up the great 40HEX from Phalcon/
+	Skism..
+
+	40HEX is the best thing ever happened to the virus scene
+	since DAv was in business. But what I think about that is
+	that everybody can't get 40HEX, for example nearly no one
+	here in Sweden got the 9-11 40HEX, they	do got the 1-8 but
+	that they were released when DY, and Tormentor was around.
+	The magazine (or info journals,	released from NUKE, has
+	never reached Sweden, we got the first two ones, but after
+	heard that there is seven (eh?) information-journals out
+	there, I got rather confused! Why ain't Sweden got no virus-
+	scene? I saw the Evolution magazine from YAM some while ago,
+	but they have probably released MUCH more than ONE! I know
+	that a second issue was being released some _WHILE_ ago..
+	But haven't find it somewhere in Sweden. I know this really
+	sux! We ain't got anything about the virus-news here! We
+	only got ONE board supporting real viruses. So, we're trying
+	to push Sweden a bit more into the Virus-Scene. With some
+	help from ANOI, we might even succed! Well, anyhow, back to
+	the responses of the mag now..
+
+	They also wanted a VGA-based MAGazine, with an own music
+	system! Gaa..give me a break! I thought	vga-based mag would
+	be a cool thing, but after I thought it over..humm..nah!
+	That would only be a waste of time! And starting coding a own
+	music system for playing a lousy .MOD would be very stupid!
+	Think it over! A virus-MAG with	a nice smooth-vga-scrolling
+	shit..Nah, let the demo	people deal with that! We'll not do
+	a vga-magazine,	with a own-music system, we'll probably not
+	make own MODs, we'll not include P/H/A articles, neither
+	stupid lists of AT&T cards! If we gets a hole list of AT&T
+	credit cards, why should we pass ‚m over to all fucking traders
+ 	around,	who gets this magazine first?..
+
+	The common magazines will be very similar to this one, some
+	viruses/vga-pictures/articles and it might even be some inter-
+	views, but that's all! We're just three people working with
+	this..and we'll NOT! take in one more for just making a simple
+	.MOD for every issue...Anyway, if you have some good suggestions
+	about how we could do our magazine better, feel free do contact
+	us about that. If you wanna include some of your viruses (.asm/
+	.exe or something else), no problems! We take in whatever you
+	might think of! If you have written an article about the virus-
+	scene, and wants it spread, just upload it to us..So, just
+	because I didn't made that mag looking exactly as some people
+	told me too, don't be afraid to give me more ideas!..
+      
+			    = THE UNFORGIVEN =
