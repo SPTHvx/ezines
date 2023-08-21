@@ -1,0 +1,79 @@
+                -+[ Fast vs Slow spread of viruses ]+-
+ 
+FAST
+ 
+The best things with a fast spreading virus is that it will cause much more
+trouble before anti-virus suckers gets their hands on it. It can then also
+be a bit bigger to include much more funny things, like anti-virus fuckers
+and so on. But it will then (as said above) probebly be found faster then
+the Slow spreading ones.
+ 
+SLOW
+ 
+The best things with a slow spreading virus is that it will be around for
+much longer then the FAST ones, because of the user will probably not notice
+the small changes in his system. But a SLOW spreading should also be a large
+bit smaller then the FAST. It should only have the needed instructions and
+maybe some sort of payload. (best if it's something original)
+ 
+AGAINST FAST
+ 
+Will as said be found very quick, and might not have the chance to infect
+many computers, and make it so long, unless you infect some looser that
+copies all day, then it might go worldwide, you know. Fast viruses is
+otherwise a good chose.
+ 
+AGAINST SLOW
+ 
+They might not spread so far, because of their slow replication-rate.
+They cannot/should not be big, and cannot/should not have any big
+payloads and so on.
+ 
+Actually there's no wrong or right way of spread-speed. It all matters on
+who you get the chance to infect, and if that person spreads it because
+of exchanging/running lots of stuff. So check things out first, and then
+decide which way that will be "yours".
+Signed.. [Metal Militia/iR]
+ 
+ 
+Okey, here comes The Unforgiven, and adds some text..Metal Militia,
+has probably described quite good how to spread your virus. If a
+virus is small, there is no funny instructions (for example, play a
+tune, show a flag, destroy virusscanners, print messages on
+printer/screen, infect 'those'files at just 'those'days, do a format
+if dos 6+, or change in windows .dll files or other 'funny' things a
+virus is capable to do with your computer) you should spread it in
+the slow way, but if you have added all these funny functions,
+spread it fast so it strikes as many computers as possible before
+it's uploaded to a anti-virus board, and then a 'scan-string' is
+included in the next version of scanners such as Scan. A purpose of
+spreading out a virus doesn't have to be destructive, I mean, every
+virus out there are not wiping/low-level formatting or trashes
+hd's-sectors. Believe it or not, there is harmless viruses too.
+Myself would probably code a harmless virus which just infects
+(non-overwriting) all files, and when XXX files are infected a tune
+will be played or a flag will be dumped up to the screen. But if the
+source code is spread out, more dectuctive people will change it to
+(or atleast with 99% assurance), intro a more danger form. And then
+we have the guys here (like us), who don't spread the virus (in
+executable format) at all. We just shows the major public how to fool
+around with scanners. Well, okey, I just have to mention it too,
+there is actually people who are coding a incredible virus, and then
+never gives a copy of it to everyone..I bet that everyone (correct me
+if I'm wrong) who starts doing some assembler, have sometime tried out
+to code a virus (or atleast a trojan). That's a fact, people like to
+show up what they have done, if not to the public, atleast to them
+selves. Okey, now I've have written lots of shit again..heh..I'll
+just say you one last word in this article, please do NOT spread out
+our viruses in COM formats and go take down the bullentin board
+system here..I actually don't like board-crashers, cuz I call every
+kind of systems, like Pd/half-elite/elite/virus/hacking/phreaking and well,
+everything I guess, and if a board just went down of the reason of they
+got infected by a destructive mutation by US, I'd never forget myself..
+(but then I'm called : The Unforgiven too:)) heh..And remember if you in
+the future sees a bullentin like this (for example top-uploaders) :
+1. The Unforgiven 103 Megs, don't you dare to nuke it..heh..well, I've
+no plans of being a trader, so that liners above there was just to fill
+out this article a bit..Now I'm tired..See ya around!
+                                                       [The Unforgiven]
+ 

@@ -1,0 +1,82 @@
+                         -+[ Intro To Mag ]+-
+ 
+ 
+This is iR's first ever made magazine! This magazine is directed
+towards the major public in the underground scene. Immortal Riot's
+direction was from the beginning just virus coding. But when we
+decided to put out a magazine we became intrested in other parts of
+the scene, such as the demo-coding, vga-gfx, music composion. We
+don't release a compleatly vga-coded magazine, for example World
+Charts or Pulse Magazine, neither an ansi-based magazine i.e
+Evolution. This style of a mag is not that hard to do as World Charts
+(my favorite magazine), and we don't draw in SVGA, spend weeks in
+coding, and composing, and since we right now are just two members,
+it's quite hard to release such a incredible mag. But after a while,
+we might think of changing the magazine style to look into some other
+way, but that is for the future to show. This magazine can contain
+articles of what-so-ever we finds interesting, right now, it's source
+codes of viruses. We like virus, that's a fact, and when we got
+enought new source-codes and articles, vga's we will spread out the
+next issue. The viruses in this issue is mutations of older viruses,
+but they still shows how to play around with scanners, such as
+Mcafee's Scan. I don't know the reaction of spreading out a magazine
+like this. It contains stuffs, which can be abused, but those one,
+who thinks it's so funny to take down systems with our viruses,
+please let go. We're just impressed of the viruses cabability, and
+we're under no circumstances ought to use them. We're interesting in
+how scanners/viruses, and of cuz the computer works. We thinks that
+virus is a good thing for knowledge of the computer hardware, and of
+cuz how long you can reach your computer with an assembler. If you
+are a demo-phreak and justs say something like this 'you're so lame
+spreading out a magazine, I could code in less then half an hour'.
+Okey, of cuz you can, but I'm then not as good and havn't been around
+for such a long time. Okey, letting over the kezy to the dude sitting
+right beside me, called Metal Militia, nice handle eh ? Yeah, cuz
+it's is, I labeled him into it..heh..as you already have noticed, we
+love Metallica..heh.. Okey, enought from me..here ya go lameass :)..
+ 
+So, well.. I have liked viruses for a very long time now, and saw the
+stuff about Tormentor and Demoralized Youth in the Swedish
+echomail-areas, when loosers were crying out for help..Viruses is a
+good way to test your skills, but just spreading them to fuck your
+neighbourhood isn't the best way of getting the public's applause, so
+instead spread it to the geek 200 meters down the street or something
+(make sure he's an "exchanger") and you will soon find your virus out
+in the free, with a pretty nice travelling rate anyhow. The best way
+is ofcause to make a resident virus, because of the simple reason
+that they are much better "built" to travell, while the non-resident
+very often only infects the computer they are ran on, and maybe a few
+more. If we take the example of Dark Avenger. He was one of the very
+first virus-writers, and he's contribution is now spread world-wide,
+and will always be around I guess.. Somewhere, and in someone's
+collection.. but as he said in one them, "Eddie lives.. forever and
+ever", and that's a bit of the truth as i said above. Then we have
+the groups like Anoi, Phalcon/Skism, Yam, Nuke, Rabid, and so on..
+They are some of the most (what i know) experienced people around in
+the virus-scene today. Just about every article about viruses
+includes some of them, or Dark Avenger.. Like that stuff with the
+Mutation Engine, judging from circumstances you could almost belive
+there was a nuclear war going on. Sweden has not yet come to that
+part of the era. But we don't have any antivirus professionals
+either. What we have is some lameassess trying to be cool out here,
+lamers like Mikael Winterkvist. He's trying to get a good reputation
+of what we're doing, and the worst thing is that he makes much money
+out of it to..That's what I most hate about such lamers..
+ 
+Okey, The Unforgiven at the keyz again..puh, Metal Militia wrote some
+shit that actually didn't have a shit about the Introduction, but
+heh..he havn't done so much in this magazine, so I let him write
+something here anyway..He really are obsessed with viruses, and just
+love to know everything about the scene..(Out sailing far from the
+subject again)..But anway, now I'll return to the intro.. Now in this
+intro, I'll do a little presentation of our self too. Me, was the one
+got the idea, of releasing a mag. And I'm responsibility for the
+layout of the magazine. Metal Militia is the one who are dealing a
+bit more with assembler, naturally then the one who gives us
+mutation, and modifications of viruses included here. In this issue,
+only mutations from MM are included, but in later issues, we'll
+probably include the source codes that someone would like us to
+include... Now, puh, this intro was over, and I hope you continue
+reading the articles, and of cuz the new virus-mutations to...
+                                                        [The Unforgiven]
+                                                         [Metal Militia]

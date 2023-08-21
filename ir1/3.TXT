@@ -1,0 +1,617 @@
+                 -+[ Scanstrings and Virus scanners ]+-
+ 
+ 
+Here comes some 'scan-strings' stolen from 40hex-magazine. Some of them
+are changed, but some still works just fine. This will help you out doing
+some mutations, and fool around with Mcafee. It was GodNet Raider who posted
+this one InterNET, and then Phalcon Skism included it in the great 40hex-
+magazine..Okey, as I told you, every string here might not work, but it's
+103 strings included in this article, and I bet that atleast 50 of them should
+work...Enjoy this, and many thanks goes to GodNET Raider, for his gr8 article.
+ 
+ 
+Footprints discovered:
+----------------------
+ 
+The following is a list of the footprint codes found in McAfee asso.
+Scan3.7v64.
+ 
+    1008 Virus [1008]:
+        0x81 0xed 0x38 0x00 0xe8 0xc3
+ 
+    Stoned-II Virus [S-2]:
+        0x9c 0x2e 0xff 0x1e 0x09 0x00
+ 
+    VHP-2 Virus [VHP2]:
+        0x1c 0x8c 0x44 0x02 0xb8 0x24 0x35 0xcd
+        0x21 0x89
+ 
+    VHP Virus [VHP]:
+        0x07 0x89 0x7e 0x8a 0x8d 0x7e 0x90 0x89
+        0x7e 0x88
+ 
+    Taiwan3 Virus [T3]:
+        0x17 0x0f 0x32 0x0a 0x32 0x0a 0x90 0x0b
+        0xfb 0x08
+ 
+    Armagedon Virus [Arma]:
+        0xb8 0x00 0x43 0xcd 0x21 0x2e 0x89 0x0e
+        0x48 0x01
+ 
+    1381 Virus [1381]:
+        0x1e 0x06 0x8c 0xc8 0x8e 0xd8 0xb8 0x40
+        0x00 0x8e
+ 
+    Tiny Virus [Tiny]:
+        0xb4 0x40 0x8d 0x94 0xab 0x01 0xb9 0x02
+        0x00 0xcd
+ 
+    Subliminal Virus [Sub]:
+        0x8b 0x3e 0x25 0x01 0x8b 0xd7 0x2e 0x8e
+        0x06 0x27
+ 
+    Sorry Virus [Sorry]:
+        0xeb 0x96 0x83 0x2e 0x12 0x00 0x40 0x83
+        0x2e 0x03
+ 
+    1024 Virus [1024]:
+        0xc8 0x75 0xed 0x8b 0xd1 0xb8 0x00 0x42
+        0xcd 0x21 0x72
+ 
+    RedX Virus [RedX]:
+        0x52 0x8b 0x9c 0x17 0x04 0xb9 0x19 0x03
+        0x8d 0x94
+ 
+    VP Virus [VP]:
+        0x21 0x89 0x1e 0x22 0x03 0x8c 0x06 0x24
+        0x03 0xb4
+ 
+    Print Screen-2 [P-2]:
+        0x74 0x01 0xbf 0x03 0x00 0xb9 0x20 0x00
+        0xf3 0xa4
+ 
+    Joshi Virus [Joshi]:
+        0xf3 0xa4 0x8c 0xc0 0x05 0x20 0x00 0x8e
+        0xc0 0xbb
+ 
+    Microbes Virus [Micro]:
+        0x8e 0xd0 0xbc 0x00 0xf0 0xfb 0xa1 0x13
+        0x04 0x2d 0x04
+ 
+    Print Screen Virus [Prtscr]:
+        0xcd 0x05 0xfe 0xc8 0xa2 0x60 0x01 0xc3
+        0x6f 0x6e 0x2d
+ 
+    Form Virus [Form]:
+        0xe8 0xb2 0x00 0x5a 0x5e 0x1f 0x33 0xc0
+        0x50 0xb8 0x00 0x7c
+ 
+    June 13th Virus [J13]:
+        0x12 0x00 0xb9 0xb1 0x04 0x2e 0x30 0x04
+        0x46 0xe2
+ 
+    JoJo Virus [JoJo]:
+        0x4d 0x2b 0xd0 0x4a 0x45 0x03 0xe8 0x45
+        0x8e 0xc5
+ 
+    Victor Virus [Victor]:
+        0x74 0x26 0x80 0xfc 0x5b 0x74 0x21 0x80
+        0xfc 0x39
+ 
+    5120 Virus [5120]:
+        0x10 0xa2 0xf6 0x0f 0xe8 0xd0 0xfe 0x80
+        0x3e 0x4a 0x10 0x02 0x7d 0x22 0xc6 0x46
+ 
+    W-13 Virus [W13]:
+        0xf3 0xa4 0x8b 0xfa 0xb4 0x30 0xcd 0x21
+        0x3c 0x00
+ 
+    Slow Virus [Slow]:
+        0x81 0xc6 0x1b 0x00 0xb9 0x90 0x06 0x2e
+        0x80 0x34
+ 
+    Liberty Virus [Liberty]:
+        0xe8 0xfd 0xfe 0x72 0x2a 0x3b 0xc1 0x7c
+        0x27 0xe8
+ 
+    Fish Virus [Fish]:
+        0x0e 0x01 0xcf 0xe8 0x00 0x00 0x5b 0x81
+        0xeb 0xa9
+ 
+    Shake Virus [Shake]:
+        0x31 0xd2 0x8b 0xca 0xcd 0x21 0x3d 0x00
+        0xf0 0x73
+ 
+    Murphy Virus [Murphy]:
+        0x81 0x7c 0xfe 0x2e 0x43 0x75 0xed 0xb8
+        0x02 0x3d
+ 
+    V800 Virus [V800]:
+        0x51 0xad 0x33 0xd0 0xe2 0xfb 0x59 0x31
+        0x15 0x47
+ 
+    Kennedy Virus [Kennedy]:
+        0x8c 0x55 0x02 0xb8 0x01 0x43 0x33 0xc9
+        0xcd 0x21
+ 
+    Yankee Two Virus [Doodle2]:
+        0x73 0x03 0x5a 0x5e 0xc3 0x8b 0xf2 0xf6
+        0x44 0x15
+ 
+    1971 Virus [1971]:
+        0x33 0xd2 0xb8 0x00 0x42 0xcd 0x21 0x72
+        0x26 0x81 0x7c
+ 
+    June 16th Virus [June16]:
+        0x4d 0xa9 0xa5 0x2e 0x70 0x66 0x2e 0x57
+        0x09 0x0f
+ 
+    AIDS II Virus [A2]:
+        0xa4 0x00 0x55 0x89 0xe5 0x81 0xec 0x02
+        0x02 0xbf 0xca 0x05 0x0e 0x57 0xbf 0x3e
+        0x01
+ 
+    1210 Virus [1210]:
+        0xc4 0x74 0xf0 0x2e 0x80 0x3e 0x2f 0x04
+        0x01 0x75
+ 
+    1720 Virus [1720]:
+        0xd8 0x2e 0xa1 0x2c 0x00 0xa3 0xfc 0x03
+        0x2e 0xa0
+ 
+    Saturday 14th Virus [Sat14]:
+        0x0e 0x1f 0xb8 0x24 0x35 0xcd 0x21 0x8c
+        0x06 0x6f
+ 
+    XA1 (1539) Christmas Virus [XA1]:
+        0xfa 0x8b 0xec 0x58 0x32 0xc0 0x89 0x46
+        0x02 0x81
+ 
+    1392 (Amoeba) Virus [1392]:
+        0x16 0xa3 0x21 0x01 0x8b 0x44 0x14 0xa3
+        0x23 0x01
+ 
+    Vcomm Virus [Vcomm]:
+        0x77 0x02 0xb9 0x20 0x00 0xb4 0x4e 0xcd
+        0x21
+ 
+    ItaVir Virus [Ita]:
+        0xb8 0x58 0x45 0x89 0x40 0x02 0xb0 0x00
+        0x88 0x40 0x04
+ 
+    Korea Virus [Korea]:
+        0x8e 0xd0 0xbc 0xf0 0xff 0xfb 0xbb 0x13
+        0x04
+ 
+    Solano Virus [Solano]:
+        0x12 0x75 0x0e 0x2e 0x8b 0x0e 0x03 0x01
+ 
+    V2000 Virus [2000]:
+        0x51 0xe8 0x39 0xfd 0x8e 0xc3 0x26 0x8b
+ 
+    12 Tricks Trojan [Tricks]:
+        0x64 0x02 0x31 0x94 0x42 0x01 0xd1 0xc2
+        0x4e 0x79 0xf7
+ 
+    12 Tricks Trojan [Tricks-B]:
+        0xe4 0x61 0x8a 0xe0 0x0c 0x80 0xe6 0x61
+ 
+    1559 Virus [1559]:
+        0x03 0x26 0x89 0x1e 0x92 0x00 0xfb 0xc3
+        0x50 0x53 0x51 0x52 0x06
+ 
+    512 Virus [512]:
+        0x01 0x8c 0x45 0x70 0x1f 0x89 0x57 0x14
+        0x8c 0xca 0x8e 0xda
+ 
+    EDV Virus [EDV]:
+        0x75 0x1c 0x80 0xfe 0x01 0x75 0x17 0x5b
+        0x07 0x1f 0x58 0x83
+ 
+    Icelandic-3 Virus [Ice-3]:
+        0x24 0x2e 0x8f 0x06 0x3b 0x03 0x90 0x2e
+        0x8f 0x06
+ 
+    Perfume Virus [Fume]:
+        0x04 0x06 0xbf 0xba 0x00 0x57 0xcb 0x0e
+        0x1f 0x8e 0x06
+ 
+    Joker Virus [Joke]:
+        0x56 0x07 0x45 0x07 0x21 0x07 0x1d 0x49
+        0x27 0x6d 0x20 0x73 0x6f 0x20 0x6d 0x75
+        0x63
+ 
+    Virus-101 [101]:
+        0xb3 0x01 0xb4 0x36 0x70 0xb7 0x01 0xb4
+        0x36 0x70 0x8b 0x37 0xb4 0x36 0x70 0xb3
+        0x03 0xb4 0x36 0x70 0x03 0xf3 0xb4
+ 
+    Halloechen Virus [Hal]:
+        0x8c 0xd0 0x8b 0xd4 0xbc 0x02 0x00 0x36
+        0x8b 0x0e
+ 
+    Taiwan Virus [Taiwan]:
+        0x8a 0x0e 0x95 0x00 0x81 0xe1 0xfe 0x00
+        0xba 0x9e
+ 
+    Oropax Virus [Oro]:
+        0x3e 0x01 0x1d 0xf2 0x77 0xd1 0xba 0x00
+ 
+    Chaos Virus [Chaos]:
+        0xa1 0x49 0x43 0x68 0x41 0x4f 0x53 0x50
+        0x52 0x51 0xe8
+ 
+    4096 Virus [4096]:
+        0xf6 0x2e 0x8f 0x06 0x41 0x12 0x2e 0x8f
+        0x06 0x43
+ 
+    Virus-90 [90]:
+        0x81 0xb8 0xfe 0xff 0x8e 0xd8 0x2d 0xcc
+ 
+    AIDS Information Trojan [Aids]:
+        0x31 0x30 0x30 0x2c 0x36 0x32 0x2c 0x33
+        0x32 0x00
+ 
+    Devil's Dance Virus [Dance]:
+        0x5e 0x1e 0x06 0x8c 0xc0 0x48 0x8e 0xc0
+        0x26
+ 
+    Amstrad Virus [Amst]:
+        0x72 0x02 0xeb 0x36 0x76 0xba 0x80 0x00
+        0xb4 0x1a 0xcd 0x21 0x80 0x3e
+ 
+    Datacrime II-b Virus [Crime-2B]:
+        0x2e 0x8a 0x07 0x32 0xc2 0xd0 0xca 0x2e
+ 
+    Holland Girl Virus [Holland]:
+        0x36 0x03 0x01 0x33 0xc9 0x33 0xc0 0xac
+ 
+    Do Nothing Virus [Nothing]:
+        0x72 0x04 0x50 0xeb 0x07 0x90 0xb4 0x4c
+ 
+    Lisbon Virus [Lisb]:
+        0x8b 0x44 0x79 0x3d 0x0a 0x00 0x72 0xde
+ 
+    Sunday Virus [Sunday]:
+        0x75 0x10 0x07 0x2e 0x8e 0x16 0x45 0x00
+        0x2e 0x8b
+ 
+    Typo COM virus [Typo]:
+        0x99 0xfe 0x26 0xa1 0x5a 0x00 0x2e 0x89
+ 
+    DBASE Virus [Dbase]:
+        0x80 0xfc 0x6c 0x74 0xea 0x80 0xfc 0x5b
+        0x74 0xe5
+ 
+    Ghost Virus :
+        0x90 0xea 0x59 0xec 0x00 0xf0 0x90 0x90
+ 
+    Jerusalem Virus Strain B [Jeru]:
+        0x47 0x00 0x33 0xc0 0x8e 0xc0 0x26 0xa1
+        0xfc 0x03
+ 
+    Alabama Virus [Alabama]:
+        0x8f 0x06 0x18 0x05 0x26 0x8f 0x06 0x1a
+ 
+    1701/1704 Virus - Version B [170X]:
+        0x31 0x34 0x31 0x24 0x46 0x4c
+ 
+    Datacrime Virus [Crime]:
+        0x36 0x01 0x01 0x83 0xee 0x03 0x8b 0xc6
+        0x3d 0x00
+ 
+    Stoned Virus [Stoned]:
+        0x00 0x53 0x51 0x52 0x06 0x56 0x57 0xbe
+ 
+    Vacsina virus [Vacs]:
+        0xb8 0x01 0x43 0x8e 0x5e 0x0e 0x8b 0x56
+        0x06 0x2e
+ 
+    Den Zuk Virus :
+        0x8e 0xc0 0xbe 0xc6 0x7c 0xbf 0x00 0x7e
+ 
+    Ping Pong Virus (old string):
+        0x59 0x5b 0x58 0x07 0x1f 0xea
+ 
+    Pakistani Brain Virus [Brain]:
+        0x8e 0xd8 0x8e 0xd0 0xbc 0x00 0xf0 0xfb
+        0xa0 0x06
+ 
+    Yale/Alameda Virus [Alameda]:
+        0xb4 0x00 0xcd 0x13 0x72 0x0d 0xb8 0x01
+ 
+    Lehigh Virus [Lehigh]:
+        0x5e 0x83 0xee 0x03 0x8b 0xde 0x81 0xeb
+        0x91 0x01
+ 
+    Pakistani Brain/Ashar Virus [Brain]:
+        0x20 0x8c 0xc8 0x8e 0xd8 0x8e 0xd0
+ 
+    Fu Manchu Virus - Version A [Fu]:
+        0x26 0xc7 0x06 0xfc 0x03 0xf3 0xa4 0x26
+        0xc6 0x06
+ 
+    Ping Pong Virus - Version B [Ping]:
+        0xa1 0xf5 0x81 0xa3 0xf5 0x7d 0x8b 0x36
+        0xf9 0x81
+ 
+    1536 (Zero Bug) Virus [Zero]:
+        0xeb 0x2b 0x90 0x5a 0x45 0xcd 0x60 0x2e
+ 
+    Vienna (DOS 62) Virus - Version B [Vienna]:
+        0x8b 0xfe 0x36 0x6f 0xc7 0x1f 0x36 0x6f
+        0x8b 0xde 0x36 0x6f 0xc6 0x1f
+ 
+    Ghost Version of DOS-62 [Ghost-C]:
+        0x8e 0xd8 0xa1 0x13 0x04 0x2d 0x02 0x00
+        0x90 0xa3 0x13
+ 
+    Friday 13th Virus [Fri13]:
+        0xb4 0x4f 0xcd 0x21 0x73 0xf7 0x58
+ 
+    405 virus [405]:
+        0x19 0xcd 0x21 0x26 0xa2 0x49 0x02 0xb4
+        0x47 0x04 0x01 0x50
+ 
+    3066/2930 Traceback Virus [3066]:
+        0x14 0x8b 0x4d 0x16 0x8b 0xc1 0x8a 0xcd
+ 
+    Pentagon Virus :
+        0xeb 0x34 0x90 0x48 0x41 0x4c 0x20 0x20
+ 
+    Israeli Boot Virus:
+        0xcd 0x13 0xb8 0x02 0x02 0xb9 0x06 0x27
+        0xba 0x00 0x01
+ 
+    Typo Boot Virus:
+        0x24 0x13 0x55 0xaa
+ 
+    Datacrime-2 Virus [Crime-2]:
+        0x8a 0x94 0x03 0x01 0x8d 0xbc 0x29 0x01
+        0x8d 0x8c 0xea 0x06
+ 
+    Ohio Virus:
+        0xeb 0x29 0x90 0x49 0x34 0x12 0x00 0x01
+        0x00 0x00 0x00 0x00
+ 
+    3551 (Syslock) Virus [Syslock]:
+        0x33 0x06 0x14 0x00 0x31 0x04 0x46 0x46
+        0xe2 0xf2
+ 
+    Dark Avenger virus [Dav]:
+        0xa1 0x4f 0x07 0x89 0x07 0x2e 0xa1 0x51
+ 
+    MIX1/Icelandic Virus [Ice]:
+        0x43 0x81 0x3f 0x45 0x58 0x75 0xf1 0xb8
+        0x00 0x43
+ 
+    Disk Killer Virus [Killer]:
+        0xc3 0x10 0xe2 0xf2 0xc6 0x06 0xf3 0x01
+        0xff 0x90 0xeb 0x55
+ 
+    AIDS Virus [Taunt]:
+        0x42 0xe8 0xef 0xe3 0xbf 0xca 0x03 0x1e
+ 
+    Yankee Doodle Virus [Doodle]:
+        0x35 0xcd 0x21 0x8b 0xf3 0x8c 0xc7
+ 
+    Suriv A Virus [SurivA]:
+        0x90 0x73 0x55 0x52 0x49 0x56 0x00
+ 
+    Suriv B Virus [SurivB]:
+        0x00 0x73 0x55 0x52 0x49 0x56 0x00
+-----------------------------------------------------------------------------
+Okey, 103 scan-strings..Now, I'll include here another 40-HEX Article
+written by Dark Angeln...
+ 
+                                 PART ONE
+                        ------------------------------
+                         SCAN STRINGS, HOW THEY WORK,
+                             AND HOW TO AVOID THEM
+                        ------------------------------
+                                 By Dark Angel
+                        ------------------------------
+ 
+  Scan strings  are the  scourge of  the virus author and the friend of anti-
+  virus wanna-bes.   The  virus author  must find encryption techniques which
+  can successfully  evade easy detection.  This article will show you several
+  such techniques.
+ 
+  Scan strings,  as you  are well  aware, are  a collection of bytes which an
+  anti-viral product  uses to  identify a virus.  The important thing to keep
+  in mind  is that  these scan  strings represent  actual code  and can NEVER
+  contain code  which could occur in a "normal" program.  The trick is to use
+  this to your advantage.
+ 
+  When a  scanner checks  a file for a virus, it searches for the scan string
+  which could  be located  ANYWHERE IN  THE FILE.   The  scanner doesn't care
+  where it  is.   Thus, a  file which  consists solely of the scan string and
+  nothing else  would be  detected as  infected by  a virus.   A  scanner  is
+  basically  an   overblown  "hex  searcher"  looking  for  1000  signatures.
+  Interesting, but  there's not  much you  can do  to exploit this.  The only
+  thing you  can do  is to  write code so generic that it could be located in
+  any program  (by chance).   Try  creating a  file with  the following debug
+  script and  scanning it.   This  demonstrates the fact that the scan string
+  may be located at any position in the file.
+  ---------------------------------------------------------------------------
+  n marauder.com
+  e 0100  E8 00 00 5E 81 EE 0E 01 E8 05 00 E9
+ 
+  rcx
+  000C
+  w
+  q
+  ---------------------------------------------------------------------------
+  Although scanners  normally search  for decryption/encryption  routines, in
+  Marauder's case,  SCAN looks  for the  "setup" portion  of the  code,  i.e.
+  setting up  BP (to the "delta offset"), calling the decryption routine, and
+  finally jumping to program code.
+ 
+  What you  CAN do  is to  either minimise  the scannable code or to have the
+  code constantly  mutate into  something different.  The reasons are readily
+  apparent.
+ 
+  The simplest  technique is  having multiple  encryption engines.   A  virus
+  utilising this  technique has  a database  of encryption/decryption engines
+  and uses  a random  one each  time it infects.  For example, there could be
+  various forms  of XOR  encryption or  perhaps another  form of mathematical
+  encryption.   The trick  is to  simply replace  the code for the encryption
+  routine each time with the new encryption routine.
+ 
+  Mark Washburn  used this  in his  V2PX series of virii.  In it, he used six
+  different  encryption/decryption   algorithms,  and   some  mutations   are
+  impossible to detect with a mere scan string.  More on those later.
+ 
+  Recently, there  has been  talk of  the so-called  MTE, or mutating engine,
+  from Bulgaria  (where else?).   It  utilises the multiple encryption engine
+  technique.   Pogue Mahone  used the  MTE and it took McAfee several days to
+  find a  scan string.   Vesselin  Bontchev, the McAfee-wanna-be of Bulgaria,
+  marvelled the engineering of this engine.  It is distributed as an OBJ file
+  designed to  be able to be linked into any virus.  Supposedly, SCANV89 will
+  be able to detect any virus using the encryption engine, so it is worthless
+  except for  those who  have an  academic interest  in such matters (such as
+  virus authors).
+ 
+  However,  there   is  a  serious  limitation  to  the  multiple  encryption
+  technique, namely  that scan  strings may  still be  found.   However, scan
+  strings must  be isolated  for each  different encryption  mechanism.    An
+  additional  benefit   is  the   possibility  that  the  antivirus  software
+  developers will  miss some  of the  encryption mechanisms  so not  all  the
+  strains of the virus will be caught by the scanner.
+ 
+  Now we  get to  a much better (and sort of obvious) method: minimising scan
+  code length.   There are several viable techniques which may be used, but I
+  shall discuss but three of them.
+ 
+  The one  mentioned before which Mark Washburn used in V2P6 was interesting.
+  He first  filled the  space to  be filled  in with the encryption mechanism
+  with dummy  one byte  op-codes such  as CLC, STC, etc.  As you can see, the
+  flag manipulation  op-codes were  exploited.   Next, he randomly placed the
+  parts of  his encryption  mechanism in  parts of this buffer, i.e. the gaps
+  between the  "real" instructions were filled in with random dummy op-codes.
+  In this manner, no generic scan string could be located for this encryption
+  mechanism of  this virus.   However, the disadvantage of this method is the
+  sheer size of the code necessary to perform the encryption.
+ 
+  A second  method is  much simpler than this and possibly just as effective.
+  To minimise scan code length, all you have to do is change certain bytes at
+  various intervals.   The  best way  to do  this can  be explained  with the
+  following code fragment:
+ 
+    mov si, 1234h                     ; Starting location of encryption
+    mov cx, 1234h                     ; Virus size / 2 + variable number
+  loop_thing:
+    xor word ptr cs:[si], 1234h       ; Decrypt the value
+    add si, 2
+    loop loop_thing
+ 
+  In this code fragment, all the values which can be changed are set to 1234h
+  for the  sake of  clarity.   Upon infection,  all you  have to do is to set
+  these variable  values to  whatever is  appropriate  for  the  file.    For
+  example, mov  bx, 1234h  would have  to be  changed to  have the encryption
+  start at the wherever the virus would be loaded into memory (huh?).  Ponder
+  this for  a few  moments and  all shall  become clear.   To  substitute new
+  values into the code, all you have to do is something akin to:
+ 
+    mov [bp+scratch+1], cx
+ 
+  Where scratch is an instruction.  The exact value to add to scratch depends
+  on the  coding of  the op-code.   Some  op-codes take their argument as the
+  second byte,  others take  the  third.    Regardless,  it  will  take  some
+  tinkering before it is perfect.  In the above case, the "permanent" code is
+  limited to  under five or six bytes.  Additionally, these five or six bytes
+  could theoretically  occur in  ANY PROGRAM  WHATSOEVER, so  it would not be
+  prudent for  scanners to search for these strings.  However, scanners often
+  use scan  strings with wild-card-ish scan string characters, so it is still
+  possible for a scan string to be found.
+ 
+  The important  thing to  keep in  mind when using this method is that it is
+  best for  the virus  to use separate encryption and decryption engines.  In
+  this manner, shorter decryption routines may be found and thus shorter scan
+  strings will  be needed.   In  any  case,  using  separate  encryption  and
+  decryption engines increases the size of the code by at most 50 bytes.
+ 
+  The last method detailed is theft of decryption engines.  Several shareware
+  products utilise  decryption engines  in their  programs to  prevent simple
+  "cracks" of  their products.   This  is, of  course, not a deterrent to any
+  programmer worth  his salt,  but it  is useful  for virus  authors.  If you
+  combine the  method above  with  this  technique,  the  scan  string  would
+  identify the  product as  being infected with the virus, which is a) bad PR
+  for the company and b) unsuitable for use as a scan string.  This technique
+  requires virtually  no effort,  as the decryption engine is already written
+  for you by some unsuspecting PD programmer.
+ 
+  All the  methods described  are viable  scan  string  avoidance  techniques
+  suitable for  use in  any virus.   After  a few practice tries, scan string
+  avoidance should  become  second  nature  and  will  help  tremendously  in
+  prolonging the effective life of your virus in the wild.
+------------------------------------------------------------------------------
+ 
+                HOW TO MODIFY A VIRUS SO SCAN WON'T CATCH IT
+                                PART II
+ 
+ 
+  In Issue 1 of 40Hex, Hellraiser presented a simple (though incredibly
+  tedious) method of searching for scan strings.  In short, this was his
+  method:
+ 
+    1) Make a small carrier file.
+    2) Infect the carrier with the virus.
+    3) Fill parts of the virus with a dummy value until you isolate the
+       scan string.
+    4) Modify the virus so it is not detectable, i.e. switch the order of
+       the instructions.
+ 
+  The problem is, of course, that step 3 takes a maddeningly inordinate
+  amount of time.  I shall present a tip which will save you much time.
+  The trick is, of course, to find out where the encryption mechanism and
+  hence the unencrypted portion where the scan string is usually located.
+  Once the encryption mechanism is located, isolating the scan string is
+  much simpler.
+ 
+  Of course, the problem is finding the encryption mechanism in the first
+  place.  The simplest method of doing this is using V Communication's
+  Sourcer 486, or any similar dissassembler.  Dissassemble the file and
+  search for the unencrypted portions.  Most of the file will be DBs, so
+  search for any part which isn't.  Once you have located those parts, all
+  you have to do is subtract 100h from the memory location to find its
+  physical offset in the file.  You now have a general idea of where the
+  scan string is located, so perform step 3 until you find it.
+ 
+  Ack, you say, what if you don't have Sourcer?  Well, all is not lost.
+  Load up the infected carrier in good old DEBUG.  The first instruction
+  (in COM infections) should be a JMP.  Trace (T) into the JMP and you
+  should be thrown into the area around the encryption mechanism.  Use the
+  memory offset (relative to the PSP segment) and subtract 100h to find
+  the physical location of the unencrypted portion in the file.  Once
+  again, once you have this, perform step 3.  Simple, no?
+ 
+  Sometimes, SCAN looks for the writing portion of the code, which
+  generally calls INT 21h, function 40h.  This is usually, though not
+  always, located somewhere near the encryption mechanism.  If it is
+  not near there, all you have to do is trace through the virus until
+  it calls the write file function.
+ 
+  Another method of looking for scan codes is to break the infected carrier
+  file into a series of 50 byte overlapping chunks.  For example, the first
+  chunk would be from offset 0 to 49, the second from 24 to 74, the third
+  from 49 to 99, etc.  Then use SCAN to see which chunk holds the scan code.
+  This is by far the easiest, not to mention quickest, method.
+ 
+  One side note on step 1, making the carrier file.  Some virii don't
+  infect tiny files.  What you must do is create a larger file (duh).
+  Simply assemble the following two lines:
+ 
+      int 20h
+      db  98 dup (0)
+ 
+  (with all the garbage segment declarations and shit, of course) and
+  you'll have a nice 100 byte carrier which should be sufficient in most
+  cases, with maybe the exception of the Darth Vaders.
+ 
+  Enjoy!
+              Dark Angel
+------------------------------------------------------------------------------
+Okey..kinda Long article eh ?..Okey, many thanx goes to Dark Angel for
+charing his skills to us.                           ..[The Unforgiven]
+ 
