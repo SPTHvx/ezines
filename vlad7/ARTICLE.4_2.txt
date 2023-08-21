@@ -1,0 +1,463 @@
+
+
+         S T R A T E G Y : I N F E C T I O N  O N  C O M P R E S S I O N
+	 _______________________________________________________________
+
+        (c) 1996 by MGL. None of this article may be used or
+	    spread in any form without written permission of the
+	    author. All rights are reserved for future use.
+
+
+	0.) Sad news
+
+        I am not proud to announce to the world that our group,	SVL
+        ended work due to some unfortunate circumstances.
+	So that was that. :-((((((((((((((((((((((((((((((((((((((
+
+
+	1.) Introduction.
+
+
+Well, it has been discussed many times, switching to fast infection when an
+attempt to run some compression software is made.  It is a kewl idea and
+moreover a good way to penetrate the backups. But nothing is as easy as
+it appears to be. This is also the reason why I want to share some of my
+latest experiences with you.
+
+Basically, I assume all of you can code a resident virus, because if
+you can't, just skip this article or read it again sometime in
+the near ( or far if you're lazy ) future.
+All the code presented in this article is meta-code, it just illustrates
+the way the virus should work. It's not optimised, nor part of any virus.
+
+
+	2.) Which packer should I support in the virus ?
+
+
+Good question. There are shitloads of them. It's a complete waste of
+code to support packers that aren't very common. You should select only
+those that every lamer has on his HD. That means ( present situation )
+supporting ARJ, Pkzip/Pkunzip, RAR, LHA, UC. If you decide to select these
+five packers, it is nearly guaranteed your virus can hurt 90 % of systems
+in the whole Universe.  Ofcos, in some regions there's another list of
+'most used ', but remember : you're the author, you have the choice.
+You do not need know how good these packers are ( that isn't 100 % true, cos
+the better are used more ), all you need to know is how the packers work.
+
+
+	3.) How the packer works.
+
+
+Uff ! Don't be scared, you don't need to disassemble the whole packer !
+( of cos it is once again not 100 % true, so obtain Soft-ice 2.80 now )
+It is about knowing the principles WHAT THE PACKER SHOULD DO. Every packer
+works similarly to that described below : 
+
+
+	1.  Find files to be packed
+	2.  Open/create file in which everything'll be packed
+	3.  Find 1st file to be packed
+	4.  Open the file to be packed
+	5.  Pack the file
+	6.  Add packed file to archive
+	7.  Close file to be packed
+	8.  Last file ? If so , go to line 10
+	9.  Find next file to pack and go to line 4
+	10. Close archive and exit
+
+Simple, isn't it ? But in section 5.) i'll describe possible problems.
+
+
+	4.) What should the virus do ?
+
+
+As I mentioned in the introduction, the virus has to be resident. Then it
+will control all INT 21H / 4BH calls. If such a call apprears just test to
+see if the ASCIIZ ( ASCII , ended by '0' ) string pointed by DS:DX contains
+one of the names of the supported packers.  Then, if your virus is stealth
+(and I hope it is ), switch all stealth capabilities off. You ask why ?
+The reason is simple : the packer needs to know the real file size of the
+file being processed, and of course the virus can't infect any file without
+knowing its real size . Second, set the infection mode to the 'fastest
+possible' - what that means is open for further discussion. And thats all
+folks on INT 21H / 4BH for now.
+
+Thirdly, infect the files ( this important point'll be discussed later in
+this article ). And last but not least, on INT 21H / 4CH don't forget to
+disable the 'fastest possible' infection mode and for the Lamer's sake, turn
+all stealth back on !
+
+If you are suspicious and you know Murphy's Law 'If something can go wrong,
+it will ! ', you should also handle the situation when the packer calls for 
+an external compression executable called e.g. 'fucklame.exe' which
+after processing the file and creating the compressed image in memory exits
+via the normal INT 21H / 4CH back to the packer. According to the stuff you
+read above, the virus now turns stealth on and sets another infection
+strategy ...
+
+To prevent such a mistake, you can get the current PID ( segment address of
+the PSP of current process ) by using INT 21H / 62h or INT 21h /51H - both
+calls are equal and moreover - BOTH DO NOT USE ANY OF THE DOS INTERNAL STACKS 
+and that means you can use structures like
+
+	mov ah,62h
+	int 21h
+or
+	mov ah,51h
+	int 21h
+
+directly in your interrupt handler ( in DOS 3.0 and above ) ! Both the calls
+return in the PID in BX so then
+
+	mov word ptr cs:[U_cant_fool_me-ReloCount],bx
+
+and after storing the PID allow normal INT 21H / 4BH. Then you can test on
+INT 21H / 4CH the parents PID
+
+int21_fn_4c_entry:
+	push bx
+	push ds
+	push ax
+	mov ah,51h
+	int 21h
+	mov ds,bx
+	mov ax, word ptr [ds:16h]
+
+because the PSP on offset+16h holds the segment of parent PID ( from which
+the file has been executed via INT 21H / 4Bh and whose PID we have stored 
+in the variable U_cant_fool_me ), the following code applies:
+
+	cmp word ptr cs:[U_cant_fool_me-ReloCount],ax
+	jne skip_some_lines
+	mov byte ptr cs:[Stealth-ReloCount],switch_on
+	mov byte ptr cs:[Strategy-ReloCount],another_one
+skip_some_lines:
+	pop ax
+	pop ds
+	pop bx
+	jmp far ptr dword cs:[Original_DOS_vector-ReloCount]
+
+Now you can be sure that your virus turn on stealth only when the packer
+really ends its work. The same structure on INT 21H /4CH can be used when
+you handle some AV, and you also disable stealth for this reasson.
+
+
+	5.) When to infect the file ?
+
+
+To questions answer is not as trivial as it seems to be !
+It is caused by :
+	a.) The way packer works
+	b.) The virus itself
+
+b.)
+I am sorry , but i'll discuss the point b.) as first . There are only two
+'not very suspicious' ways to mark the file as infected which aren't too
+hard to code : time-stamp ( preferrably some specific legal one ) and size
+padding.
+Time stamp marking is very easy to code and works well with full file stealth
+but when you support some packers in your virus, get ready for big trouble.
+All the needed stuff is in the section 'Time stamp viruses'.
+Size padding is harder to code, with full-stealth it's quite complicated, but
+you'll probably have no problems with implementing packer support in your vx,
+with only one exception, see the section 'Size padding viruses' for details.
+
+a.)
+According to algorithm described in section 3.) everyone can assume that the
+right moment for infection is INT 21H / 3DH - open file . This conclusion is
+up to 95% correct . It has lot of strong points : DX:DX points to a buffer
+which contains an ASCIIZ string with filename and path, the 3 lowest bites
+in  AL describe the open mode ( 000 - read , 001 - write , 010 - read and
+write ). So it is easy to force it open for read/write access, and infect 
+the file pointed by DS:DX . Ofcos, I can tell you, it is not :-)
+
+  
+	6.) Solutions
+
+
+	6.1. ) Size padding viruses.
+
+
+This section'll be very short . There is no reason the strategy described in
+section 5a. could fail with most packercs. Because if your virus infects the
+file on file open, and then marks it by padding the size to some 'magic'
+value, the packer should reach the EOF mark . Our virus will, after executing
+the packer, infect the file and then pad the file to the 'magic' size. Then 
+the compressed file will be infected.  That means the infected file will be
+marked as infected and correctly stealthed . There is ONLY one EXCEPTION i 
+know : PKZIP . How to fool this one is described in section 6.2
+Maybe the packer will protest when extracting the files from the archive,
+because the stored size in archive header and size of extacted file
+didn't match, but there's only a small probability that the packer checks
+for this.
+
+I have to say, I didn't test the file padding with archivers - cos i was too
+lazy to code it. But of all 5 packers tested by me, only pkzip causes
+problems. RAR , UC , ARJ , LHA - all read until EOF is reached !
+
+
+	6.2. ) Time stamp viruses .
+
+
+So this section is really the crucial part of the article . If you use the
+strategy from section 5a you 'll get following result :
+
+
+  Packer name                   F1              F2              Result
+		
+	LHA                     +               +                GOOD
+		
+	RAR                     +               -                POOR
+
+	ARJ                     +               -                POOR
+
+   Pkzip/Pkunip                 +               -                POOR
+
+	UC                      +               -                POOR
+
+Legend :        F1 - file which was infected on archivation and is located in
+		     specified directory
+		F2 - file which has been extracted from archive we infected
+		+  - infected and stealthed
+		-  - infected and not stealthed
+
+As you can see something went wrong. And after breaking your head with this
+little problem you say : " Shit, the file is not marked as infectded !". And
+that's problem we have to solve. If you are lazy, support only LHA . But for
+correctly infecting with other packers we need to infect the file and mark it
+PRIOR to opening.
+
+Every packer has to scan the actual directory for files which should be
+compressed.  This is done by just a normal INT 21H / 4Eh and INT 21H / 4FH. 
+As i assume your virus has at least semi-stealth implemented, then your virus
+has to handle these two subfunctions of INT 21H. After such a call the virus
+fixes the file size in the DTA ( Disk Transfer Address ) - I hope it's called
+semi-stealth.  Handling INT 21H FN 4EH /4FH will add only few lines of extra
+code to your virus.
+The situation before such a call from the packer is mostly as described
+below :
+
+
+ ÚÄÄÄÄ> DS:DX  point to ASCIIZ filename to match. Mostly it contains something
+ ³             like '????????.???',0
+ ³      AH     of course 4EH or 4FH
+ ³      CX     atributes to match, for us uninteresting, cos every normal
+ ³             virus can infect files with any attributes set
+ ³
+ ÀÄÄÄÄÄ As you can see, nothing useful for our purposes :-P
+
+Here i would like to note, that you do not need to know path to files which
+should be compressed or the name of the actual directory . You are already
+in the directory where the target files are located ( courtesy of the packer
+which is active ) , or the call will fail.
+
+
+But the situation right after the allowed call of INT 21H 4EH/4FH is the most
+important for us : if the call fails, nevermind, try it next time. If the
+call succeded, the DTA is filled with data we require. Here is the DTA
+structure once again :
+
+
+	ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	³ 00h ³ bits 0-6 holds drive letter , bit 7 is set if remote ³
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 01h ³ 11 bytes search template                             ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 0Ch ³ search atributes                                     ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 0Dh ³ entry count within directory                         ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 0Fh ³ cluster number of start of parent directory          ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 11h ³ 4 bytes reserved                                     ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 15h ³ atributes of file which was found                    ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 16h ³ file time                                            ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 18h ³ file date                                            ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 1Ah ³ file size , this one is DWORD !                      ³  
+	ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	³ 1Eh ³ filename and extension in ASCIIZ                     ³  
+	ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+As you can see, offset DTA+1Eh is the ASCIIZ file name - we 'll need it
+for file open. 
+
+int21_fn_4e_entry:
+int21_fn_4f_entry:
+	pushf
+	call far ptr dword cs:[Original_DOS_vector-ReloCount]
+	pusha
+	push es
+	push ds
+	pushf
+
+First check if the archiver is actually processing. If not, skip the whole
+infection stuff.
+
+	cmp byte ptr cs:[Archiver_active_flag-ReloCount],set
+	jne Skip_infection
+
+To get the filename from the DTA is easy
+
+	mov ah,2f
+	pushf
+	call far ptr dword cs:[Original_DOS_vector-ReloCount]
+
+ES:BX now points to the beginning of the DTA, so ES:BX+1EH is the filename
+and ES:BX+26H points to file extension. Remember the file is not yet open.
+But before opening a test for *.exe or *.com has to be done.
+
+	push es
+	pop ds
+	add bx,1eh
+	xchg bx,dx
+	cmp word ptr ds:[dx+8],'XE'
+	je Open_file
+	cmp word ptr ds:[dx+8],'OC'
+	jne Exit
+Open_file:
+	mov ax,3d02h
+	pushf
+	call far ptr dword cs:[Original_DOS_vector-ReloCount]
+	jc Exit
+	xchg ax,bx
+	call Infect_file
+
+Here you have a free choice. You can infect the filename pointed to by DS:DX
+or the handle in bx . Both are quite easy to code.
+
+	pushf
+	mov ah,3e
+	call far ptr dword cs:[Original_DOS_vector-ReloCount]
+
+
+As the DTA is filled with data, we need to test if stealth is necessary
+
+Skip_infection:
+	cmp byte ptr cs:[Stealth-ReloCount],switch_off
+	je Skip_size_stealth
+	call Size_stealth_on_4e_and_4f
+
+
+Before exiting pop all stored registers 
+
+Skip_size_stealth:
+Exit:
+	popf            ; btw, do you know that such a exit can hang
+	pop ds          ; the system sometimes ? Everytime you push the 
+	pop es          ; flags on the stack inside an interrupt handler, any
+	popa            ; other interrupts are disabled. So this part
+	retf 2          ; of code can exit the handler with disabled
+			; interrupts . That may cause the system to hang with
+			; some software written in asm. Languages like
+			; C++ and Pascal ( |-P ) have this fixed...
+
+So, now our virus infects files on INT 21H / 4EH and INT 21H / 4FH. But
+at this moment that doesn't change anything in the DTA after INT 21H 4EH/4FH.
+If we repeat the tests with all packers again , we'll get these results :
+
+
+  Packer name                   F1              F2              Result
+		
+	LHA                     +               +                GOOD
+		
+	RAR                     +               +                GOOD
+
+	ARJ                     +               +                GOOD
+
+   Pkzip/Pkunip                 +               -                POOR
+
+	UC                      +               -                POOR
+
+
+Just changing the INT 21H subfunction on which the virus infects files with
+no code addition caused correct infection with two other packers. But
+Pkzip/Pkunzip and UC are still a problem for our virus . You can change
+the subfunction all you want but this method'll bring nothing more.
+
+As i dissassembled those two 'nice' packers , i found such a structure :
+
+	1.      Get DTA ( INT 21H / 2Fh )
+	2.      Store it on the stack
+	3.      Set new DTA ( INT 21H / 1A )
+	4.      Find 1st matching file ( INT 21 / 4E )
+	5.      Pop saved stuff
+	6.      Restore original DTA
+	and the same x-times round ....
+
+ No open file here !!! That means in plain text : UC and Pkzip first get
+information about all the files and then start to process it all. And
+as we allowed the INT 21H / 4EH or INT 21H / 4FH call and then infected the
+victim, no change in the DTA has been done and so the packer uses values
+which were correct BEFORE INFECTION, but aren't afterwards ! The problem is
+about fixing the DTA.
+
+UC only requires fixing the file time in the DTA for correct infection. That
+means patching the word at address DTA+16H to our value (eg. 40 seconds ).
+Then will UC works with our virus fine.
+
+With Pkzip/Pkunzip the situation not so easy. From all five packers tested
+by me, only this one gets the size of the packed file from the DTA saved
+earlier. That means the packed infected executable will always be corrupted.
+Cruel, isn't it ? To fix the problem, we have to fix the DTA, but not only
+the file time, but also the file size in DTA. That means to add the size
+of the added code to the word at address DTA+1AH and to fix file time on
+DTA+16H . 
+
+
+If you modify the virus code as described above, you get nice results :
+
+
+  Packer name                   F1              F2              Result
+		
+	LHA                     +               +                GOOD
+		
+	RAR                     +               +                GOOD
+
+	ARJ                     +               +                GOOD
+
+   Pkzip/Pkunip                 +               +                GOOD
+
+	UC                      +               +                GOOD
+
+
+
+	7.) Summary .
+
+To infect a file when a packer is working is a good way of spreading.
+The best point for infection is INT 21H / 4EH and INT 21H / 4FH. Just
+by placing the infection routine here you can infect RAR, ARJ and LHA with
+no problems at all ( no matter what you use as infection marker ). If you
+want to handle infection with UC, and your virus uses file time/date
+as an infection marker you have to fix it in the DTA after infection.
+The most shitty packer is Pkzip/Unzip. You have to handle DTA file time/date 
+and file size. This DTA size-fix is NECESSARY for BOTH usual TYPES OF MARKER 
+( size padding & time stamp ), cos pkzip processes files only to ITS SAVED
+FILE SIZE.
+
+Ofcos, there are several problems here. A packer with graphical user
+interface ( rar , uc ) can show the size of the added code, or even the
+whole virus ( rar ) as most viruses have stealth disabled when some
+packers are active. The possible solution  -  analysing the command
+line parameters - is too complicated, too long, so the best idea is
+to forget it, hoping the user won't notice it at all. [ this is
+the method of solving a problem by it's ignoration - quite common in the
+software industry :-) , so why not use it in viruses ? ]
+Moreover, the most bloody situation is with AV products able to test
+packed archives. Here there is nearly no way to stealth the infected files.
+But, this problem can be also ignored, cos testing archives for
+infection is slow and takes shitload of time, so the normal user has his
+AV package configured to skip testing archives.
+
+And last but not least, the viruses' spread could be too fast, ofcos 
+this one problem can be handled very easy . 
+
+
+I hope this article helped you to gain new information. I am open
+for any discussion, and i'll welcome any tips and hints u can tell
+me. I can be reached on IRC, on #........ and #... ( channel names
+were cleared by the ........ ( also cleared )
+

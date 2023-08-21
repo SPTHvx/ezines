@@ -1,0 +1,36 @@
+
+VLAD magazine #7 - Index - (for those without the viewer ;)
++---------------------------------------------------------+
+
+ARTICLE.1_1 - Introduction
+ARTICLE.1_2 - Aims and Policies
+ARTICLE.1_3 - Greets
+ARTICLE.1_4 - Members/Joining
+ARTICLE.1_5 - Dist/Contact Info
+ARTICLE.1_6 - Hidden Area Info
+ARTICLE.1_7 - Coding the Mag
+
+ARTICLE.2_1 - No Flags
+ARTICLE.2_2 - Goodbye Virus
+ARTICLE.2_3 - Boot Sector Tutorial
+ARTICLE.2_4 - STOAG Linux Virus
+ARTICLE.2_5 - Pow Boot Virus
+ARTICLE.2_6 - Wulf2
+ARTICLE.2_7 - Tbscan Internals
+              
+ARTICLE.3_1 - VLAD Viruses
+ARTICLE.3_2 - TVIR600
+ARTICLE.3_3 - Vecna Boot Virus
+ARTICLE.3_4 - Padania Virus
+ARTICLE.3_5 - HooDoo Virus
+ARTICLE.3_6 - Pandemonium Virus
+ARTICLE.3_7 - Black Lotus
+
+ARTICLE.4_1 - Zip Virus
+ARTICLE.4_2 - Archive Infect
+ARTICLE.4_3 - Virstop Article
+ARTICLE.4_4 - Boza Makes Bontchev Barf Virus
+ARTICLE.4_5 - Killer Virus
+ARTICLE.4_6 - Muraroa End
+ARTICLE.4_7 - Mages Fury
+

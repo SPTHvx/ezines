@@ -1,0 +1,87 @@
+  
+  Virus Descriptions
+  +----------------+
+
+  Padania                       -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Polymorphic, Full Stealth
+                                                resident/direct action
+                                                COM/EXE retro virus.
+
+  Goodbye                       -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   TSR COM/EXE infector that
+                                                uses CRC32.
+
+  Linux Virus                   -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Resident low-level linux
+                                                executable infector.  Hacks
+                                                root automatically.  First
+                                                virus of it's kind in the 
+                                                world.
+
+  Boza makes Bontchev Barf      -       Author: Metabolis
+                                        Origin: Australia
+                                        Type:   Direct action COM prepender.
+
+  Pow                           -       Author: Dr Pow
+                                        Origin: Latvia
+                                        Type:   Boot Sector virus.
+
+  WULF2                         -       Author: WereWolf
+                                        Origin: France
+                                        Type:   Encrypted, semi-stealth
+                                                COM/EXE infector.
+
+  Turbo Virus 6000              -       Author: TPower
+                                        Origin: France
+                                        Type:   TSR semi-stealth COM/EXE
+                                                infector.
+
+  HOODOO                        -       Author: Infiltrator
+                                        Origin: Russia
+                                        Type:   Tunneling encrypted EXE 
+                                                infector.
+
+  Pandemonium                   -       Author: Retch
+                                        Origin: Australia
+                                        Type:   Stealth, TSR COM/EXE infector.
+  
+  Black Lotus                   -       Author: Killer Bee
+                                        Origin: United States of America
+                                        Type:   TSR semi-stealth COM and
+                                                EXE infector.
+
+  Zip Virus                     -       Author: Chrops
+                                        Origin: Germany
+                                        Type:   Resident semi-stealth
+                                                COM infector.  Infects
+                                                correctly when pkzip is run.
+                                                
+  KILLER                        -       Author: Eternal Maverick
+                                        Origin: Ukraine
+                                        Group:  STEALTH
+                                        Type:   Polymorphic, semi-stealth
+                                                COM/EXE/OV?,infector.
+
+  Muraroa End                   -       Author: Blesk
+                                        Origin: Slovakia
+                                        Group:  SVL
+                                        Type:   Semi-Stealth, polymorphic,
+                                                COM/EXE infector.
+
+  Mages Fury                    -       Author: The Goblin King
+                                        Origin: The United States of America
+                                        Type:   Resident COM/EXE infector.
+                                                
+
+  Vecna                         -       Author: Vecna
+                                        Origin: Brazil
+                                        Type:   Resident full-stealth
+                                                MBR/BS/EXE infector.
+
+

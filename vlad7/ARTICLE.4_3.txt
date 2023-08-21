@@ -1,0 +1,323 @@
+
+				  How 2 fuck
+			 VirStop Boot Sector Checking
+			-컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+				  Written by
+				   Dandler
+				  -컴컴컴�-
+				 Translated by
+				   b0z0/iKx
+				  -컴컴컴컴-
+
+Introduction:
+컴컴컴컴컴컴-
+VirStop is a TSR antivirus, distributed in the F-Prot package that is
+used by a lot of people to prevent infection by unknown viruses.
+Once loaded it performs two tasks:
+- makes sure that the executed files aren't infected by a virus
+- makes sure that diskettes haven't got a virus in the boot sector
+
+Today we are going to examine the second VirStop feature to understand 
+how it works and how we can fool it in our future boot sector viruses.
+
+
+How VirStop Boot Sector Checking works:
+컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+The boot sector analyzer uses a heuristic scan based on searching for some
+little strings frequently found in boot sector viruses.
+If one of the search strings is found, VirStop will immediately display 
+a warning message to the user.
+But there are some backdoors, probably made to prevent VirStop from
+giving a warning on a clean boot sector.  These can be used to fuck 
+the scan.
+
+
+Strings:
+컴컴컴�-
+As we said previously, the search strings mustn't be found in the boot
+sector, unless you want the floppy to be formatted by all the persons using
+VirStop (and there are a lot) or thrown directly in the paperbasket (I can
+assure you that this is a very common method of virus prevention).
+If you are going to write an encrypted virus you need only check that the
+VirStop search strings aren't in the clear part.
+
+Now we are going to give you all the search strings that VirStop checks in
+the boot sectors from offset 003h to offset 1FFh to see if the floppy
+is infected:
+
+xx   = every byte
+xxxx = every word
+regx = every register
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Watch out for this in the Int 13h entry.
+
+3D0102        CMP       AX,0201
+7403          JZ        LOC1
+E9xxxx        JMP       xxxx
+	      LOC1:
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+CD13          INT       13
+E98001        JMP       $+183h
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+2E            CS:
+313C          XOR       [SI],DI
+03xx          ADD       regx,regx
+46            INC       SI
+81            DB        81
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+8B45D3        MOV       AX,[DI-2D]
+B10A          MOV       CL,0A
+D3C8          ROR       AX,CL
+8EC0          MOV       ES,AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+8B84xxxx      MOV       AX,[SI+xxxx]
+D3E0          SHL       AX,CL
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+BC007C        MOV       SP,7C00
+16            PUSH      SS
+07            POP       ES
+E8xxxx        CALL      xxxx
+36            SS:
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Pay attention on write/read operations just before a jump out of the segment
+
+CD13          INT       13
+CB            RETF
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Don't use these simple tricks when you want to decrement the word at 0:413h
+
+8ED8          MOV       DS,AX
+FF8Fxxxx      DEC       WORD PTR [BX+xxxx]
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Like we just said, these tricks are too simple
+
+8B07          MOV       AX,[BX]
+48            DEC       AX
+8907          MOV       [BX],AX
+FB            STI
+B106          MOV       CL,06
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+8BE6          MOV       SP,SI
+8ED7          MOV       SS,DI
+FB            STI
+8EC7          MOV       ES,DI
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+AA            STOSB
+57            PUSH      DI
+81E7FF00      AND       DI,00FF
+81FFxxxx      CMP       DI,xxxx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;The method is quite good, but to shrink the memory you must think of
+;something else.
+
+FF0C          DEC       WORD PTR [SI]
+AD            LODSW
+5E            POP       SI
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is really too simple. Hook the Int 13h with a different method
+
+A34C00        MOV       [004C],AX
+8C064Exx      MOV       [xx4E],ES
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+8ED8          MOV       DS,AX
+8EC0          MOV       ES,AX
+50            PUSH      AX
+50            PUSH      AX
+50            PUSH      AX
+FB            STI
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+48            DEC       AX
+89C4          MOV       SP,AX
+	      LOC1:
+30E4          XOR       AH,AH
+CD13          INT       13
+72FA          JB        LOC1
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Also this method can't be used anymore.
+
+BE1304        MOV       SI,0413
+8EDA          MOV       DS,DX
+8B04          MOV       AX,[SI]
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+26            ES:
+8A05          MOV       AL,[DI]
+8A05          MOV       AL,[DI]
+AA            STOSB
+8AC4          MOV       AL,AH
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Probably is a search string typical for a virus, but it may be used
+;casually in your future productions. So pay attention!
+
+8C0E4E00      MOV       [004E],CS
+803Exxxxxx    CMP       BYTE PTR [xxxx],xx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Sorry, but also this method can't be used.
+
+8905          MOV       [DI],AX
+B106          MOV       CL,06
+D3E0          SHL       AX,CL
+04xx          ADD       AL,xx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Int 12h? We are not cavemen! 8-)
+
+CD12          INT       12
+B106          MOV       CL,06
+D3E0          SHL       AX,CL
+8EC0          MOV       ES,AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Also a child would code better. ;-)
+
+891E4C00      MOV       [004C],BX
+8C064E00      MOV       [004E],ES
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is a search string typical for a virus.
+
+F9            STC
+E2AA          LOOP      $-54
+xx            xx
+0405          ADD       AL,5
+8A            DB        8A
+xx            xx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Simple, just too simple.
+
+A11304        MOV       AX,[0413]
+B106          MOV       CL,06
+D3E0          SHL       AX,CL
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Xor FF can't be used? So use a Not, that is also shorter. 8-)
+
+8A27          MOV       AH,[BX]
+80F4FF        XOR       AH,FF
+8827          MOV       [BX],AH
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;This is more elaborate, but is too simple.
+
+BB1304        MOV       BX,0413
+8B07          MOV       AX,[BX]
+48            DEC       AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;The problem is always the allocation of the K of memory.
+
+FF0C          DEC       WORD PTR [SI]
+AD            LODSW
+B106          MOV       CL,06
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;I asked you to use a different method to hook the Int 13h!
+
+8CC0          MOV       AX,ES
+A34E00        MOV       [004E],AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Boh... It's far *too* simple now... 8-)
+
+FF0E1304      DEC       WORD PTR [0413]
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Pay attention when searching for the date.
+
+B404          MOV       AH,04
+CD1A          INT       1A
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;A hint: *never* use '413'. Is too suspicious, you will always be caught.
+
+A11304        MOV       AX,[0413]
+BB4141        MOV       BX,xxxx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;It was a good idea to use a byte instead of the entire word. It *was* a
+;good idea. 8-)
+
+C6061304xx    MOV       BYTE PTR [0413],xx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;And here is another '413'
+
+A11304        MOV       AX,[0413]
+2Dxxxx        SUB       AX,xxxx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;Another again...
+
+A11304        MOV       AX,[0413]
+48            DEC       AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;My god! Stop it! 8-)
+
+832E1304xx    SUB       WORD PTR [0413],+xx
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+;We are lucky, this is the last! 8-)
+
+A31304        MOV       [0413],AX
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴-
+
+
+Backdoors:
+컴컴컴컴�-
+In VirStop there are also 2 very simple backdoors: you must only put
+one of these strings in your virus at its own offset:
+
+Offset          String
+002F            CD10
+0026            593F
+
+The two strings are located in the serial number and in the volume label, 
+two zones generally not used by the body of the virus.
+When VirStop finds one of these strings it will stop immediately to 
+scan the boot sector and you'll be free to use any string that you want 
+in your virus.
+
+
+That's all! Happy coding to all from Dandler and b0z0!
+

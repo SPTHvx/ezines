@@ -1,0 +1,76 @@
+
+  Introduction
+  +----------+
+    
+  Welcome to VLAD issue number Seven which is slightly late mainly due to
+  the release of the joke VLAD April Fools edition (vladaf.zip).
+
+  A few groups have died recently.  The biggest death was Phalcon/Skism who
+  are now officially dead from what I hear.  NuKE likewise (thankfully).
+  SVL decided to break-up due to law changes in Slovakia, but will be
+  continuing as individual members.  DC split up after producing two
+  magazines, which is why undernet #virus is now empty again.
+
+  Immortal Riot have merged with the unproductive Genesis to form a new
+  super-virusgroup called IR/G.  A certain Australian member of IR has
+  a new type of virus ready for release, and you'll probably hear about
+  it on TV sometime in the future.  The co-leaders of IR/G are
+  The Unforgiven (Sweden) and Rajaat (UK). They are both currently inactive,
+  so Sepultura (Australia) is now the defacto leader.
+
+  Now comes some sad news for all the avid VLAD readers.  I (Qark) have
+  decided to retire from viruses, and Quantum has decided to join me.  This
+  is probably the end for VLAD, although I am unsure what Darkman is doing,
+  as he will hold the rights to the VLAD name as soon as the VLAD#7 ZIPfile
+  is ready.  I've decided to leave because I haven't got the time or
+  inclination to write viruses "full time" any longer.  I still like mucking
+  around with them, that's still fun, but churning out endless reams of virus
+  texts and code wears you out after a while.  I might still release the
+  occasional virus with the [Qark/VLAD] logo inside it but I won't be
+  committing myself to anything.
+
+  Since it's unlikely I'll be doing any -DOS- viruses in the future I'll just
+  leave you with a small idea I've been mulling over for a while.  As an
+  interesting trick for polymorphism you might consider setting the DS to
+  segment F000 and doing random writes to it.  Since F000+ is ROM, none of
+  the writes will have any effect, but would look great as garbage
+  instructions.  Every poly engine has random reads, but none have random
+  writes (that I can think of).  All heuristic scanners ignore reads (unless
+  they are within the limits of the virus body) but they always take note
+  of writes.  Just remember you'd have to use CS: to do all your real writes.
+  You might want to make sure the writes also point within the virus (even
+  though they aren't actually writing there) to bluff the scanner into
+  thinking they're real.  Anyway have a go, and see how you do.
+
+  Words from Quantum: I haven't written anything in so long I honestly don't
+  know why people still see me as being in vlad.  Either way, I aint
+  disappearing like all the other ex-virus niggas out there.  I'll be there
+  every day doing absolutely nothing like usual.  The only thing I've infected
+  in this mag is linux which I've been spending 90% of my time on.  On the
+  other hand, I am still doing something, just not viruses - well, not viable
+  viruses.  You get that.  See ya round the irc sewing circle.
+
+  Words from Metabolis: Not sure why I'm writing something here besides the
+  fact that I might as well not have bothered quitting, but now I can be at
+  rest.  It is very likely Darkman will continue the vlad name and I look
+  forward to see what he does with it.  Anyway, it was fun.
+  Back to qark:
+
+  As always, something comes along to fill the void, this time it is BIG.
+  STEALTH - A group with over fifty members from the Ukraine and Russia has
+  come along with truckloads of quality code and viruses.  They actually have
+  grades in the group going from Beginner (just joined) all the way up to
+  Master (Can do anything).  They recently released "Infected Voice" their
+  first english language magazine (the rest were in russian) which had some
+  good new ideas in it.  They are responsible for the viruses: Maverick,
+  Tchechen and the world's second OBJ infector.  It's good to see
+  enthusiastic new talent on the scene.  Hopefully they won't discover IRC
+  and will spend their time coding instead of wasting it talking crap like
+  the rest of us did/still do.
+
+  I've run out of things to say now, so goodbye everyone.. you've all been
+  nice to me mostly and given me some good memories, and I hope I've
+  contributed something in return.
+
+  Qark
+

