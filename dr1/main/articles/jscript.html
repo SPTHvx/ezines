@@ -1,0 +1,820 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">Playing with Jscript (for pun and 'fropit)</a></div>
+<pre>
+<!--- put article/source here --->
+////////////////////////////////////////////////////////////////////////////////////////
+/*
+Disclaimer
+----------
+Everything enclosed within the file is intended only for educational purposes only. 
+The author assumes that all users understand risks involved within this file and/or its 
+attached materials. 
+
+The author won't be responsible for any damages to computer systems arising from the 
+misuse of this file and/or its attached materials.
+*/
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+==============================================================================================
+----------------------------------------------------------------------------------------------
+					            Playing with Jscript (for pun and 'fropit)
+----------------------------------------------------------------------------------------------
+==============================================================================================
+
+Jscript is Microsoft's  implementation  of ECMA  262 Language, also known as Netscape's
+Javascript. Its interpreter is  installed  in all of  the MS Windows  releases thus any
+computer with Microsoft Windows installed, which is  like 88% (or more) of all the PCs 
+around the world can run Jscript. It is  commonly  used in Internet technologies such as
+HTML and AJAX, allowing browsers to display aesthetically pleasing webpages and automate
+frontend and backend client/server processes. In addition, Jscripts can be run 
+from desktop, allowing the users to do certain tasks such as file management, local 
+network monitoring and 3rd party software automation through ActiveX.
+
+There are things that can be done with JScript, just like in other languages and this
+article will show some of those.
+
+*/
+
+Table of Contents
+
+I - Strings Strings Strings
+II - Jscript and the Internets (ZOMG!)
+III - Exotic file storage using Jscript
+      a) Files in Filenames
+      b) Files in Registry key
+IV - Outro
+/*
+I - Strings strings strings
+---------------------------
+
+Strings are indispensible in computing. They are used to visually represent data and/or
+information that will be useful to any human, thus knowing to manipulate them is always a must.
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Converting from character to hexadecimal representation
+// 
+// This task is simple thanks to the built in commands in JScript
+//
+//
+
+function char2hex(char) {
+return char.charCodeAt(0).toString(16);
+}
+
+
+// Converting from hexadecimal representation to character
+
+
+function hex2char(hex) {
+return String.fromCharCode(parseInt(hex,16));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Encoding from ASCII to base64
+//
+// I know there are much better algorithms out there but what i made is a direct (and sloppy) 
+// implementation of base64 as described in Wikipedia (http://en.wikipedia.org/wiki/Base64)
+// 
+
+
+function eb64(str){
+
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+var bufbin = "";
+var b64enc = "";
+
+for (var i = 0; i < str.length; i++)
+{
+  bufbin += zeropad((8 - str.charCodeAt(i).toString(2).length)) + str.charCodeAt(i).toString(2);
+    
+  if (bufbin.length % 6 == 0)
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       b64enc += lib64.substr(parseInt(bufbin.substr(6,6),2),1);
+       bufbin = "";
+    }
+  else
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       bufbin = bufbin.substr(6,(bufbin.length - 6));
+    }  
+  if (i == (str.length-1))
+    {
+       var rufbin = bufbin;
+       bufbin += zeropad(6 - bufbin.length);
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       
+       if (rufbin.length == 4)
+          {
+              b64enc += "=";
+          }
+       else if (rufbin.length == 2)
+          {
+              b64enc += "==";
+          }
+       else if (rufbin.length == 0)
+          {
+              b64enc = b64enc.substr(0,(b64enc.length - 1));
+          }
+    }
+}
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+}
+
+return b64enc;
+
+}
+}
+
+
+// Decoding from base64 to ASCII
+
+
+function db64(str){
+
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+var bufbin = "";
+var b64dec = "";
+
+for (var i = 0; i < str.length; i++)
+{
+
+ bufbin += zeropad((6 - lib64.indexOf(str.substr(i,1)).toString(2).length)) + lib64.indexOf(str.substr(i,1)).toString(2);
+ if (bufbin.length % 8 == 0)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = "";
+    }
+  else if (bufbin.length > 8)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = bufbin.substr(8,(bufbin.length - 8));
+    }
+  else if (bufbin.length < 8)
+    {
+       continue;
+    }
+
+}
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+}
+
+return b64dec;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mashing strings
+//
+// This is a string position randomizer that i coded. It uses Jscript built in random number
+// generator and built in dynamic stack/array manipulation (via pushes and pops)
+// 
+// mash (str, passes)     -  str = string of any length, passes = number of times to randomize the string
+//
+//
+
+function mash(str, passes)
+{
+
+var y = "", t = 0, lol = "", c = 0, i = 0, xxxxx = 0;
+
+for (var ilo = 0; ilo < passes; ilo++)
+  {
+    var arr = new Array();
+    c = Math.floor(Math.random()*(str.length + 1));
+    i = Math.floor(Math.random()*(str.length + 1));
+    
+  if (c == i)
+    {
+      continue;
+    }
+  var lol = str.substring(c, i);
+  xxxxx = str.indexOf(lol.substr((lol.length - 1),1));
+  arr.push(lol);
+  arr.push(str.substring(0, str.indexOf(lol.substr(0,1))));
+  arr.push(str.substr((xxxxx + 1), (str.length - xxxxx)));
+
+  t = Math.floor(Math.random()*3);
+
+  y = arr[t];
+  arr[t] = arr[arr.length - 1];
+  arr.pop();
+  arr.push(y);
+  str = arr[0]+arr[1]+arr[2];
+  
+ 
+  arr = null;
+  xxxxx = 0;
+  y = "";
+  lol = "";
+}
+
+return str;
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Making the codes useful 
+//
+// The codes that I've given is useful as is. You can translate a character to hexadecimal notation
+// and back, encode strings to base 64 and back and the randomizer, hmm maybe you can use that to your
+// password generator or such but for this paper, we will use all of them to create an unsophisticated,
+// simple polymorphic script.
+//
+// Well, I wont be doing it step by step since i spent time and made the script already. But I will briefly
+// discuss how i assembled the script
+//
+// 1.) Create a script with the randomizer (mash), base 64 encoder and a hexed version of the base64 decoder
+// 2.) Then fix everything so the final product will look like this. (save as crappoly.js)
+//
+//
+
+
+//----------------------------------- crappoly.js ----------------------------------------------
+
+var a = "etrlWPNTh2L3py4QGUg5/fmEXvIoVFR+D8cHiAd6qYkKuxBba9wOjJSzM0s1ZCn7";
+var b = "FdPwhN0boSxYvgeChNJ8VSDSyr883reJp5hY4ajLFdPwhT2AXSCivgeChNfcyHGqvSVuhN0boSxYvgi1lGqyr" +
+"6v8VctjhljDhAacyH/z4lVjyH/zpHvAyHWSXOUdy5/JylhapSGwplXjyHhOyHpjpHDSy5VMyOGSy5Vwyd/Sp5" +
+"vHylijv52HpHtVhcxVVA9Bhcuyrc2VhHXJyODzylXJyOhSv5X9ydpj45UApOWw45ycvNWSyHVJyd/SpOVjyHiS" +
+"vHvApHeSylXwpOXOylhMyOpzylVwpdpwplvHyHiSErhKET2VochKlGqcErhwpOXOylh0yS2iX5VSyHWzpHhay" +
+"Hhzy5XSyHhS45vApHeOvlhapHhwpHycvNWzyHX9yOhwplXwpOXOylXjyH/SpOhapSGwpPacLJ9wENMcLajLhA" +
+"acpHhwpHycvNWSyHvdyOhwplhMyOXSp5VwpHeS45hapSGwplpapShwplX0pHeOXOhayOpzylVwpd/SXOXJyd/S" +
+"yOVjyHDOXH2VhcxVVA9Bhcuyrc2VhHeS452cpdhw4mU8yShSpHVJyHXSpHX0yd/wpl2cpSGwplF8yH/zpHvdy" +
+"OeSp5XjpHDw4lpSpHewvlhaydpS45XwpOXOyl2AErhKET2VochKlGqcErhS45vAyHGSy5VMyNXSyHhMyOpzyl" +
+"Vwpd/zpOVJyHhzpOVjyOhw4lX0pdpOp5h0pHiwv5VjydXJpOVjyOhS45vAyHVw4lpwpAacLJ9wENMcLajLhAac" +
+"452AydpSy5vAyHVzylXMpHiw45hapdhwplvHyHiSpHpSpOGwv5X0yd/SylXJyODjvHXSpHDzpOVjyOhwv5VOy" +
+"O/SpHVOyOUVhcxVVA9Bhcuyrc2VhHVwpHDS452HpOWw45h0pd/zylvdy5pzylVwyHiSv5XzpHDOpHh0pS2iX5" +
+"X0yHXwplhMyHhzy5XSyHhS45vApd/SXOXJyd/SErhKET2VochKlGqcErhzyOGS4lhapH/wplpMpHeOvlyipHeO" +
+"plh0vNWzXdU8yHhOyHpjyHGSy5XOpHewXHyipHeJpOVjyOhS45vAyHVwv5XSyOhSvAacLJ9wENMcLajLhAacy" +
+"dGjpOXMyHWzpHGOydXSylXJpHDzplX9yOhzpOXJyliSv5VjpHDSpHVJyHXSpHX0yd/wv5VOyO/SpHVOyOGzpH" +
+"hMpOewXOyVhcxVVA9Bhcuyrc2VhHDw452HpOhw45h0pS2iX5XwyO/SyHXwyHiSv5hapSGwplhwpHhOXdU8ySUi" +
+"X5XJydpzpOXJpHeS45XSpHew4lXwyO/SyHXwErhKET2VochKlGqcErhS45vApd/SXOXJyd/SyOVjyHDwplyAp" +
+"HeO4lh0vNWzXHXwpOXOylXjyH/SpOhapdhOvlhay5pzylVwyHiSv5Xzpd/SyHVwyAacLJ9wENMcLajLhAacvH" +
+"viylpS4lX9yOhjpOvdyHGSy5hMyOeSp5VwyOpSy5G0yd/zylhMyHhzy5XSyHhS45vApd/zpOVJyHhzpOVjyOhw" +
+"4lpapdyVhcxVVA9Bhcuyrc2VhHpMpHiwXOpwpHiw45ycvNWSpHVJyHXSpHX0yd/wplyipHeSpHVJyHXSpHX0y" +
+"d/wv5VOyO/SpHVOyOGzpHhMpODwXOhMyHhzErhKET2VochKlGqcErhJyHXSpHX0yd/wv5vHyH/Sv5XzyOGS4l" +
+"hapdGwplpMpHiw45ycvNWzvNU8yH/SXOVOyH/wplX0yHXwplhMyHhzy5XSyHhS4facLJ9wENMcLajLhAacyd/w" +
+"v5vHyH/Sv5XzyOGS4lhapSpwplpMpHAiX5FcyHpSvHvAyOGS45vAyO/Sy5ycySUiX5FivNWSyHVJyd/SpOVjy" +
+"HiSvHvVhcxVVA9Bhcuyrc2Vhd/wplF8yH/zpHvdyOeSp5XjpHew4lvApHiwplFcvNWzyHX9yOhwplXwpHeOvl" +
+"hwpHhOXdU8yHXSvHVwpHew4lVSyHWzpHhaErhKET2VochKlGqcErhS45hapSGwplpapShwplX0pHeOXOhayd/O" +
+"XHhayHiwXH2cpHAiX5FcyHhwXHyipHhOplhwpShzvNU8yOhSy5VjyO/zpHvApAacLJ9wENMcLajLhAacplXwp" +
+"S2iX5FivNWzpHXJyOGzy5Vwyd/wplXwpOXOylXjyH/SpOycvNWzvPac4wh1lGqyr6v8VctOhljDodfzhWPHFN" +
+"ASvf8QXdYAXzGqhAyHVdAaFNABvw0NIm9A/zAOFNfx5S2kvmyjhci1lGYdhljDVw0QVNfBfNfMFWvYoN/qfJyH" +
+"VdAaFr05Xz2YVTUNFm9u5dPxvgaDpc9jV6fALGjLvc0EVdAjv/9Yod/qh6v8Vct8hljDErhchrxBoSCKIm/DL" +
+"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" +
+"dMDXHXjvm0H4ajL+Gl7";
+var t = "65787465726e616c4f5554203d20646236342865787465726e616c494e2c20"+
+"65787465726e616c494e31293bda66756e6374696f6e2064623634287374722c206c696"+
+"23634297bda7661722062756662696e203d2022223bda76617220623634646563203d20"+
+"22223bda666f7220287661722069203d20303b2069203c207374722e6c656e6774683b2"+
+"0692b2b29da7b62756662696e202b3d207a65726f706164282836202d206c696236342e"+
+"696e6465784f66287374722e73756273747228692c3129292e746f537472696e6728322"+
+"92e6c656e6774682929202b206c696236342e696e6465784f66287374722e7375627374"+
+"7228692c3129292e746f537472696e672832293bda6966202862756662696e2e6c656e6"+
+"7746820252038203d3d203029da7bda623634646563202b3d20537472696e672e66726f"+
+"6d43686172436f6465287061727365496e742862756662696e2e73756273747228302c3"+
+"8292c3229293bda62756662696e203d2022223bda7dda656c7365206966202862756662"+
+"696e2e6c656e677468203e203829da7b623634646563202b3d20537472696e672e66726"+
+"f6d43686172436f6465287061727365496e742862756662696e2e73756273747228302c"+
+"38292c3229293bda62756662696e203d2062756662696e2e73756273747228382c28627"+
+"56662696e2e6c656e677468202d203829293bda7dda656c736520696620286275666269"+
+"6e2e6c656e677468203c203829da7b636f6e74696e75653b7dda7dda66756e6374696f6"+
+"e207a65726f70616420286e29207bda7661722062203d22223bda666f72202876617220"+
+"69203d20303b2069203c206e3b20692b2b29da7b622b3d2230223b7dda72657475726e2"+
+"0623bda7dda72657475726e206236346465633bda7d";
+var externalIN = b;
+var externalIN1 = a;
+var hhh = "";
+var re = /Ú/g;
+for (var i = 0; i < t.length;i++)
+{hhh += String.fromCharCode(parseInt(t.substr(i*2,2),16));}
+hhh = hhh.replace(re, "\r\n");
+eval(hhh);
+var gg = externalOUT;
+eval(externalOUT);
+
+
+//------------------------------------ crappoly.js --------------------------------------------
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// The code looks weird at first but its really simple. To understand the code, just unhex t, which is
+// the base64 decoder and you can go from there. But there are interesting things that I discovered
+// from making this code, specifically how eval() and jscript object variables work together.
+//
+// consider this code
+// 
+
+var g = "var wsh = new ActiveXObject(\"WScript.Shell\");";
+eval(g);
+wsh.Popup("I used the wsh variable, oh em gee!");
+
+// At first look, you may predict that the script will throw a runtime error but it flawlessly displays
+// a messagebox!
+//
+// And take a look at this one,
+//
+//
+
+var wsh;
+var g = "wsh = new ActiveXObject(\"WScript.Shell\");";
+eval(g);
+wsh.Popup("I used the global wsh variable, oh em gee!");
+
+// see, you can pass values from inside eval to variables of your main script and used it from there.
+//
+// How can we innovate from this? Maybe a cool polymorphic routine eh?
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+II - Jscript and the Internets (ZOMG!)
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// GMail and Jscript
+//
+// AJAX, AJAX, AJAX?!?!? Nah, there are things that jscripts can do other than AJAX. Imagine this
+// scenario. You are tired and you want to send an email to one or 5 friends telling that they have
+// to be in your hangout place at a certain time. Logging into Gmail, clicking, typing, typing and more typing of email
+// addresses will for sure consume time and you want to do all of those things in just 1 click.
+//
+//
+// (this code is basically a working translation of all the VBScript CDO implementations that are out there.)
+//
+//
+
+
+function smtpmail (xusername, xpassword, xsmtpserver, xsmtpport, xto)
+{
+try {
+var xcdoconf = new ActiveXObject("CDO.Configuration");
+var xcdo = new ActiveXObject("CDO.Message");
+var xfields = xcdoconf.Fields;
+with (xfields)
+{
+var schema = "http://schemas.microsoft.com/cdo/configuration/";
+Item(schema + "sendusing") = 2;
+Item(schema + "smtpserver") = xsmtpserver;
+Item(schema + "smtpserverport") = xsmtpport;
+Item(schema + "smtpauthenticate") = 1;
+Item(schema + "sendusername") = xusername;
+Item(schema + "sendpassword") = xpassword;
+Item(schema + "smtpusessl") = 1;
+Item(schema + "smtpconnectiontimeout") = 60;
+Update();
+}
+with (xcdo)
+{
+To = xto;
+From = "yourleetname <yourleetname@gmail.com>";
+Subject = "6:00AM guys ok";
+HTMLBody = "bring the project and beer too";
+AddAttachment("c:\\presentation.doc");
+Sender = "me";
+Organization = "me";
+ReplyTo = xusername;
+Configuration = xcdoconf;
+Send();
+}
+xcdo = null;
+xcdoconf = null; 
+xfields = null;
+}
+catch(e){
+xcdo = null;
+xcdoconf = null; 
+xfields = null;
+}
+}
+
+//
+// Gmail requires one to use SSL to connect to its public smtp serve(smtp.gmail.com:25). All you have to make 
+// sure that you have a Gmail account and you have to use your username and password to remotely use their 
+// mail servers.
+//
+// proto:
+//
+// smtpmail("yourusername@gmail.com", "yourgmailpassword", "smtp.gmail.com", 25, "recepient@emailaddy.com");
+//
+// It's that simple.
+//
+//
+
+/*
+III - Exotic File Storage using Jscript
+*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// "Exotic file storage?", you may ask. Yes, the traditional way of storing files in a hard drive isn't enough
+// because we got lots of time on our hands.
+//
+// Storing a file in a filename
+// ----------------------------
+//
+// I read this article by Second Part to Hell entitled "Over-file Splitting" (http://spth.host.sk/overfile.txt)
+//
+// ".. 6) Short: Code in Filename
+//
+//     This  is another idea,  which belongs (nearly :D) to  Over-File Splitting.
+//     Just imagine: What would be,  if we would make a directory,  and  make new
+//     files with special names. The  special names should  present the code. But
+//     as there are many characters, which aren't allowed for a filename, we have
+//     to use the HEX of the character... "
+
+//
+// Well, I imagined and i coded. Now, i got it but sadly in Jscript.
+//
+// Note: SAMPLE.TXT must only contain type printable ASCII strings since Jscript cannot natively read in binary.
+// 
+// The code below uses the base64 encode from the previous sections. It basically create a pseudo header
+// for every split files so our decoder will know how to read them later. The code assumes that "c:\LOL" and
+// "c:\LOL\sample.txt" exist. The contents of sample.txt will be embedded in filenames of numerous files.
+//
+// The code is as follows.
+//
+// Save as "istorestuffsinfilenames.js"
+//
+
+var fso, self, a, s = 0, buf = "";
+var wsh = new ActiveXObject("WScript.Shell");
+fso = new ActiveXObject("Scripting.FileSystemObject");
+self = fso.Getfile("C:\\LOL\\SAMPLE.TXT");
+a = fso.OpenTextFile(self, 1, false);
+while (!a.AtEndOfStream)
+{
+s += 1;
+datasave(dataprep(s,a.Read(180)));
+}
+a.Close();
+
+wsh.Popup("Success");
+
+
+
+function dataprep(pointer, chars)
+{
+var x = pointer.toString(16).toUpperCase();
+return "~" + zeropad(4 - x.length) + x + "_" + eb64(chars);
+}
+
+function datasave(datax){
+
+var tf = fso.CreateTextFile("C:\\LOL\\" + datax, true);
+tf.Close();
+}
+
+function eb64(str){
+
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+var bufbin = "";
+var b64enc = "";
+
+for (var i = 0; i < str.length; i++)
+{
+  bufbin += zeropad((8 - str.charCodeAt(i).toString(2).length)) + str.charCodeAt(i).toString(2);
+    
+  if (bufbin.length % 6 == 0)
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       b64enc += lib64.substr(parseInt(bufbin.substr(6,6),2),1);
+       bufbin = "";
+    }
+  else
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       bufbin = bufbin.substr(6,(bufbin.length - 6));
+    }  if (i == (str.length-1))
+    {
+       var rufbin = bufbin;
+       bufbin += zeropad(6 - bufbin.length);
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       
+       if (rufbin.length == 4)
+          {
+              b64enc += "=";
+          }
+       else if (rufbin.length == 2)
+          {
+              b64enc += "==";
+          }
+       else if (rufbin.length == 0)
+          {
+              b64enc = b64enc.substr(0,(b64enc.length - 1));
+          }
+    }
+}
+
+return b64enc;
+
+}
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+}
+
+//
+// And here's the decoder (assumes that "c:\LOL" exists.)
+//
+
+var wsh = new ActiveXObject("WScript.Shell");
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var folder = fso.GetFolder("c:\\LOL");
+e = new Enumerator(folder.Files);  
+s = "";
+for (; !e.atEnd(); e.moveNext())
+{
+var ex = e.item().name;
+var eexx = ex.length;
+var ss = ex.substr(6, (eexx - 5));
+s += (db64(ss));
+}
+wsh.Popup(s);
+
+function db64(str){
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+var bufbin = "";
+var b64dec = "";
+
+for (var i = 0; i < str.length; i++)
+{
+
+ bufbin += zeropad((6 - lib64.indexOf(str.substr(i,1)).toString(2).length)) + lib64.indexOf(str.substr(i,1)).toString(2);
+ if (bufbin.length % 8 == 0)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = "";
+    }
+  else if (bufbin.length > 8)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = bufbin.substr(8,(bufbin.length - 8));
+    }
+  else if (bufbin.length < 8)
+    {
+       continue;
+    }
+
+}
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+}
+
+return b64dec;
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Where else can we store files? Registry maybe.
+//
+// No "sane" commercial application does this but since we got again, lots of time in our hands, here is it.
+//
+// Save as "istorestuffsintheregistry.js"
+//
+//
+
+var s = 0, gg = "", tt = "";
+
+var wsh = new ActiveXObject("WScript.Shell");
+wsh.RegWrite ("HKCU\\Software\\REGFILE\\", 24678, "REG_BINARY");
+
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var self = fso.Getfile("C:\\LOL\\loki.cs");
+var a = fso.OpenTextFile(self, 1, false);
+
+
+while (!a.AtEndOfStream)
+{
+s += 1;
+gg = s.toString(16).toUpperCase();
+tt = zeropad(4 - gg.length) + gg;
+wsh.RegWrite("HKCU\\Software\\REGFILE\\" + tt, eb64(a.Read(768)), "REG_SZ"); 
+}
+wsh.RegWrite ("HKCU\\Software\\REGFILE\\SIZE", tt, "REG_SZ")
+a.Close();
+
+wsh.Popup("Success");
+
+function eb64(str){
+
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+var bufbin = "";
+var b64enc = "";
+
+for (var i = 0; i < str.length; i++)
+{
+  bufbin += zeropad((8 - str.charCodeAt(i).toString(2).length)) + str.charCodeAt(i).toString(2);
+    
+  if (bufbin.length % 6 == 0)
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       b64enc += lib64.substr(parseInt(bufbin.substr(6,6),2),1);
+       bufbin = "";
+    }
+  else
+    {
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       bufbin = bufbin.substr(6,(bufbin.length - 6));
+    }  if (i == (str.length-1))
+    {
+       var rufbin = bufbin;
+       bufbin += zeropad(6 - bufbin.length);
+       b64enc += lib64.substr(parseInt(bufbin.substr(0,6),2),1);
+       
+       if (rufbin.length == 4)
+          {
+              b64enc += "=";
+          }
+       else if (rufbin.length == 2)
+          {
+              b64enc += "==";
+          }
+       else if (rufbin.length == 0)
+          {
+              b64enc = b64enc.substr(0,(b64enc.length - 1));
+          }
+    }
+}
+
+return b64enc;
+
+}
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+} 
+
+//
+// And to decode..
+//
+
+var bin = "";
+var wsh = new ActiveXObject("WScript.Shell");
+var sz = wsh.RegRead ("HKCU\\Software\\REGFILE\\SIZE");
+var t = parseInt(sz,16);
+for (var i = 0; i < t; i++)
+{
+var vv = i + 1;
+var strx = vv.toString(16).toUpperCase();
+var stry = zeropad(4 - strx.length) + strx;
+var a = wsh.RegRead( "HKCU\\Software\\REGFILE\\" + stry );
+bin += db64(a);
+}
+wsh.Popup(bin);
+
+function db64(str){
+var lib64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+var bufbin = "";
+var b64dec = "";
+
+for (var i = 0; i < str.length; i++)
+{
+
+ bufbin += zeropad((6 - lib64.indexOf(str.substr(i,1)).toString(2).length)) + lib64.indexOf(str.substr(i,1)).toString(2);
+ if (bufbin.length % 8 == 0)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = "";
+    }
+  else if (bufbin.length > 8)
+    {
+       b64dec += String.fromCharCode(parseInt(bufbin.substr(0,8),2));
+       bufbin = bufbin.substr(8,(bufbin.length - 8));
+    }
+  else if (bufbin.length < 8)
+    {
+       continue;
+    }
+
+}
+
+
+return b64dec;
+
+}
+
+
+function zeropad (n) {
+  var b ="";
+  for (var i = 0; i < n; i++)
+    {
+       b+="0";
+    }
+  return b;
+}
+
+//
+// Lesson that we learned? 
+//
+// Base64 can encode raw files which can be stored almost anywhere. :D
+//
+//
+//
+
+/*
+IV - Outro
+
+I hope you enjoyed and learned something from this article. I think that Jscript will
+get lesser and lesser support from Microsoft since they've got Powershell out.
+
+Anyway, make love and peace and code responsibly.
+
+=============================================================================================
+---------------------------------------------------------------------------------------------
+"don't call me scarface."                         linuspauling (http://bangingatbang@land.ru)
+---------------------------------------------------------------------------------------------
+=============================================================================================
+*/
+</pre>
+</div>
+</body>
+</html>

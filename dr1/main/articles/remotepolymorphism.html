@@ -1,0 +1,240 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">Remote Polymorphism and Customized Viruses</a></div>
+<pre>
+<!--- put article/source here --->
+/*******************************************************************************
+================================================================================
+		   Remote Polymorphism and Customized Viruses		     		      		    		       		    
+                             by freeon/[DoomRiderz]                                                 
+================================================================================
+*******************************************************************************/
+INDEX:
+0) Introduction
+
+1) Finding specific requirements and making correct assumptions.
+
+2) Using Communication and polymorphism.
+
+3) Conclusion
+
+
+
+
+
+0) Introduction
+
+   This article is a theoretical article more or less that is based on a set of 
+   concepts that are polymorphism and communication and combing these two 
+   concepts into a more advanced technique. The idea came to me when I was 
+   working on a new program, I was trying to understand the global workflow of 
+   a program from creation to use. 
+
+   Basic Steps:
+   1) An idea is conceived with a purpose. 
+   2) The idea is turned into a set of assumptions/requirements.
+   3) The developer creates the code based on the assumptions and 
+      requirements.
+   4) The program is finished and is implemented into a system and executed.
+   
+   For every virus and worm there is a purpose which the author wants it to serve. 
+   Since the virus/worm is bound to a set of requirements it's illogical to 
+   concieve that it will be able to be as effective as it could be.  
+   For example a skype worm assumes that the system has skype installed. 
+   A prepender virus assumes that it will be able to find executables with 
+   write permissions to infect. Now this is fine if you want your virus/worm to 
+   spread to only those mediums but if these assumptions are false the
+   virus/worm doesn't stand a chance.
+   
+   So now we have a couple different problems. 
+   
+   1) How and where is the virus/worm supposed to get and know what the 
+      requirements are for each system
+
+   2) How is the virus/worm supposed to be able retrieve and communicate 
+      specific information based on the system in order to make a virus/worm
+      won't fail.
+
+   3) How is the virus/worm supposed to be able to morph itself to something 
+      that is specific to the requirements.
+
+
+
+
+
+1) Finding specific requirements and making correct assumptions.
+   
+   Requirement:
+   A requirement is something wanted or needed in order for something to 
+   continue.
+
+   Assumption:
+   a fact or statement (as a proposition, axiom, postulate, or notion) taken 
+   for granted.
+   
+   So we know what a requirement and an assumption are. The main goal though 
+   however is to make the correct requirements and assumptions for our 
+   virus/worm for a specific system.
+ 
+   Finding these are easy. Most of us have done them before in 
+   our viruses/worms. In most cases we do it by checking if something exists. 
+   For example we check directory paths,registry entries,chat clients. 
+   Below is a list of obvious requirements for most viruses/worms.
+    
+   - email clients (outlook,thunderbird,evolution)
+   - instant messaging (skype,irc,aim,msn,yahoo)
+   - p2p (Ares,Kazza,limewire)
+   - running services (http,ftp,ssh)
+   - internet connection type (dial up, cable, vpn)
+   - network shared folders (\\computer\$c)
+   - computer paths and drives (C:\,hda)
+   - usernames and user permissions
+   - archiving programs (zip,rar)
+   - system information (o.s. version, hard drive size, runtime env.)
+   - antivirus information (norton,fpe etc..)
+   - firewall information
+
+   Now what we see now are virus/worms out there that cater to a hole bunch of
+   different software. They try and pack network spreading, p2p, email spreading
+   all into one program. This has several drawbacks for example to name a few
+   
+   1) file size increases
+   2) chance of error is increased.
+   3) more constants are used.
+   4) ability for antivirus to detect is much easier.
+
+   The idea is to try and pack so much in it that won't fail. Now we are going 
+   to take the opposite approach we are going to make a customized virus/worm 
+   based off the system itself the idea of polymorphism with an interesting 
+   twist.
+
+
+
+
+
+2) Using Communication and polymorphism..
+
+   Now previously we talked about how information is gathered and can be used 
+   to make a customized virus. Now we can go more in depth more.
+
+   First we start with our virus/worm we will call it BOB. Consider BOB as the 
+   creator, GOD, whatever. BOB creates 2 programs we will call one
+   Tommy and another called Emily. Each program is generated with random
+   variable names, body moving, etc.. to keep being detected.
+
+   ------------       -------
+   |          | ======|tommy|
+   |   BOB    |       -------
+   |          | ======|emily|
+   ------------       -------
+   
+   BOB's purpose:
+   1) Create tommy and emily and make sure their code is different each time
+      they are created.
+   2) Upon system start BOB will start tommy and emily to make sure they are
+      running.
+   3) If tommy or emily is deleted he will create a new varient to replace the
+      one that was lost. 
+   4) Makes sure he's not deleted from autorun.
+   5) Based on system information program tommy to spread to other systems and
+      collect information.
+
+   Tommy's Purpose:
+   
+   Tommy is the hunter and gatherer. His main purpose is to get off the system.
+   and get onto another system. Once he's on another system and excuted he 
+   collects and gathers information on the new system and sends it to Emily.
+ 
+   1) spread to other systems with specific options coded from BOB
+   2) once executed on another system.
+      1) check for another BOB
+         if another BOB varient is not found then 
+         1) collect information on the system
+            - communication mediums
+            - system information
+         2) send information to emily 
+            - if cant connect 
+              - try ip address of previous infected system
+              - loop and keep trying
+              - scan ip ranges for emily to find a infected system.
+         3) recieve code from emily 
+         4) compile code
+            if code compiles correctly with no errors:
+            1) execute generated executable (BOB) 
+               1) if launch is successful
+                  1) terminate
+                  goto BOB process and start over.
+            else
+	       goto step 2) and try again
+   
+   Emily's Purpose:
+
+   Emily is to remain on the system. She is going to act as the reciever and 
+   creator much like a female in real world :) . She basically will listen for 
+   information, decide based on that information what options to build code for 
+   and send the code back to tommy which is on the new system
+
+   1) Listen for incoming connections
+      if connection is made
+      1) recieve information for new system
+      2) based on information build code to buid a new customized BOB.
+         - change variable names
+         - if av is on the system put in code to disable av at startup
+         - body moving to make sure that code is executed in different places
+         - logic changes
+            - change loop types
+          - include ip and information of the infected host it's running on 
+          - decide which startup method to do
+            - autorun registry
+          - installation path and registry name to check
+          
+      3) send code back to tommy on the new system.
+      4) end communication and resume listening.
+   
+   Now you might be saying this is great but why do I need all these programs
+   I can program all this in one program and Yes you could but the idea is that
+   one program that acts as a poly engine which creates a specific virus (Emily)
+   for the computer it's going to run on another advantage is that you keep 
+   everything small and portable. Tommy will be generated very small and has a
+   higher probablity of NOT failing, andBOB has the ability to make sure that 
+   his children are working correctly which is good preventative measures.
+
+
+
+
+
+3) Conclusion
+
+   Although this concept may seem a little to abstract and far fetched it solves
+   problems to bloated viruses, it makes our virus/worms more accurate in 
+   completing their purpose, it makes it harder for antivirus to detect all the 
+   varients that our poly engines can create, and it adds protection and
+   prevenative measures. I hope this text makes some sense and you can take
+   something from it and use it. Thanks for reading!
+
+   free0n - DoomRiderz
+   http://free0n.host.sk
+   phree0n@hotmail.com
+   04/01/2007 (Happy April Fools!)
+   
+
+
+
+     
+
+
+
+ 
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">rfick_rb by SkyOut</a> || <a href="bin/SkyOut/rfick_rb/">Project Folder</a></div>
+<pre>
+<!--- put article/source here --->
+#!/usr/bin/env/ruby
+
+#Author: SkyOut
+#Date: June 2007
+#Contact: skyout[-at-]smash-the-stack[-dot-]net
+#Websites: http://www.smash-the-stack.net/
+#
+#RFICK, which stands for Ruby File Integrity ChecKer is
+#a simple proof-of-concept ruby script, that saves hash
+#values in a specified directory (which you have to set
+#before using it) and afterwards can check whether the
+#hashvalues have changed. If so a warning will be displayed
+#to make you recognize the change!
+#
+#DO NOT FORGET TO MODIFY THE VARIABLE 'homepath', in
+#this directory a folder 'rfick' will be created, where
+#the files 'md5.txt' and/or 'sha1.txt' and/or 'rmd160.txt'
+#will be stored. They contain the hashvalues and the paths
+#to the files of those values. Afterwards they will be used
+#to check if the hashvalue has changed, the most important
+#part of the script.
+#
+#To start the script the first time you for example do something
+#like:
+#
+#$ ruby rfick.rb -create MD5 /home/user
+#
+#This will store the hashvalues of the files in your home
+#directory to 'homepath'/rfick/md5.txt! To recheck those
+#values later you just have to type:
+#
+#$ ruby rfick.rb -check MD5
+#
+#and all values will be compared with the current hashvalues
+#of the files. If anything has changed you will get a warning.
+
+require 'digest/md5'
+require 'digest/sha1'
+require 'digest/rmd160'
+
+# Display the usage dialogue
+def usage()
+	puts ""
+	puts "-----------------------------------------"
+	puts "| Ruby File Integrity ChecKer by SkyOut |"
+	puts "-----------------------------------------"
+	puts ""
+	puts "-----------------------------------------------------------------------"
+	puts "| Usage: ruby rfick.rb [-check|-create] [MD5|SHA1|RMD160] [directory] |"
+	puts "-----------------------------------------------------------------------"
+	puts ""
+	exit(0)
+end
+
+# Check if the right parameters have been set
+if (ARGV[0] == nil) || (ARGV[1] == nil)
+	usage
+end
+
+if (ARGV[0] == "-create") && (ARGV[2] == nil)
+	usage
+end
+
+###############################################
+# HAS TO BE SET BY THE USER AT FIRST USE!!!   #
+###############################################
+# WILL CREATE A FOLDER "rfick" FOR THE FILES  #
+###############################################
+homepath = "/home/user"                       #
+###############################################
+
+# Create the directory to store our files
+if !File.exist?("#{homepath}/rfick")
+	Dir.mkdir("#{homepath}/rfick")
+end
+
+# Check whether the MD5, SHA1 or RMD160 has been chosen
+if (ARGV[0] == "-create")
+	if (ARGV[1] == "MD5")
+		md5hash   = File.open("#{homepath}/rfick/md5.txt", File::WRONLY|File::TRUNC|File::CREAT, 0777)
+	elsif (ARGV[1] == "SHA1")
+		sha1hash   = File.open("#{homepath}/rfick/sha1.txt", File::WRONLY|File::TRUNC|File::CREAT, 0777)
+	elsif (ARGV[1] == "RMD160")
+		rmd160hash   = File.open("#{homepath}/rfick/rmd160.txt", File::WRONLY|File::TRUNC|File::CREAT, 0777)
+	else
+		usage
+	end
+end
+
+# Create the file with the hash values
+if (ARGV[0] == "-create")
+
+	Dir.open(ARGV[2]) do |dir|
+		dir.each do |file|
+
+			next if file == "." || file == ".."
+
+			if (ARGV[2] == "/")
+				path = ARGV[2] + file
+			else
+				path = ARGV[2] + "/" + file
+			end
+
+			if !File.directory?("#{path}")
+				if (ARGV[1] == "MD5")
+					md5 = Digest::MD5.hexdigest(File.open("#{path}", "rb") { |f| f.read })
+					md5hash.puts "#{path} | MD5 | " + md5
+				elsif (ARGV[1] == "SHA1")
+					sha1 = Digest::SHA1.hexdigest(File.open("#{path}", "rb") { |f| f.read })
+					sha1hash.puts "#{path} | SHA1 | " + sha1
+				else (ARGV[1] == "RMD160")
+					rmd160 = Digest::RMD160.hexdigest(File.open("#{path}", "rb") { |f| f.read })
+					rmd160hash.puts "#{path} | RMD160 | " + rmd160
+				end
+			end
+
+		end
+	end
+
+# Check whether the hash values have changed or not
+elsif (ARGV[0] == "-check")
+
+	# Check for MD5 ('md5.txt')
+	if (ARGV[1] == "MD5")
+
+		# Make sure the file 'md5.txt' really exists
+		if !File.exist?("#{homepath}/rfick/md5.txt")
+			puts "FILE \'md5.txt\' DOES NOT EXIST IN THE SPECIFIED DIRECTORY!"
+			puts "EXITING ..."
+			exit(0)
+		end
+
+		warnings = 0
+		md5hash2 = File.open("#{homepath}/rfick/md5.txt", File::RDONLY)
+
+		begin
+		puts ""
+		puts "--- STARTING FILE INTEGRITY CHECK USING MD5 ---"
+		puts ""
+		while (line = md5hash2.readline)
+
+				$filepath = line
+				$filepath = $filepath.split(" ")
+				$filepath = $filepath.fetch(0)
+			
+				$hash = line
+				$hash = $hash.split(" ")
+				$hash = $hash.fetch(4)
+
+				$currenthash = Digest::MD5.hexdigest(File.open("#{$filepath}", "rb") { |f| f.read})
+				
+				# Compare the current hash with the saved hash
+				if ($hash == $currenthash)
+					next
+				elsif
+					warnings += 1
+					puts "(!)WARNING(!) HASH CHANGED FOR #{$filepath}"
+				end
+		end
+		rescue EOFError
+			md5hash2.close
+		end
+
+		puts ""
+		puts "--- FILE INTEGRITY CHECK FINISHED ---"
+		puts "WARNING(S): #{warnings}"
+		puts ""
+
+	# Check for SHA1 ('sha1.txt')
+	elsif (ARGV[1] == "SHA1")
+
+		# Make sure the file 'sha1.txt' really exists
+		if !File.exist?("#{homepath}/rfick/sha1.txt")
+			puts "FILE \'sha1.txt\' DOES NOT EXIST IN THE SPECIFIED DIRECTORY!"
+			puts "EXITING ..."
+			exit(0)
+		end
+
+		warnings = 0
+		sha1hash2 = File.open("#{homepath}/rfick/sha1.txt", File::RDONLY)
+
+		begin
+		puts ""
+		puts "--- STARTING FILE INTEGRITY CHECK USING SHA1 ---"
+		puts ""
+		while (line = sha1hash2.readline)
+
+				$filepath = line
+				$filepath = $filepath.split(" ")
+				$filepath = $filepath.fetch(0)
+			
+				$hash = line
+				$hash = $hash.split(" ")
+				$hash = $hash.fetch(4)
+
+				$currenthash = Digest::SHA1.hexdigest(File.open("#{$filepath}", "rb") { |f| f.read})
+				
+				# Compare the current hash with the saved hash
+				if ($hash == $currenthash)
+					next
+				elsif
+					warnings += 1
+					puts "(!)WARNING(!) HASH CHANGED FOR #{$filepath}"
+				end
+		end
+		rescue EOFError
+			sha1hash2.close
+		end
+
+		puts ""
+		puts "--- FILE INTEGRITY CHECK FINISHED ---"
+		puts "WARNING(S): #{warnings}"
+		puts ""
+
+	# Check for RMD160 ('rmd160.txt')
+	elsif (ARGV[1] == "RMD160")
+
+		# Make sure the file 'rmd160.txt' really exists
+		if !File.exist?("#{homepath}/rfick/rmd160.txt")
+			puts "FILE \'rmd160.txt\' DOES NOT EXIST IN THE SPECIFIED DIRECTORY!"
+			puts "EXITING ..."
+			exit(0)
+		end
+
+		warnings = 0
+		rmd160hash2 = File.open("#{homepath}/rfick/rmd160.txt", File::RDONLY)
+
+		begin
+		puts ""
+		puts "--- STARTING FILE INTEGRITY CHECK USING RMD160 ---"
+		puts ""
+		while (line = rmd160hash2.readline)
+
+				$filepath = line
+				$filepath = $filepath.split(" ")
+				$filepath = $filepath.fetch(0)
+			
+				$hash = line
+				$hash = $hash.split(" ")
+				$hash = $hash.fetch(4)
+
+				$currenthash = Digest::RMD160.hexdigest(File.open("#{$filepath}", "rb") { |f| f.read})
+				
+				# Compare the current hash with the saved hash
+				if ($hash == $currenthash)
+					next
+				elsif
+					warnings += 1
+					puts "(!)WARNING(!) HASH CHANGED FOR #{$filepath}"
+				end
+		end
+		rescue EOFError
+			rmd160hash2.close
+		end
+
+		puts ""
+		puts "--- FILE INTEGRITY CHECK FINISHED ---"
+		puts "WARNING(S): #{warnings}"
+		puts ""
+
+	end
+
+else
+	usage
+end
+
+# Check whether MD5, SHA1 or RMD160 has been chosen
+# and close the file handler finally
+if (ARGV[0] == "-create")
+	if (ARGV[1] == "MD5")
+		md5hash.close
+	elsif (ARGV[1] == "SHA1")
+		sha1hash.close
+	else (ARGV[1] == "RMD160")
+		rmd160hash.close
+	end
+end
+
+exit(0)
+</pre>
+</div>
+</body>
+</html>

