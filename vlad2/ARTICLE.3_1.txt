@@ -1,0 +1,50 @@
+
+
+   Mail!
+   +---+
+
+   Looking on the local BBS's and checking out the internet newsgroups,
+   there are quite a few virus related mail spots.  Some consist of
+   people asking what the weather is like, and how the sports back home
+   are, and some are just plain full of AVers who believe that I am a
+   murderer.
+
+   NuKEnet seems to have gone into a demise of late, we have a slight
+   feed problem here I think (no one else agrees), but when the mail
+   does get through there is hardly anything worth reading.  Same also
+   with CRISnet, there seems to be nothing coming through except the
+   occasional person asking what is a virus, and where can I get VCL2.
+
+   The echos carried on the Fidonet backbone (other than nuke_the_world)
+   all are a loss in some way.  VIRUS, VIRUS_NFO, VIRUS_INFO .. each
+   have their own traits which makes them pretty much a shit place to
+   post.  VIRUS and VIRUS_INFO, well I'd say it's the moderators that
+   suck there, and of course all the AVers who descend upon anyone
+   making the slightest statement that viruses are not evil and do not
+   kill people.
+
+   As for VIRUS_NFO, well.. heh, if you're looking for plenty of gung-ho
+   supposed krad VX d3wds this might be the place to look.  There are
+   plenty of people here asking for viruses and chuckling about the last
+   cross posting of XXXnet messages to the AV echos.  Nope, in general
+   I just don't bother with any of them.
+
+   On internet there was only one newsgroup dealing with viruses and
+   this is comp.virus, this is pretty much heavily moderated and you
+   can pick up your favourite virus-l digests here (hahaha).  Definately
+   not a place for free expression of viral thought.
+
+   Yesterday (well it was when i wrote this) a new newsgroup was
+   created alt.comp.virus which will be unmoderated and not just another
+   AV channel which they can blab through.  It has yet to spread but
+   I guess it will get places eventually.
+
+   Nup, when it comes to mail I say just about forget it, come to
+   IRC and meet the people you've been mailing all this time :).  It's
+   a much better way to stay in touch with people.  heh.. I wonder
+   if the sysop of the bbs i'm on censors his mail.. you never know..
+   perhaps that's why everything seems like crap.
+
+   Metabolis/VLAD
+   (Yet another full 'o crap special from Metabolis)
+

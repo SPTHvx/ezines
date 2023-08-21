@@ -1,0 +1,37 @@
+
+    Introduction
+    +----------+
+
+    Well here we are, the VLAD magazine issue #2 finally released! We had
+    a few problems with BIOS Meningitis towards the end there, and a
+    slight rewrite of the magazine code but it's here :).  Unlike issue
+    one, all of the source in this magazine should work since we've had
+    more time to bug check etc.
+
+    Due to a bit of bitching about us locally here we only released the
+    magazine overseas, and our plan seems to have worked.  It has taken
+    quite some time for issue one to filter its way into the Australian
+    scene.  (not that there is much of a scene here).
+
+    Since the last magazine there has been an addition to the group,
+    Darkman being our latest addition.  We hope he will go a long way
+    with VLAD and make it much easier for us to release the magazine on
+    time :).  It helps to have more than two people writing articles.
+
+    All summed up the magazine isn't too big and the articles are
+    fairly short, but I can't really be bothered reprinting fidonet
+    flame wars etc.  Just remember it's quality not quantity and I'd
+    say we've done a fair job in this one.
+
+    Due to popular demand we have re-released issue 1 of the magazine
+    in a text format and that should be working it's way around the
+    place right now.  From now on the viewer will read the articles
+    from disk rather than having them all included in the EXE file,
+    so people will be able to read it as text if they don't have an
+    IBM based system or something.
+
+    Anyway, we've definately improved a lot on the last issue and
+    there should be a lot better code this time :).  So keep learning,
+    coding etc.. whatever, give credit where it's due.
+
+    Metabolis/VLAD

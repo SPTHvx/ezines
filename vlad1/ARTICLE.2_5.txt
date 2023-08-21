@@ -1,0 +1,89 @@
+                                                                              
+   Polymorphism is where the virus actually modifies it's code so that each
+subsequent generation of the virus is functionally the same but physically
+different.  This works by replacing instructions with instructions that are
+different but do the same thing.  For example:
+
+     XOR     BP,BP                   ;db 31h, 0edh
+     SUB     BP,BP                   ;db 29h, 0edh
+
+Both of these do exactly the same thing - zero BP.  But the actual bytes
+are different!  Thus if these bytes are replaced with each other at random
+it makes signature scanning impossible.  This is very useful if used on the
+stub (the code before the decryption) as this is the only non-variable
+place in the virus.  The overhead isn't much. Algorithmic scanning is the
+only solution for the AV companies, but this is alot harder to do and makes
+them work for their money.  All scanners have their own inbuilt MTE, SMEG
+and NED detectors but they are special additions.
+
+   Polymorphism is normally added by keeping a database of instructions
+and selecting from these at random.  The randomiser is almost always
+related to the timer.  There are two ways:
+
+     ;8 bit random number
+     IN      AL,40H                  ;Puts a random value in AL.
+                                     ;40h is the timer port.
+
+     ;16 bit random number
+     IN      AX,40H                  ;Puts a random value in AX.
+
+     ;Another random number
+     XOR     AH,AH                   ;Puts a random value in DX.
+     INT     1AH                     ;1ah function 0 read system timer.
+                                     ;This is basically the same as the
+                                     ;previous examples.
+
+Then you can XOR the number or AND it to add more randomness.
+
+   The database is whatever you need, but for ease of programming a
+power of two is best (2,4,8,16) with two byte instructions.  Then you can
+get your random number and AND off the bits you don't need.  If you had
+four random instructions to choose from you'd:
+
+     AND     AX,3                    ;3 = 00000011b
+
+Which would leave it with only 4 possibilities.
+
+The offset of your database is moved into a register and the random number
+multiplied by two would be added to it (because the instructions are two
+bytes long).  Now you have your random instruction.  All you do is simply
+move it where it is needed and you're done!
+
+Here is all that added together into some simple polymorphics:
+
+     IN      AX,40H                  ;Random number in AX.
+     AND     AX,3                    ;Between 0-3.
+     SHL     AX,1                    ;Multiply by two because instructions
+                                     ;are two bytes long.
+
+     MOV     SI,OFFSET DATABASE      ;SI points to start of database.
+     ADD     SI,AX                   ;Add SI with AX the random offset.
+     MOV     DI,OFFSET POLY1         ;Put the random instruction here.
+     MOVSW                           ;Move the instruction.
+     RET                             ;Finished.
+
+     ;Garbage 'do nothing' instructions.
+DATABASE     DB      2CH,0           ; = sub al,0
+             DB      89H,0C0H        ; = mov ax,ax
+             DB      88H,0C9H        ; = mov cl,cl
+             DB      21H,0D2H        ; = and dx,dx
+
+This is only simple stuff but thats why it's called a beginners lesson! As
+you can see it doesn't take up too much code at all.  MTE and NED are much
+better but they take up 1000+ bytes!  That's overdoing it!
+
+   Other places of use are in the encryptor.  Random garbler bytes can add
+thousands more variations to your virus than the normal 255.  Randomise
+the actual number of variable bytes put in and you can have a variable
+length encryptor.  The actual polymorphic routine should be kept inside the
+encryption and called before the virus is written to file.
+
+   A few things to be aware of are that your databases must contain
+instructions of the same length.  You can have databases with three byte
+instructions but you can't mix the lengths.  Go through DEBUG and enter
+the code to grab the bytes.
+
+   That was a short walk through of a fairly simple concept.  I know there
+aren't any polymorphic viruses included with this magazine but be assured
+there will be next time!  I hope someone has learnt something from this.
+

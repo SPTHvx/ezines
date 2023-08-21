@@ -1,0 +1,41 @@
+
+    Hello, and welcome to the first issue of the VLAD magazine, hopefully
+a number one Australian export :).  At the moment there are no set release
+dates for the magazine as we don't have too much input, but we're getting
+there!
+                                                                              
+    Here in Goondiwindi it's not too common to come across someone that
+writes virii and that has been all too apparent in our search for members
+around the place.  If there's anyone out there who thinks they have the
+talent and wants to get in contact with us then send a message to us over
+NuKEnet.  At the moment we don't have any official "dist" sites but if
+anyone wants to fill that gap then send us a message.
+                                                                              
+    As to why we've released this magazine (it's purpose) check out the
+following article on the "aims of VLAD" :).  We're just a *small* bunch
+of people who want to educate the world about our virus style, and also
+to push Australia a little bit further in the scene.  The only other small
+group of individuals to try anything was SCP and I haven't heard anything
+from them in quite some time (they died methinks).
+                                                                              
+    If you want something done, you do it yourself.  Well, we've done it
+and hope to keep on doing it for quite some time.  There are a few virii
+in this magazine and all are original from the ground up.  We're not a
+death and destruction virus group so our virii should spread quite far.
+                                                                              
+      Anyway, the magazine will probably be this sort of hyper text type      
+effort from now on.  All fully assemblerised and optimized for speed :).
+Whether you're AV or VX I'm sure there is something in here that you may
+find of interest.  The virii we publish can be used either way, for virus
+research or as a learning tool to create more.  We cannot help whichever
+way this goes.  As long as it's useful to someone I think we've done our
+job.
+                                                                              
+      I think that's enough for the introduction article, I'm not really      
+the best writer but the magazine I'm sure will be one to reckon with.
+So read on, and enjoy!  This isn't a money making scheme for AVers or
+a big endorsement of virus exchange.  It's the VLAD magazine, and I
+hope you like it :).
+
+Metabolis/VLAD
+

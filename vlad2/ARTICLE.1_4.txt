@@ -1,0 +1,27 @@
+
+    Members/joining
+    +-------------+
+
+    Since issue 1 we have gained two new members, also you may remember
+    us having a member in #1 who was going to contribute to this issue,
+    well due to lack of synapse response from him we gave him the boot :)
+
+    Members..
+      Metabolis }
+      Qark      } Australia
+      Darkman   } Denmark
+      Automag   } France
+
+    (VLAD is still Australian based ;)
+
+    Each of us do the same sort of thing, i.e. code and write articles
+    so it's not really worth putting in what we each do individually ;).
+
+    If you think you are good enough to join the VLAD team, then get
+    in touch with us somehow (check out the dist article) and give us
+    an example of what you can do.  Just remember that we don't bother
+    with destructive code so if you want to join, that will have to
+    apply to the work you do with us.
+
+    Metabolis/VLAD
+

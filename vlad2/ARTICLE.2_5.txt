@@ -1,0 +1,267 @@
+
+		   C O D E   O P T I M I Z A T I O N
+			    An Assembly Guide
+			       Written by
+             D   A   R   K   M   A   N   /   V   L   A   D
+
+
+-------------------------------------------------
+Use the AL/AX register instead of other registers
+-------------------------------------------------
+  Sometimes it is more optimized to use the AL/AX register instead of the
+other registers, comparing with registers could be done like this:
+
+	     cmp     bx,1234h             ; Compare BX with 1234h (4 bytes)
+
+A more optimized way of doing this is:
+
+	     cmp     ax,1234h             ; Compare AX with 1234h (3 bytes)
+
+  However this can ONLY be done when the AL/AX register DOESN'T hold an
+important value, but if the AL/AX register is used many times it COULD
+be more optimized to use it even if you have to PUSH it and then POP it
+afterwards.
+
+----------------------------------------------
+Use the Data Segment instead of other segments
+----------------------------------------------
+  Moving a value from the memory to AX could be done like this:
+
+	     mov     ax,es:[si]           ; Move ES:[SI] to AX (3 bytes)
+
+A more optimized way of doing this is:
+
+	     mov     ax,ds:[si]           ; Move DS:[SI] to AX (2 bytes)
+
+----------------
+Clear a register
+----------------
+  Clearing a register could be done like this:
+
+	     mov     ax,00h              ; Clear AX (3 bytes)
+
+A more optimized way of doing this is:
+
+	     sub     ax,ax               ; Clear AX (2 bytes)
+
+Or a equally optimized way of this is:
+
+	     xor     ax,ax               ; Clear AX (2 bytes)
+
+---------------------
+Clear the DX register
+---------------------
+  Clearing the DX register could be done like this:
+
+	     mov     dx,00h              ; Clear DX (3 bytes)
+
+Or like this:
+
+	     xor     dx,dx               ; Clear DX (2 bytes)
+
+A more optimized way of doing this is:
+
+	     cwd                         ; Convert word to doubleword (1 byte)
+
+However this can ONLY be done if the AX register is less than 8000h.
+
+---------------------------
+Test if a register is clear
+---------------------------
+  Testing if a register is clear could be done like this:
+
+	     cmp     ax,00h              ; AX = 0? (3 bytes)
+
+A more optimized way of doing this is:
+
+	     or      ax,ax               ; AX = 0? (2 bytes)
+
+----------------------------------------------------
+Use a 16 bit register instead of two 8 bit registers
+----------------------------------------------------
+  Moving a value to a 16 bit register could be done like this:
+
+	     mov     ah,12h              ; Move 12h to AH (2 bytes)
+	     mov     al,34h              ; Move 34h to AL (2 bytes)
+
+A more optimized way of doing this is:
+
+	     mov     ax,1234h             ; Move 1234h to AX (3 bytes)
+
+However this can ONLY be done if the two 8 bit registers are the high and low
+register of the same 16 bit register.
+
+---------------------------------------------------------
+Move the AL/AX register to another register or vice versa
+---------------------------------------------------------
+  Moving the AL/AX register to another register could be done like this:
+
+	     mov     bx,ax               ; Move AX to BX (2 bytes)
+
+A more optimized way of doing this is:
+
+	     xchg    ax,bx               ; Exchange AX with BX (1 byte)
+
+  However this can ONLY be done if the source registers value is unimportant
+afterwards, because the source register will hold the destination registers
+value.
+
+-------------------------------
+Use DI/SI as base instead of BP
+-------------------------------
+  Moving a value from the memory to AX could be done like this:
+
+	     mov     ax,ds:[bp]           ; Move DS:[BP] to AX (3 bytes)
+
+A more optimized way of doing this is:
+
+	     mov     ax,ds:[si]           ; Move DS:[SI] to AX (2 bytes)
+
+  If the DI/SI index is used many times it COULD be more optimized to used
+the DI/SI index even if you have to PUSH it and then POP it afterwards.
+
+--------------------------------------------------------
+Use the CMPS, LODS, MOVS, SCAS, STOS and REP instuctions
+--------------------------------------------------------
+  Moving a value from the memory to AX could be done like this:
+
+	     mov     ax,ds:[si]           ; Move DS:[SI] to AX (2 bytes)
+
+A more optimized way of doing this is:
+
+	     lodsw                        ; Load AX with DS:[DI] (1 bytes)
+
+  Remember to clear/set the direction flag. Sometimes it COULD be more
+optimized to use these instructions even if you have to PUSH and then POP the
+used registers/segments afterwards.
+
+---------------------------
+Move a segment to a segment
+---------------------------
+  Moving a segment to a segment is weird, because you can't move a segment to
+another segment directly by:
+
+	     mov     ds,cs               ; Can't do this!
+
+Because of that, you could use a register as a temporary storage, like this:
+
+	     mov     ax,cs               ; Move CS to AX (2 bytes)
+	     mov     ds,ax               ; Move AX to DS (2 bytes)
+
+  But if an important value is held by the AX register, you have to PUSH and
+the POP it afterwards, that would add the code by 2 bytes, a more optimized
+way of doing this is:
+
+	     push    cs                  ; Save CS at stack        (1 byte)
+	     pop     ds                  ; Load DS from stack (CS) (1 byte)
+
+-----------------------------------------------
+Use SHL/SHR instead of the DIV/MUL instructions
+-----------------------------------------------
+  Multiplying AL with 2 could be done like this:
+
+	     mov     bh,02h              ; Move 02h to BH (2 bytes)
+	     mul     bh                  ; Multiply AL with BL (2 bytes)
+
+A more optimized way of doing this is:
+
+	     shl     al,01h              ; Multiply AL with 02h (2 bytes)
+
+This can ONLY be used if the source can be divided by 2.
+
+
+----------------------------------------
+Use object codes instead of instructions
+----------------------------------------
+  A far call could be done like this:
+
+	     call    far address         ; Make a far call (3 bytes)
+address      dd      ?                   ; Address of a procedure (4 bytes)
+
+A more optimized way of doing this is:
+
+callfar      db      9ah                 ; Object code of a far call (1 byte)
+address      dd      ?                   ; Address of a procedure (4 bytes)
+
+This will ONLY optimize your code if the immediate value after the object 
+code is a word or greater.
+
+--------------
+Use procedures
+--------------
+  If some code is used many times and it's size is large, it COULD be more
+optimized to use it as a procedure, the following formula can calculate if
+it is more optimized to use a procedure:
+
+Bytes saved = (procedure size - 4) * number of invocations - procedure size
+
+  Figure 4 in the parentheses of the formula is there because the size of the
+CALL and RET instructions together are 4 bytes.
+
+------------------------
+Make procedures flexible
+------------------------
+  Make procedures flexible if possible, this CAN optimize your code, because
+the redundant code is removed, a example from this is:
+
+movefptrend  proc    near                 ; Move file pointer to the end
+	     mov     al,02h               ;  "        "      "   "   "
+movefileptr  proc    near                 ; Move file pointer to end/beginning
+	     cwd                          ; Convert word to doubleword
+movefpointer proc    near                 ; Move file pointer to a offset
+	     xor     dx,dx                ; Clear DX
+	     mov     ah,42h               ; Move file pointer
+	     int     21h                  ; Do it!
+	     ret                          ; Return!
+	     endp
+	     endp
+	     endp
+
+  Use the formula from above to calculate if the flexible procedures can be
+used to optimize your code.
+
+----------------------------------
+Use all the information in the DTA
+----------------------------------
+  DTA (Disk Transfer Area) is used by service 4eh and 4fh in the DOS functions
+interrupt (INT 21h), the contents of the DTA block are:
+
+                ----------------------------------------
+		Offset Size  Contents
+                ----------------------------------------
+		  00   Byte  Drive letter
+		 01-0B Bytes Search template
+		 0C-14 Bytes Reserved
+		  15   Byte  File attribute
+		 16-17 Word  File time
+		 18-19 Word  File date
+		 1A-1D DWord File size
+		 1E-3A Bytes ASCIIZ filename + extension
+                ----------------------------------------
+
+- If your want to reset the files time and date afterwards, then use the
+  DTA instead of service 57h in INT 21h.
+- If you only want to infect one file, then change the drive letter to a
+  illegal value instead of making redundant code in the exit part of the
+  program, if you change the drive letter to a illegal value an error will
+  occur.
+
+However, this will ONLY optimize your code, if you are already using the DTA.
+
+---------------------
+Final tips and tricks
+---------------------
+- Remove all unnecessary NOPs
+- Move your code around, to see if some JUMP NEAR instructions could be
+  replaced by JUMP SHORT instructions etc.
+- Don't use instructions to calculate values that can be calculated 
+  directly in a parentheses.
+- Use LEA instead of MOV OFFSET.
+- Use the stack to store temporary data, but be careful if it is a COM file.
+- Use the CBW instructions to clear the AH register if AL is less than 80h.
+- Use DEC/INC instead of ADD/SUB register,01h.
+- When using DEC/INC it is more optimized to use 16 bits registers rather 
+  than 8 bit registers.
+
+
+

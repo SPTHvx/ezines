@@ -1,0 +1,64 @@
+                                                                              
+    It has been 3 weeks since you started programming your new virus,
+you've included features never seen before in the virus world.  It
+feels good to have the extra knowledge.  Then you decided to release
+the source code out of the goodness of your heart for people that were
+once like you to learn and become competent virus writers.
+                                                                              
+    Well that's about as far as it gets, because that's when you
+start to see copies of your virus with other peoples names in them.
+The same source, perhaps a piece of destructive code that wasn't
+there when you last looked but the same virus.  The feeling of
+goodness goes away rather fast.
+                                                                              
+    Nope, it's no fun to have your virus ripped to shit all of a
+sudden.  Evading virus scanners by strategically inserting NOPs around
+the place is so easy!  (except for those scanners which ignore NOPs heh)
+The scan strings used by most scanners can be found without too much
+difficulty.  Releasing this as a new unscannable virus with your k-rad
+message "i WRoTe THiS11" is not the way to go.  It levels people with
+rats.
+                                                                              
+    We all have to learn from somewhere but is ripping a complete
+virus and making a few changes here and there the way to do things?
+Surely study of several codes together will allow you to learn how
+each module of virus code works and piece together your own.  Still,
+when using whole routines from other peoples virii unless you
+acknowledge the original author, what you're doing is stealing!
+                                                                              
+    When the people that wrote the virus find out who the little
+shit that modified their code is I don't think they'd be very
+happy.  A nice phat trojan would be hopping their way I think.
+If you can't write a virus, don't release one!  Simple isn't it.
+There are so many virii out there, so many that you may write a
+virus from scratch and McAfid Scan tells you it's the [XXX] XXX
+virus when it ain't!  Scan strings are like the phone numbers in
+Australia, they're running out.  A classic example was the
+No Frills virus when it was identified as the Feist virus.  Sure,
+SCAN now has NF specific scan strings but it was a bit of a bitch.
+
+    Why do people do it?  Perhaps because they can't write virii
+for shit and want to see their name get everywhere.  Well it would
+be quite easy for most people to grab hold of VCL or a similar
+program to do that sort of thing.  Why rip original work that took
+someone ages to write!  VCL is made to produce virii which people
+can personalise.  A text editor and someone elses source code can
+do the same thing, but you're stepping with the thieves of the
+world when this happens.
+                                                                              
+    There are so many virii in the world, it's getting hard to
+come up with new ideas that haven't been done already.  If you do
+manage to turn out something new it will gain you respect from
+others!  So why rip now when you could learn and try for the top
+when you're ready?  I don't know.. after all, assembler definately
+isn't one of my favourite topics right now.
+                                                                              
+    This isn't directed at anyone, but it seems these virus mags
+are like magnets to lamers who want to get their school back for
+all those years of pain by ripping a virus and causing havoc.  So
+for the serious virus authors out there, keep up the good work.
+For those that think they can rip away if they feel like it, get
+back in the kennel.
+                                                                              
+    Metabolis/VLAD
+

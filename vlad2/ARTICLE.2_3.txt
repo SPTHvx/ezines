@@ -1,0 +1,98 @@
+
+   Flash bios!
+   +---------+
+
+   Flash Memory : Non-Volatile memory which augments EPROM functionality
+                   with in-circuit electrical erasure and reprogramming.
+
+   Flash BIOS   : Flash Memory used for storing BIOS software to allow easy
+                   upgrade.
+                 
+                 - Desmond Yuen, Intel's SL Architecture, 1993.
+
+   Qark's translation : A new place to store virii!
+
+
+   Non-Volatile memory is like normal memory but when you turn your
+   computer off, the stuff you put on it earlier is still there!  But this
+   isn't actually useful to us VXers unless the code stored is executed later
+   on.  Thanx to Intel this dream is a reality due to the advent of Flash
+   BIOS!  This memory is present in 90% of laptop computers, most pentiums,
+   most 486 DX2?? and 486DX4?? and also found in some ordinary computers.
+   It is always present in the 386SL processor.
+
+   As you all know, (or should do) BIOS is executed when you boot your
+   machine.  So, all your average funky VXer has to do is modify the BIOS
+   slightly to run your virus before actually booting.
+
+   Imagine the looks on the faces of the AVers when they remove the
+   virus from all their boot sectors and files only to reboot and have it
+   back again!  Even funnier - they _can't_ boot clean!  Even if they boot
+   from a write protected disk the virus will still be there fiddling with
+   the interrupts!  They'd probably have to remove their memory and install
+   a whole new set to remove the damn thing.  Infact if the memory has been
+   surface mounted (welded) they will have to buy a whole new motherboard!
+
+   I'm not quite sure if flash BIOS is mapped or if BIOS shadowing affects
+   it at all but I think this will work on most of them... if it doesn't
+   infect properly it'll just completely fuck their computer up so that's
+   half the job done there :)
+
+   Anyway here is a short algorithm I just made up quickly.  I'm not quite
+   sure of what I'm doing but remember that noone has done this before.
+
+        ;This pseudocode assumes it's in a virus executed somewhere.
+
+        Test for flash BIOS
+        Test to see if BIOS already infected    (Fuck off if so)
+        Read Int19h vector from interrupt table. (The boot interrupt)
+        Read first five bytes from the Int19h entry point.
+        Scan the BIOS for a buffer of zero's the size of the virus.
+        Set Flash BIOS to write mode            (Normally its readonly)
+        Write the virus to the buffer we found.
+        Write a jump to our virus at the int19h entry point
+        Set flash BIOS to read mode
+        ;;;
+
+      Ok, that looks like a workable algorithm. (Made it up as I went :)
+     
+   Int19h is only called during the boot process and it's only purpose
+   is to load the boot sector into memory and then execute it.  Thus a good
+   interrupt to choose methinks.  By the time its called all the interrupts
+   are set and everything is done.
+
+   Also take into account that you can't read and write from flash BIOS at
+   the same time.  This means you can't store temporary variables when the
+   virus is run, therefore I'd suggest doing the conventional boot sector
+   thing and moving it above the memory allocation and setting the int13h to
+   it from there.   (This is pretty tough stuff!)
+
+   Anyway, I'll have a go at doing the worlds first Flash BIOS infector
+   here is the information you'll need to write your own... the AMI-FLASH!
+   (Thanx AMI for this !  We'll put it to good use fucking you up hehe)
+
+   AMI BIOS has it's specification written up for flash BIOSes to use.
+   It's based around int16h function 0e0h.  The funny thing is that once
+   the virus is loaded it can snatch that function and stop any AV software
+   from using it to clean!  hehe then you'll have things like AVers trying 
+   to tunnel int16h to get the original vector... and viruses will bung in
+   their own anti-tunneling code... and so on...
+
+   It's fucking scarey when you think about it.  You'll have the hardest
+   time ever removing one from your memory.  They'll probably have to
+   remove their chips and replace them.  hehe and they'll forget one of
+   their disks is infected and they'll be fucked again...
+
+   The AMI Flash specification is in another article.
+   
+   Also check the books : 
+   
+   Intel's SL Architecture, Desmond Yuen, 1993, McGraw Hill
+   
+   Dipert,D., and D. Verner, "Designing an Updatable BIOS Using Flash
+   Memory,"Intel Corporation, 1991.
+   (I wish I had this book, but I ripped this from the references at the
+   bottom of chapter 14 in the top one hehe)
+
+                                Qark/VLAD
+

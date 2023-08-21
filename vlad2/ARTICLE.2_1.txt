@@ -1,0 +1,107 @@
+
+    The Press!
+    +--------+
+
+    This crap article was found on page 60 of the October edition of
+    Australian PC User.
+
+    All comments enclosed in [square brackets] are by me!  (qark)
+      
+   
+    ----------------------------------------------------------------------
+
+    Made in Australia...
+
+
+    Australia's contribution to the pantheon of computer viruses has been
+    relatively modest, according to local developers of anti-virus products.
+    [They musn't know their shit.  Daemon, lemmings and 1984 are superb
+    viruses!]  There have been a couple of well-publicised viruses that
+    were locally produced but their fame has been short lived.  [He means
+    when X-Fungus got SunCorp and when Dudley infected OTC (Australia's
+    telephone link to the world :)]
+
+    Dudley, Gingerbread Man, No Frills and Nuke [1984 they mean] are some
+    of the names that have come and gone.  All were fairly ordinary in terms 
+    of the way they went about their malicious work.  [Bullshit!  I bet these 
+    fuckers they consulted don't even have a clue how 1984 works!  It's
+    fucking tricky!]  Aryeh Goretsky, technical manager of McAfee Associates
+    in the US, said that he had not heard much in the way of viruses from
+    Australia recently.  "I had one report of the Junkie virus from
+    Australia, which was more memorable for being hyped in the US press
+    than anything else," he told PC User.  [Junkie was *everywhere*.  It
+    was like the plague round here.  Shows you how crappy Scan has really
+    become]
+
+    The most prolific writer in Australia was a young Brisbane student
+    who boasted broadly about his success until the Federal Police visited
+    him with a warning over a year ago.  [We all know who this dude is :) ]
+    According to Australian anti-virus workers, his approach consisted
+    primarily of piecing together chunks of code from already extant viruses
+    and making new ones without even studying the underlying techniques.
+
+    The activity of the federal police and the anti-virus community in
+    silencing Australia's most public virus writer has not meant an end to 
+    this particular form of anti-social behaviour, however.  In August this
+    year, a number of new viruses were discovered which appear to have been
+    written here.
+
+    [hehe... not us! ]
+
+    One appeared on a bulletin board with the filename skid.exe apparently
+    designed as a tool for other virus writers to use.  ['Skid Row' was
+    written in Taiwan by Dark Slayer.  Awesome virus, but not Australian]
+    This has no 'warhead' [They mean - destructive payload], it can only
+    make copies of itself and hide.  Another one, a variation on the Lemmings
+    virus, appears designed to attack users of the Thunderbyte anti-virus
+    software.   [Variation ?  The original did as well!  And it was written
+    in Australia originally]
+
+    Virus writers in Australia stay in contact with each other through
+    bulletin boards and informal groups at schools. [Nope, doesn't happen
+    that much.  There aren't many coders around and you have to stay
+    undercover with your activities and you don't advertise it.]  While
+    bulletin boards are an effective way to swap code and ideas, virus
+    writers are not welcome in many places and the Federal Police and
+    researchers keep an eye on those boards which appear to encourage such
+    activity. [Why ? They can't do shit because virus writing is legal!]
+
+    These boards typically contain tracts [tracts=a writing of some sort.
+    They are getting stuck into obscure words] from groups such as the
+    Australian Institute of Hackers (AIH).  [Never heard of them]  The AIH
+    supplies virus tutorials aimed at "wimps, faggots and lamers" who do not
+    know how to write a 'real' virus.  [I don't think the AIH do either
+    because I've never seen anything by them... perhaps lemmings ?]
+    Fortunately for the rest of us, most of this is simply peer group
+    grandstanding with the aim to prove one's cleverness rather than cause
+    any real damage.
+
+    The appearance of viruses targetted at particular anti-viral products
+    is of some concern, and for that reason I have not quoted the anti-virus
+    workers who helped me research this article by name.  [Lucky for them!
+    The information is so poor they'd just look like fools.  Besides, I can
+    tell by the huge ad for 'Virus Buster by Leprechaun' just below the
+    article who one of them is! I think I'll log onto their bbs and hang up
+    inside a door again to piss them off ha ha ha]
+
+    So far Australia has not spawned any particularly evil geniuses, but
+    caution is prudent.   [BwAhahAHahAhA!  VLAD is here! :) ]
+
+    By Geoff Ebbs
+
+    ----------------------------------------------------------------------
+
+    Would the AIH please try and get in touch with us if they truly
+    exist ?!  On IRC (Internet) in #virus is one place.
+
+    Must be in some viral backwater like Sydney or Adelaide to
+    avoid detection by VXers up until this point.  Probably just made up
+    bullshit anyway.
+
+    This whole article is crap.  Every second BBS has an infected copy of
+    Scan (the old infection favourite :) online.  They looked at isolated
+    infections.  Not only that, but got their information completely wrong!
+
+
+                Qark/VLAD
+

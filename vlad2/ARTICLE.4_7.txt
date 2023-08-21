@@ -1,0 +1,25 @@
+
+
+   What's Next ?
+   +-----------+
+
+   We have made large advancements on last issue in our coding expertise
+   but we intend on getting even better!  There are a number of new
+   projects we are thinking of pursuing, anyway here's a short list:
+
+        Windows Virus   -       Yes, we said that we would look at this
+                                in the last issue and we still are.
+        Multipartitism  -       Combine all our current stuff into the
+                                one big virus.
+        Disk Ports      -       Using the ports to directly access
+                                the drives.  No more interrupts!
+        VIP Engine      -       The VLAD Indefinite Polymorphic engine.
+                                This has almost already been done, but
+                                needs more research in defeating TBScan.
+        Misc Projects   -       Some other experimental ideas we've been
+                                toying with.
+
+   We won't necessarily do all this for the next issue but we will sometime
+   (if its possible).
+
+

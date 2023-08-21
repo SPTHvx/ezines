@@ -1,0 +1,860 @@
+
+   Here is AMI's Flash BIOS specification.  Alot of it is technical
+   shit, the most important thing is the interrupts.  (Int 16 function E0H)
+   This thing was hard to find.  Extremely so.  It was hidden amongst
+   a few hundred other txt files in the AMI ftp site with some obscure
+   name.  Even if someone did see it they probably aren't virus programmers
+   anyway.  You won't find this information anywhere else.  Ralph Brown's
+   doesn't even have it.
+   
+   I'm not too sure how the voltage works so I'll just take pot
+   luck and turn it up because I saw that mentioned a few times... hmmm
+   I wonder if you could burn out a chip by changing the voltage high
+   during normal computing ?  BwaHaHAhaHaha  :)  nah that would be wrong :)
+
+   It is suggested you just refer to this and only scan it for interesting
+   parts.
+
+------------------------------
+
+
+AMIFLASH - Flash Implementation Guide                   1992-1994  
+
+American Megatrends, Inc.  All Rights Reserved.
+
+Page 0 of 20
+
+American Megatrends, Inc.
+
+
+
+AMIFLASH
+
+Flash Implementation Guide
+
+Summary
+
+This document provides a guideline to Flash implementation in the ISA, EISA,
+PS/2 compatible motherboard and describes the AMIFLASH, the Flash programming
+utility, interface with AMIBIOS, dated 080893 or later for HiFlex BIOS and
+dated 111593 or later for WinBIOS.
+
+
+Revision  2.0                           January 10, 1994
+
+
+Copyright 1992-1994  American Megatrends, Inc.
+
+
+	[Shit copyright thing here...]
+
+	[More shit saying about AMI's rights]
+
+
+For Additional Information
+
+Call American Megatrends BIOS Sales Department at 1-800-828-9264 for
+additional information about AMIFLASH.
+
+
+	[Shit disclaimer]
+
+	[Limited warranty notice]
+
+	[Trademark thingy]
+
+	[Revision History]
+
+
+
+0.0  INTRODUCTION
+
+This document describes the software (BIOS and utility) and hardware details
+of flash EPROM implementation in the motherboard.
+
+The flash Programming Utility is required for on-board programming of flash
+EPROMs which helps user update the system with new releases of BIOS without
+any difficulty (e.g. opening of system chassis, taking out the EPROM,
+re-program the EPROM, etc.).
+
+
+The flash programming utility is unique for each hardware d
+design. This gives rise to a situation where user wil
+
+The flash programming utility is unique for each hardware design. This gives 
+rise to a situation where user will be having a different flash programming 
+utility for each hardware design. So it is getting very difficult for user to
+control so many utilities which basically does the same thing but a
+particular utility does not work on any motherboard other than on the one
+for which it is meant for.
+
+A few of many factors which make flash programming utility dependent on the 
+hardware design are stated below:
+
+Method of raising/lowering Vpp depends on hardware.
+
+Method of making flash write-enabled depends on hardware.
+
+Method of disabling shadow RAMs depends on hardware.
+
+Method of disabling cache depends on hardware.
+
+Method of generating hardware reset may depend on hardware.
+
+In case of non-fatal error (e.g. flash not present, etc.), the flash 
+programming utility must be capable of returning to original operating 
+condition. This demands certain current system information to be saved before
+access to flash can start. These information include the current shadow
+status, cache status, power management status, etc. These information depend
+on the hardware.
+
+
+0.1  GENERALIZATION OF FLASH PROGRAMMING UTILITY
+
+This specification is meant for generalizing the flash programming utility
+so that a single flash programming utility can work on all hardware platform.
+This demands some interface between flash utility and the BIOS. Following
+describes the AMIBIOS specification which needs to be implemented in BIOS to
+have a single flash utility for all motherboards.
+
+The different requirements for flash programming are implemented in AMIBIOS
+through Function# 0E0h of INT-16.
+
+The Section-1 of the current document contains the functional specification
+of the flash programming functions to be implemented in AMIBIOS and Section-2
+contains the sample hardware implementation of flash circuit.
+
+0.2  DIFFERENT TYPES OF FLASH EPROM AND HARDWARE REQUIREMENTS
+
+The flash EPROMs are mainly of two types namely,
+
+
+      Normal flash (non-sectored) e.g. Intel 28010.
+
+  Sectored flash e.g. Intel 28F001BX-T commonly known as boot-block flash.
+
+
+This document is generated using the above two types of flash as example.
+
+
+0.2.0  NORMAL (NON-SECTORED) FLASH - Intel 28F010
+
+This is mainly a replacement of standard EPROM with added capability of
+reprogramming of the flash EPROM on-board without taking it out from the 
+motherboard. The hardware requirement for this type of flash is
+
+
+Method to raise Vpp (programming voltage) to 12.0V. Method to lower Vpp to 
+normal voltage level.
+
+Method to make flash write-enabled. Method to make flash write-protected
+(i.e. read-only).
+
+Please see Section-2 for sample example for hardware implementation.
+
+The main disadvantage of this type of flash is that in case of an error
+(due to accidental power failure, etc.) during reprogramming the flash
+on-board, the flash eprom must be taken out from the motherboard and must
+be reprogrammed with help of eprom programmer.
+
+
+0.2.1  SECTORED FLASH - Intel 28F001BX-T
+
+This is also a replacement of standard EPROM with added capability of
+reprogramming of the flash EPROM on-board without taking it out from the
+motherboard. But this flash also has another feature of hardware protecting
+one block of the flash from accidental eraser. This type of flash is based
+on block architecture and consists of several blocks.
+
+Intel 28F001BX-T has four separate blocks, one hardware protected 8KByte boot
+block, two 4KByte parameter blocks and one 112Kbyte code block. The boot
+block usually contains a recovery code (also called sometimes as boot block
+code) while other three blocks contain the main BIOS and other parameters. 
+This allows the updating of other three blocks possible with the help of
+recovery code even in case of power failure during flash update with flash
+programming utility. Of course, the programming utility can not program the
+boot block (thereby can not destroy the recovery code) because the boot block
+is hardware protected from accidental eraser/write.
+
+
+The general functionality of recovery code is as follows: after power-on, the
+recovery code gets control. The recovery code checks for the validity of the
+main BIOS code and if main BIOS is found to be good, recovery code will pass
+the control to the main BIOS. If main BIOS is found to bad, then this
+recovery code reads the BIOS update ROM file from floppy drive A:, erases
+the other three blocks of flash EPROM, programs the other three blocks of
+flash EPROM with the data read from diskette in drive A: and generates CPU
+reset thereby re-booting the system.
+
+The important point to be noticed is that at power-on, recovery code is seen
+at F segment namely at system address space FE000-FFFFF. But when recovery
+code gives control to the main bios, the main bios must be mapped to system
+address space in F segment namely, F0000-FFFFF. This needs some sort of
+address inversion mechanism by which recovery code can invert A16 before
+giving control to main BIOS.
+
+At power-on, the mapping of physical flash eprom space to the system address
+space is shown in Fig. 1 
+(See Page 6).
+
+During runtime i.e. after recovery code transfers control to main BIOS, the
+mapping of physical flash eprom space to the system address space is shown
+in Fig. 2 
+(See Page 6)
+
+So it is clear that address line A16 inversion is needed in runtime (before
+recovery code can pass control to main BIOS) so that main BIOS code can be
+seen at system address space F0000-FFFFF.
+
+The hardware requirement for this type of flash is
+
+Method to raise Vpp (programming voltage) to 12.0V. Method to lower Vpp to 
+normal voltage level.
+
+Method to make flash write-enabled. Method to make flash write-protected
+(i.e. read-only).
+
+Method to invert address line A16.
+
+Hardware protection of boot block. 
+
+Please see Section-2 for sample example for hardware implementation.
+
+
+
+SECTION - 1
+
+
+SPECIFICATION OF FLASH PROGRAMMING FUNCTIONS IN AMIBIOS
+
+1.0  EXTRA FUNCTIONS IN INT-16 FOR FLASH PROGRAMMING
+
+The flash programming requirement is implemented in AMIBIOS through
+Function# 0E0h in INT-16. This specification is valid for Version 2.00 of
+the specification for extra functions in INT-16 for flash programming.
+
+The general specification is:
+
+Input :
+
+	    AH      E0h
+
+	    AL      subfunction
+
+	    Other input parameters are specific to subfunction.
+
+
+Output:
+
+		CY      Error
+
+		NC      Success
+
+		AL      FAh
+
+	    Other output parameters are specific to subfunction.
+
+
+The output value in register AL should be checked for FAh even if function
+returns NC to ensure success.
+
+
+The different subfunctions are stated below and specifications are described
+later.
+
+
+Subfunction#            Description
+
+
+
+00h                 Get Version Number of BIOS-FLASH Interface
+
+01h                 Get Chipset Save/Restore Status Requirement
+
+02h                 Save Chipset Status and Prepare Chipset
+
+03h                 Restore Chipset Status
+
+04h                 Lower Programming Voltage Vpp
+
+05h                 Raise Programming Voltage Vpp
+
+06h                 Flash Write Protect
+
+07h                 Flash Write Enable
+
+08h                 Flash Select
+
+09h                 Flash De-Select
+
+0Ah                 Verify Allocated Memory
+
+0Bh                 Save Internal Cache Status
+
+0Ch                 Restore Internal Cache Status
+
+0Dh-FEh             RESERVED for future use
+
+FFh                 Generate CPU Reset
+
+
+1.0.0  GET VERSION NUMBER OF BIOS-FLASH INTERFACE - Subfunction# 00h
+
+
+
+This routine returns the version number of BIOS-Flash interface
+implementation in BCD format in register BX. For example, the version number
+2.00 is returned in BX as 0200h.
+
+
+This routine can be used to determine whether the BIOS-Flash interface is
+implemented in BIOS. After returning from the subfunction, the register AL
+should be checked for FAh even if it is returned with NC.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      00h
+
+
+
+Output:
+
+		CY      BIOS-Flash interface not implemented
+
+		NC      BIOS-Flash interface implemented
+
+		AL      FAh
+
+		BX      Version number in BCD format
+
+
+
+Register destroyed:     AX  BX
+
+
+
+This version of implementation should return 0200h (i.e. Version number
+2.00) in register BX.
+
+
+
+1.0.1  GET CHIPSET SAVE/RESTORE STATUS REQUIREMENT Subfunction# 01h
+
+
+This routine returns the data area space needed to save the current chipset
+status.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      01h
+
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+		BX      #of bytes needed to save chipset environment
+
+
+
+Register destroyed:     AX  BX
+
+
+1.0.2  SAVE CHIPSET STATUS AND PREPARE CHIPSET - Subfunction# 02h
+
+
+
+This routine saves the current chipset status in the specified data area
+and then prepares the chipset to make the flash EPROM accessible.
+
+
+
+Things to be saved here are current status of cache, power management
+status, shadow status, etc. This is needed so that in case of non-fatal
+error, system can be restored to status where it was before invoking the
+flash programming utility. The preparation of chipset to make flash EPROM
+accessible includes disabling of shadow rams, disabling of external cache,
+disabling of internal cache, disabling of power management, etc. Note that
+the features which get disabled should be saved first. The disabling of
+cache may be needed to make the target ROM address space non-cacheable. If
+target ROM address space is cacheable only if shadow is enabled (i.e. only
+shadow ram is cacheable, but rom is not cacheable), disabling of shadow ram
+will also make the target ROM address space non-cacheable and so in this
+case, disabling of cache is not required. But if ROM is cacheable, then
+cache must be disabled. This routine must disable internal cache.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      02h
+
+	    ES:DI   pointer to start of buffer where chipset status 
+	    will be saved
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+
+Register destroyed:     AX
+
+
+
+1.0.3  RESTORE CHIPSET STATUS - Subfunction# 03h
+
+
+
+This routine restores the chipset status from the specified data area where
+the chipset status was saved by subfunction-02h.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      03h
+
+	    ES:DI   ptr to start of buffer from where the chipset environment
+	    will be restored
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+
+Register destroyed:     AX
+
+
+1.0.4  LOWER PROGRAMMING VOLTAGE Vpp - Subfunction# 04h
+
+
+
+This routine lowers the programming voltage Vpp to normal level. This
+routine must wait until the voltage level gets stabilized.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      04h
+
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+
+Register destroyed:      AX
+
+
+1.0.5  RAISE PROGRAMMING VOLTAGE Vpp - Subfunction# 05h
+
+
+This routine raises the programming voltage Vpp to required voltage (i.e. 
+to 12.0 Volt for a 12V flash EPROM). This routine must wait until the
+voltage level gets stabilized.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      05h
+
+
+
+Output:
+
+	    CY      Error
+
+	    NC      Successful
+
+	    AL      FAh
+
+
+
+Register destroyed:      AX
+
+
+
+1.0.6  FLASH WRITE PROTECT - Subfunction# 06h
+
+
+
+This routine makes the flash write-protected. This routine must provide any
+delay (if required) for stabilization.
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      06h
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+Register destroyed:      AX
+
+
+1.0.7  FLASH WRITE ENABLE - Subfunction# 07h
+
+
+This routine makes the flash write-enabled. This routine must provide any
+delay (if required) for stabilization.
+
+Input :
+
+	    AH      E0h
+
+	    AL      07h
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+Register destroyed:      AX
+
+
+1.0.8  FLASH SELECT - Subfunction# 08h
+
+
+This routine selects the flash. This function is not needed normally. But if
+the motherboard has both normal EPROM and flash EPROM present simultaneously
+then this routine needs to be implemented. This routine must provide any
+delay (if required) for stabilization. If this routine is not needed, then
+it must return with successful status.
+
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      08h
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+Register destroyed:     AX
+
+
+1.0.9  FLASH DE-SELECT - Subfunction# 09h
+
+
+This routine de-selects the flash. This function is not needed normally. But
+if motherboard has both normal EPROM and flash EPROM present simultaneously
+then this routine needs to be implemented. This routine must provide any
+delay (if required) for stabilization. If this routine is not needed, then
+it must return with successful status.
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      09h
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+Register destroyed:     AX
+
+
+1.0.10  VERIFY ALLOCATED MEMORY - Subfunction# 0Ah
+
+This routine verifies whether the specified memory can be used or not. This
+routine is not needed in normal situation. But in situation like where the
+certain memory regions become un-accessible under some special conditions
+(e.g. if shadow gets disabled, memory 80000h-9FFFFh may become un-accessible,
+etc.), this routine should be used to verify the memory region to be used by
+flash programming utility is valid or not. If this routine is not needed,
+then it must return with successful status.
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      0Ah
+
+	    ES      specified memory segment
+
+	    BX      memory size in number of paragraphs
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+Register destroyed:      AX
+
+A zero (0) input value of BX will be returned as an error.
+
+
+1.0.11  SAVE INTERNAL CACHE STATUS - Subfunction# 0Bh
+
+This routine saves the current status of internal cache. Before saving this
+routine must check that internal cache is available in the concerned
+hardware. It is the responsibility of the caller to ensure that length of
+supplied buffer (where the internal cache status will be saved) is at least
+16bytes.
+
+
+If internal cache is not available in the concerned hardware or this
+subfunction is called in protected mode , this routine must return error.
+
+
+Input :
+
+	    AH      E0h
+
+	    AL      0Bh
+
+	    ES:DI   pointer to start of buffer where internal cache status
+	    will be saved
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+Register destroyed:      AX
+
+1.0.12  RESTORE INTERNAL CACHE STATUS - Subfunction# 0Ch
+
+
+This routine restores the internal cache status from the specified data area
+where internal cache status was saved by subfunction# 0Bh.
+
+
+If this subfunction is called in protected mode, this routine must return
+error.
+
+Input :
+
+	    AH      E0h
+
+	    AL      0Ch
+
+	    ES:DI   pointer to start of buffer from where internal cache
+	    status will be restored
+
+
+Output:
+
+		CY      Error
+
+		NC      Successful
+
+		AL      FAh
+
+
+Register destroyed:      AX
+
+
+1.0.13  GENERATE CPU RESET - Subfunction# FFh
+
+
+This routine generates the CPU reset. This reset generation is needed to
+make system re-boot after successful programming of flash.
+
+
+Note that control will never go back to caller from this routine.
+
+Input :
+
+	    AH      E0h
+
+	    AL      FFh
+
+Output:
+
+		Not Needed
+
+
+1.1  NOTES
+
+In some hardware, raising of programming voltage Vpp and making flash
+write-enabled may be implemented using the same method. And lowering of
+programming voltage Vpp and making flash write-protected may also be
+implemented using the same method. In these type of cases, implement the
+subfunctions as follows:
+
+Implement LOWER PROGRAMMING VOLTAGE Vpp - Subfunction# 04h and FLASH WRITE
+PROTECT - Subfunction# 06h using same routine.
+
+Implement RAISE PROGRAMMING VOLTAGE Vpp - Subfunction# 05h and FLASH WRITE
+ENABLE - Subfunction# 07h using same routine.
+
+
+SECTION - 2
+
+
+HARDWARE IMPLEMENTATION OF FLASH
+
+
+2.0  SAMPLE HARDWARE IMPLEMENTATION OF FLASH
+
+A sample implementation block diagram of flash is shown in Fig. 3. Please
+note that this is only an example, actual implementation may vary from
+hardware to hardware.
+
+
+In this example, the two bits of an I/O port are used to control the write
+enable signal to flash and A16 inversion. Both these bits must be readable
+as well as writeable. Vpp is connected to 12V always if flash EPROM is a
+12V part otherwise can be always connected to 5V if flash EPROM is a 5V
+part. For a 12V flash EPROM part, even if Vpp is always connected to 12V,
+the write to flash is controlled by ENFLSHWR# signal. PWD# is connected to
+POWEROK signal to protect boot block from eraser/write.
+
+
+ENFLSHWR#
+
+This signal must be HIGH on reset so that ORing of ENFLSHWR# and MEMW#
+signals will be HIGH thereby disabling any write to flash EPROM. Please
+note that WR# signal on EPROM must be LOW to make flash writeable. So the
+bit used to control ENFLSHWR# signal should be HIGH normally to make flash
+EPROM write protected and must be programmed to LOW to flash EPROM write
+enabled.
+
+
+FLSHSWP
+
+This signal must be LOW on reset so that SA16 signal can reach flash EPROM
+without inversion through the XOR gate.  So the bit used to control FLSHSWP
+signal should be LOW on power-on to make boot block (recovery) code appear
+at system address space FE000-FFFFF and must be programmed to HIGH to invert
+A16 line so that main BIOS can be seen at system address space F0000-FFFFF.
+
+
+PWD#
+
+PWD# on flash EPROM will be connected to POWEROK (which is at 5V) thereby
+hardware protecting boot block from eraser/write. The need for connecting
+PWD# to POWEROK instead of directly to Vcc (5V) is explained below:
+
+If PWD# is connected to Vcc (5V), then it is true that boot block is
+protected from eraser/write. But during programming of other blocks of
+flash EPROM, if the programming is stopped for some reason e.g. pressing of
+hardware reset switch (usually present at the front panel of the system),
+then flash EPROM may be left in an undefined state (which may not be the
+normal read array mode state of flash EPROM) thereby causing the system hang.
+To come out of this undefined state, power must be turned off and on again
+thereby resetting the flash EPROM and resetting of flash EPROM will resets
+the flash EPROM to read array mode.
+
+
+So PWD# is connected to POWEROK signal which is ANDing of the POWERGOOD
+signal (which is HIGH normally when power is on) from power supply and the
+RESET signal from the hardware reset switch (which is HIGH normally when
+reset switch is not pressed). So under normal operating condition, POWEROK
+will be HIGH and so PWD# will be HIGH. As soon as hardware reset switch is
+pressed, then RESET signal from hardware reset switch will go LOW thereby
+making the POWEROK signal LOW thereby causing the flash EPROM to enter deep
+power down mode. When hardware reset switch is released, the RESET signal
+from hardware reset switch will go HIGH thereby making the POWEROK signal
+HIGH thereby causing the flash EPROM to come out of deep power down mode.
+The exit from deep power down mode will automatically reset the flash EPROM
+to read array mode.
+
+
+2.1  NOTES
+
+
+The bits of an I/O Port used in the sample implementation, can be the two
+unused pins of keyboard controller. Note that if unused pin of keyboard
+controller is used, care must be taken to generate proper polarity of the
+concerned signal because usually unused pins of keyboard controller are
+HIGH on power-on.
+
+Even though Vpp is always connected to actual programming voltage as shown
+in Fig. 3, the write to flash is controlled by ENFLSHWR# signal. Of course
+a switching circuit can be very well used to raise/lower Vpp in which case
+another bit (which must be readable and writeable) of I/O Port may be
+needed.
+
+
+[ASCII shit for the rest of the file - OLE picture methinks]
+
+
+parameter blocks and 48K of main block
+( this usually contain power 
+management code,
+VGA BIOS, etc. )
+
+
+[The end]
+

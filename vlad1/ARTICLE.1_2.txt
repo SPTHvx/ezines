@@ -1,0 +1,50 @@
+
+    You may notice something in all of the VLAD source code, this is
+the lack of destructive code.  Why?  Destructive code makes the scene
+bad for everyone.  When there's a major trashing by a new virus it
+gives virus authors a shit name, and people generally believe that
+we're computer vandals.  If you have a virus killing hard drives
+everywhere, isn't it slightly obvious that your machine is infected?
+Hmm.. gee, I wonder!  Without the extra code those few crucial extra
+bytes can be saved to make the overall virus more compact and much
+more likely to spread.
+                                                                              
+    The whole point of releasing the magazine isn't that we want to
+make a name for ourselves or show how KeWL Australia can be, it's
+to educate people out there about how virii work and give examples.
+The magazine isn't a release for lamers to merely change the text
+in the virus and brag to their fellow lamers that they're a big time
+virus author.  Anti-Virus research is legal, and this could be a
+good learning tool for someone who is deciding to pursue a career
+in this field.  Or on the other hand, this could be used by a budding
+virus author needing help to get their virus off the ground.
+Information is a free commodity, we're just passing it along.
+                                                                              
+    The magazine won't be a regular release, as programming virii
+and coming up with new ideas for them can take some time.  The group
+is small what with only one really dedicated virus author.  People
+around Brisbane don't seem to want to submit any articles to us
+so it's mostly done by a few.  I'm waiting on a few articles of
+some people, but I doubt they'll get given to me before the release
+of the magazine, but hey.. that's always the way man.  So when the
+next magazine is ready, it will be released!
+                                                                              
+    Has someone ever started talking to you about virii and all of
+a sudden either one of you flicks through the names of all the well
+known virus groups?  It happens to me once in a while.  We'd like
+VLAD to be added to this ever growing hall of fame.  We won't stoop
+low enough to send shit into VSUM for recognition we hope to get
+it by pure distribution of this mag and the spread of the virii that
+we turn out.  To help this along, we're gonna release as much as we
+can, as fast as we can!
+                                                                              
+    I guess the last aim would be to stay out of trouble!  We don't
+damage any computers with nasty sector trashers or format the boot
+sector on wednesdays at 3pm so there's not too much that can be laid
+on us :).  Since when can writing computer programs be illegal.  Some
+people really have a twisted image of the virus scene in general,
+this doesn't really help much at all.  So, we'll keep trucking till
+we can't no more and there you go.  You want virus?  You got virus!
+
+    Metabolis/VLAD
+

@@ -1,0 +1,49 @@
+                                                                              
+       VLAD is happy to introduce a brand new family of viruses.  Meet        
+  the Incest Family!                                                          
+                                                                              
+  These four viruses represent our current abilities.  We endeavour to        
+  learn, and you can learn with us by looking at our source!                  
+                                                                              
+                                                                              
+  Order of completion:                                                        
+                                                                              
+               Brother                                                        
+               Sister                                                         
+               Daddy                                                          
+               Mummy                                                          
+                                                                              
+                                                                              
+  Brother is my first TSR virus and is therefore the first in the family.     
+                                                                              
+  Sister is my first EXE infector.  While coding it I developed some new      
+  Anti-AV code that seems to work fairly generically.  The EXE infection      
+  code is pretty poor and uneconomical but it does work.                      
+                                                                              
+  Daddy is my best virus ever!  I mastered some good new techniques.          
+  The EXE and COM infection were basically copied straight across from        
+  Brother and Sister.  Check the simple Dir stealth routine - there's no      
+  reason YOUR virus shouldn't have one!                                       
+                                                                              
+  Mummy is a research experiment.  Hearing about what a spawning virus was    
+  (companion infector for all those who dont know) I decided to do one        
+  to add to my repetoir.  This virus happily copies itself around your        
+  disks without harming a fly...  If it does annoy you then just delete it!   
+  (You'll have to boot from a clean disk to do that because this one is       
+  hard to remove - pretty tricky for a spawner)                               
+                                                                              
+  What makes the Incest Family the Incest Family ?  Well, that's because      
+  their unique function of passing the original int21h back through           
+  to other family members.  That's the 'Incest' part!  That means if          
+  Brother has got his hooks stuck into COMMAND.COM and Sister is loading      
+  up with some AV-TSR in memory that she will bypass it completely by         
+  fucking her big bro!                                                        
+
+  Have fun with these specimens and just remember that spreading viruses      
+  is illegal and you shouldn't do it...  Esspecially with Daddy which         
+  shouldn't be copied into an archive and uploaded to a lamer bbs because     
+  that would be wrong wouldn't it! :)                                         
+                                                                              
+  Look forward to some more advanced viruses in Issue #2 of the VLAD mag      
+  as together we explore the operating system!                                
+

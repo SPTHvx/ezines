@@ -1,0 +1,32 @@
+
+
+   Virus Descriptions
+   +----------------+
+
+   VLAD virus      -    Author: Qark
+                        Type:   TSR, COMMAND.COM infecting, EXE/COM
+                                infector.  Uses some stealth features
+                                and simple polymorphics.  Attacks AV
+                                software.
+
+   Republic        -    Author: Qark
+                        Type:   TSR, COMMAND.COM infecting, EXE/COM
+                                infector.  Is full stealth as it disinfects
+                                files that are opened and reinfects them
+                                on close.
+
+   BIOS meningitis -    Author: Qark
+                        Type:   Resident, Floppy Boot/MBR/Flash BIOS
+                                infector.
+                        Notes:  This is the first ever virus of its kind.
+
+   Prodigy 3       -    Author: Metabolis
+                        Type:   Direct action COM infector.  Does not
+                                infect COMMAND.COM.  Recursive directory
+                                searching.
+
+   Estonia         -    Author: Darkman
+                        Type:   Direct action COM infector. Good encryption.
+
+
+                        

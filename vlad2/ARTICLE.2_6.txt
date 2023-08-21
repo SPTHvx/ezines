@@ -1,0 +1,139 @@
+
+   VIRUS LAW!      by Qark and Metabolis
+   +--------+
+
+   These are extracts from the book 'Computers and the Law' by Greg
+   Cudmore, 1994 and is an Australian perspective on the virus problem
+   from a legal viewpoint.  Also included in it are some articles of
+   incidents encountered in real life...  The legal aspects are sensible
+   but the actual technical information is ignorant.
+
+   Comments in [square brackets] are by me (qark).
+
+   -------------------------------------------------------------------------
+
+   What is a Computer Virus?
+
+   Computer hackers may inadvertently or deliberately introduce a virus
+   to a computer system.  A virus is a program that is designed to damage
+   the data or software of the host computer.  This is then often transmitted
+   to other computers in a destructive chain reaction. [This is the most 
+   pathetic description of a virus I've ever heard, no wonder people are
+   paranoid].  Some viruses are harmless and may print a mischievous message
+   or electronic graffiti on the user's screen.  Others freeze operation,
+   shut a system down or destroy whole systems.  Examples of viruses
+   include 'Twin Peaks', 'Burger','Michelangelo','Leprosy','Marijuana',
+   'Green Caterpillar', and 'Eddie'.  One called 'Cookie Monster' continually
+   sends the message 'I want a cookie!" across the computer screen until you
+   type the word 'cookie'.  Melbourne and Brisbane are apparently the
+   Australian capitals of computer virus trouble, [This is true, but
+   Melbourne isnt that big except for having nuke.  Perth is emerging as
+   well, but mysteriously Australia's biggest city Sydney has never even
+   produced a flicker of activity] having introduced 'No Frills' and
+   'Gingerbread Man'.  'Gingerbread's' message is simply 'Ha,Ha,Ha,
+   I'm the Gingerbread Man, and ends with 'Made in Oz!'. 
+
+   Most viruses are spread by the exchange of floppy disks and are more
+   prevalent in stand-alone personal computers than networked systems
+   because operating software does not contain user and supervisor modes.
+   Most users are unaware that their computer has caught a virus and pass
+   it on unwittingly.
+
+
+   Computer Viruses and the Law
+
+   The problem for the legal system in dealing with computer viruses is
+   that the criminal law generally requires that the defendant commit an
+   unlawful act (actus reus) as well as having the accompanying criminal
+   intention (mens rea).  In many cases viruses are transmitted
+   inadvertently.  Law-makers are reluctant to punish people who
+   accidentally commit offences.  However, if the offender is grossly
+   negligent they may be held criminally liable.
+
+   It is often difficult to trace the origins of a virus and its author.
+   But if the author is somehow detected, should they be held responsible
+   for all the subsequent chaos and damage caused by the spread of the
+   virus?  This is also an important issue in civil law.  A defendant is
+   only liable for damages if the harm is not too remote from the unlawful
+   act.  [Legal babble... methinks we are clear anyway :) ]
+
+   If an organisation is clearly lax in its security precautions, should
+   this reduce the liability of the author of the virus?  In civil law if
+   a plaintiff is negligent and contributes to the harm inflicted by their
+   negligence, then the compensation (damages) awarded may be reduced
+   accordingly.  Should the criminal law make a similar concession and give
+   the author of the virus a lighter penalty ?  [That sounds like they can
+   get you, but they have failed to address the issue, of what crime a
+   person commits when they write a virus ?  Distribution is a different
+   matter...]
+
+
+   Newspaper Extracts
+
+   Early Bulgarian viruses were benign.  The first of them popped up on
+   screens from Milwaukee to Mongolia one Friday afternoon in 1988 and
+   played "Yankee Doodle Dandy".  Later viruses were more aggresive,
+   particularly the Dark Avenger's (author of the viruses) brilliantly
+   destructive "Eddie" which wipes material and leaves a calling card
+   saying, "Eddie lives ... somewhere in time".  When "The Rat" came on
+   the scene, appalled computer operators have discovered wholesale
+   destruction of their data accompanied by the message: "Your well
+   has been poisoned".
+
+   Graham Barret, The Age, 18 February 1991
+
+
+   New Virus Overwrites the Files it Infects
+
+   Virus alerts have come from two Melbourn companies in time for the
+   opening of the PC 92 Show today.  Both viruses overwrite the first
+   1310 bytes of the infected files.
+
+   Cybec calls the PC virus "Twin Peaks", but the warning about the
+   Burger-1310 virus from Loadplan Australia six days later appears
+   to be the same animal.
+
+   The technical director of Cybec, Mr Roger Riordan, who will attend
+   the PC Show this week, said the Twin Peaks sample he investigated
+   had been downloaded from a Melbourne bulletin board and was contained
+   in a file called MIPS.COM
+
+   His company's anti-virus software has been updated - VET version
+   6.94 - to detect the virus, but Mr Riordan warned that Twin Peaks
+   destroyed infected files and they had to be deleted.
+
+   After infecting files, the message "Welcome to Twin Peaks virus"
+   flashes on screen.  The program then usually crashes, locking
+   up the system.
+
+   Mr Riordan said: "In our tests it only infected .COM files and
+   is capable of infecting read-only files.  When all files in the
+   current director are infected, it searches sub directories.  It
+   contains code to rename files but the function of this has not
+   been determined."
+
+   Loadplan descrived the new virus as a variation of the Burger
+   virus.  It has been called Burger-1310  becaue of the infective
+   length.  [Great, a crappy overwriting virus gets a big write-up]
+
+   According to Loadplan: "It is a poor replicator and is therefore
+   unlikely to appear often."  However, the company warned: "If it
+   is discovered it may have been deliberately introduced rather than 
+   have spread itself."
+
+   Mr Riordan will be available to answer questions on viruses during
+   PC 92 at Cybec's stand (number 628).
+
+   Mr Riordan has been working to counter the effects of PC viruses
+   since 1989.  As technical manager of Cybec and the developer of
+   VET, he has been at the forefront of anti-viral research in 
+   Australia.
+
+   During this time, Mr Riordan has named several viruses including
+   the now-notorious Michelangelo.  [I thought McAfee named Michaelangelo]
+
+   The Age, 11 August 1992
+
+   -------------------------------------------------------------------------
+
+

@@ -1,0 +1,42 @@
+
+   Coding the mag!
+   +-------------+
+
+   The VLAD Mag #2 is basically the same as the previous one (100% asm!)
+   but I added in a new reader which uses normal text files without having
+   to use a special conversion program (this means it is smaller in memory
+   than last time).
+
+
+   Using the mag!  (aka the morons section)
+   +------------+
+
+   (I'll rip this straight from the last magazine)
+
+   The Magazine is very simple to use and move around.  If you are having
+   trouble then you have some serious problems!
+
+   Anyway here is a quick rundown on the keys:
+
+
+                          The Main Menu
+                          +-----------+
+
+       DOWN THE MENU ---------------------- DOWN Cursor Key
+         UP THE MENU ---------------------- UP Cursor Key
+        RIGHT A MENU ---------------------- RIGHT Cursor Key
+         LEFT A MENU ---------------------- LEFT Cursor Key
+   SELECT AN ARTICLE ---------------------- ENTER Key
+                QUIT ---------------------- ESCAPE Key
+
+                          The Reader
+                          +--------+
+
+                  UP ---------------------- UP Cursor Key
+                DOWN ---------------------- DOWN Cursor Key
+           PAGE DOWN ---------------------- PAGE DOWN Key
+             PAGE UP ---------------------- PAGE UP Key
+    EXIT THE ARTICLE ---------------------- ESCAPE Key
+
+
+

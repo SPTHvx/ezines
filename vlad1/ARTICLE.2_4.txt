@@ -1,0 +1,164 @@
+                                                                              
+   Thunderbyte is often seen as the leader of the Anti-Virus software
+market. Well, either that or F-Prot.  In this article VLAD will have a good
+look at some of it's features... and how to exploit them :)
+
+   Firstly let's take TBScan.
+
+   The AV are always raving on about TBScan and how it's given them the
+upper-hand over the VX.  I'll admit it's a good package and I use it
+personally, but the point I want to make is that it's far from infallible
+and it's easy to get around.
+
+   TBScan's heuristics works by _signature scanning_ for certain code
+constructs.  When it finds one - it flags it, and the more it flags the
+more likely it's a virus.  What Frans has done is found which bytes are
+common to many viruses and he scans for them.  He does no code tracing
+at all!  This means he scans data that isn't even executed!
+
+   The obvious solution to this is encryption!  A recent Thunder-Byte
+press release claimed that TBAV6.20 has new advanced features for detecting
+and undoing polymorphism and encryption.  The fact is that TBScan does
+SWEET FUCK ALL!  It can't even pick up a basic XOR let alone polymorphics!
+If you don't beleive me why don't you try scanning one of my viruses.
+(You'll pick a few things with the first generation of viruses but
+thereafter you'll find nothing)
+
+   As I said earlier TBAV is a good product, but it's not the 'solution'
+to viruses that people make out.
+
+   The last thing you do after getting the code for your new virus working
+is add the small modifications needed to get it past heuristics.  After
+adding the encryption (a must) scan your virus and see what it flags.
+It'll probably only be a few things... flexible entry point, and encryption
+are the two most likely.  These two routines can't be encrypted like the
+others.  Flexible entry point is normally flagged by the code used to get
+the IP:
+
+     call    next
+next:
+     pop     si              ;or anything
+     sub     si,offset next
+
+   Just remember that whenever you 'call' that the IP is push'ed on the
+stack (SS:SP) and that there are heaps of methods of getting it off.  Check
+my source to see what I do.
+
+   TBScan's code for detecting encryption is just plain flakey so I don't
+even bother putting in any code for that!  It just doesn't seem to pick it
+up!
+
+   Let's move onto TBSetup.
+
+   Well... what can I say about this ?  It's method of protecting your
+files is by writing those annoying little ANTI-VIR.DAT files all over your
+computer.  Do I even need to go into the obvious way of getting around
+this ?  Delete them!  Next time the user runs TBSetup it'll happily add
+your virus infected files to a new ANTI-VIR.DAT  This is the huge flaw
+(which I can't see a way of getting around) in all CRC checking software.
+Just delete the database!  Think of all the extra disk space you'll save
+the user! :)  You're doing them a favour! :)
+
+   The AV can change their 16 bit CRC's to 32 bit CRC's to 64 bit CRC's -
+we'll just delete their information every time!
+
+   It's time for TBClean.
+
+   TBClean is an extremely advanced, interesting piece of software.  But
+it has one fatal flaw.  It is extremely easy to fool!  Just check 40Hex??
+for their article on anti-debugging techniques to work out how to fool it.
+(TBClean works _exactly_ the same as a debugger)
+
+   Everyone should have a play with TBClean.  Once you get the
+anti-debugging code going you can do anything.  Have a good laugh as you
+jump straight into the video segment and TBClean executes it for ages then
+creates a 60k .COM file that began as 45 bytes!  (Happened to me!)
+
+   Check my virii sources for code to trick TBClean.
+
+   There's only one more thing that people can do to make TBAV worthless
+and that's not infecting 'TB*.EXE'.  Even if it does infect them they won't
+execute so then they are useless.
+
+   Anyway that's enough dumping on TBAV for now.  It's still better than
+most of the stuff on the market - I could puke on McAfee!  I hope Franz is
+really annoyed!
+
+ADDENDUM!
++-------+
+
+
+   Just a quick addition to that article.  Yesterday TBAV621 came out and
+I was happy to see Daddy Incest not being scanned.  The heuristics still
+don't flag a thing but with the original unencrypted dropper version
+TBScan in high heuristic mode flags the following things:
+
+~~~
+C:\ASM\DADDY\DADDY.COM
+ might be infected by an unknown virus
+c  No checksum / recovery information (Anti-Vir.Dat) available. cFAL
+C  The checksum data does not match!  File has been changed!
+R  Relocator.  Program code will be relocated in a suspicious way.
+N  Wrong name extension. Extension conflicts with program structure.
+D  Disk write access.  The program writes to disk without using DOS.
+~~~
+and down the bottom it shows the flags set as:
+
+~~~
+DADDY.COM      scanning...>  cFAL          X
+~~~
+
+First thing you'll notice is that the flags picked up aren't the ones
+shown.
+
+~~~
+DADDY.COM      scanning...>  cFAL          X
+~~~                          ^^^^
+cFAL is different to the cCRND shown up the top.
+
+Secondly it gives this stupid error:
+
+~~~
+c  No checksum / recovery information (Anti-Vir.Dat) available. cFAL
+C  The checksum data does not match!  File has been changed!
+~~~
+What sort of error is this ?  No checksum, checksum doesn't match ?!
+How can a checksum not match if there isn't a checksum ?
+
+Next is this:
+
+~~~
+N  Wrong name extension. Extension conflicts with program structure.
+~~~
+This is a proper COM file here!  Dunno what he's on about...
+Finally:
+
+~~~
+D  Disk write access.  The program writes to disk without using DOS.
+~~~
+Huh ?  No int13h's here!  Not even an int26h!  Good programming Franz.
+
+Also on another clean file I got this error:
+
+~~~
+C:\COOLSPOT\TRSI!CSF.EXE
+ might be infected by an unknown virus
+c  No checksum / recovery information (Anti-Vir.Dat) available. cJGK
+C  The checksum data does not match!  File has been changed!
+?  Inconsistent exe-header.  Might be a virus but can also be a bug.
+U  Undocumented interrupt/DOS call.  The program might be just tricky
+   but can also be a virus using a non-standard way to detect itself.
+Y  Bootsector violates IBM bootsector format.  Missing 55AA-marker.
+~~~
+
+Y  Bootsector violates IBM bootsector format.  Missing 55AA-marker.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+What!!!?  This is a file for gods sake!  The bootsector is only one sector
+on the entire harddisk, what's TBScan doing even bothering to look for it
+inside a file ?  And how in hell could it pick it up ?!!!
+
+I cringe to think what some computer illiterate user would think of such
+an error message.  Would probably have a heart attack!
+
+Enough harping for now...
+

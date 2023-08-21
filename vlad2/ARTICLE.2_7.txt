@@ -1,0 +1,35 @@
+
+    Feedback
+    +------+
+
+    After hitting IRC to chat on a sometimes dead #virus channel, I've
+    had a lot of feedback towards the magazine.  From this I've put
+    forward many changes to various things.  There are still people
+    asking "what's the password" hehe.. well, try something obvious if
+    you don't know :).
+
+    There are 2 parts to the secret area in this magazine, the first
+    part being much the same as the last, the guessing of a rather
+    simple word to type in, and the completion of the next objective.
+    I can't tell you about this part because it's top secret, and in
+    the wrong hands it could prove to be dangerous.
+
+    Quite a number of people wanted a text version (I think I've
+    mentioned this before heheh).  So we've just left the articles
+    as plain text, this is a little bulky, but hey.. you can't have
+    everything ;)  Those who don't use the viewer will miss out on
+    the secret of a century so they're just lower mortals than the
+    rest haha :)
+
+    There were quite a few mistakes in vlad#1.. according to one
+    person, the copying routing in the KRAD source won't work.
+    According to Qark, Incest.Brother won't work :). heh.. well almost
+    everything in this issue should work.  The flash bios infection
+    we haven't actually tested but I hope it will ;)
+
+    The sources in issue one were a little bit too complicated for
+    me, so I took to learning assembler and my first "real" virus
+    should be included in this issue.  I hope it sheds some light
+    on how it's done for the beginners.
+
+    Metabolis/VLAD

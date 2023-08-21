@@ -1,0 +1,21 @@
+
+
+  Debug Scripts!
+  +------------+
+
+     No assembler eh ?  Well, you can still get your hands on a working
+  copy of our virii.  Just grab the debug scripts contained in the
+  the following articles and create with:
+
+  DEBUG < ARTICLE.5_?
+
+  Where ? is the number of the one you have.
+
+
+
+
+
+
+
+
+

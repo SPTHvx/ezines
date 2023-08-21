@@ -1,0 +1,39 @@
+    
+    Dist/Contact Info
+    +---------------+
+
+    At the moment we only have two dist sites for our magazine, if you
+    want to join this small list then you can try a few methods of
+    getting in touch with us.
+
+    Well, we get CRISnet and NuKEnet although it seems sometimes that
+    there is major problems with the feed that no one knows about :).
+    Look for any of us on IRC in #virus (Qark, Metabolis, Darkman)
+
+    You can email any of us at meta@aladar.pmmf.hu although this may
+    not work since for some reason the routing to Hungary seems to be
+    a bit shot at the moment :(.
+
+    If anyone can give us an account that we can telnet to and have
+    access to irc/email 24hrs a day, that'd be great.  Please get in
+    touch with us and give us the address :) hehe
+
+    Through internet you can get our magazine a few different ways,
+    either ftp from
+    ftp.netcom.com : pub/bradleym/misc-zines/vlad#1.zip <- (whatever)
+    or see if lamerbot is in the #virus channel on irc and type
+    /msg lamerbot get misc-zines/vlad#1.zip
+
+    Anyways, here's the list of BBSs you can get the all of our releases
+    from..
+
+    Board                    Number        Sysop   Country
+
+    Destiny Stone ][ Node 1  +61-92462553  RipMax  Australia  *
+    Destiny Stone ][ Node 2  +61-92463491    ""       ""      *
+    * login VLAD pwd SITE
+    W.C.I.V.R Node 1         714-772-7039  Falcon  America
+    W.C.I.V.R Node 2         714-533-9615    ""      ""
+
+    Metabolis/VLAD
+

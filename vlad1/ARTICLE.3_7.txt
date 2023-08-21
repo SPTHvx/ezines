@@ -1,0 +1,32 @@
+                                                                              
+In the VLAD Magazine Issue #2 we hope to give you even better
+quality viruses!
+
+Already we are all hard at work developing viral algorithms for our
+next release (dont expect it too soon... we do have lives).
+
+Upcoming viruses will display one of these:
+
+
+           Disinfection on the fly - This'll get us around all those
+                                     CRC checkers and will greatly
+                                     enhance the lifetime of the virus.
+                                     The infectee will detect nothing!
+
+           Boot sector infection   - The world's most common virus is
+                                     a boot sector infector.  This will
+                                     be another skill mastered.
+
+           Tunneling               - Trace back through the interrupt
+                                     for the original int21h.
+
+           Polymorphism            - Continuously changing virus.
+
+           Also look out for a couple of tricky new stuffs!
+           All these things may also be mixed into a new super virus!
+
+Research will also be taken out in preparation for the release of
+Chicago.  As well as looking into DLL infection.
+
+If that doesn't satisfy you I don't know what will!
+

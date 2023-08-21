@@ -1,0 +1,170 @@
+
+    Virus Busting, the Leprechaun way!
+    +--------------------------------+
+
+    Well I thought I might call Leprechaun's BBS (company which releases
+    the anti-virus product "Virus Buster") and capture a chat with the
+    sysop there and then publish it in issue #2 of the magazine, well here
+    it is!  Not much really as I'm not the most convincing chatter and I
+    have talked to him once before but hey.. here it is..
+
+    The dude I talked to was "John" and it seems he's responsible for
+    a fair amount of the work that goes on at Leprechaun, ah well.. his job
+    is worthless with people like us around haha
+
+    M:Metabolis
+    J:John
+    [comments from me!]
+
+    ------------------cut here!--------------------------------------------
+
+    M:hi there, how's life treating you
+
+    J:Hard .. too much work ... too little money .. you know the story ...
+    [I can associate with this..]
+
+    M:well I'm trying to write as many viruses as possible to help you
+    along the way :) heh
+
+    J:thanks ....
+    [You can see he's really appreciative of our help]
+
+    M:not a problem.. heh.. so, do you have a copy of our magazine?
+    [He has our Aussie dist site number]
+
+    J:no, wasn't able to get a connect ... all I got was a blank screen ..
+    [Ain't that convenient? :) ]
+
+    M:oh bummer.. heh.. ah well!  life goes on.. works for me.. strange
+
+    J:probably some modem / comms stuff up
+
+    M:heh that's ok.. gives ppl a little more time to do their job of
+    moving the nasties around
+
+    J:oh ta ... I appreciate that one ...':
+    [now he appreciates it!]
+
+    M:well we know it's illegal to purposely distribute them.. ppl just
+    compile them debug scripts and do it for us.. safer that way :)
+    [the old "I'm sorry officer" speech hehe]
+
+    J:ha ha ... a little easier / safer for you maybe ...
+    [as I said.. safer for us.. repetition!]
+
+    M:yep.. and it's all one big game to be played as wise as possible
+    anyway.. very soon you should get a copy of a new virus with hmmm
+    7 constant bytes, my polymorphism isn't that good but that'll stuff
+    up some wildcards :)
+    [Brag/toss off time.. ah well hehe.. had to be done and this guy
+     thinks I write the viruses!  Me lamer!]
+
+    J:We have the technology to defeat you (paraphrasing $6M man)
+    [Sounds impressive!  What does he mean?]
+
+    M:heh what is it about "fuzzy logic" I heard in VB?
+    [A rumour I heard about their software]
+
+    J:Just a bit of code I whipped up to make my life easier and yours
+    harder ...
+    [I'm hurt]
+
+    M:hehe.. hmmm is it something like heuristics?
+    [hey.. I don't know what it is!]
+
+    J:That'd be telling ....
+    [ooh industrial ToP SeCReT iNFo]
+
+    M:well I could always call the local k-rAd c0oL bbs and get meself
+    a copy :) haha
+    [not that I could.. I'm no \/\/aReZ d00d :) ]
+
+    J:oh ... you could always send us a cheque and get a legal copy ...
+    [as if!]
+
+    M:heh :) I'd like to promote local industry but I have a slight pennie
+    problem (i.e. they don't exist) as you may be able to associate with
+
+    J:right ....
+
+    M:yer, you mentioned something of a news reported last time we
+    talked hmmm
+    [trying to get him to say something cool for this article :) ]
+
+    J:yes, a national media guy wants to write an article on viruses, etc.
+    [well after the last local media virus thang I can surely say fuck
+     off to this idea! ]
+
+    M:the media don't do very well when covering viruses.. it seems they
+    all like to go for the scare tactic/make virus authors look like
+    shit/murderers
+    [actually the murderer part is mostly confined to fidonet haha
+     Edwin Cleeton/Jeff Cook.. bite me!]
+
+    J:them's the breaks ... one other thing, if you're short of pennies,
+    how do you pay for the STD call from Melbourne?
+    [obviously pressing me for info, he obviously thinks the number of
+     the dist site is where we come from!  Well the number is in Perth
+     anyway! ]
+
+    M: :) .. never you mind! haha
+    [had to sound elite.. a matter of principle heh]
+
+    J:Telecom would be interested in that one ...
+    [scare tactics?]
+
+    M:I'm sure it would but I'm calling from my mum's workplace so you
+    can have fun trying to get something done about it :)
+    [bullshit story to give him his jollies]
+
+    J:Thanks for the info .... :)
+    [ooh he now can bust me for phreaking]
+
+    M:pleasure, you now know I have a mother.
+    [I'm busted for sure now!  I mean it's not as if having a Mother is
+     usual or anything]
+
+    J:Is that just a mother or a mother......
+    [is that a cryptic question?]
+
+    M:hmmm well she's a good mum.. lets me use the phone.. heh
+
+    J:Some people can get away with anything .... :)
+    [I like to think so]
+
+    M:fair enough.. hmmm the tafe I go to .. they had a taste of no
+    frills hehe.. such ancient things eh?
+    [reminding him of his most favourite virus author and giving him
+     some info to mislead him totally]
+
+    J:and badly written too ..
+    [I don't think so.. one of the most prolific spreaders around
+     Australia to date]
+
+    M: :) .. better than mine
+    [too true]
+
+    J:got some samples ?
+    [as if!]
+
+    J:care to upload them?
+    [sure I will!]
+
+    M:duh.. ok (no way :)
+
+    J:ok, got to go and think up new ways of making my life easier ...
+
+    ------------------cut here!--------------------------------------------
+
+    Do you feel enlightened as to the lameness of Leprechaun?  I do.
+    Nope, at one stage they were right on top of the virus scene in
+    Australia.. it caught nearly everything in Oz, but lately they have
+    definately gone into a demise.  They haven't submitted their product
+    to VSUM lately I wonder why.. (not that it means shit).
+
+    Ah well, I still use Thunderbyte.. not that it picks up most of
+    our stuff but it does the job ok.  If only it had the virus comments
+    that F-Prot does.. be great to scan my collection with :)
+
+    Metabolis/VLAD
+

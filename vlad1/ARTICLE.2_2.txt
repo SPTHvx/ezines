@@ -1,0 +1,57 @@
+                                                                              
+    Ok well, to start with let's define a good virus, and a bad virus.  A
+good virus would be a virus which would be seen to have a beneficial
+effect.  For an example in this article we'll use a virus that infects all
+files and on execution checks to see if, in turn it has been infected by
+another virus, if so it notifies the user and doesn't run the program.
+
+    A bad virus, well a bad virus doesn't have to be one with destructive
+code.  We'll count any virus that doesn't do something "good" as bad.
+Makes sense?  Hehe.. I thought so.  Usually good viruses are custom made
+for companies or sold as a package.  Much like experimental virii they tend
+to escape their habitat and infect the innocent home PC users out there.
+
+    Joe Blow has a computer literally full of viruses!  He is infected to
+the brim and luckily not one of them has any (purposely) destructive code
+in them.  He doesn't use scanners because he can't be bothered and his
+computer works fine.  Great!  This guy is a perfect platform for virii to
+spread, no doubt most of his friends are the same and no one knows they're
+infected.
+
+    After a while Joe gets hold of some hot warez off a mate that works in
+a big company, he found it on their hard drive.  So Joe runs the warez and
+in turn spreads this "good" virus all over the place.  Next bootup Joe has
+a message telling him his computer is infected.  He then shits himself and
+formats his hard drive.  Bummer about that says Joe, and gets back to his
+usual warez rampaging.
+                                                                              
+    Ok, so that was a bit extremist.  Ah well.. not only was a cool site
+for the spreading of viruses destroyed.  Joe lost all the warez he'd been
+collecting for months!  That, I guess is a very non believable circumstance
+so I'll move along onto something else :).  To understand further why there
+is such a kick about good viruses, we have to know exactly what most people
+think the word destructive means.
+                                                                              
+    To me a virus that overwrites random sectors with the word "lamer" side
+by side is destructive.  So is formatting random tracks and labelling them
+bad sectors.  A viron is destructive!  Well here's a side that not everyone
+has thought about (I haven't, so I'm not sure whether it's true or not).
+When a virus infects a file it changes the structure of that file.  Thus
+making the warranty on the software void.  This is damage, which can then
+give people the right to call viruses destructive.
+                                                                              
+    A virus can't spread without modifying executables in some way, voiding
+the warranty/rights to a package.  So every virus is destructive!  Bummer
+that.  Ah well.. we all have our own thoughts on what virii are.  Virii
+should spread, that is the initial function of most.  If people want to use
+them to harbour "good" code then this is their decision, but why bother?
+Surely there are easier ways of having this code executed.
+                                                                              
+    Viruses are what the author intended them to be.  Different authors
+intend different things.  "It is not known what this virus does besides
+replicate," does not really help tell the public what they are.  Companion
+viruses don't modify executables, but I guess not every file is EXE.
+Whatever.. viruses are good and bad.. that's life!
+                                                                              
+    Metabolis
+

