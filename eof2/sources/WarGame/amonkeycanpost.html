@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="./amonkeycanpost">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">Firefox.Greasemonkey.AMonkeyCanPost<br/></div>
+<div class="author">WarGame / DoomRiderZ<br/></div>
+
+
+<xmp>
+
+== Introduction ==
+Greasemonkey is a nice extension for Firefox that let you to "mod" the way
+web pages look.
+
+A greasemonkey script is written in  simple  javascript  using  only  some
+special comments at the beginning of it.
+
+For more info visit the official site: http://www.greasespot.net/
+
+
+== The w0rm ==
+I wrote a simple worm to show how this extension can be abused, all in few
+lines of js.
+
+
+It works in this way:
+
+1) Hooks the onsubmit event with my own function
+2) Scan for all textareas
+3) When one is found it appends an evil link that should point to the worm
+   itself (in my example worm this URL is fake)
+4) Submit all
+5) If the current day of the month is 29 my funny payload activates :)
+So if an user is sending something to a forum or a blog his/her post  gets
+   "infected" with the evil link.
+
+Infact to install a greasemonkey script you have only to click on the link
+pointing to it (something like http://something.com/scriptname.user.js). 
+
+
+== Final ==
+You can contact me at wargame@yahoo.it
+or visit http://vx.netlux.org/wargamevx
+
+Sorry for my poor english :P
+
+== Greetz ==
+#eof-project,#virus @ undernet
+Firefox browser: you inspired me :P
+
+</xmp>
+</div>
+
+</body>
+</html>
