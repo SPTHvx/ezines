@@ -1,0 +1,56 @@
+h1 {
+	color: #999999;
+	font-family: "Courier New", Courier, mono;
+	font-size: 1.5em;
+	font-weight: bold;
+	padding-left: 20px;
+        padding-right: 105px;
+	padding-bottom: 3px;
+	padding-top: 0px;
+	margin: 0px;
+}
+
+h6 {
+	color: #666666;
+	font-family: "Courier New", Courier, mono;
+	font-size: 0.8em;
+	font-weight: normal;
+	text-align: center;
+	margin: 0px;
+	padding-top: 15px;
+}
+
+body {
+	background-color: #000000;
+	background-image: url(../images/bg.jpg);
+	margin: 0px;
+	padding: 0px;
+}
+
+.content {
+	color: #999999;
+	padding-left: 20px;
+	padding-right: 100px;
+	padding-bottom: 23px;
+	padding-top: 8px;
+	font-family: "Courier New", Courier, mono;
+	font-size: 0.9em;
+	font-weight: normal;
+}
+
+a:link {
+	color: #999999;
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+	color: #999999;
+}
+a:hover {
+	text-decoration: underline;
+	color: #999999;
+}
+a:active {
+	text-decoration: none;
+	color: #999999;
+}

@@ -1,0 +1,71 @@
+		body
+		{
+			font-family: serif;
+			background-color: #030303;
+			color: #bcbcbc;
+			margin-top: 20px;
+		}
+
+
+		.menu
+		{
+			float:right;
+			width: 180px;
+		}
+
+
+		.menuitem
+		{
+			width: 160px;
+			background-color: #444444;
+			padding:3px;
+			border: 1px solid #666666;
+			margin-bottom: 2px;
+		}
+
+
+		.menuitem:hover
+		{
+			background-color: #555555;
+		}
+
+
+		.menuitem a:link
+		{
+			color: #cccccc;
+			text-decoration:none;
+		}
+
+
+		.menuitem a:hover
+		{
+			color: #cccccc;
+			text-decoration:none;
+		}
+
+
+		.menuitem a:visited
+		{
+			color: #cccccc;
+			text-decoration:none;
+		}
+
+
+		.title
+		{
+			margin-right: 250px;
+			text-align: right;
+			padding-right: 200px;
+			font-size: 1.5em;
+			padding-top: 20px;
+		}
+
+
+		.author
+		{
+			margin-right: 250px;
+			text-align: right;
+			padding-right: 200px;
+			font-size: 1.3em;
+			padding-top: 5px;
+		}
