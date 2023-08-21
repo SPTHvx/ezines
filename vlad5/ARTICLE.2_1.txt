@@ -1,0 +1,183 @@
+
+               ----/\--[ The birth and fall of the AIH ]--/\----
+                       bardic storytelling by Dark Fiber
+                  some background muse by Australian Parasite
+                                 [Long Version]
+            [Complete with unfamiliar two and three letter acronyms]
+
+  As of Tuesday the 18th April 1995 the AIH ceased to exist, and Dark Fiber
+[Me] was in the process of becoming a NuKE member.
+
+  Right about now you're saying to yourself AIH?  Dark Fiber?  Who da smeg!
+
+  So, okay, the Australian Institute of Hackers started life in 1986 as one
+of those Cracker gangs, there were more members than you could poke a stick
+at, because the leader [Chairman] let anybody in.  After cracking about 30
+games in 3 years Chairman met Australian Parasite in 1989, which from the
+Chairman's point of view was probably the worst thing that could have
+happened.
+
+  In less than a year Australian Parasite was running the AIH and he ousted
+all of the old members and had begun a drive for new members.  Enter Dark
+Fiber, and a few people I can't remember.  We continued life cracking games
+and writing cheat modes and other cracker-like activities.
+
+  Two months had passed and secret meetings were underway between myself
+and AP [I had been placed "Second In Command" by this stage] to turn the
+group into a virus writers gang.
+
+  It was now 1990 and AP and I were fumbling along on the virus front,
+[Ugh, you remember the old days?  The direct action .COM infectors :)] and
+we met up with a guy called Digital Vampyr in another australian cracking
+gang [Whom we'd later dissolve into our gang] and he expressed interest in
+viruses but would rather continue cracking.
+
+  Life continued on as normal, with cracking games and writing simple
+viruses, then suddenly the australian scene was alive [1992].  Now SCP
+[Southern Corrupt Programmers if I remember correctly] and a person whom we
+thought was Harry McBungus.  Unfortunately, we had no contact with any of
+them [Australia has always been pretty closed off in terms of
+communication].
+
+  During the month of June 1992 we decided to do the virus tutorial.
+
+  This is where things get dicey.  Three memebers dutifully wrote material
+and code for it, and somebody even wrote up the tute-engine-viewer prog,
+but the funny thing was, when it was released only 1 name appeared on it
+(on v0.2) anyhow].  In less than 1 week there was no more AIH as every
+member expressed their feelings towards everybody else in the group.  This
+was to be our first complete dissbandment of two official disbandments.
+One month passed and we decided to rejoin as a virus only group, so we
+ousted all the members except for a couple, and we took over the group MMK
+[Memory Management Killers] which brought us some crackers again.
+
+  August 1992 and Tonya Harding [CARO=Skater] was doing the rounds [This
+was waaaaaay before she banged up Nancy] of a few places.  About this time
+we had decided to do a bug fixed version of the tutorial, minus the section
+on trojans and ansi bombs.  And lo and behold, there were the correct
+amount of names on it this time [v1.00/v1.01].
+
+  February 1993 was our second doomsday.  Some of the crackers were not
+impressed that one of my intros was carrying a virus [It was a delay
+dropper, and timed to go off 1 year AFTER the date on in the intro].
+People were getting restless.  Shit was hitting the fan in the form of
+group politics.  The kind of politics like "He fingered me to the police"
+[Turns out nobody fingered anybody to the police, just some lamer on one of
+our boards was crying wolf to the sysop] and things like "We need a new
+leader".
+
+  Group politics suck.  From February 1993 to September 1993 we did not
+exist.  Some viruses were released in July\August but they were
+"unsolicited group releases" by both AP and I.  Nothing was then released
+until March 1994 [I never said not written tho] AP was concentrating on
+writing "non-underground" programs and utilities and his commitment to the
+group wanned dramatically, things were really stale, then the backstabbing
+started up.
+
+  From the time period of June 1994 to about December 1994 nothing
+remarkable happened, life went on, and my DiskMagazineGenerator [Plug, plug]
+was started.
+
+  December 1994, who opened the fridge?
+
+  Enter a furious AP, who dumped every single member overnight.  All
+passwords on our three member boards changed, and they all recieved an
+official "Sod off" on the phone.  There were now five members, AP, me,
+Vibrant Pixel, Track2Track and Digital Vampyr.
+
+  March 1995, a cold day in hell.  Phone rings.
+
+AP: "You're a fucken arsehole.  I'm gonna take you to the cops."
+    "Whats going on?  I don't have a problem with you, so don't you
+     start anything with me you hear!"
+DF: "Umm.  Nice to hear from you top, and um, what are you talking about?"
+AP: "Well, just don't fuck with me is all."
+
+  Phone gets slammed in my ear.
+  An hour later I get another call, this ones a conference call.
+
+ VP: "I'm running things now [AIH]."
+     "We'll let you back in if you tell us all you know about XXXX XXXXXX"
+      [XXX = My old "fake name", just that he didn't know, he thought it
+       was AP's real name]
+ DF: "Oh, you're running things are you?"
+T2T: "We know your backing AP, so if you help us we'll let you back in."
+ DF: "What exactly is going on?  Give me some details."
+
+  The rest of the conversation revolved around a so-called phone tapping of
+someones phone and that a particular member wanted to take over.
+
+  April 1995, Tuesday the 4th to be exact, a call from Digital Vampyr
+
+DV: "Hey DF, whos XXXXXXXX [VP]?"
+DF: "Oh, so they on to you too eh?"
+     [Me and AP knew that DV was moving to England]
+DV: "Yeah, something weird is going on, first he threatens me,
+     then he offers me a spot in his gang."
+
+  Digital was threatened with being dobbed in to the police by VP....
+
+  The pieces are startng to fall into place, but its useless to do anything
+now because everyone is pissed at everyone else.
+
+  April 1995, Tuesday the 18th, the Breaking of a 5 year pact.
+
+AP: "Hey, DF, we're dissolved okay?"
+DF: "I've been expecting this for a while now."
+AP: "I'm retiring from the virus scene and anything concerning the
+     underground, stay in touch ok."
+     [Yes, the sum total of the conversation!]
+
+  April 1995, Thursday the 20th.
+
+  Everyone is at McDonalds in the city [Nice neutral place], where we
+finally thrashed out all our differences, and were all "friends" again, so
+now there is no more AIH, but there is also no more bitterness which is
+good.
+
+  The real reason behind the takeover bid, for those of you who are still
+reading at this point, is, Vibrant Pixel heard a rumor that AP was going to
+drop him from the gang, so he made for a leadership bid.  Track thought he
+could get more recognition, so he went for the ride and fed false rumors to
+VP that I was supporting AP and that we'd take any action necessary to blow
+them out of the water.  AP gets threatening phone calls and is told that
+I'm going to dob him in and take over and that I have the support from
+everyone else in the gang.
+                      
+  During this process I was making innquiries about other groups in oz,
+VLAD were full up, but NuKE seemed to be looking for a new member....
+  Enter many people who tell me not to join NuKE....  But here I am.  The
+moment I get a whiff of group politics is the moment I become an
+independant.
+
+
+  Cast list, coz not everyones up with acronyms you've been used to for 5
+years.
+
+AIH = Australian Institute of Hackers
+ DF = Dark Fiber
+ AP = Australian Parasite
+ DV = Digital Vampyr
+ CC = CyberCrack [Hmmm, I don't think I mentioned him.]
+T2T = Track2Track
+ VP = Vibrant Pixel
+
+Okay, heres some general non-related stuff from me.
+
+Q: How many viruses are we responsible for?
+A: Well if you look in F-Prot or AVP listings and look up the keyword
+   Aust(ralian), and well, probably every one of those.  Most of them were
+   labeled Australian_Parasite because he put his name in them more often than
+   the rest of us did.
+
+Q: Where can I get em?
+A: In the time of 1990 to 1993 we released over 100 viruses and these
+   pieces of shit can be found in AIHV9093.ARJ which also includes v1.01 or
+   v1.02 of our tutorial. [499kb worth of stuff]
+
+Q: How come some viruses you've written were also "written" by Australian
+   Parasite?
+A: Don't ask, but the Split_Second (PreRelease) fiasco and other
+   Virus_Tutorial ripoffs are in the past.
+
+

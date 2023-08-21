@@ -1,0 +1,186 @@
+  
+  Virus Descriptions
+  +----------------+
+
+  Funky Opcode Generator (FOG)  -       Author: Eclipse
+                                        Origin: Australia
+                                        Group:  Independant
+                                        Type:   This is not infact a virus
+                                                but an advanced generator of
+                                                polymorphic code, to be used
+                                                as an addition to viruses.
+                                                
+  Horsa                         -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Direct action parasitic
+                                                infector of COM files.
+                                                Uses Int 25h and Int 26h
+                                                to Open, Read and Write to
+                                                the file, using the same
+                                                methods as the file engine
+                                                in TBScan.
+
+  Ph33r                         -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   TSR infector of COM, EXE
+                                                and Windows executables.
+                                                Disables Vsafe in memory.
+                                                Finds the original segment
+                                                of int 21h and will use that
+                                                instead.  When an infected
+                                                windows executable is run
+                                                from inside windows, the
+                                                virus will go resident
+                                                directly and infect any of
+                                                com/exe or winexe when they
+                                                are manipulated.  This makes
+                                                it the only virus which runs
+                                                under two environments.
+
+  Wintiny                       -       Author: Burglar
+                                        Origin: Taiwan
+                                        Group:  Independant
+                                        Type:   Direct action parasitic
+                                                infector of Windows
+                                                executables.
+
+  WinLamer2                     -       Author: Burglar
+                                        Origin: Taiwan
+                                        Group:  Independant
+                                        Type:   The worlds first polymorphic
+                                                windows executable infector.
+                                                It uses PMEW to create
+                                                a unique decryptor for
+                                                each infection.
+
+  Midnight                      -       Author: Antigen
+                                        Origin: United States
+                                        Group:  VLAD
+                                        Type:   Parasitic TSR Infector of COM
+                                                executables.  Uses many
+                                                retro structures.  Tunnels
+                                                Int 21h using ART 2.1 (from
+                                                VLAD-#3).  Encrypts the entire
+                                                body of the infected host file
+                                                so is very difficult to write
+                                                a cleaner for.
+
+  Small Virus                   -       Author: Super
+                                        Origin: Spain
+                                        Group:  Independant
+                                        Type:   TSR Parasitic infector of
+                                                COM and EXE files.  Most 
+                                                noteable for its incredibly
+                                                small size, only taking 168
+                                                bytes.
+
+  Arme Stoevlar                 -       Author: Metabolis
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Parasitic TSR infector of
+                                                COM executables.
+                                                
+  Sepultura Boot                -       Author: Sepultura
+                                        Origin: Australia
+                                        Group:  Independant
+                                        Type:   Full stealth TSR infector
+                                                of MBR/BS.
+
+  Lady Death                    -       Author: Dark Fiber
+                                        Origin: Australia
+                                        Group:  NuKE
+                                        Type:   Full stealth, parasitic TSR 
+                                                infector of COM/EXE/XTP files.
+                                                If present, the virus will
+                                                go resident in UMB memory.
+                                                The virus is polymorphic so
+                                                will not be detectable using
+                                                simple signature scanning.
+                                                Will modify the DOS MCB
+                                                structure when certain programs
+                                                are run to hide it's presence
+                                                in memory.  Contains some
+                                                retro structures.
+
+  H8YourNME's                   -       Author: Sepultura
+                                        Origin: Australia
+                                        Group:  Independant
+                                        Type:   Semi-stealth parasitic
+                                                infector of COM executables.
+                                                The virus tunnels int 21h
+                                                to find the original address
+                                                thus bypassing some AV TSRs.
+                                                If present, the virus will
+                                                go resident in UMB memory.
+                                                Infected files will show
+                                                no change in filesize when
+                                                the virus is resident.
+
+  Digitised Parasite            -       Author: Australian Parasite
+                                        Origin: Australia
+                                        Group:  AIH
+                                        Type:   Polymorphic TSR infector of
+                                                COM executables.
+
+  Dying Oath                    -       Author: Retro
+                                        Origin: Australia
+                                        Group:  Independant
+                                        Type:   Full stealth infector of
+                                                exe headers.  Goes resident
+                                                in high memory.
+
+  NoMut v0.01                   -       Author: NoOne
+                                        Origin: Unknown
+                                        Group:  Independant
+                                        Type:   Polymorphic engine
+                                                that generates unique
+                                                decryptors without using
+                                                garbage instructions.
+                                                It creates two decryptors,
+                                                where the first decrypts the
+                                                second.
+
+  Demon3b                       -       Author: Hellfire
+                                        Origin: United States
+                                        Group:  Independant
+                                        Type:   Polymorphic full stealth
+                                                COM/EXE infector.  Contains
+                                                many retro and anti-debugging
+                                                features as well as disk
+                                                space stealth.  Goes resident
+                                                in UMB memory if available.
+
+  SDFEe20                       -       Author: Zhuge Jin
+                                        Origin: Taiwan
+                                        Group:  TPVO
+                                        Type:   An advanced polymorphic
+                                                engine.
+
+  Zhuge Liang v2.0              -       Author: Zhuge Jin
+                                        Origin: Taiwan
+                                        Group:  TPVO
+                                        Type:   Full stealth polymorphic
+                                                COM/EXE infector thats main
+                                                purpose is to fool scanners
+                                                and TSR's.  It uses the
+                                                Int 2ah backdoor into DOS
+                                                to trick AV programs.
+
+  Alive                         -       Author: Sirius
+                                        Origin: Germany
+                                        Group:  Independant
+                                        Type:   Full stealth, tunneling
+                                                polymorphic COM/EXE infector.
+                                                Contains many retro
+                                                structures.
+
+  Fame                          -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Semi-Stealth COM/EXE/MBR/BS
+                                                infector.
+
+
+

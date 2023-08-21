@@ -1,0 +1,88 @@
+
+    Introduction
+    +----------+
+
+    It's that time of the month peoples.. vlad is back in the house
+    once more with another issue of our most excellent zine.  This
+    issue took a little longer to get out than usual but it's here
+    at last.  Most of the members went on vacation to various places
+    around the globe so I couldn't get in touch with them for quite
+    some time.  Although this issue is a little bare of vlad goodies,
+    things should be back to normal next issue.
+
+    Since the scripts for the viruses in this issue took up over
+    500k we decided to bundle them all up and stick them in a zip.
+    The zip is garbled with a password which is "I_agree" (without
+    the quotes ;)  Plus we had enough spaces to fill up the whole
+    thing, but if we should be down a few articles expect to see
+    the scripts right back there in the mag ;).
+
+    There hasn't been that much action in and around the virus 
+    scene of late, but I'll try and remember as much as I can.
+    Don't forget, if you find any grammar or spelling mistakes 
+    in here, deal with it.  Sending me email notifying me of 
+    each individual mistake is not much fun.. well not much fun
+    for me to read anyways..
+
+    The group is once more six due to Quantum deciding to leave,
+    his reason being his laziness.  I convinced him to finish 
+    the virus he was working on so it'll be his last contribution.
+    According to him, he's off to do bigger and better things 
+    but we'll see about that ;)
+
+    It seems our friend Rod Fewster has gained himself a position
+    of power (heh).  He's now the moderator for the fidonet virus
+    echo.  Originally Edwin Cleeton was the moderator, but he 
+    quit then Jeff Cook took over.  Now it's over to Rod, I 
+    haven't checked out the echo in quite some time but I'm sure 
+    Rod's making a right fuck up of things.
+
+    Vesselin Bontchev released a text file documenting the flaws
+    and failings of Zvi Netiv's AV program Invircible.  It was 
+    taken off Bontchev's site by the admin there and Zvi was 
+    threatening legal action, but I haven't heard of anything 
+    actually goin' on.  Don't really care to be honest, AV 
+    wars are becoming a little tiresome these days.
+
+    A member of the Taiwan Power Virus Organisation (TPVO) 
+    recently decided to alter my (Black Avenger's) virus "mon 
+    ami la pendule" and call it his own.  He named it "blue 
+    sad" and it got a feature article in a Taiwan PC magazine.
+    The other members of TPVO are a little peeved with Dark 
+    Tommy for doing this, and er hopefully it won't happen 
+    again ;)
+
+    VLAD has made it into the papers locally, getting mentioned
+    in an article relating to the threat of viruses to win95.
+    The author of the article is David Young, the same guy who
+    contributed to crypt 30, and the person he interviewed for his
+    information is Roger Thompson co-creator of Virus Buster, who
+    now lives in Atlanta.  I'm too lazy to type out the whole article
+    so here are the good bits:
+
+     "He expects the number of viruses to slow down briefly as virus
+      writers adapt themselves to the new Windows 95 environment.
+
+      However, one Australian virus writing group, VLAD, is posting
+      messages on electronic bulletin boards that claim it will
+      have a Windows 95 virus ready when the new operating system
+      is launched in about two weeks."
+
+    This comment must refer to comments made in NuKEnet, which is
+    monitored heavily by Anti-Virus people.  What we actually said
+    was "VLAD is working on a Win 95 virus", not that we have one
+    ready.  We have worked out how to append code to PE executables,
+    change the program entry to it and return safely to the host,
+    but we don't know how to call the kernel functions, this is
+    what is holding us back.  Although not many people know it,
+    Win32/WinNT/Win95 all use the same file format, so there is
+    great potential for infection.
+
+    I'm sure there have been a few more incidents around the scene
+    which I could document (if I could remember them), but to get
+    this done I decided to make a deadline and we have 50 minutes
+    left so I figure I'd better go fix up the rest that needs to
+    be done :).  Forgive me for any mistakes heh.  Take care ppls.
+
+    Metabolis/VLAD
+

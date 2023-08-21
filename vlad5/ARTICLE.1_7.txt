@@ -1,0 +1,64 @@
+
+    Magazine help!                               by qark/metabolis
+    +------------+
+
+    Although you might not notice it, the magazine has been greatly
+    changed with regards to code.  The viewer was completely replaced
+    by a new reader programmed by Dark Fiber.  The reader will now
+    display files bigger than 64k, and is very fast.  Added to 
+    that, mouse support has been added, better have your mouse
+    driver loaded.
+
+    The intro and game were programmed by our good friend Neuron, who
+    as usual, put in alot of effort to help with the magazine production.
+
+    NCL93DeV of Immortalia Team did the VLAD VGA and is working on a
+    virus demo :)
+
+    We got ourselves a new artist for this issue, Squidgalator ][,
+    he did both the vga for the bitmap rotating and the ansi for
+    the main menu.
+
+    Using the mag!
+    +------------+
+
+    If you wish to skip the VGA intro and piccy, put anything on the
+    command line.  That should do it.
+
+
+    How to use the mouse:
+
+        From the main menu, highlighting an option and clicking the left
+        mouse button will take you to the item.
+
+        When viewing an item, clicking the right mouse button will take you
+        back out to the main menu.
+
+        To move up and down within an article, move the cursor to the
+        direction you wish to view (ie top or bottom) and click the
+        left mouse button.  This will either move the screen a page up or
+        down.
+    
+    Here is a quick rundown on the keys:
+
+                           The Main Menu
+                           +-----------+
+
+        DOWN THE MENU ---------------------- DOWN Cursor Key
+          UP THE MENU ---------------------- UP Cursor Key
+         RIGHT A MENU ---------------------- RIGHT Cursor Key
+          LEFT A MENU ---------------------- LEFT Cursor Key
+    SELECT AN ARTICLE ---------------------- ENTER Key
+                 QUIT ---------------------- ESCAPE Key
+
+                           The Reader
+                           +--------+
+
+                   UP ---------------------- UP Cursor Key
+                 DOWN ---------------------- DOWN Cursor Key
+            PAGE DOWN ---------------------- PAGE DOWN Key
+              PAGE UP ---------------------- PAGE UP Key
+              THE TOP ---------------------- HOME key
+              THE END ---------------------- END key
+     EXIT THE ARTICLE ---------------------- ESCAPE Key
+

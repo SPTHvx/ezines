@@ -1,0 +1,143 @@
+
+What's happening in Immortal Riot ?
+
+Metabolis asked me what was really happening with Immortal Riot
+and more or less forced me into contributing to the magazine
+that he and his rad posse publishes.  Well... after writing
+about us in the introduction/news article in both issue #3 and
+issue #4 this seemed to be quite a natural question to ask. 
+
+Ok, but before I answer jack shit, let's go over what you 
+would've seen by reading the (superior) zines from Vlad.
+
+issue #3:
+ÄÄÄÄÄÄÄÄÄ 
+   "Immortal Riot the Swedish virus crew now has a new member,
+    Conzouler has joined them. I'm sure there'll be a lot of
+    input from him in the next IR magazine."
+
+issue #4:
+ÄÄÄÄÄÄÄÄÄ
+   "Red_a and Blonde have joined Immortal Riot so there's another
+    couple of helping hands to get their Insane Reality magazine
+    out. The Unforgiven tells me he has some full stealth viruses
+    ready to put out so issue 7 of insane reality should be
+    something to check out."
+
+It seems like Metabolis is quite well informed, but maybe his
+readers don't know the whole story.  So, let's go on... 
+
+Ever since we released IR#6 we have all been in hibernation and
+haven't had the right motivation to awake, "pull ourself together"
+and release the damn magazine. 
+
+We have however coded/spread a shitload of new viruses and even
+though they haven't been distributed in a nice format (like a 
+magazine), it doesn't mean they don't exist.  It would be kinda
+weird if we hadn't produced any new viruses considering all the
+new members we managed to drag into the inner circle. (IR (tm)).
+
+About the new members by the way: Conzouler contributed to IR#6 with
+his Bluenine virus (reality.014), but wasn't an official IR-member
+until the 14th of January, 1995.  Conzouler was the first guy in
+Immortal Riot I hadn't met in person (and to this day, still haven't),
+but I asked him to join because I find him to be a "truly amazing guy".
+Not just thinking about viruses and programming in general, but pretty
+much about everything.
+
+In late March I asked Red-A if he was interested in joining as well
+since IR wasn't a "close and private" group anymore (due to the fact
+Conzouler joined) and I thought he was a cool person. He said he was
+interested and joined on the 30th of March.  Cool.  Red-A is the
+infamous writer of the "Scitzo" virus - included without his
+persmission (or knowledge) as the virus-spotlight in IR#6.
+
+Red-A also wrote the Manzon virus which like Scitzo has replicated
+quite well around the world.  The last report I heard concerning a
+Manzon infection was from a guy in Poland (Helios Creed) who got
+all his computers infected with this "naughty, hard to remove-virus".
+It was all by coincidence I found out Poland was "under siege"...
+I was chatting with this humble person on a friend's bbs which I hadn't
+visited for over a year. Helios Creed and his board "Panteon" 
+(+48-61-52681) eventually ended up as an IR-dist site which 
+makes an interesting end to this chapter.
+
+To add here is that Red-A is not only an excellent programmer but also
+an idealist with a lot of radical political thoughts which sometimes seem
+to come from my very own brain. I love discussing things with this guy.
+
+Some weeks after Red-A joined, Blonde joined as a viruswriter.  The story
+why Blonde started out with viruses is that he got wiped out by a virus
+of mine (bad-attitude) and wanted to know how to protect himself from
+these naughty-programs that "seduce data and corrupt programs on your 
+computer". As for the moment Blonde is an excellent viruswriter and
+has written a lot of advanced, yet clear code.
+
+Ok.  That's pretty much it about the new members but how about the old
+ones?  Raver hasn't been in front of his computer for about 1« years
+with the exception when he wrote (Digital) Pollution & Death.
+
+Metal Militia is your average slacker who thinks he does a lot when infact
+he hasn't done shit in ages.  Then how about me?  Well... I'm just a guy 
+with a few too many problems who is way too stupid to solve them before I
+end up in even bigger problems thus leaving me and my life in complete 
+chaos with no time left to think about the most trivial things in life.
+
+Hope that was a confusing and unlogical answer since that would describe
+my situation quite well.  <depressed>.  <happy>.  I just don't know.
+
+Anyhow I mentioned above that we had released a lot of new viruses in the
+wild.  Well, by definition, _we_ didn't release them but our non-official
+spreader did.  So - thereby, I dedicate this chapter to him (Billy The Kid)
+whose contributions to our group always will be remembered.
+
+Manzon replicated really well and has been reported to us very frequently.
+It is a polymorphic tsr com/exe infector.  Despite the fact that it has
+alright polymorphism there have been (atleast) four specially designed
+removers for it. 
+
+The funny thing concerning this virus is that it was first distributed
+in a file called "petra-rm.zip".  Petra.1308 was a virus I had written
+motivated by hate.  When Petra-rm.com was executed it would search for
+all COM files in the tree thus infecting all files scanned (closed),
+'ala DAV.  The package with Petra-rm actually worked alright and it was
+a blast to analyze and critizise a virus I had written myself.
+
+Then, a new version of Digital Death which I fixed infected a school's
+network and all computer-classes were cancelled for about a week. 
+Eventually S&S, Sweden helped them in removing it. This little incident
+resulted in S&S Sweden (Q-A informatik) splitting up, which resulted in
+Mikael Winterkvist selling F-Prot.  Atleast this is what I think, due to
+the fact they discovored swedish viruses out there in the wild.. everywhere!
+
+Then Billy The Kid gave me a request to code a virus which one could notice
+when the payload activated, but not detect it before that time.  Said and
+done, he got his full stealth with a black-to-white-pop-begin-all-over-fading
+virus.  The monitors were going crazy and were classified as "bad" from their
+sysadm.  They were isolated and replaced. A guy in BTK's class asked: 
+"Can't this be the result of a virus running amok on our computers?" to
+which the sysadm replied: "No virus makes the screen fade... they can't
+destroy hardware, you know".  What a jerk-off.
+
+Soon enough RatMan coded a remover for the Manzon virus described above
+and we recieved the file and spread out a variant of Carpe_Diem_II in
+the remover thus infecting all files scanned (3eh infections roqs!) which
+I had written.  It included a text-string saying "Fuck you Ratman!". A 
+virus-war in Sweden had begun.  That is, IR against everyone.  Our version
+of Ratman's remover was the one which was disted due to the fact that 
+BTK uploaded it to atleast 20 eleet boards in Sweden.
+
+Anyhow - then a TSR blocker for (a virus they called), Carpe Diem_II
+appeared and the virus war continued....
+
+While writing this I just disassembled the tsr-blocker described
+above and realized we have nothing to fear from those suckers.  I'm
+also as for now trying to get in contact with all IR-members so we
+can finally get IR#7 out.  This isn't the easiest task in life
+since everyone seems to be out of the country.
+
+Well, We're not dead, just insanely confused.  Hang on and IR#7
+will be out when we cleared some things up ;-).  "The one who waits...."
+
+- The Unforgiven, Immortal Riot, 1995.
+

