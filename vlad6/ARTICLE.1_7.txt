@@ -1,0 +1,43 @@
+
+    Magazine help!
+    +------------+
+
+    The file_id.diz for this issue was kindly donated by Billy the Kid/IR.
+    
+    The intro effects were programmed by Quantum, and Qark did the game.
+
+    Our good friend NCL93DeV of Immortalia Team did the VLAD VGA's, and
+    as always, did a great job, which we really appreciate.
+
+    As with VLAD#5, Squidgalator ][ worked on short notice to get the ansi's
+    done for the main menu.  Thanx man!
+
+    Using the mag!
+    +------------+
+
+    If you wish to skip the VGA intro and piccy, put anything on the
+    command line.  That should do it.
+
+    Here is a quick rundown on the keys:
+
+                           The Main Menu
+                           +-----------+
+
+        DOWN THE MENU ---------------------- DOWN Cursor Key
+          UP THE MENU ---------------------- UP Cursor Key
+         RIGHT A MENU ---------------------- RIGHT Cursor Key
+          LEFT A MENU ---------------------- LEFT Cursor Key
+    SELECT AN ARTICLE ---------------------- ENTER Key
+                 QUIT ---------------------- ESCAPE Key
+
+                           The Reader
+                           +--------+
+
+                   UP ---------------------- UP Cursor Key
+                 DOWN ---------------------- DOWN Cursor Key
+            PAGE DOWN ---------------------- PAGE DOWN Key
+              PAGE UP ---------------------- PAGE UP Key
+              THE TOP ---------------------- HOME key
+              THE END ---------------------- END key
+     EXIT THE ARTICLE ---------------------- ESCAPE Key
+

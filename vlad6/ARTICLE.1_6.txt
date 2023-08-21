@@ -1,0 +1,21 @@
+
+    Secret Area
+    +---------+
+
+    As with each of the vlad magazines, there's a new secret area.
+    The secret things in each magazine can be found by typing in
+    the password at the main menu.  An example is the password from
+    issue #3 "vx" (without the quotes).
+
+    Meta.
+
+
+
+
+
+
+
+
+
+
+

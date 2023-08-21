@@ -1,0 +1,198 @@
+
+ From "The Sunday Mail", page 53, October 15, 1995.
+
+
+ Secrets of the
+          V I R U S  by Phil Waga in New York
+          H O U S E
+
+  The gleaming glass office building doesn't 
+  look at all ominous, but it holds plagues 
+  which could easily torment computers around 
+  the world.
+
+  The viral booty - mountains of floppy diskettes with more than 6000
+  computer viruses - is carefully safeguarded.
+
+
+  A padlocked steel bar runs from the top to the bottom of the cabinet
+  holding the disks.  And the cabinet is tucked into a locked laboratory
+  protected by, among other features its caretakers are reluctant to discuss,
+  infrared motion detectors.
+
+  "I'd be rather unhappy if any of this got out," Steve White, the laboratory's
+  senior manager, said in his usual understated manner.
+
+  He'd actually be than rather unhappy because the laboratory operated by IBM
+  as part of it's Thomas J. Watson Research Centre, has one of the biggest
+  collections of computer viruses in the world - killer viruses which can
+  drain computers of every ounce of information - and benign viruses which
+  just harass users.
+
+  The viruses, regardless of what they do, are becoming an increasing problem
+  at home and at work.
+
+  The "creatures" receiving all the attention are tiny programs written
+  deliberately to hide out in legitimate applications and then move
+  covertly from one computer to another.
+
+  While even the most costly anti-virus software usually costs less than
+  $US150 (about $A195), researchers say virus writers are becoming an
+  increasingly sophisticated bunch.
+
+  IBM's array of more than 6000 viruses is in sharp contrast to that of less
+  than a decade ago when fewer than half a dozen harmless viruses existed.
+
+  Today, hackers committed to either wreaking havoc or merely flirting with
+  computer users are creating three to five new viruses a day.
+
+  Viruses have appeared on every continent, striking millions of PC users and
+  tens of thousands of businesses.
+
+  The August debut of Microsoft's Windows 95 operating system for desktop
+  computers was quickly followed by a virus aimed at the program.  The new
+  virus is relatively harmless, limiting itself largely to flashing the
+  numeral "1" on the computer screen.  The virus can also make it more
+  difficult to save documents.
+
+  Users who examine the virus more closely are greeted by the message: "That's
+  enough to prove my point".
+
+  Reseachers also make the point that viruses of all types are of the fast
+  lane of the superhighway.  Strains multiply as more computer users trade
+  disks and join computer networks.
+
+  Even corporate networks and electronic mail provide fertile breeding grounds
+  "Everyone talks about computer viruses and agrees that they're a problem,"
+  said John Mann, an analyst at the Yankee Group, a market research firm in
+  Boston.
+
+  "But they're going to be a much bigger problem down the line - and not far
+  down the line."
+
+  To try to interrupt that line, IBM unveiled its latest virus-buster in July
+  - IBM AntiVirus.
+
+  With different versions available to single users for US$49 (about $A63) and
+  businesses for varying costs, the software is said to be able to detect
+  and eradicate just about every virus known to researchers.
+
+  But the program also takes a leap forward by scanning a computer's memory
+  hard-disk and floppy drives for new breeds of viruses for changeable
+  characteristics which can avoid detection by other anti-virus software.
+
+  IBM's software also attempts to detect as-yet unknown viruses by scanning
+  systems for appearances and behaviours characteristic of viruses.
+
+  The war between virus fighters and virus writers is intense because research
+  indicates that american companies lost at least US$100 million ($A131 million)
+  last year from viruses which brought down systems and destroyed data.
+
+  Striking across the board viruses hit Merriam-Webster, which had to recall
+  copies of computer programs featuring its dictionaries, to the Canadian
+  Government, which had to recall disks outlining its budget.
+
+  For all the damage viruses have done, there's little information on the
+  authors.
+
+  Steve White said the prevailing theory was that virus writers were young
+  - many even teenagers - and they didn't number more than several hundred.
+
+  "They think it's cool to create a virus and show what they can do," he said.
+  And tracing an infected disk is close to impossible.  It's like getting the
+  flu and trying to figure out how you got it"
+
+  Trying to figure out how to battle viruses has become a major industry, with
+  hundreds of tiny companies issuing anti-virus programs, and some two dozen
+  large firms controlling much of the market.
+
+  Analysts agree that the big three, all based in california, are McAfee
+  Associates Inc and Symantec Corp., which specialise in anti-virus work,
+  and chip-maker Intel Corp.
+
+  IBM, which issued its first anti-virus program in 1986, is in the top
+  dozen, analysts said.
+
+  But they added that IBM's potential was vast because of its positive name
+  recognition with desktop users, its deep reach into large corporations,
+  its reputation as a computer powerhouse and its widespread, high-priced
+  research operation.
+
+  "Just because its IBM - and also because its done very good anti-virus
+  work - IBM is already a player and quickly becoming a much bigger player,"
+  said Kurt Schlegel, an analyst with the META Group market research
+  company.
+
+  IBM customers say its overall anti-virus offerings, as well as its July
+  release, detect and erase more viruses than competing products.
+
+  At Duke Power, a utility serving 1.7 million customers in North and South
+  Carolina, computer security chief Jim Appleyard said 8000 office PCs had
+  been using IBM anti-virus products for two years.
+
+  "Before that, everyone had one anti-virus program or another, and nothing
+  worked very well," he said.
+
+  At US trust, a New York based bank with trust fund holdings, security
+  specialist Ralph Langham said the company averaged 15 infected computers
+  per virus before becoming an IBM antivirus customer.  The IBM products
+  helped detect viruses when they were still limited to infected disks
+  and had not yet spread to PC's he pointed out.
+
+  So among the 1000 PCs now using IBM antivirus software, the infection rate
+  was now less than one machine per virus incident.
+
+  IBM and other large virus fighters are working on the next frontier in
+  the virus world - an immune strategy for eradicating viruses.
+
+  Researchers hope the new system, different from existing software which relies
+  largely on fighting known viruses, will be available in about two years.
+
+  Based loosley on the science of the human biological immune system, the
+  new work calls for creating technology which identifies unknown programs
+  or changes in computer systems and then launches decoy programs.
+
+  The presence of a virus would be confirmed if decoy programs were infected
+  and the virus-buster would then erase the offending program.
+
+  "It won't mean the absolute end of viruses, but it will go a long way
+  to ending many of them," said Jeffrey Kephart, an IBM scientist leading the
+  immune-technology research.
+
+  Mr Kephart, 37, is one of 20 researchers and developers who work in the
+  anti-virus laboratory, formally called the High Integrity Computing
+  Laboratory, a low-slung rectangular room encircled by PC's.
+
+  Each unit operates on an isolated system and new viruses are allowed to
+  run rampant in a system while researchers study its characteristics and
+  how to destroy it.
+
+  Simple letters signs on the consoles state if a system is "infected" or
+  "clean".
+
+  One of the top virus fighters is David Chess who, with a beard, sandals,
+  T-shirt and an overall dishevelled appearance, looks more like he'd be
+  creating viruses than battling them.
+
+  But Mr Chess, 35, is a 14-year IBM veteran.
+
+  With little prying, he'll volunteer that most viruses are meant to do
+  nothing more than exhibit a hackers weird sense of humour.  Viruses
+  cause PC's to play Mozart pieces, or freeze units on Sundays to order
+  workaholics to leave their desks.
+
+  "Cansu", a common virus, displays a V-shaped symbol on screens when 
+  computers are switched on.
+
+  "Viruses aren't potentially very destructive, but they get into places where
+  they don't belong," Mr Chess said.
+
+  And no matter what advances virus fighters made, virus writers would not
+  be left behind, he added.
+
+  "There'll continue to be sort of an arms race between people who work to
+  develop viruses and people who work to end them," he said.
+
+  - USA Today/Gannet News Service
+
+

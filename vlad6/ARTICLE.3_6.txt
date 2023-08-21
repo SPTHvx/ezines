@@ -1,0 +1,296 @@
+
+
+
+The Monday, February 5, 1996 edition of the Courier Mail had this to say:
+
+  AUSTRALIAN computer hackers have brought computer giant Microsoft's
+  vaunted Windows 95 program to its virtual knees.
+    The first virus created specifically for the operating system has
+  reared its head in Britain - and Australia has been fingered as the
+  culprit.
+    More than 500,000 people in Australia use Windows 95 - the replacement
+  for the venerated Windows 3.1 and MS-DOS - and more make the switch
+  every day as new software is designed for the system.
+    Windows 95 was the fastest-selling software ever released, but its
+  popularity could be a danger as new viruses are designed specifically
+  for it.
+    The virus is a serious threat to users because virus protection
+  software normally detects only known viruses.
+    The new virus - named Boza - was discovered by a British software
+  company - and corrupts computer programs so they no longer function.
+    Once infected, the system puts a message on the screen which reads:
+  "The taste of fame just got tastier.
+    "VLAD Australia does it again with the world's first Win95 virus."
+    Windows 95 was launched in a blaze of publicity last August.
+    Microsoft, headed by the multi-billionaire Bill Gates, one of the
+  richest men in the world, spent more than $200 million worldwide to
+  promote it.
+    The Boza virus is a sharp blow to Windows 95's prestige, because the
+  program was specifically designed to make computer use easy.
+    Microsoft is still trying to push the system after initial sales
+  slumped.
+    Users were reluctant to switch from the tried and true Windows 3.1,
+  even though 95 was a quantum leap in usability.
+    Initial predictions were that more than 30 million copies - each
+  costing $159 - were expected to be sold last year alone.
+    Boza is a parasitic virus which attaches itself to existing programs
+  and, while they run, makes copies of itself which are then attached to
+  other programs.
+    The virus can spead to other machines via a network connection or
+  modem.
+    The man who discovered the virus, Oxfordshire computer analyst Paul
+  Duckin, said Boza would probably go down in history.
+    "It's the first that we've seen that affects Windows 95 programs in
+  particular," he said.
+    Mr Duckin said Boza's creators were assumed to be Australian and had
+  clearly targeted the new Microsoft system.
+    More than 10 million computer users in Britain use Windows 95 and are
+  under threat from the virus.
+    However, Mr Duckin said experts were taking some small comfort from
+  the fact that Boza was not especially easy to spread.
+    "If you run a program that's infected with Boza, then it will infect
+  up to three more programs," he said.
+    "But to infect someone else's machine, you would have to give them an
+  infected program, and they would have to run it.
+    "Most people don't swap programs around like that."
+
+        --------------------------------------------------
+
+   Thanks to Hellfire for grabbing the rest of this information for us.
+
+        --------------------------------------------------
+
+
+REDMOND, Wash., Feb. 5 /PRNewswire/ -- Microsoft Corp. (Nasdaq: MSFT)
+
+has learned that the Microsoft(R) Windows(R) 95 operating system is the
+target of a new computer virus, called the "Boza" virus. The virus is not
+contained within the Windows 95 product.  Although the virus is not
+widespread, users of Windows 95 should be aware that they might encounter
+it by downloading and running an infected program from the Internet, an
+electronic bulletin board or online service, or by running a program from
+a floppy disk containing the virus.  To mitigate the spread of the virus,
+Microsoft is working closely with anti-virus software vendors such as
+Symantec Corp. and McAfee Associates to provide protection as soon as
+possible.  McAfee has posted an anti-virus update to address this virus,
+and Symantec will do so shortly.
+
+Running an infected program can infect up to three 32-bit Windows- based
+applications in the current directory.  When an infected program is
+executed, it may display a dialog box with a message from the authors
+of the virus.  Apparently the virus copies itself to other programs only
+to display its message.  As with any virus, Microsoft suggests that customers
+take the following steps:  Do not run unknown programs that are downloaded or
+copied from a floppy disk.  If unknown files have been executed on the
+machine or if the user is unsure, obtain a current virus scanner from an
+anti-virus software vendor and check the system periodically for infections.
+
+Microsoft and Windows are either registered trademarks or trademarks of
+Microsoft Corp. in the United States and/or other countries.
+
+CO:  Microsoft Corp. 
+
+ST:  Washington 
+
+IN:  CPR 
+
+        --------------------------------------------------
+
+
+LONDON, Feb 3 (Reuter) - A British software company has found the first
+virus specifically designed to infect Microsoft Corp's <MSFT.O> Windows 95
+operating system, a Sunday newspaper reported.
+
+The virus, called "Boza," corrupts progammes so they no longer work
+properly, the Independent on Sunday reported. It occasionally throws
+up a message reading: "The taste of fame just got tastier. VLAD
+Australia does it again with the world's first Win95 virus," the
+newspaper said. The report did not explain what the message meant. 
+"It's the first that we've seen that affects Windows 95 programmes in
+particular," Paul Ducklin, an analyst for Abingdon, England-based
+software company Sophos. Computer viruses spread when a user inserts
+an "infected" disk, or downloads infected programmes over a telephone
+connection.
+
+Windows 95, launched in a blaze of publicity last August, is the
+fastest-selling computer programme ever, with an estimated 10 million users.
+
+18:25 02-03-96
+
+        
+        --------------------------------------------------
+
+
+Free Norton AntiVirus Update Will Be Available on Symantec's BBS and FTP
+
+Web Sites, CompuServe, America Online, and Microsoft Network
+
+CUPERTINO, Calif., Feb. 7 /PRNewswire/ -- Symantec Corporation
+(Nasdaq: SYMC), the world's leading supplier of anti-virus software,
+today announced that it will provide a virus definition update to detect
+the first Windows 95 virus, preliminarily dubbed Boza (alias Bizatch).
+Symantec's Boza update will provide detection for end-users and
+corporate IS managers with Norton AntiVirus for Windows 95, Norton
+AntiVirus for NetWare, Norton AntiVirus Scanner for NT, and Norton
+AntiVirus for DOS and Windows.  The update will be available by Friday,
+February 9 free on Symantec's BBS and FTP & Web Sites, CompuServe,
+America Online, and Microsoft Network.
+
+BOZA VIRUS
+
+The Boza virus, originating in Australia, is the first Windows 95
+virus.  The Boza virus targets Windows 95, 32-bit executable files
+exclusively and is not expected to affect DOS, Windows 3.x, or Windows
+NT files.  In addition, the Boza virus cannot be transmitted through
+document files.  Like the majority of computer viruses, it can be
+transmitted via the Internet and floppy disks.
+
+At this time, the virus is not in circulation and no Symantec
+customers have reported infection.  Symantec AntiVirus Research Center
+(SARC) experts don't expect widespread distribution of this virus due to
+the immediate response by the anti-virus community.  "The Boza virus is
+the first Windows 95, 32-bit virus that's been developed," said Germaine
+Ward, director of product management, Norton AntiVirus Group.
+"Comprehensive virus protection is critical for Windows 95 users.
+Symantec has developed Boza detection and is working on a repair to
+provide a complete solution to the virus.  In addition, it is important
+to note that users of all operating systems are vulnerable to viruses.
+Norton AntiVirus provides the most complete virus protection available,
+including detection and repair of the Word Macro viruses, which are
+tremendously prolific," she added.
+
+AVAILABILITY
+
+Update files will be available free for download from the following
+online areas:
+
+Symantec BBS              (541) 984-5366 (300, 1200, 2400 baud)
+(541) 484-6669 (9600, 14400 baud)
+Symantec's FTP site       ftp.symantec.com
+Symantec's Web site       www.symantec.com
+CompuServe                GO SYMANTEC
+America Online            SYMANTEC
+Microsoft Network         SYM-NAV95
+Symantec's anti-virus products are backed by an unsurpassed range of
+virus information and update services.  Users can access the Symantec
+AntiVirus Reference Center on Symantec's web site to obtain up-to-date
+information on the Boza and other viruses and virus protection.  This
+area also contains the latest virus definitions for all Symantec
+anti-virus products, which are updated every month.
+
+Additional virus information and update services include:  The Virus
+Hotline (541) 9-VIRUS-9; downloadable virus definitions from the
+Symantec BBS, the Symantec FTP and Web sites on the Internet,
+CompuServe, America Online and the Microsoft Network; and a monthly
+Virus Definition Disk Service (800) 343-4717 ext. 756.  In addition, a
+quarterly virus definition subscription service, the Norton AntiVirus
+Subscription Service, is available for an annual fee of $39.95 plus tax.
+
+Symantec Corporation develops, markets and supports a complete line
+of application and system software products designed to enhance
+individual and workgroup productivity as well as manage networked
+computing environments.  Platforms supported include IBM personal
+computers and compatibles, Apple Macintosh computers as well as all
+major network operating systems.  Founded in 1982, the company has
+offices in the United States, Canada, Australia, Japan and Europe.
+Information on the company and its products can be obtained by calling
+(800) 441-7234 toll free, or (541) 334-6054.
+
+NOTE:  Brands and products referenced herein are the trademarks or
+registered trademarks of their respective holders.
+
+CO:  Symantec Corp.
+ST:  California
+IN:  CPR
+SU:  PDT
+        
+        --------------------------------------------------
+
+
+BURLINGTON, Mass., Feb. 7 /PRNewswire/ --
+Anti-virus software vendor S&S Software International Inc., maker of
+DR. SOLOMON'S ANTI-VIRUS TOOLKIT, is posting a "fix" that detects and
+removes "Boza," the first computer virus to target Windows 95.
+
+"There is no reason for users to panic," said Dr. Alan Solomon, founder
+of S&S and leader of the company's anti-virus research team.
+
+"Users are not likely to encounter Boza, because it is `not in the wild,'
+spreading from computer to computer." said Solomon.  "Media reports that
+this virus is `deadly' or `lethal' are completely inaccurate, recalling
+the great Michelangelo scare of 1992.  Boza is just one of the 150 to 200
+new viruses that the anti-virus research team at S&S sees each month.  It's
+interesting to anti-virus experts, but is not a threat to users."
+
+To allay concern, as it normally does when any new virus is spotted, S&S is
+updating the TOOLKIT to automatically protect users from Boza. The company
+is also posting online a "fix" that updates the TOOLKIT to detect Boza.
+TOOLKIT users may download the file "EXTRA.DRV" via the Internet
+(www.drsolomon.com) and via CompuServe (GO DRSOLOMON).  "Boza" is the first
+computer virus written specifically to infect Windows 95. It was named
+after a "muddy and disgusting-tasting Bulgarian drink."
+
+"There are many existing DOS and Windows 3.x viruses that work under
+Windows 95," said Solomon.  "They pose more of a threat than Boza."
+
+Boza attempts to infect up to three *.EXE files in the current directory.
+These program files must include Win32 "portable executable" headers that
+are used by applications that operate under both Windows 95 and Windows NT.
+
+Infected programs sometimes increase in size by 3,192 bytes, and the last
+modified date and time changes to the date and time of infection.
+
+The virus appears to partly disable applications designed to run under
+both Windows 95 and Windows NT.  For example, when infected, Netscape 2.0
+beta 6, the 32-bit version of Netscape designed to run under both
+Windows 95 and Windows NT, ceases to function under Windows NT but
+continues to run under Windows 95.
+
+When tested by S&S, several other infected hybrid applications designed
+for both Windows 95 and Windows NT continued to run under Windows 3.x but
+failed to run under Windows NT, generating an error message:  "Not a
+valid NT program."
+
+If executables are "read only," the infection fails.  Read-only programs
+are protected against this virus.
+
+Boza does not become resident in memory, which seriously reduces its
+ability to spread into the wild.
+
+Also, it does not carry a destructive payload. 
+
+Boza comes from Australia and randomly displays a dialog box that
+cites VLAD Australia.  VLAD Australia is a group of virus writers
+that have in the past distributed an underground electronic newsletter
+with virus-writing tips, sources and examples via the Internet,
+electronic bulletin boards and online services.
+
+About S&S   
+
+"DR. SOLOMON'S ANTI-VIRUS TOOLKIT" is the leading European anti- virus
+software, with nearly 3 million users worldwide.
+
+The company's anti-virus research team identifies 150 to 200
+new viruses each month.
+
+The TOOLKIT detects, identifies and safely repairs the damage caused
+by more than 7,700 file, Master Boot Record and boot-sector viruses,
+including the most complex encrypted and polymorphic viruses.
+
+Versions of the TOOLKIT are available for Windows 3.x, Windows 95,
+Windows NT, NetWare, OS/2, SCO UNIX, Macintosh and MS/PC-DOS.
+
+S&S Software International Inc. is a worldwide corporation with U.S.
+offices in Burlington, Mass., and Los Angeles.  The company has offices
+and authorized distributors in more than 70 countries around the world.
+
+Founded in 1984 by Dr. Alan Solomon, the company specializes in
+security and networking products for IBM-compatible systems.
+
+CO:  S&S Software International Inc. 
+ST:  Massachusetts, California 
+IN:  CPR 
+SU:
+
+        --------------------------------------------------
+

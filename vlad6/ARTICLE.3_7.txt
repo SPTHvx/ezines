@@ -1,0 +1,53 @@
+  
+  Future Techniques
+  컴컴컴컴컴컴컴컴�
+
+  Polymorphism:
+  It is possible to read/write to the code of a PE virus, therefore
+  polymorphism will continue to exist as part of the virus writers
+  repetoire under Win95.  Although, polymorphic routines will 
+  change slightly to produce 32 bit code.
+
+  Entrypoints:
+  The PE executable has a weakness due to the numerous relocations
+  inside it.  It would be possible to get an API function such as
+  ExitProcess or PostQuitMessage and change the import table entry
+  for it, to point to the virus exit.  The original relocation address
+  can be replaced to point to the virus entry instead.  When an
+  application quits, the virus will be run instead.  In this way
+  the "Entry Point RVA" doesn't need to be modified to gain control
+  during running of the program, which makes the task of virus detection
+  very cumbersome because every entry point would have to be scanned.
+
+  Memory Residence:
+  The technique described above can be used to advantage as a sort of memory
+  residence.  If a virus direct action infected KERNEL32.EXE and took
+  control of the KERNEL function CreateProcessA, it could infect every
+  file as it was executed.
+  
+  Using API functions such as GlobalAlloc could provide a means for proper
+  memory allocation, or else modifying the 386 "Descriptor Tables" manually.
+
+  Low-Level:
+  All Win95 applications run at Ring-3.  At this level a program can't
+  do such things as read/write to hardware ports directly.  Ring-0
+  has full control of the system.  For information on how to gain Ring-0
+  in Win31 get the file RING0.EXE from /softlib/MSLFILES on
+  ftp.microsoft.com.  The code in this small example is not truly
+  applicable to win95.  It uses int 2f calls to modify descriptors, this
+  is not possible under win95 as interrupts cannot be accessed.
+
+  Real Mode:
+  It could be possible to switch the processor back to real-mode using
+  low-level instructions, and use interrupts from there.  This would
+  require some hole in the win95 defense system...
+
+  Vxd's:
+  Vxd's existed under win31 and they still exist under win95.  Vxd's run
+  at ring 0 and thus have as much access to the system as the kernel.
+  Although safe guards are in place to stop vxd's from running rampant,
+  a vxd can do just about anything it wants, including changing
+  selectors and descriptor tables.  You can expect to see lots of
+  information on vxd's in future.
+  
+

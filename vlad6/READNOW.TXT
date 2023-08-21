@@ -1,0 +1,5 @@
+
+ Although the magazine has VGA detection, if it should somehow fail
+ then run 'VLAD-#6' with any parameter and the VGA stuff will no
+ longer be displayed.
+

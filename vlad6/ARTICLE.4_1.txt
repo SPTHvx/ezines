@@ -1,0 +1,115 @@
+  
+  Virus Descriptions
+  +----------------+
+
+  Gilgamesh                     -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Tunneling, Polymorphic
+                                                COM/EXE retro virus.
+
+  VIP V1.0                      -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   This is not infact a virus
+                                                but an advanced generator of
+                                                polymorphic code, to be used
+                                                as an addition to viruses.
+
+  VLAD Surface Tunneling Engine -       Author: Qark
+  VSTE                                  Origin: Australia
+                                        Group:  VLAD
+                                        Type:   This is not infact a virus
+                                                but a utility that traces
+                                                through code inside files.
+                                                It is used as an addition to
+                                                viruses.
+
+  Tracevir                      -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   TSR COM infector.  Used to
+                                                demonstrate VSTE.
+
+  386 Virus                     -       Author: Qark
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   TSR EXE infector.  Used to
+                                                demonstrate use of 32bit
+                                                386 instructions for use
+                                                in viruses.
+
+  Timber Wolf                   -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Experimental direct action
+                                                prepending/appending COM
+                                                infector which  randomly
+                                                disinfects itself from the
+                                                host and travels around the
+                                                computer.
+
+  The Fire in Which We Burn     -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Semi-Stealth TSR COM/EXE
+                                                infector with interesting
+                                                payload.
+
+  Backwards                     -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   TSR COM infector which
+                                                uses a unique encryption
+                                                method that reverses the
+                                                virus code.
+
+  Bizatch                       -       Author: Quantum
+                                        Origin: Australia
+                                        Group:  VLAD
+                                        Type:   Direct action Win95 
+                                                Portable Executable (PE)
+                                                infector.  The worlds first
+                                                Win95 virus.
+
+  Insert V1.7                   -       Author: Darkman
+                                        Origin: Denmark
+                                        Group:  VLAD
+                                        Type:   Encrypted prepending
+                                                TSR COM infector.
+
+  Serrelinda                    -       Author: Rhincewind
+                                        Origin: Unknown
+                                        Group:  VLAD
+                                        Type:   Full stealth EXE header
+                                                infector that goes resident
+                                                under the host.
+
+  Lapis Lazuli                  -       Author: Rhincewind
+                                        Origin: Unknown
+                                        Group:  VLAD
+                                        Type:   Resident EXE virus, that
+                                                infects without modifying
+                                                the header.
+
+  RHINCE2                       -       Author: Rhincewind
+                                        Origin: Unknown
+                                        Group:  VLAD
+                                        Type:   This is not infact a virus
+                                                but an advanced generator of
+                                                polymorphic code, to be used
+                                                as an addition to viruses.
+                                                Very tiny and well optimised.
+
+  nimD00D III                   -       Author: Nimrood The Necromancer
+                                        Origin: United States
+                                        Group:  pain
+                                        Type:   Memory resident MSDOS.SYS
+                                                and IBMDOS.COM infector.
+
+  SVL v1.2                      -       Author: SVL
+                                        Origin: Slovakia
+                                        Group:  SVL
+                                        Type:   Semi-Stealth TSR Polymorphic
+                                                EXE infector.
+
