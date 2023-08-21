@@ -1,0 +1,152 @@
+﻿xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+									DIZAHEX DISASSEMBLER ENGINE
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+												v1.0
+												2013
+												
+USER'S MANUAL
+
+DIZAHEX Disassembler.
+The engine has been tested thoroughly on a variety of executable files and automatically generated 
+instructions. It is supposed to work perfectly. If you find any operation errors, please do let me 
+know about them. 
+I welcome any comments, suggestions and feedback!
+	
+																m1x
+																pr0mix@mail.ru
+																virmaking for yourself...art is eternal
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+									DIZAHEX DISASSEMBLER ENGINE
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+[DESCRIPTION]
+	DIZAHEX - is a small disassembler engine intended for analyzing x86/x86-64 (+ 16-bit) code. It can 
+be used as an independent engine, as well as in combination with other ones: permutator, emulator, 
+virtual machine etc. Application options: primarily in viruses/worms/trojans, add-on protection 
+(packers, cryptors, protectors) =). It can also be used in other programs.  
+
+	DIZAHEX is written in C, so it is not associated with a specific processor. It can be used in 32-bit 
+and 64-bit applications. Another peculiarity of the engine is that it has no incorrect instructions. 
+It's assumed that any code analyzed consists of correct commands (duh, how else do you write a program?). 
+You can write an external analyzer if the task requires it. 
+
+	The table of opcode characteristics (dizahex_table) is a global massive. You can make the 
+disassembler permutable by moving the table to function  dizahex_disasm() or by transferring the virtual 
+table pointer as a (new) argument of the dizahex_disasm() function. 
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+[FEATURES]
+	[+] supports x86/x86-64 (+ 16-bit) instructions;
+	[+] supports general-purpose, system, fpu, mmx, sse, sse2, sse3, 3dnow!, undocumented instructions; 
+	[+] position-independent code (suitable for permutation - see conditions above);
+	[+] instruction disassembly and assembly (dizahex_disasm(), dizahex_asm());
+	[+] no association with a specific processor;
+	[+] no association with a specific OS; 
+		
+
+
+---------------------------------------------------------------------------------------------------------
+
+[USAGE]
+	DIZAHEX can both disassemble an instruction into a structure and assemble the structure back into a 
+command. 
+To disassemble an instruction, you need to call a function
+
+		int dizahex_disasm(uint8_t *pcode, DIZAHEX_STRUCT *pdiza);
+		
+where pcode is a code pointer, while pdiza points to structure DIZAHEX_STRUCT. Before calling this 
+function, you do not need to zero the DIZAHEX_STRUCT structure, the engine will do that itself. 
+However, in the pdiza->mode filed you do need to indicate the disassembly mode: 
+DISASM_MODE_32 or DISASM_MODE_64. 
+	
+	As a result, the function will return the length of the disassembled instruction and complete 
+the DIZAHEX_STRUCT structure that will look like this: 
+	
+		typedef struct
+		{
+			uint8_t		mode;			//disassembly mode		(DISASM_MODE_32/DISASM_MODE_64)
+			uint8_t		len;			//command length
+			uint8_t		pfx_66;			//operand size prefix	(0x66)
+			uint8_t		pfx_67;			//address size prefix	(0x67)
+			uint8_t		pfx_seg;		//segment prefix		(0x26/0x2E/0x36/0x3E/0x64/0x65)
+			uint8_t		pfx_rep;		//repetition prefix 	(0xF2/0xF3)
+			uint8_t		pfx_lock;		//lock prefix			(0xF0)
+			uint8_t		pfx_rex;		//REX prefix			([0x40..0x4F])
+			uint8_t		opcode;			//opcode
+			uint8_t		opcode_2;		//2nd opcode (if the 1st opcode = 0x0F)
+			uint8_t		modrm;			//MODRM byte
+			uint8_t		sib;			//SIB
+			union
+			{
+				uint8_t		disp_8;		//DISP_8 	(1-byte displacement)
+				uint16_t	disp_16;	//DISP_16	(2-byte displacement)
+				uint32_t	disp_32;	//DISP_32	(4-byte displacement)
+
+			}disp;
+			union
+			{
+				uint8_t		imm_8;		//IMM_8		(1-byte immediate value)
+				uint16_t	imm_16;		//IMM_16	(2-byte immediate value)
+				uint32_t	imm_32;		//IMM_32	(4-byte immediate value)
+				uint64_t	imm_64;		//IMM_64	(8-byte immediate value)
+			}imm;
+			uint32_t	flags;			//flags; 
+		}DIZAHEX_STRUCT;
+		
+	When the disassembler stops running, the pdiza->len and pdiza->opcode fields are always completed. 
+You can determine the presence of other fields by flags in pdiza->flags:
+
+		#define F_MODRM				0x00000001	//byte MODRM present
+		#define F_SIB				0x00000002	//SIB
+		#define F_DISP_8			0x00000010	//DISP_8
+		#define F_DISP_16			0x00000020	//DISP_16
+		#define F_DISP_32			0x00000040	//DISP_32
+		#define F_IMM_8				0x00000100	//IMM_8
+		#define F_IMM_16			0x00000200	//IMM_16
+		#define F_IMM_32			0x00000400	//IMM_32
+		#define F_IMM_64			0x00000800	//IMM_64
+		#define F_REL				0x00001000	//IMM* is a relative address in the command
+		#define F_COP_IMM_DISP		0x00002000	//change processing order for IMM and DISP
+		#define F_PFX_66			0x00010000	//0x66
+		#define F_PFX_67			0x00020000	//0x67
+		#define F_PFX_SEG			0x00040000	//segment prefix is present
+		#define F_PFX_REP			0x00080000	//repetition prefix is present
+		#define F_PFX_LOCK			0x00100000	//LOCK
+		#define F_PFX_REX			0x00200000	//REX
+		
+I need to clarify the purpose of certain flags. Here it comes:
+	(+) F_REL. This flag is used for instructions of relative path: call/jmp/jcc rel32, 
+		jcc rel8 etc. The value of rel* will be in range pdiza->imm.imm*;
+	(+) F_COP_IMM_DISP (COP - Change Order of Processing). This flag is used for commands with 2 immediate 
+		values: jmp/call far imm16:imm16/32; enter imm16, imm8.
+		For jmp/call far, the disassembler will write imm16/32 in range pdiza->imm.imm*, and imm16 in range 
+		pdiza->disp.disp_16. For enter: imm16 in pdiza->imm.imm_16, imm8 in pdiza->disp.disp_8 
+		(i.e. bytes are processed one by one in the order of their appearance in the command); 
+		
+	To assemble the instruction, you need to call a function 
+
+		int dizahex_asm(uint8_t *pcode, DIZAHEX_STRUCT *pdiza);
+		
+where pcode is a code pointer, while pdiza points to the completed structure DIZAHEX_STRUCT. As a result, 
+the function will return the length of the assembled instruction.  
+	
+		
+		
+---------------------------------------------------------------------------------------------------------
+
+[HISTORY]
+	v1.0	:
+				This release is the first open version!
+				
+				
+				
+---------------------------------------------------------------------------------------------------------
+
+Many thanks to herm1t for testing the engine =). 

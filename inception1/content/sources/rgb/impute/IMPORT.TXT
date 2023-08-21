@@ -1,0 +1,248 @@
+﻿                                 Imported Code
+                              roy g biv / defjam
+
+
+What is imported code?
+
+It is five years today that I first made this technique, and finally I finish
+implementing  it.  After writing virtual code, I tried to find another way to
+have operating system construct the code for me.  This time, I use the import
+table to supply all of the values.  This required some interesting tricks.
+
+
+How does it work?
+
+Normally, the import table will receive real addresses which values cannot be
+guessed,  but I made my import table to import the addresses that my  process
+also exports, so I know exactly what are those values.  Then I can create one
+export for every unique byte and import all of the bytes that I need.
+
+Of  course, it is not enough to import the bytes, because the imports are 32-
+bits large, so we need a way to access only the byte value for each one.  We
+do  this  by using a little decoder, and making the imports executable  code
+instead, like this:
+
+    mov  esi, offset import_list
+    mov	 edi, esi
+import_loop:
+    call esi
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;f7 -> import_loop (f7 is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    b8 nn xx xx and xx c3 xx xx
+
+and nn is the byte value that we need.
+Impute.A and B support this form.
+
+We  can order the imports randomly to make it polymorphic.  We can also  use
+other registers instead of eax.
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    call esi
+    xchg reg, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;f6 -> import_loop (f6 is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    bx nn xx xx and xx c3 xx xx
+
+and ecx, edx, ebp are available, and nn is the byte value that we need.
+Impute.A and B also support this form.
+
+We can support ebx this way:
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    xchg ebx, eax
+    call esi
+    xchg ebx, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;f5 -> import_loop (f5 is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    bb nn xx xx and xx c3 xx xx
+
+and nn is the byte value that we need.
+Impute.A and B also support this form.
+
+Another way to return the values is by using ret nn.  Then the delta between
+the new stack and the old stack is the value of the byte.
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    mov  eax, esp
+    call esi
+    sub  esp, eax
+    xchg esp, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;f3 -> import_loop (f3 is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    c2 nn xx xx
+
+and nn is the byte value that we need.
+Impute.C supports this form.
+
+We can even combine them, like this:
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    mov  ecx, esp
+    call esi
+    stos byte ptr [edi]
+    xchg ecx, eax
+    sub  esp, eax
+    xchg esp, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;f0 -> import_loop (f0 is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    b8 n1 xx xx and xx c2 n2 xx
+
+and n1 and n2 are the byte values that we need.
+Impute.D and E support this form.
+
+Of course we can use other registers instead of eax, too.
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    mov  eax, esp
+    call esi
+    sub  esp, eax
+    xchg esp, eax
+    stos byte ptr [edi]
+    xchg reg, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;ef -> import_loop (ef is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    bx n2 xx xx and xx c2 n1 xx
+
+and  ecx, edx, ebp are available, and n1 and n2 are the byte values that  we
+need, but see that the two values to store are reversed.
+Impute.D and E also support this form.
+
+We can support ebx this way:
+
+    mov  esi, offset import_list
+    mov  edi, esi
+import_loop:
+    xchg ebx, eax
+    mov  ecx, esp
+    call esi
+    xchg ebx, eax
+    stos byte ptr [edi]
+    xchg ecx, eax
+    sub  esp, eax
+    xchg esp, eax
+    stos byte ptr [edi]
+    lods dword ptr [esi]
+    lods dword ptr [esi]
+    cmp  byte ptr [esi], bl
+    db   75h ;ee -> import_loop (ee is first imported value)
+import_list:
+
+Then all imports have the format:
+
+    bb n1 xx xx and xx c2 n2 xx
+
+and n1 and n2 are the byte values that we need.
+Impute.D and E also support this form.
+
+We can support ASLR by replacing the "mov esi" with "call $+5 / pop esi".
+
+If  there were a 3-byte instruction that is safe to execute when we  control
+only the first byte, then we could do this:
+
+    b8 nn xx xx and xx <inst> xx xx and aa <inst> xx xx [sequence repeats]
+
+Then  we could build entire code using only imports, even register poly like
+this:
+
+    bx nn xx xx and xx <inst> xx xx and 9x <inst> xx xx and aa <inst> xx xx [sequence repeats]
+
+Sadly,  there is no such instruction in 32-bit code, so we are unable to use
+entirely  imported code in that way.  We can do it another way, though, like
+this:
+
+    b8 n5 xx xx and xx aa b8 n6 and xx xx xx aa [sequence repeats]
+
+Three  imports   are "mov eax, n5", "stosb" and "mov eax, n6",  and  another
+"stosb".   We repeat the last three imports for all of our bytes and then we
+can decode entirely.
+
+We could even make registry poly like this:
+
+    bx n5 xx xx and 9x aa bx n6 and xx xx xx 9x and aa bx n7 xx and xx xx xx aa [sequence repeats]
+
+We make the buffer address like this:
+
+    bf n1 n2 n3 and n4 90 90 90
+
+The  buffer address is the offset of the last import, so that when we finish
+decoding,  we  run immediately.   It needs a bit more memory to do  it  this
+way, but then we do not need any more imports except these.
+Impute.F supports the b8 form.
+
+
+Import Forwarding
+
+This is the last problem that we have.  Some DLLs can export a function that
+that they do not implement, by forwarding the reference to another DLL.  The
+way  that  it is detected is if the import address points inside the  export
+table.   Since we want to support returning any value, we have to defeat the
+import  forwarding  detection.  For the fixed-based versions, this is  easy.
+All  we need is an export table with characteristics that do not overlap our
+value.   Impute does this by using an imagebase value that overflows the 4Gb
+boundary  when  the export table size is added.  Then all of our values  are
+either  smaller than the imagebase or larger than the export table end.  For
+ASLR,  this  problem is not solved.  If there is a chance that Windows  will
+load the file at imagebase of 0x1xxx0000 then the detection might be hit and
+the file will not load anymore, but I have not seen any hit happen yet.
+
+
+Greets to friendly people (A-Z):
+
+Active - Benny - herm1t - hh86 - jqwerty - Malum - Obleak - pr0mix -
+Prototype - Ratter - Ronin - RT Fishel - sars - SPTH - The Gingerbread Man -
+Ultras - uNdErX - Vallez - Vecna - Whitehead
+
+
+rgb/defjam september 2013
+iam_rgb@hotmail.com
