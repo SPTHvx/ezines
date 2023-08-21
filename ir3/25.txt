@@ -1,0 +1,52 @@
+                   MOOSE - a new michelangelo affair ?
+                   ===================================
+  
+  It has now gone about four months since the person(s) responsible for
+  the computers on the campus of the Chalmers Technical Highschool made
+  their decision to cry out in fear for what they thought was a resident
+  polymorphic bootsector/.exe/.com/.sys infector. This was partly true
+  (it actually infected exe's, com's & sys files), but it wasn't either
+  resident, boot-sector infecting or polymorphic (haha! what a fuckup
+  statement, geee.. :)) And besides that, the .sys-files hang..
+  
+  But the new information, didn't came from him, instead it came from
+  John McAfee who had disassembled the virus, and except for the above,
+  he came up with a few different strains, like MOOSE 30, 31 and 32,
+  and on the .sys-files it overwrote the stack (the cause of the fuckups).
+  It moved up-wards with the "dot-dot" style, and it might change a random
+  byte in the infected file being executed, which can cause some chaos, if
+  it hits "the right place(s)". This was done by taking a random address,
+  as target. Later down in the text i will translate a message from Swedish
+  to English concerning this MOOSE thing. This was anyhow all over each and
+  everyone of them computers, so the guy must have spread it a bit.
+  
+  He also found (this time Lars Renman) that infections hadn't just occured
+  there, but on students homecomp's aswell. (gee! just spread it in some
+  lousy game and give it to *.* of them non-understanding geeks and *WOW!*
+  
+  Anyhow, when the latest F-PROT BULL arrived (BULL-210.???) there was some
+  articles about the new laws and one ESPECIALLY for MOOSE.. This made me
+  very suprised and that may change my mind about infecting others than the
+  public PD-systems and such. Why not spread it like hell instead and make
+  them people respect you, right? (now i'm not meaning to infect Chalmers
+  but anyhow..)
+  
+  And as usually Patricia hasn't taken it with in VSUM, since she hates all
+  non-americans/canadians. She also never includes viruses from people that
+  has something against her way of making descriptions. (like us) Too bad
+  that some people can't take critics.. They are LOOSERS.. I'm thinking of
+  making a VSUM-virus, just to see if she takes it with or not. But that's
+  lame, and she wouldn't write about it anyways. She thinks her think is
+  the best, so i tell her this, that there's and old saying that dreamers
+  has no chance, since the world kills them. Grow up Patricia! It's time
+  for that now. Learn to program a bit, disassemble everything yourself,
+  and start discussing things on the Inter and Fido nets. I have nothing
+  against you in person, but your attitude makes me wanna puke! (gaaack!)
+  
+  Now, back to MOOSE. I don't understand why it has been given so much
+  publicity.. so that's why i tried to get an interview with the "famouse"
+  person that found it at first (the Reindeerman :)), but he seemed to be
+  "out of state", so if it doesn't show up in this issue, i simply didn't
+  caught him.
+  
+                          = METAL MILITIA =

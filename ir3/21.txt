@@ -1,0 +1,85 @@
+                  WHAT HAS HAPPENED SINCE ISSUE #2
+                  ================================
+  
+  Yeah, as usual (one time before!), I'll write a what's new article.
+  As you might (clever boy!) guessed from the name, it is about stuff
+  which has happend from the second (or last one!) issue of the mag.
+  
+  But first of all, I suggest that you read the second issue before
+  this article, if you of'cos then already havn't. Otherwise, you'll 
+  not notice the difference that might have happend, or what ever. 
+  
+  		       - MAGAZINE CODE -
+  
+  No major changes has been in the magazine code & design. Some minor
+  things have been re-coded, and some stuff has also been added. For
+  instance, the fade in routine will now also work on IBM PS/2 machines.
+  Then we (ie, Raver!) have also excluded the support for the XT
+  machines. But no worries, if you got a lousy XT, you can always call
+  us up and say that you never ever again will read or even look at
+  our magazine!!, how scary. The magazine now requires a AT or faster
+  machine, a vga system for the fading and the VGA stuff. You must also
+  have a microsoft compatible mouse for using the mouse functions
+  avalible. You must run the magazine from pure DOS, ie, not under Desq-
+  view, since the ALT multitasker key fucked up the colors totally!
+  
+       		           - VGA -
+  
+  Just as in the second issue, we got some help from different artists
+  with a bit (to little!), spare time. We've got (as usual!) help from
+  The Sarge/Rebels, who've drawed a hell of a logo! B-Real's turned out
+  to be a quite good artist too, and he's also drawed us some logos
+  for this issue. It was also planned that Sub-Life would produce vga's
+  for us, but I have hardly heard from him since he joined in. So, we
+  can still say that we're three members in the group, ie, not counting
+  him as a productive member. That's a pitty, we got non-members who
+  are working their ass off for us, when not our own members are. Well
+  anyhow, then I've also quitted with the VGA, sorry! The vga just took
+  to much of my spare time, and I couldn't say I enjoyed them very much
+  anyhow. I might install 3DS in the nearest or something, but nowadays
+  I just don't have the time. 
+  
+    	                - IR BOARDS -
+  
+  Yes, The Judge isn't lonely as being a Immortal Riot sysop. We've
+  expanded with two new sysops. And not just these local-lamer bbs's,
+  (not saying that Firedoom Systems is lame!!) nops, it's two very
+  international ones! One is placed in the States, and the other one
+  in Australia. The numbers and all other important information about
+  them should be in the "how to contact" article. We'll anyhow not
+  hang around on these boards just to reply stupid messages about the
+  group, and date of release information and such. These things are
+  only taken care from Firedoom Systems itself. Anyhow, our products,
+  magazine's, and in some case viruses, SHOULD be in a specific area
+  for free download on these boards. Big hellos flies out to Dark
+  Image, and RipMax! 
+  
+  		         - VIRUSES -
+  
+  Once again we've brought you plenty of viruses, and as I can see it,
+  the quality of this ones have raised again. Raver have started into
+  virus programming. He've now in this issue included two new (scratch!),
+  viruses. I've made four new and fresh mutations, wich I am really
+  satisfied with. I've learned some new things and have added code that
+  not only is destructive or scan(ners) fuck up's. Well, they're in
+  some cases nearly "new" anyway. Compare ‚m with the orginal ones, and
+  you'll probably notice some MAJOR code changes. Metal Militia have
+  once again produced a scratch virus. Quite nice indeed, and now also
+  working to 100%, ie not as Extasy/Ravage. We've also (once again!),
+  had the opportunity to include a virus from ANOI. This virus is pretty
+  fun to annoy (anoi :)) the local geek's with no knowledge about the
+  operative system! My Little Pony 1.00 sure have got a nice spread
+  capability!
+  
+  			     - OTHER -
+  
+  Okey, this was just another short article written by me in the late
+  night. Lotsa other stuff has happen since the second release of
+  Insane Reality disk magazine! This doesn't mean that I havn't told
+  you about it, or anything else than this has happen. It might be
+  included in some other article or something. You know, we don't
+  write duplicate text just to fill out and make the magazine larger,
+  in case you didn't know. I dunno what more to say right now, except
+  that you should continue to read this magazine, and have a nice day. 
+  
+                         = THE UNFORGIVEN =
