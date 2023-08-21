@@ -1,0 +1,23 @@
+
+
+   What's Next ?                        by qark
+   +-----------+
+
+   All our members have improved in their skill level since VLAD#2 but
+   we intend on getting even better!  Of the research projects mentioned
+   in the last issue we completed two, that being the multipartite
+   virus and accessing the hard disk using ports.  Here is the list of
+   research projects we are thinking of:
+   
+        Windows Virus   -       We've been saying we will do this for
+                                for ages but we will get around to it
+                                eventually.
+        VIP Engine      -       The VLAD Indefinite Polymorphic engine.
+                                This has almost already been done, but
+                                is not good enough to be worthy of release.
+                                Still has some bugs.
+
+   We won't necessarily do any of these for the next issue but we will sure
+   look at them.
+   
+

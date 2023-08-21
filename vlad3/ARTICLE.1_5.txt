@@ -1,0 +1,38 @@
+    
+    Dist/Contact Info
+    +---------------+
+
+    At the moment we only have two dist sites for our magazine, if you
+    want to join this small list then you can try a few methods of
+    getting in touch with us.
+
+    Well, we get CRISnet and NuKEnet although it seems sometimes that
+    there is major problems with the feed that no one knows about :).
+    Look for any of us on IRC in #virus, or email me (metabolis) at
+    meta@tmok.res.wpi.edu
+
+    Through internet you can get our magazine a few different ways,
+    either ftp from
+    ftp.netcom.com : /pub/br/bradleym/Zines/VLAD/vlad#1.zip <- (whatever)
+    or see if lamerbot is in the #virus channel on irc and type
+    /msg lamerbot get Zines/VLAD/vlad#1.zip
+
+    Anyways, here's the list of BBSs you can get the all of our releases
+    from..
+
+    Board                    Number          Sysop   Country
+
+    Destiny Stone ][ Node 1  +61-92462553    RipMax  Australia  *
+    Destiny Stone ][ Node 2  +61-92463491      ""       ""      *
+    * login VLAD pwd SITE
+    W.C.I.V.R Node 1         714-772-7039    Falcon  America (westcoast)
+    W.C.I.V.R Node 2         714-533-9615      ""      ""
+    Area 51                  908-526-4384    Kalvin  America (eastcoast)
+    Darkland BBS             +45-45974344    Darkman Denmark  (Euro HQ)
+    Arrested Development     +31-77547477    Omega   Netherland
+
+    If you want your board added to this list get in touch with me
+    at the above email address and we'll work something out.
+
+    Metabolis/VLAD
+

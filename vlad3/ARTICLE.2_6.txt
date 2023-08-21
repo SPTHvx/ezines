@@ -1,0 +1,93 @@
+
+   VSUM denial time :)
+   +-----------------+
+
+   Well people, it seems we have made it into VSUM, all AVers only
+   have one of our viruses it seems, the other seven or so never did
+   make it into any scanners or reports, so now you know what sources
+   to mess with ;)  As per usual with our articles which we have
+   something to say in I'm going to write comments in square brackets
+   in the article.
+
+   Virus Name:  Incest
+   [when will all you AV fucks get it right?  there are four viruses
+   , each was published in VLAD#1 which you must have read!  Each a
+   member of the Incest family, therefore this virus should be called
+   Incest.Daddy!  the other three being Incest.Mummy, Incest.Brother
+   and Incest.Sister.]
+
+   Aliases:
+   [how true, no aliases]
+   V Status:    New
+   Discovered:  September, 1994
+   Symptoms:    .COM & .EXE growth; DOS CHKDSK file allocation errors;
+                decrease in total system & available free memory;
+                file time changes
+   Origin:      Queensland, Australia
+   [ah well, now you know where the magazine was first released ;) ]
+   Eff Length:  1,117 Bytes
+   Type Code:   PRhAK - Parasitic Resident .COM & .EXE Infector
+   Detection Method:
+   [well it is detected by F-Prot and TBAV, but patti is too cool for
+   these heuristic scanners]
+   Removal Instructions:  Delete infected files
+   [haha how true, I know that tbclean won't remove it, not sure about
+   f-prot though, i doubt it]
+
+   General Comments:
+   The Incest virus was submitted in September, 1994, after its isolation
+   in Australia.  Incest is a memory resident stealth-type virus which
+   infects .COM and .EXE programs, including COMMAND.COM.
+   [what's this isolation shit?  are these people thinking the virus
+   didn't get anywhere past Queensland?  hmm interesting! :) ]
+
+   When the first Incest infected program is executed, this virus will
+   install itself memory resident at the top of system memory but below
+   the 640K DOS boundary, not moving interrupt 12's return.  Total system
+   and available free memory will have decreased by 2,400 bytes, and
+   interrupt 21 will be hooked by the virus is memory.
+
+   Once the Incest virus is memory resident, it will infect .COM and .EXE
+   programs, including COMMAND.COM, when they are executed, opened, or
+   copied.  Infected programs will have a file length increase of 1,117
+   bytes, though the file length increase will be hidden when the virus
+   is memory resident.  The virus will be located at the end of the file.
+   The file's date in the DOS disk directory listing will not be altered,
+   however, the time field will have been altered.  The following text
+   strings are encrypted within the viral code:
+   [if I remember correctly Incest.Daddy changes the seconds on files
+   to 62 to check for infection (i might be wrong since I didn't write
+   it hehe)]
+
+           "[Incest Daddy] by VLAD - Brisbane, OZ"
+           "ANTI-VIR.DAT MSAV.CHK      CHKLIST.CPS  CHKLIST.MS"
+           [well we had to say it was from somewhere didn't we,
+           and naturally Brisbane came to mind]
+
+   This virus interfers with the Microsoft Anti-Virus and Central
+   Point Anti-Virus programs, deleting the above indicated files which
+   the programs require in order to be able to detect viral infections.
+   [I believe that's spelt "interferes" patti, but hey I'll let it go,
+   yeah you're right it messes with those, and tbscan but you wouldn't
+   mention that would you ;)]
+
+   All in all the article is pretty much correct, although there are
+   two versions of the Incest.Daddy virus (as noted by F-Prot).  It's
+   obvious she hasn't read vlad#1 or I'm sure she would've mentioned
+   about the reason *why* it's called the Incest family.
+
+   Ah well, VSUM is in general full of shit.. but this is ok.  It just
+   fucks me off that every single piece of AV bullshit has named our
+   virus (they all only have Incest.Daddy!!) wrong, they obviously don't
+   know how to read a magazine, any of them could get their hands on
+   it if they really wanted to.
+
+   When it comes down to it, we're lucky these people are doing their
+   job badly.  It gives us a better chance of further infection, and
+   a virus with more names might get more attention :) hehe I dunno,
+   a pretty rooted theory but hey.. this is a magazine, I have to
+   crap on about something :) heheheh
+
+   Metabolis/VLAD
+
+

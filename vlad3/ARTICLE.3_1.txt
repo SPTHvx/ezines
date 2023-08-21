@@ -1,0 +1,71 @@
+
+; Thunderbyte Residency Test, by Rhincewind [Vlad]
+;
+; As you may or may not know, the Thunderbyte resident av utilities hook
+; themselves to the device driver chain using the following device names:
+; TBDRVXXX, TBFILXXX, TBDSKXXX, TBMEMXXX, TBCHKXXX and TBLOGXXX.
+; Now, by doing trial handle opens you can detect if those devices do or 
+; do not exist et voila, you have a method for testing residency. TBAV 
+; itself scans the actual device driver chain for the TB???XXX devices 
+; which is unlike this method, pretty much impossible to confuse, but also 
+; undocumented and thus it's not guaranteed to work under future versions 
+; of DOS! Yes, Frans Veldman calls vile and unsafe functions in his battle 
+; against replicating codefragments.
+;
+; Added note: Just recently I was looking at the EMM virus written by
+; the author of the OneHalf family and found that it traces the device
+; chain to detect thunderbyte residency. This means that this kind of
+; detection isn't exactly new. Oh well, what the heck.
+
+                .model tiny
+
+                .code
+
+                org 100h
+
+start:
+                mov ah, 09
+                mov dx, offset startmsg
+                int 21h
+                mov cx,6
+                mov dx, offset tbdrvxxx
+detect_loop:                
+                mov ah,09
+                int 21h
+                mov ax, 3d00h
+                add dx,9
+                int 21h
+                push dx
+                mov dx, offset not_resident
+                jc dont_add
+                add dx, (resident-not_resident)
+                mov bh,3eh
+                xchg ax,bx
+                int 21h
+dont_add:
+                mov ah, 09
+                int 21h
+                pop dx
+                add dx,9
+                loop detect_loop
+                int 20h
+startmsg        db 'Thunderbyte Residency Test by Rhincewind [Vlad]'
+                db 0dh,0ah,0dh,0ah,'$'
+tbdrvxxx        db 'TbDriver$'
+                db 'TBDRVXXX',0
+tbfilxxx        db 'TbFile$',0,0
+                db 'TBFILXXX',0
+tbdskxxx        db 'TbDisk$',0,0
+                db 'TBDSKXXX',0
+tbmemxxx        db 'TbMem$',0,0,0
+                db 'TBMEMXXX',0
+tbchkxxx        db 'TbCheck$',0
+                db 'TBCHKXXX',0
+tblogxxx        db 'TbLog$',0,0,0
+                db 'TBLOGXXX',0
+not_resident    db ' - Not Resident',0dh,0ah,'$'
+resident        db ' - Resident',0dh,0ah,'$'
+
+                end start
+
+

@@ -1,0 +1,228 @@
+
+    Introduction
+    +----------+
+
+    Yet again the date for release kept getting held back, partly because
+    I was on holidays and partly because the other members were on holidays
+    also (this didn't help much ;).  We've done our best to check for bugs
+    in the code but we all make mistakes and one or two may exist.  I hope
+    this isn't the case, but if you find one.. deal with it!
+
+    There are now six members in VLAD, and perhaps one more by next
+    issue, but I think that will be it for us.  Don't need too many
+    people, this issue is packed enough with just the six of us :).
+    I guess that means some of us can take a rest next issue.  Of
+    course that won't apply to me, having to get everyone to work all
+    the time anyways (doh!).
+
+    Since all of the members have done something this time, we haven't
+    crapped on so much like we did in previous issues.  Most of my articles
+    I write the day we release the magazine so they aren't top quality.
+    We're definately more organised now, but it's still tough to keep
+    in touch with the overseas members all the time.
+
+    Now for a little news in and around the scene which I think you
+    might find interesting.  Aristotle of NuKE'94 recently announced
+    his retirement from the virus scene, although from his recent
+    actions it seems that like usual he is full of shit.  He handed
+    over leadership of his "group" to Deathboy who I'm sure will carry
+    the tradition on nicely.  Here is the message which he sent to
+    Deathboy to inform him of the great news.
+
+     "Dude,
+
+      Since A-E, aka Arthor Ellis, aka Bruce Wilson, aka Michael Jackson,
+                                        :) censored ---> ^^^^^^^^^^^^^^^
+      has caused such a ruckus among the US law enforcement agencies to
+      such an extent that they want some butt, I've decided that this
+      whole vx/av/whatever is for the birds. So, in keeping with tradition,
+      I'll pass the NuKE lineage on to you...
+
+      Darkman->Rock Steady->ARiSToTLE->The World->You  :)
+
+      Wear the brackets in good health... Take no prisoners...
+
+      Jeff Cook loves you all and may be reached at;
+
+      Jeff Cook 100 Canal St.
+      Dagsboro, NJ. (or is it Del) (302)732-3105
+
+      This number will recognize incoming faxes for the weak at heart.
+
+      Oh well... There will be one final NuKE Info Journal, but it will
+      be a lot different than what many of you would expect. :)
+
+      BTW... I met Firecracker a week or so ago. By the looks of it, the
+      blood is dry and should hopefully remain so.
+
+      Anyhow, y'all have a good one... Happy New Year!
+
+      Seek Jesus in all that you do!
+
+      a r i s t o t l e"
+
+    Along the lines of seeking Jesus, I asked Euclid when the next
+    Revelations magazine was to be released by The Trinity, it seems
+    that the group has a slight setback.  Euclid can't find Jesus
+    :).  So until he does it looks like The Trinity are in heaven
+    for a little longer.
+
+    Contrary to Aristotle's statement above he still has one goal left
+    in life it seems, this is to now try and take over VLAD instead of
+    his NuKE'94 scam.  He and his friend Splice both now support the
+    [VLAD] emblem when signing their name, we have yet to see if they
+    will attempt to release a fake journal.
+
+    In reply to the message above Qark asked Aristotle if it was crap.
+    To which he replies affirmative, as you can see from the next
+    lovely piece of Ari literature.
+
+     "=>  Is this crap ?
+      =>
+
+      Why yes... Yes it is!
+
+      I'm thrilled that you have such keen perceptions as you do!
+      So, perceive this... I've declared a hostil takeover again.
+      This time, I want the land of VLAD... Mooooowahahahahahaha
+      ...and so it were that ARiSToTLE smote the little men with his
+      gauntlet and declared a coup had ensued. Gracefully, with the
+      strength of one, he beat them about the head and neck. Seeing
+      little resistance, he grabbed the all too often glorified name
+      of VLAD and tucked it securely between a pair of spare brackets
+      that he had remaining from a previous engagement. [VLAD]
+
+      ...and off he rode to recruit new members for his new group.
+
+      Mooooowahahahahaha /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
+      a r i s t o t l e  [VLAD]"
+
+    Stormbringer of Phalcon/Skism also announced his retirement from
+    the scene, he is still around to see what's going on but will not
+    be authoring any more viruses.  I asked him to write a little
+    something about why this occured, here it is.
+
+   "Okay, my retirement, part II 1/2...... heh.....  well, first of all,
+    peppermint schnapps (100 proof) and irish cream coffee is a killer
+    combination *sigh*.  Anyway, for a while, I kept my viruses w/source
+    code available on my ftp site.  Someone in singapore downloaded
+    keykap2, and placed it on another guys computer.  The guy realized
+    he was infected, and as i tend to put, as Urnst calls them, my
+    "vanity marks" in my code (i.e. the little (c) 199x Stormbringer
+    thingie) and post to usenet with my handle, it was probably amazingly
+    easy to find me.  Anyway, i was drunk one night, and got email from
+    the victim of my virus.  This was the first case i knew of where one
+    of my viruses escaped into the "wild".  I was drunk, and got
+    depressed, my morals came in, ya know...... guilt trip etc.  So i
+    called the guy ($1.30 a minute to singapore..... <ouch>) and
+    explained to him how to fix his computer  (i often help people
+    out with virus problems, this was just my first time to have it be
+    one i wrote).  Anyhow, he was very nice and polite, and it kinda
+    hit a nerve.... I got drunker, got more depressed (it had been a
+    long day anyway) and wrote mah retirement letter (sorry for the
+    melodramaticism in it guyz..... i blame it on the booze).  I posted
+    it to alt.comp.virus, and forwarded it to the guy in singapore....
+    anyway, at that point i stopped writing viruses, and as i am a man
+    of my word, have not written, and will not write viruses, since
+    that point (unless there is some immediate need for one for some
+    strange reason that i cannot forsee..... can't see it happenin
+    though).  I am still a member of phalcon/skism.  I got a reply from
+    the person in question saying that he hoped he wasn't the cause
+    of my retirement, and that he wrote ansi bombs.... whoopeee....
+    honestly, i probably am not really cut out for virus writing i
+    guess, because it really did bother me that someone was bothered
+    by one of my viruses.  I dunno... take it as you will.  I am not
+    out of the scene really, but no more viruses will be coming from
+    me.  And no, I haven't headed off to any big AV companies... heh...
+    haven't even gotten any offers (oh well. wah. ;).  I do and always
+    have written my own disinfection programs for things i run into
+    or that someone needs cures for, but thats about the extent of my
+    recent virus-related stuff.
+
+    Cheers,
+    Stormbringer, Phalcon/SKISM"
+
+    It seems the news is all over the internet, Phalcon/Skism are just
+    about to release another issue of their famous magazine 40hex.
+    It should be a great issue to check out, after their break for one
+    year it will be well reiceved I'm sure.  Now not only do I get the
+    proverbial "when will vlad#3 be released?" I also get the "has 40hex
+    come out yet?".
+
+    The virus group TridenT has now officially ceased to be.  The
+    members (that I can name ;) were John Tardy, Masud Khafir,
+    Dark Helmet, Bit Addict, Peter Venkman and Omega.  I'm not quite
+    sure as to why this happened, but they're writing some kind of
+    article for release in a magazine about it.  It will be in
+    40hex/IR.. not sure.  The Netherlands will never be the same
+    again :).
+
+    Edwin Cleton retired as moderator of the fidonet virus echo,
+    I'm sure this as a result of the mass mail bombing that occured
+    on there.  A large amount of messages from a sex related mail
+    net were crossposted to virus.  Also a small amount of source
+    code was posted.  Jeff Cook the moderator of virus_info has
+    taken over for now.
+
+    Screaming Radish has taken over the spot of NuKE leader after
+    Falcon resigned for a day in protest over lack of leadership.
+    The next NuKE info journal will be released as soon as there is
+    enough material.
+
+    Immortal Riot the Swedish virus crew now has a new member,
+    Conzouler has joined them.  I'm sure there'll be a lot of
+    input from him in the next IR magazine.
+
+    The book "Virus Creation Labs, a Journey Into the Underground"
+    seems to have caused quite a stir around the place.  Although I
+    can't afford to buy a copy (and haven't seen one in Australia)
+    many people have obviously taken the time to purchase it.
+    George C. Smith (Urnst Kouch) goes into the intricacies of
+    virus author life and spills a large amount of beans about what's
+    going on.  His section on Priest is very in-depth, if you want
+    to check it out grab the latest Crypt magazine (29).  From the
+    chapter about Priest though it seems fairly obvious that Urnst
+    has nothing at all against recording all conversations with
+    virus authors, so ppl beware :)
+
+    There is a new Russian virus group which already it seems has
+    been responsible for quite a few viruses around the place.  They're
+    called Fear of the Dark.  I have yet to talk to any of the members
+    properly but I'm sure you'll see something from them in the near
+    future.  Good luck to them, I hope to see more of them on IRC.
+
+    The site at which VLAD was based (internet) tempest.rhn.orst.edu
+    was taken down by Aristotle and one of his cohorts.  He complained
+    to the admin at oregon state university and the connection was
+    withdrawn from the student that ran it.  Supposedly his computer
+    was confiscated by the federal police and he was kicked out of
+    university.  I'm sure this is just a rumour though.  Aristotle
+    even admitted this to me over fidonet, so much for his claims
+    of not being a narq.  Here's part of a message Aristotle sent
+    to Splice (the only other ari supporter who now supports [VLAD]
+    after his name).
+
+     "=>         John...  I've never liked tearful goodbyes...
+
+      Me either! I prefer to go out in a blaze of glory, but I think the
+      extraction of satisfaction came with the downing of TEMPEST  :)
+
+      Mooooowahahahahahahaha.... The Royal VLAD Dist took a hickey for
+      a short while. NOW, I just discovered that our beloved Rod Fewster"
+
+    It seems the only virus of ours which is currently detected is
+    Incest.Daddy.  Not that any of the programs name it correctly,
+    Daddy in TBAV and Incest with McAfee but they're getting there.
+    I'm not sure if it can be removed as yet though.  Perhaps CARO
+    ought to do something about the name of the virus.
+
+    Well that just about sums up everything that has happened around
+    me lately, hope you got some info out of it.  Apart from the two
+    new members since last issue (Antigen & Rhincewind) nothing has
+    happened within the group itself.  We're still rockin' on.
+    Anyways, time to finish this one off methinks.
+
+    Metabolis/VLAD
+
+

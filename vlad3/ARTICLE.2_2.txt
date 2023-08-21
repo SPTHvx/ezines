@@ -1,0 +1,55 @@
+
+
+   A brand new way to fool TBScan 
+   +----------------------------+       by Automag/VLAD
+
+
+   Today I worked on some features for Antipode:
+   I wanted it to infect a file during a scan by AV software so I added
+   the usual int 21h 3Dh (open) infection.  It already infected the files
+   under McAfee's SCAN so I added the 21h 6Ch (extended open) infection and
+   F-PROT became a vector but I was surprised that TBSCAN didn't infect my 
+   test files (5 byte .COM just 3 NOPs and an int 20h).  I took SoftICE and
+   traced some code and was really surprised as TBSCAN didn't open any file
+   in my directory!
+
+   I thought that Frans had found a brand new way to open files ?  Taking
+   int 21h as a breakpoint I found that TBSCAN just used the Find-Next
+   function.  I was dispirited, how would I use TBSCAN as a vector ?
+   Scanning another directory I was suprised to find TBSCAN used Int 21h 3Dh!
+
+   Rebooting, I tried to scan my directory again and now TBSCAN only opened
+   two files, both were infected (627 bytes long) while the others were
+   skipped (5 bytes long).
+
+   So here is the trick:
+   TBSCAN does not 'waste' any time with tiny files, it just skips them.
+   Let's imagine an algorithm...
+
+      Int 21 4Bh entry point:
+	   if (file_to_be_executed='TBSCAN.EXE')
+	   then TBSCAN_FLAG=1
+      end
+
+      int 21 4E entry point:
+	   if (TBSCAN_FLAG=1)
+	   then
+	   {
+	   if DTA.FILEEXT=COM
+	   then DTA.SIZE=0
+	   }
+      end
+
+      int 21 4C entry point:
+	   TBSCAN_FLAG=0
+      end
+
+   with such an int 21h, TBSCAN won't scan any COM file :)
+
+   That's done and tested and TBSCAN doesn't scan any file :)
+   The scanning is just a bit too fast as it scanned 726 executables in six
+   seconds :)  Now Frans can say that TBSCAN is the fastest scanner ever !
+
+   But anyway TBAV is the best AV program I have ever used...
+   So greets to Frans Veldman...
+
