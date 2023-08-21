@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Reflection: solution of "unconventional" tasks </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Reflection: solution of "unconventional" tasks</span></h2>
+					<br>
+					<p class="text">I will not chew all too much as <span class="warning">the idea of reflection</span> has nothing tricky, just about this mechanism is 
+					often overlooked. 
+The person who wrote something harder than copypaste examples instantly on a pair of explanations and examples.</p>
+					<p class="text"><span class="warning">Reflection</span> - is, in simple words, the way to handle programe your own code. 
+The very concept of reflection in programming is now being used in the context of <span class="warning">"managed code"</span> -
+the code that's just executed in the interpreter, but not directly in compiled languages.</p>
+					<p class="text">Reflexes are relatively common, but this design method has great advantages compared
+with standard design patterns. Reflection allows you to make extremely modular code without recompiling
+that has a different meaning in "managed code" in which there is no possibility in C/C++/ASM (etc) 
+direct access to any location in memory and rewrite.</p>
+					<p class="text">A typical use of reflection - is to download the desired class or a method based on the incoming data, 
+to implement a feature was not necessary to append the new conditions in an if or switch.</p>
+					<p class="text">A few simple examples of the use of this approach in JAVA and PHP.<br><br>
+					------ PHP ------</p>
+				
+
+				
+<pre class="php" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #000000; font-weight: bold;">&lt;?</span>   
+<span style="color: #000088;">$processor</span> <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> RequestProcessor<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #000088;">$funcname</span> <span style="color: #339933;">=</span> RequestProcessor<span style="color: #339933;">::</span><span style="color: #004000;">FUNC_PREFIX</span><span style="color: #339933;">.</span><span style="color: #000088;">$_GET</span><span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'action'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+<span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span><span style="color: #990000;">method_exists</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$processor</span><span style="color: #339933;">,</span> <span style="color: #000088;">$funcname</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+<span style="color: #b1b100;">echo</span> <span style="color: #000088;">$processor</span><span style="color: #339933;">-&gt;</span><span style="color: #000088;">$funcname</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$xpath</span><span style="color: #339933;">,</span> <span style="color: #000088;">$name</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">0</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+<span style="color: #666666; font-style: italic;">// PHP to dynamically load the classes is possible through the built-in mechanisms:</span>
+<span style="color: #666666; font-style: italic;">// http://php.net/manual/en/language.oop5.autoload.php</span>
+<span style="color: #000000; font-weight: bold;">?&gt;</span></pre>
+
+
+
+					<p class="text"><br>
+					------ JAVA ------</p>
+					
+					
+					
+<pre class="java" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #000000; font-weight: bold;">Class</span> clazz <span style="color: #339933;">=</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#123;</span>
+clazz <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">Class</span>.<span style="color: #006633;">forName</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;some.package.TheActionsClass&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003399;">Object</span> obj <span style="color: #339933;">=</span> clazz.<span style="color: #006633;">newInstance</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003399;">Method</span> actionMethod <span style="color: #339933;">=</span> clazz.<span style="color: #006633;">getDeclaredMethod</span><span style="color: #009900;">&#40;</span>anAction<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003399;">String</span> result <span style="color: #339933;">=</span> <span style="color: #009900;">&#40;</span><span style="color: #003399;">String</span><span style="color: #009900;">&#41;</span> actionMethod.<span style="color: #006633;">invoke</span><span style="color: #009900;">&#40;</span>obj<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003399;">System</span>.<span style="color: #006633;">out</span>.<span style="color: #006633;">println</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;result: &quot;</span><span style="color: #339933;">+</span>result<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">&#40;</span>
+<span style="color: #003399;">ClassNotFoundException</span> <span style="color: #339933;">|</span> <span style="color: #003399;">InstantiationException</span> <span style="color: #339933;">|</span>
+<span style="color: #003399;">IllegalAccessException</span> <span style="color: #339933;">|</span> <span style="color: #003399;">NoSuchMethodException</span> <span style="color: #339933;">|</span>
+<span style="color: #003399;">InvocationTargetException</span> e<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#123;</span>
+e.<span style="color: #006633;">printStackTrace</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+<span style="color: #666666; font-style: italic;">// In JAVA loaded classes must be in the classpath at startup</span></pre>					
+					
+
+
+					<p class="text">You can not talk about the Java reflection without mentioning about annotations.<br>
+					In Java, there is a mechanism such as <span class="warning">annotations (java annotations)</span> allows to parameterize code separate from its content. 
+This built on the many technologies (<span class="warning">JPA</span>, for example), greatly simplifies the development.<br>
+Abstract can be delivered to the classical, field and method, and there in order to set their own descriptions of the code and
+to use it in any convenient manner without additional structures. <br>
+A simple example: <br>
+Add to any method in the code annotation <span class="warning">@OnTimeTick</span>, further with the help of reflection mechanism can get all of these methods and
+respectively call them by triggering a timer.</p>
+
+					<p class="text"><br>
+					------ JAVA ------</p>
+					
+					
+					
+<pre class="java" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">clazz <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">Class</span>.<span style="color: #006633;">forName</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;some.package.SomeExampleClass&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span><span style="color: #003399;">Method</span> method <span style="color: #339933;">:</span> clazz.<span style="color: #006633;">getDeclaredMethods</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+    <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span>method.<span style="color: #006633;">getAnnotation</span><span style="color: #009900;">&#40;</span>OnTimerTick.<span style="color: #000000; font-weight: bold;">class</span><span style="color: #009900;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+        method.<span style="color: #006633;">invoke</span><span style="color: #009900;">&#40;</span><span style="color: #000000; font-weight: bold;">this</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span></pre>
+
+
+
+					<p class="text">Next: How can this mechanism be used for <span class="warning">"non-traditional" tasks.</span><br>
+					Java has the one property, which is sometimes very, very frustrating developers - it is easy to decompile. 
+					Most often, this escape code obfuscation that does not solve the main task - to compile, but makes code analysis 
+					кода demotivating complicated, but even so feasible in a reasonable time.</p>
+					<p class="text">The very structure of the organization compiled code (byte-code) is quite simple and in itself can give some information
+Application without decompiling - whether jar (zip folder, in fact), or just the class files.
+Moreover, even the last code obfuscation has compiled in the form of patterns, which may be the use of such antivirus software.</p>
+					<p class="text">What does the reflection can help? Reflection in java allows you to create <span class="warning">your own class loader</span>, 
+where the input we get the binary data stream, and the output must provide a copy of the desired class. 
+Thus the actual byte code can be encrypted in any way, which only enough imagination.</p>
+					<p class="text"><a href="sources/KostaPC/reflection/java_reflection_encoder" target="_blank">In this folder</a> shows the simplest version of the bootloader.  
+					The code consists of two parts:</p> 
+					<ul>
+						<li><span class="warning">cryptographer</span> - a class that encrypts byte code and packages to file additional information necessary 
+						to load the class.</li>
+						<li><span class="warning">loader</span> - a class that loads encrypted file and decrypts and runs the method <span class="warning">main()</span>, 
+						so that the encrypted class will run just as well as without encryption.</li>
+					</ul>
+					<p class="text">As an example of encryption is used strictly for <span class="warning">BASE64</span>. 
+					Such a pair cryptographer downloader allows you to encrypt and upload any compiled class file. 
+					Not complicated revision will thus packing in a single file the whole structure of classes.</p>
+					<p class="text">Where it can be useful?<br>
+If you are sending the code over open networks, such as when the code is a functional robot and add to the load
+should be placed on the open resources on <span class="warning">pastebin</span>, for example.<br><br></p> 
+
+<p class="warning">Sources: <a href="sources/KostaPC/reflection/java_reflection_encoder" target="_blank">sources/KostaPC/reflection/java_reflection_encoder</a></p>
+
+<p class="warning"><br>______________________________<br>
+KostaPC<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

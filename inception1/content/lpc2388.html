@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Self-rewriting executable code on LPC2388 </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Self-rewriting executable code on LPC2388</span></h2>
+					<br>
+					<p class="text">I'm developing a device based on the <span class="warning">LPC2388</span> chip manufactured by <span class="warning">NXP (Philips).</span> 
+It's an <span class="warning">ARM7TDMI-S</span> working on the 60 MHz frequency. It has a good performance, 
+<span class="warning">10/100 Ethernet, USB, UART, CAN, SPI/SSP, I2C/I2S</span> and an external memory controller (<span class="warning">EMC</span>), 
+allows connecting <span class="warning">NOR, NAND flash and additional RAM.</span> It runs the device installed on the locomotive and then rides with it around the country. 
+I need to come up with a convenient and fast way to upgrade the device’s firmware.</p> 
+					<p class="text"><span class="warning">The standard way to update the program is </span> to take the unit out of the locomotive, 
+					disassemble the unit, close the jumper on it, connect to the computer via COM-port, upgrade it, 
+then do the same in reversed order. <span class="warning">Another way is to use JTAG,</span> 
+which also requires the removal of the device from the locomotive, disassembling and connecting it to a PC. In addition, a hardware debugger will be required.</p> 
+					<p class="text">We have to do without all that. The firmware should be able to overwrite itself. 
+The firmware file will be delivered on an <span class="warning">SD-card</span>, inserted into the device. 
+The device must then upgrade itself using that file. That's how many household devices are upgraded, including different kinds of MP3-players, routers etc.</p>
+					<p class="text">Let’s see how this is done on  LPC2388.</p>
+					<p class="text">The device is able to read SD-cards (module from the micro-controller manufacturers). 
+Supported file systems include <span class="warning">FAT and FAT32</span> (due to module <span class="warning">ChaN's FatFS</span>).<br>
+LPC2388 has 512KB of internal flash memory and 64 KB of RAM.
+In the flash memory there is a program that gets control when the power is on. 
+To be more exact, it first gains control of <span class="warning">the Boot Loader Boot ROM</span> that then passes control to the user program if it's in the memory. 
+No operating system is used. The program is written in pure C.</p>
+					<p class="text">LPC2388 has an <span class="warning">IAP interface (In Application Programming),</span> it allows the program to write to its own flash memory. 
+					This is not possible under usual circumstances, as there is the program and its constant data  in the memory, the access is read-only. 
+Usually you do not need to write anything anyway while he program is running, as there is  random access memory for any changing data, 
+or you can add some external memory and work with it. 
+In addition, the recording space for the internal FLASH is limited: if you keep writing to it, there is a chance it may crash.</p>
+					<p class="text">When we write to flash, we overwrite the program currently running from it. 
+Once we have erased the sectors where the program is located, the processor has nowhere to take the following command it's going to execute from. 
+The entire code written after this point will not be executed, the update will not be completed, 
+plus the program has already been successfully erased and after restarting the device we will get a brick. 
+This is a problem that we have to somehow figure out. When trying to solve this problem, there are pitfalls that weren't so obvious before. 
+The IAP functions themselves are in ROM along  with the Boot Loader, 
+so they can't be killed (that's why the device can always be brought back to life with the help of a  computer, cable COM and the 
+<span class="warning">Flash Magic</span> utility).</p><br>
+
+					<h3><span class="warning">== Solving the problem of code being erased on flash ==</span></h3>
+					<p class="text">The program must continue to run after sectors of flash memory are erased, 
+because the program has yet to write the new firmware to it. 
+Generally, the LPC2388 code can be executed directly in RAM. 
+You just have to post the flash rewriting code into RAM. 
+Then the code can be executed safely and do whatever you want with the flash memory. 
+But we must make sure a rule is observed here: 
+<span class="warning">THE ENTIRE code  executed while the flash memory is being overwritten must be placed into RAM.</span> 
+It's easy to miss a jump-back to the flash memory when calling an external function, 
+and that's when the program will freeze, which will cause an overwrite failure and ultimately - a brick.</p><br>
+
+					<h3><span class="warning">== Preliminary algorithm ==</span></h3>
+					<ul>
+					<li>Find the file load.bin on the SD-card.</li>
+					<li>Check the file using the CRC32 or something of the kind (not to write useless data or wrong file to it).</li>
+					<li>Copy load.bin to flash to an area that's not occupied (it's safe).</li>
+					<li>Go to the code branch implementing IAP and located in RAM.</li>
+					<li>Copy the data from the flash area where you put load.bin to the area where the primary porgram is located. 
+					It's the first and the consecutive sectors if the program is large.</li>
+					</ul>
+
+					<p class="text">After rewriting and restarting the processor (turn power off and then on) the new program recorded in the flash memory will gain control, 
+so you can consider the re-programming completed.</p><br>
+
+					<h3><span class="warning">== IAP function calls ==</span></h3>
+					<p class="text">The <span class="warning">IAP_Entry</span> function is located in ROM at a fixed address. 
+We will refer to it by the following announcement:</p>
+
+
+
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #339933;">#define IAP_LOCATION 0x7FFFFFF1</span>
+<span style="color: #339933;">#define iap_entry(a, b)     ((void (*)())(IAP_LOCATION))(a, b)</span>
+&nbsp;
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> command<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">5</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#123;</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #009900;">&#125;</span><span style="color: #339933;">;</span>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> result<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">3</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">=</span> <span style="color: #009900;">&#123;</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #009900;">&#125;</span><span style="color: #339933;">;</span>
+&nbsp;
+__align<span style="color: #009900;">&#40;</span><span style="color: #0000dd;">4</span><span style="color: #009900;">&#41;</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> IAP_Buf<span style="color: #009900;">&#91;</span>IAP_BUF_SIZE<span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">Then you can realize the functions that execute certain operations with the flash sectors. 
+Essentially, all these features have long been realized. 
+Source codes for IAP modules are available from the from microcontroller manufacturers. Here is the <span class="warning">IAP_EraseSec</span> 
+function erasing a sector:</p>
+
+
+
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> IAP_EraseSec <span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> StartSecNum<span style="color: #339933;">,</span>  <span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> EndSecNum<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#123;</span>
+	<span style="color: #b1b100;">if</span> <span style="color: #009900;">&#40;</span>EndSecNum <span style="color: #339933;">&lt;</span> StartSecNum<span style="color: #009900;">&#41;</span>
+		<span style="color: #b1b100;">return</span> IAP_STA_INVALD_PARAM<span style="color: #339933;">;</span>
+&nbsp;
+	command<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> IAP_CMD_EraseSec<span style="color: #339933;">;</span>
+	command<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> StartSecNum<span style="color: #339933;">;</span>
+	command<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> EndSecNum<span style="color: #339933;">;</span>
+	command<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">3</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> IAP_CLK <span style="color: #339933;">/</span> <span style="color: #0000dd;">1000</span><span style="color: #339933;">;</span>
+	iap_entry<span style="color: #009900;">&#40;</span>command<span style="color: #339933;">,</span> result<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+	<span style="color: #b1b100;">return</span> result<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span></pre>
+					
+					
+					
+					<p class="text">In command [3], we put the frequency on which the microcontroller is operating at the moment, in kHz. 
+					If my device operates at 60 MHz, the value of command [3] will be 60000.</p><br>
+
+					<h3><span class="warning">== Placing code to RAM ==</span></h3>
+					<p class="text">The abovementioned function <span class="warning">IAP_EraseSec</span> and other ones of the same kind must be placed to RAM. 
+It's easier to do it on the stage when the program is assembled. 
+I use the MDK ARM 5.0 compiler and the Keil ?Vision 5 development environment. 
+This environment supports the so-called scatter files, which are files setting up the layout of modules in memory.
+It looks something like that:</p>
+					
+<PRE>
+; *************************************************************
+; *** Scatter-Loading Description File                      ***
+; *************************************************************
+
+LR_IROM1 0x00000000 0x00080000  {    ; load region size_region
+  ER_IROM1 0x00000000 0x00080000  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM1 0x40000000 0x00010000  {  ; RW data
+   iap.o
+   lpc2000_sector.o
+   aeabi_sdiv.o
+   .ANY (+RW +ZI)
+  }
+}
+</PRE>
+					
+					<p class="text">To use your own Sct file, not the one generated by the Keil environment, 
+you need to uncheck "Use Memory Layout from Target Dialog" in the project settings, 
+on the Linker tab, then specify the required Sct file below. 
+Let that file be in the same folder with the project. You can edit it within the environment, 
+you have the Edit button next to the field for that purpose.</p>
+					<p class="pic1"><img src="pic/dialogopt.png" alt="Dialog Options"></p>
+					<p class="text">Region <span class="warning">RW_IRAM</span> means the region in the RAM memory that has access to read and write. 
+iap.o, lpc2000_sector.o and aeabi_sdiv.o modules are located in it. 
+The first module  is an IAP realization, the second one contains the function that calculates a sector number 
+in flash by the address (in LPC2388 memory, not all sectors are of the same length, that's why a sector number has to be calculated). 
+The third module did not get there by accident, but we will talk about it later. </p><br>
+
+					<h3><span class="warning">== Attempt # 1 ==</span></h3>
+					<p class="text">I placed the modules to RAM and reviewed all functions once again carefully, 
+to make sure they are not using any variables from flash and would not call any functions from there. 
+After checking everything, I ran it and got a deadlock after the first few sectors had been successfully recorded. <br>
+Running it in the debugger showed that the crash occurred in the <span class="warning">getSectorIndex()</span> function from the 
+<span class="warning">lpc2000_sector</span> module.</p>
+
+
+
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #808080; font-style: italic;">/* Return the sector index according to the specified address,
+	if address is too large, return INVALID_RESULT */</span>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> getSectorIndex<span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> addr<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#123;</span>
+	SECTOR_DESC_T <span style="color: #339933;">*</span>psg <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>sector_desc<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+	<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> tmp<span style="color: #339933;">,</span> size_acc<span style="color: #339933;">,</span> sector_index<span style="color: #339933;">,</span> size_addr<span style="color: #339933;">;</span>
+&nbsp;
+	size_acc <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>
+	size_addr <span style="color: #339933;">=</span> addr<span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">10</span><span style="color: #339933;">;</span>
+	sector_index <span style="color: #339933;">=</span> INITIAL_SECTOR_INDEX<span style="color: #339933;">;</span> 
+	<span style="color: #b1b100;">while</span> <span style="color: #009900;">&#40;</span>psg<span style="color: #339933;">-&gt;</span>sec_num<span style="color: #009900;">&#41;</span>
+	<span style="color: #009900;">&#123;</span>
+		tmp <span style="color: #339933;">=</span> size_addr <span style="color: #339933;">-</span> size_acc<span style="color: #339933;">;</span>  <span style="color: #666666; font-style: italic;">//KB</span>
+		<span style="color: #b1b100;">if</span> <span style="color: #009900;">&#40;</span>psg<span style="color: #339933;">-&gt;</span>sec_size<span style="color: #339933;">*</span>psg<span style="color: #339933;">-&gt;</span>sec_num <span style="color: #339933;">&gt;</span> tmp<span style="color: #009900;">&#41;</span>
+		<span style="color: #009900;">&#123;</span>
+			sector_index <span style="color: #339933;">+=</span> tmp<span style="color: #339933;">/</span>psg<span style="color: #339933;">-&gt;</span>sec_size<span style="color: #339933;">;</span> 
+			<span style="color: #b1b100;">return</span> sector_index<span style="color: #339933;">;</span>
+		<span style="color: #009900;">&#125;</span>
+		<span style="color: #b1b100;">else</span>
+		<span style="color: #009900;">&#123;</span>
+			sector_index <span style="color: #339933;">+=</span> psg<span style="color: #339933;">-&gt;</span>sec_num<span style="color: #339933;">;</span>
+			size_acc <span style="color: #339933;">+=</span> psg<span style="color: #339933;">-&gt;</span>sec_size<span style="color: #339933;">*</span>psg<span style="color: #339933;">-&gt;</span>sec_num<span style="color: #339933;">;</span>
+		<span style="color: #009900;">&#125;</span>
+		psg<span style="color: #339933;">++;</span>
+	<span style="color: #009900;">&#125;</span>
+&nbsp;
+	<span style="color: #b1b100;">return</span> INVALID_RESULT<span style="color: #339933;">;</span>	
+<span style="color: #009900;">&#125;</span></pre>
+
+
+
+					<p class="text">The code was dying on the <span class="warning">sector_index += tmp/psg->sec_size;</span> line. 
+					A harmless line with arithmetic operations. 
+I looked at it in the debugger and saw that that line was calling the <span class="warning">__ aeabi_uldivmod</span> function. 
+Judging by its name, this function performs division operations. 
+Turns out, there is no hardware division implementation in LPC2388. 
+That is why the division is realized in the library, while the function required is called implicitly. 
+The map-file analysis showed that the __ aeabi_uldivmod function is located  in the <span class="warning">aeabi_sdiv.o</span> module. 
+I added it to the scatter file as well and it solved the problem.</p>
+					<p class="pic1"><img src="pic/divfunc.png" alt="Div Function"></p>
+					<p class="text">Why not add and the FAT file system module to RAM module, to read from the card and record directly into the right sector? 
+Because RAM is too small, only 64 kB, all modules may not fit there. 
+You shouldn't clutter up RAM, as it's much easier to allocate an unused area in the internal 
+flash-memory (somewhere closer to its end) and use it for temporary storage of firmware.</p>
+					<p class="text">I also needed to use the <span class="warning">memcpy</span> function, but was not too excited about transferring the entire module to RAM. 
+That's why I inserted a separate implementation of this particular function into the iap.c module, 
+naming it xmemcpy and using it under that name.</p>
+					<p class="text">Then, when you need to overwrite the sectors where the program is located, you will not have to call the SD or FAT function, 
+it will be sufficient to read data in small portions from one sector of flash in RAM and write them to another sector. </p><br>
+
+					<h3><span class="warning">== What to do with interrupts?==</span></h3>
+					<p class="text">Interrupt vectors are stored in the first sector, the same place where the program starts. 
+They occupy space from 0x00000000 to 0x0000001C. 
+When we overwrite the first sector, the interrupts must be disabled, so that the program counter would 
+not jump out into open space once rewritten. 
+However, you can use interrupts when writing to other sectors except the first one. 
+They actually have to be used if we simultaneously read, say, from an SD and write to flash, 
+as the SD module logic assumes that interrupts are available. 
+When we have already gotten down  to rewriting the real sectors where the program is located (including sector 0), 
+interrupts must be disabled. 
+At this stage, interrupts are no longer needed, plug-ins are not called, the information is simply  
+read from one location of flash-memory and written to another.</p>
+					<p class="text">The IAP function contains options to enable and disable interrupts in specific areas, but this is where another problem lies. 
+For example, let's take a look at the IAP_Program function:</p>
+
+
+
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #808080; font-style: italic;">/* program content in IAP_Buf to internal flash with address of 
+	app_addr, and sector index of sector_index.
+	if ok, return 0, otherwise return the error code. */</span>
+<span style="color: #993333;">int</span> IAP_Program<span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> sector_index<span style="color: #339933;">,</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> app_addr<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#123;</span>
+	<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> IAP_return<span style="color: #009900;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+&nbsp;
+	<span style="color: #666666; font-style: italic;">// program 1kb [app_addr]			</span>
+	<span style="color: #666666; font-style: italic;">// prepre sector [sector_index] to write</span>
+	<span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span>IAP_PrepareSec<span style="color: #009900;">&#40;</span>sector_index<span style="color: #339933;">,</span> sector_index<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!=</span> IAP_STA_CMD_SUCCESS<span style="color: #009900;">&#41;</span>
+	<span style="color: #009900;">&#123;</span>
+		<span style="color: #b1b100;">return</span> <span style="color: #0000dd;">10</span><span style="color: #339933;">;</span>
+	<span style="color: #009900;">&#125;</span>
+&nbsp;
+	disable_interrupts<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+	<span style="color: #b1b100;">if</span> <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#40;</span>IAP_CopyRAMToFlash<span style="color: #009900;">&#40;</span>app_addr<span style="color: #339933;">,</span> <span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span><span style="color: #009900;">&#41;</span>IAP_Buf<span style="color: #339933;">,</span> IAP_BUF_SIZE<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> 
+	<span style="color: #339933;">!=</span> IAP_STA_CMD_SUCCESS<span style="color: #009900;">&#41;</span>
+	<span style="color: #009900;">&#123;</span>
+		enable_interrupts<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+		<span style="color: #b1b100;">return</span> <span style="color: #0000dd;">12</span><span style="color: #339933;">;</span>
+	<span style="color: #009900;">&#125;</span>
+	enable_interrupts<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+	<span style="color: #b1b100;">if</span> <span style="color: #009900;">&#40;</span>IAP_Compare<span style="color: #009900;">&#40;</span>app_addr<span style="color: #339933;">,</span> <span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: #009900;">&#41;</span>IAP_Buf<span style="color: #339933;">,</span> IAP_BUF_SIZE<span style="color: #339933;">,</span> 
+	<span style="color: #009900;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> <span style="color: #339933;">*</span><span style="color: #009900;">&#41;</span>IAP_return<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!=</span> IAP_STA_CMD_SUCCESS<span style="color: #009900;">&#41;</span>
+	<span style="color: #009900;">&#123;</span>
+		<span style="color: #b1b100;">return</span> <span style="color: #0000dd;">13</span><span style="color: #339933;">;</span>
+	<span style="color: #009900;">&#125;</span>
+&nbsp;
+	<span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>	
+<span style="color: #009900;">&#125;</span></pre>
+
+
+
+					<p class="text">LPC2388 has an interesting mechanism of disabling interrupts. 
+The method usual for microcontrollers, which is "write the bit to the register to disable interrupts", does not work here. 
+The correct register is available, but you can't just write the bit to it (it will have no effect). 
+To write something to it, you need to use a special module written in assembly language (swi.s) 
+and a mechanism of so-called software interrupts (software interrupts, swi).</p>
+					<p class="text">The macros used above look like this:</p>
+					
+					
+					
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #808080; font-style: italic;">/* XXX Требует ассемблерный файл swi.s с обработчиком SWI. */</span>
+&nbsp;
+<span style="color: #993333;">void</span> __swi<span style="color: #009900;">&#40;</span><span style="color: #208080;">0xFE</span><span style="color: #009900;">&#41;</span> disable_interrupts<span style="color: #009900;">&#40;</span><span style="color: #993333;">void</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>	<span style="color: #808080; font-style: italic;">/* SWI.s */</span>
+<span style="color: #993333;">void</span> __swi<span style="color: #009900;">&#40;</span><span style="color: #208080;">0xFF</span><span style="color: #009900;">&#41;</span> enable_interrupts<span style="color: #009900;">&#40;</span><span style="color: #993333;">void</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>	<span style="color: #808080; font-style: italic;">/* SWI.s */</span></pre>
+
+
+
+					<p class="text">There is a SWI_Handler in the SWI.S file responsible for handling such calls. 
+Depending on the parameter (0xFE or 0xFF), interrupts are enabled or disabled. The file itself is small, so I provide it here in full:</p>
+ 
+ 
+ 
+ <pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #666666; font-style: italic;">;/*****************************************************************************/</span>
+<span style="color: #666666; font-style: italic;">;/* SWI.S: SWI Handler                                                        */</span>
+<span style="color: #666666; font-style: italic;">;/*****************************************************************************/</span>
+<span style="color: #666666; font-style: italic;">;/* This file is part of the uVision/ARM development tools.                   */</span>
+<span style="color: #666666; font-style: italic;">;/* Copyright (c) 2005-2006 Keil Software. All rights reserved.               */</span>
+<span style="color: #666666; font-style: italic;">;/* This software may only be used under the terms of a valid, current,       */</span>
+<span style="color: #666666; font-style: italic;">;/* end user licence from KEIL for a compatible version of KEIL software      */</span>
+<span style="color: #666666; font-style: italic;">;/* development tools. Nothing else gives you the right to use this software. */</span>
+<span style="color: #666666; font-style: italic;">;/*****************************************************************************/</span>
+&nbsp;
+T_Bit          <span style="color: #000000; font-weight: bold;"> EQU</span>     <span style="color: #0000ff;">0x20</span>
+&nbsp;
+                PRESERVE8                      <span style="color: #666666; font-style: italic;">; 8-Byte aligned Stack</span>
+                AREA    SWI_Area<span style="color: #339933;">,</span> <span style="color: #000000; font-weight: bold;">CODE</span><span style="color: #339933;">,</span> <span style="color: #000000; font-weight: bold;">READONLY</span>
+                ARM
+&nbsp;
+                <span style="color: #000000; font-weight: bold;">EXPORT</span>  SWI_Handler
+SWI_Handler   
+&nbsp;
+                STMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R12<span style="color: #339933;">,</span> LR<span style="color: #009900; font-weight: bold;">&#125;</span>         <span style="color: #666666; font-style: italic;">; Store R12, LR</span>
+                MRS     R12<span style="color: #339933;">,</span> SPSR              <span style="color: #666666; font-style: italic;">; Get SPSR</span>
+                STMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R8<span style="color: #339933;">,</span> R12<span style="color: #009900; font-weight: bold;">&#125;</span>         <span style="color: #666666; font-style: italic;">; Store R8, SPSR</span>
+                TST     R12<span style="color: #339933;">,</span> #T_Bit            <span style="color: #666666; font-style: italic;">; Check Thumb Bit</span>
+                LDRNEH  R12<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#91;</span>LR<span style="color: #339933;">,</span>#<span style="color: #339933;">-</span><span style="color: #0000ff;">2</span><span style="color: #009900; font-weight: bold;">&#93;</span>          <span style="color: #666666; font-style: italic;">; Thumb: Load Halfword</span>
+                BICNE   R12<span style="color: #339933;">,</span> R12<span style="color: #339933;">,</span> #<span style="color: #0000ff;">0xFF00</span>      <span style="color: #666666; font-style: italic;">;        Extract SWI Number</span>
+                LDREQ   R12<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#91;</span>LR<span style="color: #339933;">,</span>#<span style="color: #339933;">-</span><span style="color: #0000ff;">4</span><span style="color: #009900; font-weight: bold;">&#93;</span>          <span style="color: #666666; font-style: italic;">; ARM:   Load Word</span>
+                BICEQ   R12<span style="color: #339933;">,</span> R12<span style="color: #339933;">,</span> #<span style="color: #0000ff;">0xFF000000</span>  <span style="color: #666666; font-style: italic;">;        Extract SWI Number</span>
+<span style="color: #666666; font-style: italic;">; add code to enable/disable the global IRQ flag</span>
+                <span style="color: #00007f; font-weight: bold;">CMP</span>     R12<span style="color: #339933;">,</span>#<span style="color: #0000ff;">0xFE</span>         <span style="color: #666666; font-style: italic;">; disable IRQ implemented as __SWI 0xFE</span>
+                BEQ     disable_IRQ
+                <span style="color: #00007f; font-weight: bold;">CMP</span>     R12<span style="color: #339933;">,</span>#<span style="color: #0000ff;">0xFF</span>         <span style="color: #666666; font-style: italic;">; enable IRQ implemented as __SWI 0xFF</span>
+                BEQ     enable_IRQ
+&nbsp;
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R8<span style="color: #339933;">,</span> R12<span style="color: #009900; font-weight: bold;">&#125;</span>         <span style="color: #666666; font-style: italic;">; Load R8, SPSR</span>
+                MSR     SPSR_cxsf<span style="color: #339933;">,</span> R12         <span style="color: #666666; font-style: italic;">; Set SPSR</span>
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R12<span style="color: #339933;">,</span> PC<span style="color: #009900; font-weight: bold;">&#125;</span>^        <span style="color: #666666; font-style: italic;">; Restore R12 and Return</span>
+SWI_End
+&nbsp;
+disable_IRQ
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R8<span style="color: #339933;">,</span> R12<span style="color: #009900; font-weight: bold;">&#125;</span>    <span style="color: #666666; font-style: italic;">; Load R8, SPSR</span>
+                ORR     R12<span style="color: #339933;">,</span> R12<span style="color: #339933;">,</span> #<span style="color: #0000ff;">0x80</span>   <span style="color: #666666; font-style: italic;">; Set IRQ flag to disable it</span>
+                MSR     SPSR_cxsf<span style="color: #339933;">,</span> R12    <span style="color: #666666; font-style: italic;">; Set SPSR</span>
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R12<span style="color: #339933;">,</span> PC<span style="color: #009900; font-weight: bold;">&#125;</span>^   <span style="color: #666666; font-style: italic;">; Restore R12 and Return</span>
+&nbsp;
+enable_IRQ
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R8<span style="color: #339933;">,</span> R12<span style="color: #009900; font-weight: bold;">&#125;</span>    <span style="color: #666666; font-style: italic;">; Load R8, SPSR</span>
+                BIC     R12<span style="color: #339933;">,</span> R12<span style="color: #339933;">,</span> #<span style="color: #0000ff;">0x80</span>   <span style="color: #666666; font-style: italic;">; Set IRQ flag to disable it</span>
+                MSR     SPSR_cxsf<span style="color: #339933;">,</span> R12    <span style="color: #666666; font-style: italic;">; Set SPSR</span>
+                LDMFD   <span style="color: #00007f;">SP</span>!<span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">&#123;</span>R12<span style="color: #339933;">,</span> PC<span style="color: #009900; font-weight: bold;">&#125;</span>^   <span style="color: #666666; font-style: italic;">; Restore R12 and Return</span>
+&nbsp;
+                <span style="color: #000000; font-weight: bold;">END</span></pre>
+				
+				
+				
+				<p class="text">And again, all these goodies are a code on flash. We already know that we can't access 
+it when we are in RAM. 
+We can disable all interrupts in advance, before going to RAM. 
+Then we simply do not call swi-handlers, because we know that interrupts are disabled and do not have to be enabled. 
+You can just isolate the calls through any global variable.</p>
+				<p class="text">We write it like this: <span class="warning">if (g_bAllowInterrupts) disable_interrupts();</span>, while the global variable 
+<span class="warning">g_bAllowInterrupts</span> is put in true (simple mode), or 
+false (when we already disabled interrupts).  That way we avoid the unwanted transition to the SWI.s module.</p><br>
+
+				<h3><span class="warning">== Attempt #2  ==</span></h3>
+				<p class="text">This time, the code did not die and was executed to the very end. 
+The code ended in an infinite loop, at which point you need to turn off the device, 
+turn it on again and make sure it's is running controlled by the new firmware. 
+I did it, but after a reboot I saw no debug output on the terminal. 
+The firmware did not load.<br>
+I dumped the flash-memory and made sure that the firmware was identical to the .bin file that I recorded to the SD-card. 
+I also made sure the firmware was located in the required sectors. 
+What was the problem? Once again, I sat down to read User Manual and discovered this: 
+the firmware was correctly located in the memory, 
+but the bootloader would not load it because it did not meet certain requirements 
+the bootloader used to determine whether you can load from this specific area of the memory. 
+I began to look for information on what requirement those were.</p>
+				<p class="text">In the first 32 bytes of the first sector (address from 0x00000000 to 0x0000001C) there 
+				are interrupt vectors each one 4 bytes. It looks in the following way in code:</p>
+
+
+
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">Reset_Addr      DCD     Reset_Handler
+Undef_Addr      DCD     Undef_Handler
+SWI_Addr        DCD     SWI_Handler
+PAbt_Addr       DCD     PAbt_Handler
+DAbt_Addr       DCD     DAbt_Handler
+                DCD     <span style="color: #0000ff;">0</span>                      <span style="color: #666666; font-style: italic;">; Reserved Address </span>
+IRQ_Addr        DCD     IRQ_Handler
+FIQ_Addr        DCD     FIQ_Handler</pre>
+
+
+
+					<p class="text">You can see there is a certain  reserved value by the 0x00000014 displacement. 
+Turns out, that was Valid User Program key, the checksum of interrupt vectors checked by the 
+bootloader to decide whether the program can be loaded. 
+In my program, there was a random value in that location, so it did not contain a checksum. 
+Obviously, before uploading the image, it has to be prepared. 
+You need a checksum that would give a 0 when all eight words are added. </p>
+					<p class="text">I wrote the following function that simultaneously calculates a checksum for the interrupt 
+vectors and checks whether this checksum is located in the specified area of the memory. 
+If the function returns false, the checksum calculated is to be written to ptr [5] 
+and everything will be fine. 
+You do not do this inside the function, because the task is not to correct the checksum in the firmware. 
+You only need to check the checksum. 
+You need to write a program that would take the .bin file and insert a calculated checksum by the  
+0x00000014 displacement, as only in that case the file is suitable for updating the device.</p>
+
+
+
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #339933;">//</span> <span style="color: #000000; font-weight: bold;">addr</span> = адрес в RAM
+<span style="color: #339933;">//</span> checksum <span style="color: #339933;">-</span> сюда пишется вычисленная контрольная сумма
+<span style="color: #339933;">//</span> возвращаемое значение <span style="color: #339933;">-</span> true<span style="color: #339933;">,</span> если контрольная сумма в <span style="color: #000000; font-weight: bold;">addr</span> совпадает с вычисленной
+bool ChecksumVectors<span style="color: #009900; font-weight: bold;">&#40;</span>void <span style="color: #339933;">*</span> <span style="color: #000000; font-weight: bold;">addr</span><span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">OUT</span> uint32_t <span style="color: #339933;">*</span> checksum<span style="color: #009900; font-weight: bold;">&#41;</span>
+<span style="color: #009900; font-weight: bold;">&#123;</span>
+  uint32_t <span style="color: #339933;">*</span> <span style="color: #000000; font-weight: bold;">ptr</span> = <span style="color: #009900; font-weight: bold;">&#40;</span>uint32_t <span style="color: #339933;">*</span><span style="color: #009900; font-weight: bold;">&#41;</span><span style="color: #000000; font-weight: bold;">addr</span><span style="color: #666666; font-style: italic;">;</span>
+  uint32_t uSum<span style="color: #339933;">,</span> uCheckSum<span style="color: #666666; font-style: italic;">;</span>
+&nbsp;
+  uSum =  <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">0</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">1</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">2</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">3</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">4</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;  </span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">6</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uSum <span style="color: #339933;">+</span>= <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">7</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #666666; font-style: italic;">;</span>
+  uCheckSum = ~uSum<span style="color: #666666; font-style: italic;">;</span>
+	uCheckSum <span style="color: #339933;">+</span>= <span style="color: #0000ff;">1</span><span style="color: #666666; font-style: italic;">;</span>
+&nbsp;
+  <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900; font-weight: bold;">&#40;</span>NULL != checksum<span style="color: #009900; font-weight: bold;">&#41;</span> <span style="color: #339933;">*</span>checksum = uCheckSum<span style="color: #666666; font-style: italic;">;</span>
+&nbsp;
+  return <span style="color: #009900; font-weight: bold;">&#40;</span>uCheckSum == <span style="color: #000000; font-weight: bold;">ptr</span><span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #0000ff;">5</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #009900; font-weight: bold;">&#41;</span><span style="color: #666666; font-style: italic;">;</span>
+<span style="color: #009900; font-weight: bold;">&#125;</span></pre>
+
+
+
+					<p class="text">This feature made it possible to verify whether we've been given a correct image. 
+I uploaded a correct image for the purpose of verification, the  program updated it into 
+the memory and the device was able to successfully start after a reboot. 
+Success! Then I introduced extra protection checking the CRC32 checksum of the image (not just the title), 
+but that's nothing to brag about.</p>
+					<p class="text">The end algorithm turned out like this:</p>
+					<ul>
+					<li>Locate the load.bin file on the SD-card.</li>
+					<li>Check the file for correctness using CRC32. If the checksum is not correct, stop the update. </li>
+					<li>Check the checksum of interrupt vectors for correctness (first 32 bytes of the .bin file). If the checksum is not correct, stop the update.</li>
+					<li>Copy load.bin to flash, to the area not occupied by anything.</li>
+					<li>Disable interrupts.</li>
+					<li>Go to the code branch that implements IAP and is located in RAM.</li>
+					<li>Copy the data from the flash area where you put load.bin to the area where the primary program is located. 
+It's the first and the consecutive sectors if the program is large.</li>
+					<li>Go into infinite loop mode and wait for the power to turn off. Do not enable interrupts, do not call any functions.</li>
+					</ul>
+					<p class="text">There are other options. For example, in point 3 you don't have to stop the update, 
+instead correcting the checksum right in the file and then copying that file with the correct checksum. 
+It's impossible for point 2, but it is quite possible for the third one. 
+In point 8, you can call a reboot in some way yourself, for example, through watchdog. 
+To tell the truth, I decided not to do it to clearly demonstrate the moment the reprogramming was over. 
+It happens so fast that one may not understand whether the program was updated on the device or nothing happened.</p>
+					<p class="text">That seems to be it. I have achieved my goal - <span class="warning">the device can update itself.</span> 
+					At the same time I learned how to place code into the memory and use the internal flash-memory LPC, 
+as well as discovered the absence of hardware division on the platform.</p><br>
+
+					<h3><span class="warning">== Files ==</span></h3>
+					<ul>
+					<li>User manual LPC23XX. <a href="http://www.nxp.com/documents/user_manual/UM10211.pdf" target="_blank">UM10211.</a></li>
+					<li><a href="http://www.nxp.com/documents/application_note/AN10835.pdf" target="_blank">AN10835 LPC2000 secondary bootloader for code update using IAP.</a></li>
+					<li><a href="http://elm-chan.org/fsw/ff/00index_e.html" target="_blank">Chan's FatFs</a> - FAT/FAT32 File system realization from Chan</li>
+					<li><a href="http://www.lpcware.com/content/nxpfile/sample-code-bundle-lpc23xxlpc24xx-peripherals-using-keils-?vision" target="_blank">Code examples</a> 
+					for peripherals LPC23xx/LPC24xx that can be used with the Keil ?Vision environment. The MCI module mentioned in the article was taken from here. </li>
+					<li><a href="http://www.lpcware.com/content/nxpfile/lpc2000-series-secondary-bootloader-source-code" target="_blank">Examples</a> 
+					of how different bootloaders for LPC (SD, CAN, UART, XMODEM) can be implemented. Each one has a flaw - they can not overwrite themselves. 
+					The iap.c and lpc2000_sector.c modules mentioned in the article were taken from here.</li>
+					<li><a href="http://www.flashmagictool.com" target="_blank">Flash Magic</a> - is a program of updating chips via COM-port.</li>
+					</ul>
+
+<p class="warning"><br>______________________________<br>
+amdf<br> 
+http://hex.pp.ua/<br>
+xmpp:amdfxx@vir.pp.ua<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

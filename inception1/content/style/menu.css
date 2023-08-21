@@ -1,0 +1,121 @@
+body{
+	background-color: #000000 ; 
+	color: #313131 ;
+}
+
+ul {
+	list-style-type: disk ;
+	list-style-image: none ;
+	list-style-position: outside ;
+	font-size: 100% ;
+}
+
+li {
+	padding: 0 ;
+	margin:0 0 0.25em 0 ;
+}
+
+pre{
+	color: #000080 ;
+	font-weight: bold ;
+	font-size: 75% ;
+}
+
+
+table{
+	border: 0px solid black ; 
+	width: 800 ;
+}
+
+
+
+td{
+	vertical-align: baseline;
+}
+
+.text{
+	text-indent: 25px ;
+	text-align: justify ;
+	margin-top: 15px ;
+	font-size: 100% ;
+}
+
+.header{
+	text-indent: 25px ;
+	text-align: center ;
+	margin-top: 15px ;
+	font-size: 100% ;
+	font-weight: bold ;
+	color: #d00000 ;
+}
+
+.menu{
+	text-indent: 25px ;
+	text-align: center ;
+	margin-top: 0px ;
+	font-size: x-large ;
+	font-weight: bold ;
+	color: #000000 ;
+}
+
+.article{
+	text-indent: 25px ;
+	text-align: center ;
+	margin-top: 0px ;
+	font-size: 100% ;
+	font-weight: bold ;
+	color: #000000 ;
+}
+
+.warning{
+	text-indent: 25px ;
+	text-align: center ;
+	margin-top: 0px ;
+	font-size: 100% ;
+	font-weight: bold ;
+	color: #000000 ;
+}
+
+.bonus{
+	text-indent: 25px ;
+	text-align: center ;
+	margin-top: 0px ;
+	font-size: large ;
+	font-weight: bold ;
+	color: #d00000 ;
+}
+
+.pic1{
+	text-align: center;
+}
+
+.leftpic1{
+	float: left;
+	margin: 7px 7px 7px 0;
+}
+
+.rightpic1{
+	float: right;
+	margin: 7px 0 7px 7px;
+}
+
+a:link {
+	color: #000000;
+	font-weight: light ;
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+	font-weight: light ;
+	color: #000000;
+}
+a:hover {
+	text-decoration: underline;
+	font-weight: light ;
+	color: #000000;
+}
+a:active {
+	text-decoration: none;
+	font-weight: light ;
+	color: #000000;
+}

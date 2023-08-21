@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Imported Code </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Imported Code</span></h2>
+					<br>
+					<h3><span class="warning">What is imported code?</span></h3>
+					<p class="text"><span class="warning">It is five years today that I first made this technique, and finally I finish
+implementing  it</span>.  After writing <span class="warning">virtual code</span>, I tried to find another way to
+have operating system construct the code for me.  This time, I use <span class="warning">the import
+table</span> to supply all of the values.  This required some <span class="warning">interesting tricks.</span></p><br> 
+
+					<h3><span class="warning">How does it work?</span></h3> 
+					<p class="text">Normally, the import table will receive real addresses which values cannot be
+guessed,  but I made my import table to import the addresses that my  process
+also exports, so I know exactly what are those values.  Then I can create one
+export for every unique byte and import all of the bytes that I need.</p>
+
+					<p class="text">Of  course, it is not enough to import the bytes, because the imports are 32-
+bits large, so we need a way to access only the byte value for each one.  We
+do  this  by using a little decoder, and making the imports executable  code
+instead, like this:</p>
+
+
+
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>	 <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;f7 -&gt; import_loop (f7 is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    b8 nn xx xx and xx c3 xx xx
+</PRE>
+
+					<p class="text">and nn is the byte value that we need. <span class="warning">Impute.A and B</span> support this form.</p>
+					<p class="text">We  can order the imports randomly to make it polymorphic.  We can also  use
+other registers instead of eax.</p>
+
+
+
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> reg<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;f6 -&gt; import_loop (f6 is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    bx nn xx xx and xx c3 xx xx
+</PRE>
+
+					<p class="text">and ecx, edx, ebp are available, and nn is the byte value that we need. <span class="warning">Impute.A and B</span> also support this form.</p>
+
+					<p class="text">We can support ebx this way:</p>
+					
+					
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;f5 -&gt; import_loop (f5 is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    bb nn xx xx and xx c3 xx xx
+</PRE>
+
+					<p class="text">and nn is the byte value that we need. <span class="warning">Impute.A and B</span> also support this form.</p>
+					
+					<p class="text">Another way to return the values is by using ret nn.  Then the delta between
+the new stack and the old stack is the value of the byte.</p>
+
+
+
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">sub</span>  <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;f3 -&gt; import_loop (f3 is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    c2 nn xx xx
+</PRE>
+					
+					<p class="text">and nn is the byte value that we need. <span class="warning">Impute.C</span> supports this form.</p>
+					
+					<p class="text">We can even combine them, like this:</p>
+					
+					
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">sub</span>  <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;f0 -&gt; import_loop (f0 is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    b8 n1 xx xx and xx c2 n2 xx
+</PRE>
+
+					<p class="text">and n1 and n2 are the byte values that we need. <span class="warning">Impute.D and E</span> support this form.</p>
+
+					<p class="text">Of course we can use other registers instead of eax, too.</p>
+					
+					
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">sub</span>  <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> reg<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;ef -&gt; import_loop (ef is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    bx n2 xx xx and xx c2 n1 xx
+</PRE>
+
+					<p class="text">and  ecx, edx, ebp are available, and n1 and n2 are the byte values that  we
+need, but see that the two values to store are reversed. <span class="warning">Impute.D and E</span> also support this form.</p>
+
+					<p class="text">We can support ebx this way:</p>
+					
+					
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset import_list
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+import_loop<span style="color: #339933;">:</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">mov</span>  <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span>
+    <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #46aa03; font-weight: bold;">esi</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">sub</span>  <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>
+    <span style="color: #00007f; font-weight: bold;">stos</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">lods</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span>
+    <span style="color: #00007f; font-weight: bold;">cmp</span>  <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: #009900; font-weight: bold;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #009900; font-weight: bold;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span>
+    <span style="color: #0000ff; font-weight: bold;">db</span>   <span style="color: #ff0000;">75h</span> <span style="color: #666666; font-style: italic;">;ee -&gt; import_loop (ee is first imported value)</span>
+import_list<span style="color: #339933;">:</span></pre>
+
+
+
+
+
+					<p class="text">Then all imports have the format:</p>
+					
+<PRE>
+    bb n1 xx xx and xx c2 n2 xx
+</PRE>
+
+					<p class="text">and n1 and n2 are the byte values that we need. <span class="warning">Impute.D and E</span> also support this form.</p>
+					
+					<p class="text">We can support <span class="warning">ASLR by replacing the "mov esi" with "call $+5 / pop esi".</span></p>
+					
+					<p class="text">If  there were a 3-byte instruction that is safe to execute when we  control only the first byte, then we could do this:</p>
+					
+<PRE>
+    b8 nn xx xx and xx &#8249;inst&#8250; xx xx and aa &#8249;inst&#8250; xx xx [sequence repeats]
+</PRE>
+ 
+				<p class="text">Then  we could build entire code using only imports, even register poly like this:</p>
+				
+<PRE>
+    bx nn xx xx and xx &#8249;inst&#8250; xx xx and 9x &#8249;inst&#8250; xx xx and aa &#8249;inst&#8250; xx xx [sequence repeats]
+</PRE>
+
+				<p class="text">Sadly,  there is no such instruction in 32-bit code, so we are unable to use entirely  imported code in that way.  
+				We can do it another way, though, like this:</p>
+				
+<PRE>
+    b8 n5 xx xx and xx aa b8 n6 and xx xx xx aa [sequence repeats]
+</PRE>
+
+				<p class="text">Three  imports   are <span class="warning">"mov eax, n5", "stosb" and "mov eax, n6",  and  another "stosb"</span>.   
+				We repeat the last three imports for all of our bytes and then we can decode entirely.</p>
+				
+				<p class="text">We could even make registry poly like this:</p>
+				
+<PRE>
+    bx n5 xx xx and 9x aa bx n6 and xx xx xx 9x and aa bx n7 xx and xx xx xx aa [sequence repeats]
+</PRE>
+
+					<p class="text">We make the buffer address like this:</p>
+					
+<PRE>
+    bf n1 n2 n3 and n4 90 90 90
+</PRE>
+
+					<p class="text">The  buffer address is the offset of the last import, so that when we finish
+decoding,  we  run immediately.   It needs a bit more memory to do  it  this
+way, but then we do not need any more imports except these.
+<span class="warning">Impute.F</span> supports the b8 form.</p><br>
+
+					<h3><span class="warning">Import Forwarding</span></h3>
+					<p class="text">This is the last problem that we have.  Some DLLs can export a function that
+that they do not implement, by forwarding the reference to another DLL.  The
+way  that  it is detected is if the import address points inside the  export
+table.   Since we want to support returning any value, we have to defeat the
+import  forwarding  detection.  For the fixed-based versions, this is  easy.
+All  we need is an export table with characteristics that do not overlap our
+value.   Impute does this by using an imagebase value that overflows the 4Gb
+boundary  when  the export table size is added.  Then all of our values  are
+either  smaller than the imagebase or larger than the export table end.  For
+ASLR,  this  problem is not solved.  If there is a chance that Windows  will
+load the file at imagebase of 0x1xxx0000 then the detection might be hit and
+the file will not load anymore, but I have not seen any hit happen yet.</p><br>
+
+					<h3><span class="warning">Greets to friendly people (A-Z):</span></h3>
+					<p class="warning">Active - Benny - herm1t - hh86 - jqwerty - Malum - Obleak - pr0mix -
+Prototype - Ratter - Ronin - RT Fishel - sars - SPTH - The Gingerbread Man -
+Ultras - uNdErX - Vallez - Vecna - Whitehead</p><br>
+
+<p class="warning">About author and Sources: <a href="sources/rgb/impute" target="_blank">sources/rgb/impute</a></p>
+					
+
+<p class="warning"><br>______________________________<br>
+roy g biv / defjam<br> 
+rgb/defjam<br>
+iam_rgb@hotmail.com<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

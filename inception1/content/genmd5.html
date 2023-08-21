@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Review of genetic algorithm for the example of guessing password by MD5-hash </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Review of genetic algorithm for the example of guessing password by MD5-hash</span></h2>
+					<br>
+					<p class="text">The simplest method of password guessing by <span class="warning">md5-hash</span> consist in iterating through all possible options 
+for passphrases and their comparison with md5- hashes heshom desired password. 
+For this is a dictionary of all possible characters used in the password , and are made out of it 
+all possible passphrases. The main disadvantage of this algorithm is that it is necessary to go through 
+all the possible combinations of passphrases and it is unknown at which step the md5-hash of another 
+combination of characters matches the md5-hash of the required passphrase. To reduce the time of 
+selection of the passphrase you can use other methods, such as 
+	<span class="warning">genetic algorithm.</span> </p> 
+					<p class="text"><span class="warning">The essence of the genetic algorithm is as follows: </span>given an 
+					<span class="warning">initial random sample of passphrases</span> 
+					 - population size N phrases, with each phrase encoded in <span class="warning">the genome</span> - a chain consisting of genes. 
+	<span class="warning">Genome</span> is a binary code - a one-dimensional array of fixed-length or dynamic, where the element 
+of the array - the gene takes the value 1 or 0. Thus, the initial population is generated randomly 
+from the vocabulary - the set of all possible symbols used in the password, and presents a set of genomes.</p>
+					<p class="text"><span class="warning">The first step</span> of the algorithm is cross genomes - 
+					<span class="warning">crossing</span>, this randomly selected population of 
+two genomes is selected randomly dividing point genome into two or more parts and then an exchange 
+genes between the two genomes. Methods of gene exchange can be varied - for example, genes, 
+reaching to the point of division of the first genome, genes are in place in the second genome, 
+reaching to the point of division. Possible that the chosen few points of division of the genome - 
+then there is an exchange - chain genes in a random or selected order. The crossing obtain new genomes - 
+the descendants of a new set of genes, and in deciphering them - the new passphrase.</p>
+					<p class="text"><span class="warning">The second step</span> of the algorithm is a <span class="warning">mutation</span> 
+					- selective change genes in the genome. 
+% Is subjected to a mutation in the population of genomes. This means that randomly selects a 
+% of the genome of the new population consisting of genomes ancestor and descendant genome, 
+produced in a previous stage and a change randomly selected genes opposite (1 to 0, 0 to 1 ) with a 
+certain probability, for example 10%. The probability of mutation is selected in the settings of the algorithm.</p>
+					<p class="text"><span class="warning">In the third step</span> of the algorithm is a 
+					<span class="warning">natural selection</span> - truncated genomes do not satisfy the conditions. 
+For that a survival function, which calculates the survival rate of the genome in the population. 
+On the example of password guessing by md5-hash, it could be the number of characters matched in the 
+hash and hash a passphrase desired password. At the selection stage, left N genomes of the new population, 
+the most satisfying survival. Further there is a crossover, mutation and selection of a new population. 
+The algorithm terminates when we find the desired passphrase, i.e. matched all the characters md5-hash a 
+passphrase with symbols md5-hash of the password, respectively. The terms also stop the algorithm can be 
+after a certain time to find a phrase or passage of a certain number of generations the algorithm.</p>
+					<p class="text">As a result of the genetic algorithm is a search password gradual approximation (identity) - increase 
+in the number of matching symbols on the appropriate places in the md5-hash passphrases and md5- hash of 
+the search phrase.</p>
+					<p class="text">Under certain conditions: the correct compilation of the population size, the method of crossing-over 
+(crossover) and the percentage of mutations, <span class="warning">the efficiency of the method</span> by guessing the password md5-hash 
+increases, and the search time is reduced.</p> 
+
+<p class="warning"><br>______________________________<br>
+XRipper<br> 
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

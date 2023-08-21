@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> About AV-Checker </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">About AV-Checker</span></h2>
+					<br>
+					<p class="text">Hello!</p>
+					<p class="text">The topic of <span class="warning">AV-checkers</span> has been raised on numerous occasions: there are concepts, 
+					raw and ready realizations, thoughts and other bullshit.
+That's why I decided to dump here everything related to the checker's working scheme. I did however add something new and left the unnecessary parts out.</p>
+					<p class="text">An  <span class="warning">Av-checker</span>  is an online-service, checking files/data for viruses/trojans/worms/etc with the help 
+					of (prepared in advance) different Anti-Virus (AV) scanners.
+For starters, we will need a powerful multi-core dedicated server (the more cores, frequency, cache - the better), with a big RAM and supporting hardware virtualization 
+(for hypervisor). In addition, we will need wide network channels and unlimited traffic (specific technical characteristics are not provided because it all depends on 
+what you want and can get).
+A "simple" PC with installed Virtual Machine (VM) could do, but it would directly influence the  working speed of AV-checker. 
+After all, the good performance depends directly on the equipment's capacity and its configuration.</p>
+					<p class="text">As for the programming languages, you can write in any of them and in the way you prefer. 
+For example, C++ (for the system's engine) and php + html (for web-design).</p>
+					<p class="text">Later, you can add the following (popular) features aka verifications for your online-scanner:</p> 
+					<ul>
+						<li><span class="warning">files - statics</span> (checking with local av-scanners, checking traffic "on fly", 
+						real-time checking while copying/downloading files; signature analyzer + 
+heuristic + code-emulator will be used here);</li>
+						<li><span class="warning">packs</span> (exploit pack / webpage / etc);</li>
+						<li><span class="warning">url/domains;</span></li>
+						<li><span class="warning">files - dynamics</span> (checking files for performance, behavioral analysis and so on). </li>
+					</ul>
+
+					<p class="text">Let's take a closer look at each one of those points.</p><br>
+
+					<h3><span class="warning">Checking files - statics</span></h3>
+					
+					<p class="text">A <span class="warning">checker</span>  
+					is a web admin panel + system engine "communicating" using a database (DB) and located on a badass hardware, so to speak.</p>
+
+					<p class="text">Implementation technology:</p> 
+					<ul>
+						<li>we create the required amount of VMs (with guest OS) on a dedicated server;</li>
+						<li>one of the VMs is being transformed into a <span class="warning">server</span> - it will be used for web-interface and DB 
+						(files will be uploaded using an admin-panel and stored for anti-virus verification later);</li>
+						<li>we install one AV and our <span class="warning">"handler"</span> software on every VM. The software: 
+							<ul><li>[1] takes a file from DB that must be checked with a particular AV. The DB interrogation is carried out continuously over a given time interval.
+However, here is where another weak link is detected. With significant loads, the database will start overloading. 
+Solution to this problem is to keep the files in a web-directory and to keep the downloading links in a DB;</li>
+							<li>[2] launches AV (console AV with required settings) to start scanning the file. 
+							Here is another fucked-up bombshell - slow checking speed.
+It all has to do with the fact scanners (of certain) AVs are 
+loading too slow (engine initialization, module/virus DB loading and other stuff (besides the actual checking time)).<br>
+			So, as an option, you can use the GUI-version that loads the roots into memory only once. 
+Moreover, we decrease the total scanning time by downloading the files in packages and accessing the scanner only once.<br>
+			In addition, we can take advantage of checking traffic on fly and real-time scanning, configuring its implementation when data is being downloaded and/or copied. 
+However, by default, everything must be thoroughly checked and configured, because in most AVs this stuff is known for poor performance, especially during the overloads;</li>
+							<li>[3] receives the result from the AV. You can catch it by transferring  the console scanner output to pipe/file  from the 'personal' log of the AV-engine.  
+If we're manipulating a GUI, then through its form by sending messages and pressing buttons. 
+Other options include catching it from the event log, by decrypting hidden files (not a good method), from DB (for example, there are SQLite fans) etc;</li>
+							<li>[4] sends the result to the DB. It's all simple here - we parse the report received;  if the file is empty - we send an "OK", 
+							if not - we send the name of the detection; </li>
+							<li>[5] makes an update of the AV and its virus DB (with a preset interval of time). <br>
+							We also have to make sure the files being checked are not going to AVs (setting up the local network): <br>
+			firstly, we switch off the internet connection on all VMs with AVs. Afterwards, we take one VM prepared in advance, transform it into router and configure it. 
+The next step is to download antivirus updates and save them in shared folders. 
+Finally, we disable all the services of anonymous data sending and specify required paths to shared folders as a mirror. 
+For those not supporting this parameter, we do everything ourselves: download virus DBs with
+wget/curl and put them into directories.<br>
+			In most difficult cases, we use proxy to control the outgoing traffic.</li>
+							</ul></li>
+					</ul>
+					
+					<p class="text">Points  [2], [3] and [5] take most of the work, because every AV requires its own algorithm. 
+That's why we can factor out all these point into a single module (handler_n), 
+with a uni-interface (task-manager), while realization will be different for every type of AV.</p>
+					<p class="text">Here is how the checker works schematically: </p>
+					
+<PRE>
+                                 ******************************<-***********************************
+                                 *                                                                 *
+                                 *                           SERVER                                *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *      ************                                               *
+                                 *      *          *                                               *
+          *         5. profit    *      *          *             4. result                         *
+         * *<---------------------------* web-site *<----------------------------------+           *
+        *   *                    *      *          *                                   |           *
+       *     *      1. file      *      *          *                                   |           *
+      *  user *------------------------>*          *                                   |           *
+     *         *                 *      ************                                   |           *
+    *************                *        |                                            |           *
+                                 *        |  2. file\task                              |           *
+                                 *        +---------------->********                **********     *
+                                 *                          *      *  3. file\task  *        *     *
+                                 *                          *  DB  *--------------->* engine *     *
+                                 *                          *      *                *        *     *
+                                 *                          ********                **********     *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 ******************************->***********************************
+
+
+
+
+
+                                 ******************************<-***********************************
+                                 *                                                                 *
+                                 *                           ENGINE                                *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *                           *************              ********   *
+                                 *                           *           *   <-report   *      *   *
+                                 *                   +------>* handler_1 *<------------>* AV_1 *   *
+                                 *                   |       *           *     file->   *      *   *
+                                 *   ***********     |       *************              ********   *
+                                 *   *         *     |                                             *
+             3.2 result          *   *         *     |                                             *
+    <--------------------------------*         *     |       *************              ********   *
+                                 *   *  task   *  <-report   *           *   <-report   *      *   *
+             3.1 file/task       *   * manager *<----------->* handler_2 *<------------>* AV_2 *   *
+    -------------------------------->*         *    file->   *           *     file->   *      *   *
+                                 *   *         *     |       *************              ********   *
+                                 *   *         *     |                                             *
+                                 *   *         *     |                                             *
+                                 *   ***********     |       *************              ********   *
+                                 *                   |       *           *   <-report   *      *   *
+                                 *                   +------>* handler_n *<------------>* AV_n *   *
+                                 *                           *           *     file->   *      *   *
+                                 *                           *************              ********   *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 *                                                                 *
+                                 ******************************->***********************************
+</PRE>
+					<p class="text">It would be even better if we could add:</p>
+					<ul>
+						<li>return of results in real time;</li>
+						<li>archive handling (file unpacking, every file is then put into a web folder) / file handling (the type is determined);</li>
+						<li>performance increase (before the file is checked, the DB is searched for its hash in DB - found/not found - a decision is made);</li>
+						<li>downloading and checking of large-sized files;</li>
+						<li>general decrease of load on server/admin panel/DB/engine;</li>
+						<li>(in case there are several servers) parallel work of the handlers;</li>
+						<li>for additional services (like domain check etc.) - making one more VM with a required handler for a specific task;</li>
+						<li>etc :p. </li>
+					</ul>
+					<br>
+					
+					<h3><span class="warning">Checking packs</span></h3>
+					<p class="text">In a nutshell, <span class="warning">a pack</span> 
+					is an exploit pack returned by a rotator (+ there is an admin panel with statistics and lots of other stuff). 
+					<span class="warning">A rotator</span> is a script that determines a variety of the machine's characteristics 
+					(OS, browser and its version, etc.) and returns a suitable script. 
+					A pack (bond) is used for testing software for penetrability, likelihood of vulnerable machines being infected with subsequent expansion of its own software etc.</p>
+					<p class="text">For AV-checker's engine, 
+					checking bonds equals to checking files, the differences will be visible only in the admin panel. This is how it works:</p>
+					<ul>
+						<li>a full web-address is given upon entrance; it's used for downloading (the same) page content by several user-agents 
+(the more of them - the better, as that way the  bonds will return different exps);</li>
+						<li>data received is saved in simple files (for example, *.html);</li>
+						<li>checking files with AV.</li> 
+					</ul>
+					<p class="text">You can also think in advance about the kinds of protocols the bond checking will work with, 
+as well as what can be done if an  IP block after every entrance is enabled 
+for the pack (however, that's not the checker's problem anymore). That's all there is to it.</p><br>
+
+					<h3><span class="warning">Checking Domains</span></h3>
+					<p class="text"><span class="warning">DNSBL (DNS BlockList/BlackList  -  previously RBL  -  RealTime Blackhole List)</span>  
+					is a blacklist of IP/domains that send spam and are stored using the system with a DNS architecture. 
+There are also tons of different DNSBL-servers offering their services (lists) to deal with useless information.
+It means that everything is already built, all we need to do is add the required services to our checker and automate 
+the checks (yeah, right, just fucking add them, it's that simple =)). 
+The truth is, the task itself is kinda easy, and in my opinion, it's even easier to realize it using scripts on just one VM.</p>
+					<p class="text">System frame is going to be almost the same as that of the file checker (with task manager, handlers and etc), but with changes, 
+namely (in order of the previously mentioned points):</p>
+					<ul>
+						<li>[1] instead of the file, the IP/domain is checked (it's crystal clear anyway);</li>
+						<li>[2] ip/domain checking is executed DNSBL-services selected in admin panel. Besides, we have 3 types of checks:
+							<ul>
+							<li>[a] checking web databases through parsing of the downloaded result page. For example, for google, it's done in the following way:
+									<ul>
+									<li>[+] create full web-address (<a href="http://www.google.com/safebrowsing/diagnostic?site=eof-project.net" target="_blank">google safebrowsing</a>);</li>
+									<li>[+] download content by that url;</li>
+									<li>[+] on the page received look for specific text (if we find a "NO", the domain is clear); </li>
+									</ul></li>
+							<li>[b] downloading (in simplest cases - a text version) a database of 'dirty' ips/domains with subsequent search for required IP 
+							(<span class="warning">spyeyetracker blocklist</span> etc); </li>
+							<li>[c] resolving IP -> writing IP in DNS PTR notation -> including the DNSBL server name into the tail -> receiving (not receiving) the answer. 
+							I should also add that there are  <span class="warning">2 types of DNSBL: LHSBL (Left Hand Side Blacklist) and RHSBL (Right Hand Side BlackList).</span> 
+							The main difference is that LHSBL is used for checking IPs and RHSBL for checking domains.<br>
+			Example for LHSBL:<br>
+			We have an address: <span class="warning">eof-project.net</span>. We get its IP, let's say it's 12.34.56.78. 
+Then, we write the digits it reversed order: 78.56.34.12. 
+Then we add  the name of any list host: 78.56.34.12.cbl.abuseat.org. In C, the checking can be done using the gethostbyname(char *name)) function.
+If you receive an answer (for this host, it's IP  127.0.0.2), then the address being checked is locked (is on the list).<br>
+			You can receive any IP address, what matters is the fact of its presence or absence in the query answer.<br>
+			The example for RHSBL is similar, but there will be a domain instead of an IP (eof-project.host_name);</li>
+							<li>[x] checks of other types realized in compliance with the task assigned (for example, 
+for Internet Explorer, we can create an additional VM in which we can emulate a user entering the website etc).</li>
+							</ul></li>
+					</ul>
+					<br> 
+					
+					<h3><span class="warning">Checking files - dynamics</span></h3>
+					<p class="text">This category includes:</p>
+					<ul>
+						<li>checking files for performance 
+						(the most important thing is to check files on many different OSs. In the end, it can either work fine or there is a bug); </li>
+						<li>"utility" behavior analyzer (monitoring of changes in the file system (FS ) and registry, network activity, 
+ logging calls of winapi- functions, traffic and keystroke analysis, driver installation and other features.
+The result is a detailed report of all program actions, based on which the user can delver a verdict whether  the file is clean or dirty);</li>
+						<li>"AV" behavior analyzer (in other words - checking files using AV proactives. AV result (not user's result) - "OK" / "name of the detected file"); </li> 
+						<li>etc etc.</li>
+					</ul>
+					
+					<p class="text">Just like in other cases, there are several ways to create this kind of check (the points listed above can be used separately, 
+combined into one big point or mixed, whatever rocks your socks =)):</p>
+					<ul>
+						<li>[+] the previously described work scheme (file checking - statics) also fits here perfectly. 
+If we build, say, an "AV" behavior analyzer, then clearly, it's the proactives that will be working  instead of AV scanners. 
+They work according to a similar scheme. 
+
+The Task Manager deserves special attention, we will  install it on a separate VM. 
+The main functions of the task manager include  accepting/processing tasks, returning files to handlers, 
+receiving a result from them and sending it back to the database, 
+doing a rollback of snapshots after each check with proactives, 
+updating OSs/AVs (and other software) with subsequent creation of new snapshots etc.<br>
+		Besides, the TM monitors the service engine operation. If something goes wrong, it takes appropriate actions 
+(for example, if a process is bugging (which happens quite often), or some tricky soft is being checked and is BSOD'ing the OS etc).</li>
+						<li>[+] everything else:
+							<ul>
+							<li>a different frame: an option without a TM, alternate checking, the "Russian doll" principle (other VMs launched within a VMs) and etc;</li>
+							<li>VM alternative: physical machine (for example, full system back-up used in a sector mode with rollback possibility), 
+							sandboxes (with special analyzers) and other stuff.</li>
+							</ul></li>
+					</ul>
+					<br>
+					
+					<h3><span class="warning"> 0x</span></h3>
+					<p class="text">You get the picture now. In general, everything is pretty straightforward. 
+It's just too much donkey work, both obvious and no so much, some of which will come up in the process. 
+But it's nothing to beat your brains about. The most important thing is to find a powerful server :P. 
+If you do need it - go for it and you will make it work no doubt. </p><br>
+					<p class="warning">See also:</p>
+					<ul>
+						<li><span class="warning">Kris Kaspersky, </span> 
+							<a href="http://www.insidepro.com/kk/314/314r.shtml" target="_blank">"Yourself  VirusTotal"</a></li>
+						<li>Wikipedia,  
+							<a href="http://ru.wikipedia.org/wiki/DNSBL" target="_blank">"DNSBL"</a></li>
+						<li>Wikipedia, 
+							<a href="http://ru.wikipedia.org/wiki/Сравнение_виртуальных_машин" target="_blank">"Comparison of virtual machines"</a></li>
+					</ul>
+
+<p class="warning"><br>______________________________<br>
+m1x<br>
+http://lj.rossia.org/users/pr0mix/<br>
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

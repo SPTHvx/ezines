@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Power in simplicity </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Power in simplicity</span></h2>
+					<br>
+					<p class="text">Let’s talk about privacy a little bit. How often do you need to transfer some important digital information being sure 
+					it will not be read by anyone else? Due to availability of such programs as <span class="warning">Echelon and PRISM</span>, 
+					privacy becomes particularly actual.</p> 
+					<p class="text">Today the world persistently dictates us that the more complicated algorithm the better it is, but this is not true for all cases. 
+					Today i will try to prove it. I will use relatively little-known cryptographical algorithm, 
+					which is used in the world basically by spies and governments to transfer top secret data.</p><br>
+					
+					<h3><span class="warning">Theory</span></h3>
+					<p class="text">So, a little theory:<br><br>
+					<span class="warning">Plain text</span> -- our original message that should be crypted.<br>
+					<span class="warning">Key</span> -- secret information, which is used to translate the plain text to crypted data and vice versa.<br>
+					<span class="warning">Crypted data</span> -- an encrypted message, that we can safely transfer by open channels of connection.</p>
+					<p class="text">We will talk about one of the simplest and at the same time the hardest algorithm -- 
+					<span class="warning">about Vernam's cipher:</span></p>
+					<p class="warning">Vernam's cipher (the second name is One-time pad - scheme of one-time pad) -- the system of symmetric encryption in cryptology, 
+					developed in 1917 by AT&#38;T employees Major Joseph Mauborgne and Gilbert Vernam. Vernam’s cipher is the cipher system, which is proven to be absolutely 
+					cryptographical resistant. 
+					For data encrypting, plain text must be combined by «XOR» operation with a key (named one-time pad or OTR). 
+					Herewith the key must possess three critically important characteristics:</p> 
+					<ul>
+					<li><span class="warning">must be truly random;</span></li>
+					<li><span class="warning">coincide with the size of given plain text;</span></li>
+					<li><span class="warning">can be applied only one time. </span></li>
+					</ul>
+					<p class="warning">Wikipedia</p><br>
+
+					<p class="text">I guess for you it is not a secret that all stored and processed by computer information can be represented as numbers 
+					(because computer in translation from English -- means something, which computes, designed primarily for mathematical calculations) 
+					in the binary system:</p>
+					<ul>
+					<li>1 as 1<sub>2</sub></li>
+					<li>2 as 10<sub>2</sub></li>
+					<li>3 as 11<sub>2</sub></li>
+					<li>2013 as 11111011101<sub>2</sub></li>
+					<li>string "text" as 01110100011001010111100001110100<sub>2</sub></li>
+					</ul>
+
+					<p class="text">And now let’s talk about the so-called operation <span class="warning">«exclusive OR» (further XOR)</span>. 
+					And now let’s talk about the so-called operation «exclusive OR» (further XOR). 
+					The easiest way to explain is to describe it with a small table (see table 1), 
+					where horizontal lines will be bits of message, and vertical ones -- key.</p>
+					<p class="pic1"><img src="pic/pis_t1.png" alt="Table 1"></p>
+					<p class="text">In this way, by applying  XOR to the plaintext 
+					10011101<sub>2</sub> and key 10110111<sub>2</sub> we will get crypted data like 00101010<sub>2</sub>. 
+					To decrypt this crypted data, let’s apply XOR once again, and we will get 
+					10011101<sub>2</sub>, i.e. our plain text. </p>
+					<p class="text">As you can see, ideas planted in the Vernam’s cipher are quite simple, 
+					and can be coded in any programming language in a few minutes. 
+					However, there is a question of making absolutely random key and it’s transformation to another side. 
+					But if we refuse absolute randomization, everything becomes very simple, especially in the time of social networking:</p>
+					<ul>
+					<li>1. choose a random photo (generally, we can choose absolutely any file, 
+					but it so happened that downloading of photo from social network is easier than, for example, 
+					downloading of music or video) of yours or of your friend (preferably, it can be distinguished 
+					from other photos easily, but this is only for convenience) and use it as a key;</li>
+					<li>2. In personal meeting you should tell to another side about the chosen key (describing or telling an address);</li>
+					<li>3. encrypt plain text with this key and transfer by open channel to the second side our secret message;</li>
+					<li>4. the second side decrypts it;</li>
+					<li>5. if you need transfer a secret message once again go to 1.</li>
+					</ul>
+					<p class="text">But this approach has weaknesses: 
+					the main Vernam’s cipher disadvantage is that the length of key must be larger or be equal to the length of plain text. 
+					It’s not so critical for small txt files, but it will be much harder to send even small but formatted document.</p>
+					<p class="text">But there is a solution of this problem: 
+					using of several keys with a mutually prime length (i.e. their lengths should not have common divisors but 1, of course). 
+					Thus by using two keys (lengths 2048 and 2047 bytes) we have two variants: 
+					either add the second key to end of the first one (it means we can encrypt 4095 bytes) or combine them by using 
+					XOR to get a key with 4192256 bytes (which is undoubtedly quite well, 
+					if these keys will be about 25 kb, that will approximately be equal to the half-quarter of 
+					the usual photo, and we will get the key with the length 655334400 bytes, 
+					which enable us to encrypt a document with size more than 600 Mb).</p> 
+					<p class="text">So, how can we add two keys using XOR? Let’s look on the example with two keys with 3 and 4 bytes: 
+					101<sub>2</sub> and 1001<sub>2</sub>. Let’s represent them as two «infinity» (in fact looped) tapes and gradually scroll 
+					and adjust them using XOR to the final key.</p>
+					<p class="pic1"><img src="pic/pis_t2.png" alt="KEY1 XOR KEY2"></p>
+					<p class="text">As you can see, using two keys with length n=3 and m=4 we generated a key with length nm=12 bytes. And now let’s go to practice.</p><br>
+					
+					<h3><span class="warning">Practice</span></h3>
+					<p class="text">I will use python language, because it is a very simple and emphatic language, and to read program’s code 
+					on python you don’t even need to know the language.</p>
+					<p class="text">So, firstly we need so-called tape: </p>
+					
+					
+					
+<pre class="python" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #ff7700;font-weight:bold;">def</span> <span style="color: #dc143c;">string</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span>:
+    n=<span style="color: #ff4500;">0</span>
+    <span style="color: #ff7700;font-weight:bold;">while</span> <span style="color: #008000;">True</span>:
+        <span style="color: #ff7700;font-weight:bold;">yield</span> data<span style="color: black;">&#91;</span>n<span style="color: black;">&#93;</span>
+        n+=<span style="color: #ff4500;">1</span>
+        n<span style="color: #66cc66;">%</span>=<span style="color: #008000;">len</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span></pre>
+		
+		
+		
+					<p class="text">The goal of this function is quite simple: at every request it should return next element in data order, 
+					as order comes to end -- we return to the beginning and so till infinity.</p>
+					<p class="text">Well, now we need to transform any file in two (it can be more than two, but we don’t know how it will affect on reliability) 
+					tapes and get a new one with needed length.</p>
+					
+					
+
+
+
+
+<pre class="python" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">Def genKey<span style="color: black;">&#40;</span>data<span style="color: #66cc66;">,</span>l<span style="color: black;">&#41;</span>:
+    s1<span style="color: #66cc66;">,</span> s2<span style="color: #66cc66;">=</span><span style="color: #008000;">None</span><span style="color: #66cc66;">,</span><span style="color: #008000;">None</span>
+    <span style="color: #ff7700;font-weight:bold;">if</span> <span style="color: #008000;">len</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span>%<span style="color: #ff4500;">2</span><span style="color: #66cc66;">==</span><span style="color: #ff4500;">0</span>:
+        data.<span style="color: black;">pop</span><span style="color: black;">&#40;</span><span style="color: #ff4500;">0</span><span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#exclude first symbol, we need an odd length</span>
+        <span style="color: #808080; font-style: italic;">#usually it’s signature of all same files</span>
+         <span style="color: #808080; font-style: italic;">#so it just interferes us</span>
+    m<span style="color: #66cc66;">=</span><span style="color: #008000;">int</span><span style="color: black;">&#40;</span><span style="color: #008000;">len</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span>/<span style="color: #ff4500;">2</span><span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#the middle of our list</span>
+    t1<span style="color: #66cc66;">=</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#91;</span>:m<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#the first part will go to the first tape</span>
+    t2<span style="color: #66cc66;">=</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#91;</span>m:<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#the rest will go to the second tape</span>
+&nbsp;
+    <span style="color: #ff7700;font-weight:bold;">if</span> <span style="color: #008000;">len</span><span style="color: black;">&#40;</span>t1<span style="color: black;">&#41;</span>*<span style="color: #008000;">len</span><span style="color: black;">&#40;</span>t2<span style="color: black;">&#41;</span><span style="color: #66cc66;">&lt;</span>l:
+    <span style="color: #ff7700;font-weight:bold;">raise</span> <span style="color: #008000;">Exception</span><span style="color: black;">&#40;</span><span style="color: #483d8b;">&quot;Too small data to generate key&quot;</span><span style="color: black;">&#41;</span>
+&nbsp;
+    s1<span style="color: #66cc66;">=</span><span style="color: #dc143c;">string</span><span style="color: black;">&#40;</span>t1<span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#create our tapes</span>
+    s2<span style="color: #66cc66;">=</span><span style="color: #dc143c;">string</span><span style="color: black;">&#40;</span>t2<span style="color: black;">&#41;</span><span style="color: #808080; font-style: italic;">#</span>
+&nbsp;
+    out<span style="color: #66cc66;">=</span><span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: #808080; font-style: italic;">#empty list</span>
+    <span style="color: #ff7700;font-weight:bold;">for</span> i <span style="color: #ff7700;font-weight:bold;">in</span> <span style="color: #008000;">range</span><span style="color: black;">&#40;</span>l<span style="color: black;">&#41;</span>:<span style="color: #808080; font-style: italic;">#loop from 0 to l-1</span>
+    	  out+<span style="color: #66cc66;">=</span><span style="color: black;">&#91;</span>next<span style="color: black;">&#40;</span>s1<span style="color: black;">&#41;</span>^next<span style="color: black;">&#40;</span>s2<span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #808080; font-style: italic;">#format an array, ^ means XOR</span>
+&nbsp;
+    <span style="color: #ff7700;font-weight:bold;">return</span> out</pre>
+	
+	
+	
+	
+	
+					<p class="text">To make sure that our function is proper, let’s run it like this:</p>
+					
+<PRE>
+genKey([1,0,1,1,0,0,1],12) => [0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0]
+</PRE>
+
+					<p class="text">After symbol =&#62; goes it’s result, which is equal to the values in my latest table, calculated manually. 
+					It means that function works properly. Let’s try to get bigger key, then it is possible:</p>
+					
+					
+					
+<pre class="python" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #66cc66;">&gt;&gt;&gt;</span> genKey<span style="color: black;">&#40;</span><span style="color: black;">&#91;</span><span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">1</span><span style="color: black;">&#93;</span>,<span style="color: #ff4500;">13</span><span style="color: black;">&#41;</span>
+Traceback <span style="color: black;">&#40;</span>most recent call last<span style="color: black;">&#41;</span>:
+  File <span style="color: #483d8b;">&quot;&lt;pyshell#5&gt;&quot;</span>, line <span style="color: #ff4500;">1</span>, <span style="color: #ff7700;font-weight:bold;">in</span> <span style="color: #66cc66;">&lt;</span>module<span style="color: #66cc66;">&gt;</span>
+    genKey<span style="color: black;">&#40;</span><span style="color: black;">&#91;</span><span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">1</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">0</span>,<span style="color: #ff4500;">1</span><span style="color: black;">&#93;</span>,<span style="color: #ff4500;">13</span><span style="color: black;">&#41;</span>
+  File <span style="color: #483d8b;">&quot;[цензура] vernam.py&quot;</span>, line <span style="color: #ff4500;">19</span>, <span style="color: #ff7700;font-weight:bold;">in</span> genKey
+    <span style="color: #ff7700;font-weight:bold;">raise</span> <span style="color: #008000;">Exception</span><span style="color: black;">&#40;</span><span style="color: #483d8b;">&quot;Too small data to generate key&quot;</span><span style="color: black;">&#41;</span>
+<span style="color: #008000;">Exception</span>: Too small data to generate key</pre>
+
+
+
+					<p class="text">And we will get an error message. Works ;).</p>
+					<p class="text">Now we need to learn how to crypt files. The next function will help us:</p>
+					
+					
+					
+<pre class="python" style="font-family:monospace; font-size: 80%; background: #e8e8e8;"><span style="color: #ff7700;font-weight:bold;">def</span> <span style="color: #dc143c;">crypt</span><span style="color: black;">&#40;</span>datafile, keyfile<span style="color: black;">&#41;</span>:
+    data=<span style="color: #008000;">open</span><span style="color: black;">&#40;</span>datafile,<span style="color: #483d8b;">&quot;rb&quot;</span><span style="color: black;">&#41;</span>.<span style="color: black;">read</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span>
+    key=<span style="color: #008000;">open</span><span style="color: black;">&#40;</span>keyfile,<span style="color: #483d8b;">&quot;rb&quot;</span><span style="color: black;">&#41;</span>.<span style="color: black;">read</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span>
+&nbsp;
+    gamma=<span style="color: #008000;">None</span>
+    <span style="color: #ff7700;font-weight:bold;">try</span>:
+        gamma=genKey<span style="color: black;">&#40;</span>key,<span style="color: #008000;">len</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>
+    <span style="color: #ff7700;font-weight:bold;">except</span>:
+        <span style="color: #ff7700;font-weight:bold;">print</span><span style="color: black;">&#40;</span><span style="color: #483d8b;">&quot;Ключевой файл слишком короткий для шифрования исходного файла.&quot;</span><span style="color: black;">&#41;</span>
+        <span style="color: #ff7700;font-weight:bold;">return</span>
+&nbsp;
+    out=<span style="color: black;">&#91;</span>data<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>^gamma<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span> <span style="color: #ff7700;font-weight:bold;">for</span> i <span style="color: #ff7700;font-weight:bold;">in</span> <span style="color: #008000;">range</span><span style="color: black;">&#40;</span><span style="color: #008000;">len</span><span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span>
+    <span style="color: #ff7700;font-weight:bold;">with</span> <span style="color: #008000;">open</span><span style="color: black;">&#40;</span>datafile,<span style="color: #483d8b;">&quot;wb&quot;</span><span style="color: black;">&#41;</span> <span style="color: #ff7700;font-weight:bold;">as</span> f:
+        f.<span style="color: black;">write</span><span style="color: black;">&#40;</span><span style="color: #dc143c;">bytes</span><span style="color: black;">&#40;</span>out<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span></pre>
+		
+		
+		
+					<p class="text">To check it, the text of this article (i mean copy of it ;) ) was successfully encrypted and decrypted, as a key was used source 
+					of our encryptor. </p>
+					<br>
+					
+					<h3><span class="warning">In conclusion</span></h3>
+					<p class="text">As you can see, the simple does not mean weak. Vernam’s cipher confidently entrenched in directions requiring super secrecy, 
+					so why do not we use the experience of spies too? ;)</p><br>
+					
+					<p class="warning">Sources: <a href="sources/FanOfGun/powerins" target="_blank">sources/FanOfGun/powerins</a></p>
+
+<p class="warning"><br>______________________________<br>
+FanOfGun<br> 
+2013<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

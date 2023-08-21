@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Miracle in a small back office. Part 3 </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Miracle in a small back office. Part 3</span></h2>
+					<br>
+					
+					<p class="text"><img src="pic/mir_pic28.png" alt="__sheva740 prototype 2 =)" class="rightpic1">
+					I'd like to welcome those patient enough to get so far, as this tutorial can wear you down ))). </p><br>
+					
+					<p class="text">We remember how in the last step running the program was not recommended.</p><br>
+					<p class="text">In this step, we will eliminate this inconvenience. </p>
+					<p class="text">The thing is, the program reviewed in the last step was generating an incorrect match of IPA - MAC (IPAttack) and IPB - MAC (IPAttack) for the machines being attacked with its two threads. </p>
+					<p class="text">So if we just stop these threads and do not correct the false match for the correct one IPA - MAC (IPA) and IPB - MAC (IPB), then the machines attacked will have to wait for updates to their local ARP-tables for a while, or simply wait for their reboot.</p>
+					<p class="text">But we want to be smart and organized about it. </p>
+					<p class="text">To correct the data corrupted by previous threads, we run the same threads again, but the new flows will give to both machines the correct IP - MAC matches. </p>
+					<p class="pic1"><img src="pic/mir_pic29.png" alt="Thread A"></p>
+					<p class="pic1"><img src="pic/mir_pic30.png" alt="Thread B"></p>
+					
+					
+					<p class="text">That's what we are going to do within the ResetSpoof () function. We launched two new threads with real data (Picture. 3.1.). We allow 5-10 seconds for the threads to "persuade" the machines attacked to change the data in the local ARP-tables. Then we just stop these threads and free the memory. That's it, the program can be safely closed. <br>
+					Only one question remains - how can a user catch a sign of completion of the program in a console application? This problem can be successfully solved with the SetConsoleCtrlHandler () function. You will find a simple example of how this useful feature is used by this path <br>
+					<a href="sources/__sheva740/miracle/03/files/setConHandl/setConHandl.asm" target="_blank">
+					"sources/__sheva740/miracle/03/files/setConHandl/setConHandl.asm"</a></p>
+					
+					<p class="text">Experiment with it, run it and type Ctrl + C. In a few seconds, the process will be complete and everything will become clear. </p>
+					
+					<p class="text">So by this path<br>
+					<a href="sources/__sheva740/miracle/03/files/arpspoof_sub2/src/arpspoof_sub2.asm" target="_blank">
+					"sources/__sheva740/miracle/03/files/arpspoof_sub2/src/arpspoof_sub2.asm"</a><br>
+					... we have a program that can be safely run. As a result of its execution, the network exchange of the machine attacked (IPA) with the gateway (IPB) will be stopped. At the same time, the program will be completed correctly, restoring all the matches on the hosts attacked. </p>
+					
+					<p class="text">Remember the second step where we have set ourselves the objective of intercepting traffic from IPA to IPB? How do we achieve that? 
+					This can be done by the means of WinPcap. In its core there is a function  <span class="warning">pcap_loop()</span><br>
+					What is this function? 
+					Having opened the interface by pcap _ open _ live () and having received its handle, pass it to pcap _ loop (). This function will receive a pointer to all the headers of packets received / transmitted packets from/to this interface. That makes it even simpler. ))) <br>
+					Let's have a look at its header<br>
+					<span class="warning">pcap_loop(adhandle, 0, offset packet_handler, NULL)</span><br>
+					where<br>
+					<span class="warning">adhandle</span> is the public interface handle mentioned above;<br>
+					<span class="warning">offset packet_handler</span> is the callback address of the function that should also be properly arranged. <br><br>
+					Here is an extract from the certificate: <br>
+					<span class="warning">void packet_handler (u_char *user, struct pcap_pkthdr *phrd, u_char *pdata)</span><br>
+					where<br>
+					<span class="warning">user</span> 	- is a user-defined parameter that is passed to the pcap_dispatch sub-program.  <br>
+					<span class="warning">phdr</span>	- is a pointer to the pcap_pkthdr structure that precedes each packet.  <br>
+					<span class="warning">pdata</span>	- points to the packet data. This allows users to define their own packet filtering process. </p>
+					
+					<p class="text">That's the way we are going to do it. From within the packet_handler ()  function, we call the ForwardPacket ()  function. We will receive the packet body (pktdata pointer) and analyze it from within this function.  <br>
+					Here's the long-awaited moment of receiving the packet. The packet has come a long way <br>
+					<span class="warning">pcap_loop() – packet_handler() – ForwardPacket().</span> 
+					In the last function we have a pointer to the packet's header and body. 
+					Let's now open the source of the ForwardPacket () function and use it for tracing. 
+					We get the header of the tcp-packet, taking sender's IP and destination IP from it.  </p>
+					
+					<p class="text">We begin catching and handling the <span class="warning">IPA-IPB thread.</span></p>
+					
+					<p class="pic1"><img src="pic/mir_pic31.png" alt="IPA-IPB"></p>
+					
+					
+					<p class="text">Changing the packet header, send it back to the network. <br><br>
+					Begin to catch and handle the flow of <span class="warning">IPB-IPA.</span></p>
+					
+					<p class="pic1"><img src="pic/mir_pic32.png" alt="IPB-IPA"></p>
+					
+					<p class="text">Changing the packet header, send it back to the network.</p>	
+					
+					<p class="text">It seems clear? <br>
+					-  If I received a package from the IPA, I change it so that it went to the IPB. <br>
+					-   If I received a package from IPB, I change it so that it went to the IPA. </p>
+					
+					<p class="text">By the way this point in the program can be completed function ForwardPacket () or more complex processing, God forgive me - stand-in, packet data, there will be very comfortable working with him. </p>
+					
+					<p class="pic1"><img src="pic/mir_pic33.png" alt="__sheva740 prototype 3 =)"></p>
+					
+					<p class="text">Let's summarize. We've got a fully working program by this path:  <br>
+					<a href="sources/__sheva740/miracle/03/files/arpspoof/src/arpspoof.asm" target="_blank">
+					"sources/__sheva740/miracle/03/files/arpspoof/src/arpspoof.asm"</a></p>
+					
+
+					<p class="text">Also, in the <span class="warning">files</span> folder you will find a simple program to detect this type of attack. This console program will show which machines on the network changed their MAC addresses. Then, if you understand where addresses are being changed, you need to get on that machine and run sniffer to determine the host sending ARP-packets with false MAC-addresses. The one sending them is the "perpetrator." )) <br><br>
+					You can find the program monitoring the change of MAC addresses here <br>
+					<a href="sources/__sheva740/miracle/03/files/macmon" target="_blank">
+					"sources/__sheva740/miracle/03/files/macmon/macmon.exe"</a><br>
+					Just run it and wait for messages. </p>
+					
+					<p class="text"><img src="pic/mir_pic34.png" alt="__sheva740 prototype 4 =)" class="rightpic1">
+					The project was not too difficult. <br><br>
+					We managed to figure it all out, draw algorithms and catch patterns. <br><br>
+					We were also able to provide the intermediary results of the development. <br><br>
+					Support tools have also been developed.  <br><br>
+					Overall, it was pretty fun.<br><br>
+					But everything ends one way or another, making way for something even better ))). <br><br>
+					So, goodbye friends! </p> <br>
+					
+					
+					<p class="warning"><a href="mircle_2.html"><<< Part 2</a></p><br> 
+					
+
+					
+					<p class="warning">Sources: <a href="sources/__sheva740/miracle/03/files" target="_blank">sources/__sheva740/miracle/03/files</a></p>
+
+<p class="warning"><br>______________________________<br>
+__sheva740<br> 
+2012<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<title> Miracle in a small back office. Part 2 </title>
+	</head>
+
+	<body>
+	<table cellpadding="25" align="center" >
+			<tr>
+				<td>
+					<h2><span class="header">Miracle in a small back office. Part 2</span></h2>
+					<br>
+					<ul>
+					<li><span class="warning">Start () function. </span></li>
+					<li><span class="warning">InitSpoof () function.  </span></li>
+					<li><span class="warning">StartARPSpoof () function.</span></li>
+					</ul>
+					<p class="text">Let 's break our objective into two sub-objectives, for more convenience: </p> 
+					<ul>
+					<li>we'll try to stop the network exchange between machines <span class="warning">IPA and  IPB.</span></li>
+					<li>we'll intercept traffic between  <span class="warning">IPA and  IPB</span> and try to slow down the network exchange. </li>
+					</ul>
+					<p class="pic1"><img src="pic/mir_pic10.png" alt="IPA and IPB"></p>
+					<p class="text">Before the experiment, let's move to the IPA machine and send a ping to IPB  with the "- t" parameter in the cycle.  <br>
+					In this step, we will try to accomplish the first sub-objective (stopping the network exchange). In the next step, we will accomplish the second one, which is intercepting and slowing down the traffic. </p>
+					
+					<p class="text">The source of the turnkey solution is here: 
+					<a href="sources/__sheva740/miracle/02/files/arpspoof_sub1/src/arpspoof_sub1.asm" target="_blank">
+					"sources/__sheva740/miracle/02/files/arpspoof_sub1/src/arpspoof_sub1.asm"</a></p>
+					
+					<p class="text"> For starters, let’s open   <span class="warning">arpspoof_sub1.asm</span> and go through the main features it contains. A simple algorithm will make our life easier. </p>
+					
+					<p class="pic1"><img src="pic/mir_pic11.png" alt="Graphic Algoritm"></p><br>
+					
+					<h3><span class="warning">Start () function.   </span></h3>
+					<p class="text">We see a command line. You can clearly see that if the program is run without parameters, there will be a message about the "- i" parameter error. </p>
+					<p class="text">The "- i"  parameter  (derived from the word "interface"))) will display a numbered list of network interface identifiers in the system. </p>
+					
+					<p class="pic1"><img src="pic/mir_pic12.png" alt="arpspoof_sub1.exe -i"></p>
+					
+					<p class="text">To get help with using the program, there is the "- h" parameter </p>
+					
+					<p class="pic1"><img src="pic/mir_pic13.png" alt="arpspoof_sub1.exe -i"></p>
+					
+					
+					<p class="text"> You've reached the "- s" parameter. Two IP-addresses should follow, let's call them IPA and IPB, and <br>
+					<span class="warning">IPA</span> –   is the  address of packet "Sender";<br>
+					<span class="warning">IPB </span>–  is the  address of packet "Recipient";</p>
+					
+					<p class="text">Here is where you must be careful! You should not run the program with this key. Generally speaking, nothing bad will happen, you may have to reboot to clear the local arp table, that's it. So for now, just follow my thoughts and the screenshots. </p>
+					
+<PRE>
+c:\...\files\arpspoof_sub1\src>arpspoof_sub1.exe -i 1 -s 192.168.1.2 192.168.1.3 
+</PRE>					
+					
+					<p class="text">When running it, keep a printout in front of you, parsing of the command line will occur. The 
+					<span class="warning">APRSPOOF &#8249; &#8250;</span> structure will be partially completed. The program will then be initialized, namely the 
+					<span class="warning">InitSpoof ()</span> procedure.</p><br>
+					
+					<h3><span class="warning">InitSpoof () function.   </span></h3>
+					<p class="text">The purpose of this function is to complete the <span class="warning">APRSPOOF &#8249; &#8250;</span> 
+					structure and launch the <span class="warning">StaticARP()</span> function twice.  </p>
+					
+					<p class="text">For starters, let's break down the functions of the <span class="warning">APRSPOOF &#8249; &#8250;</span> structure</p>
+					
+
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">ARPSPOOF	<span style="color: #000000; font-weight: bold;">struct</span> 
+ucSelfMAC		<span style="color: #666666; font-style: italic;">;My local MAC </span>
+	szTarget	<span style="color: #666666; font-style: italic;">;IP of receiver machine </span>
+	ucTargetMAC	<span style="color: #666666; font-style: italic;">;target machine MAC </span>
+	szIP		<span style="color: #666666; font-style: italic;">;IP of source machine </span>
+	ucIPMAC		<span style="color: #666666; font-style: italic;">;source machine MAC		</span>
+	szSelfIP	<span style="color: #666666; font-style: italic;">;My local IP </span>
+	ucPretendMAC	<span style="color: #666666; font-style: italic;">;New replaced MAC  	</span>
+	hInterface	<span style="color: #666666; font-style: italic;">;Pointer to open network interface </span>
+ARPSPOOF	<span style="color: #000000; font-weight: bold;">ends</span></pre>
+
+
+
+
+					<p class="text">Now complete its fields. </p> 
+					
+					
+					
+<pre class="asm" style="font-family:monospace; font-size: 80%; background: #e8e8e8;">ARPSPOOF	<span style="color: #000000; font-weight: bold;">struct</span> 
+ucSelfMAC		<span style="color: #666666; font-style: italic;">;GetLocalMAC()</span>
+	szTarget	<span style="color: #666666; font-style: italic;">;IPB</span>
+	ucTargetMAC	<span style="color: #666666; font-style: italic;">;GetMAC(IPB) ;SendingARP(IPB)</span>
+	szIP		<span style="color: #666666; font-style: italic;">;IPA</span>
+	ucIPMAC		<span style="color: #666666; font-style: italic;">;GetMAC(IPA) ;SendingARP(IPA)	</span>
+	szSelfIP	<span style="color: #666666; font-style: italic;">;GetLocalIP()</span>
+	ucPretendMAC	<span style="color: #666666; font-style: italic;">;GetLocalMAC()	</span>
+	hInterface	<span style="color: #666666; font-style: italic;">;pcap_open_live()</span>
+ARPSPOOF	<span style="color: #000000; font-weight: bold;">ends</span></pre>
+
+
+
+
+					<p class="text">It will be convenient to present MAC address as a function from its IP. Like this, for example: "for host with IP = IPA, its MAC = MAC (IPA)". This is just for putting it down conveniently. </p>
+					<p class="text">From the scheme above, you can see how we complete the fields of this important function. The InitARP () function, in our case, uses the full arsenal of these support functions - GetLocalIP (), GetLocalMAC (), GetMAC () ... At this point you can look them up in the source. </p>
+					
+					<p class="text">The structure is completed, now we call the StaticARP () function twice. </p>
+					<p class="text">You can view a demo of the result here: <br>
+					<a href="sources/__sheva740/miracle/02/files/StaticARP/StaticARP.asm" target="_blank">"sources/__sheva740/miracle/02/files/StaticARP/StaticARP.asm"</a></p>
+					
+					
+					<p class="warning"><br>
+					First call	- 	StaticARP(IPA, MAC(IPA));<br>
+					Second call	- 	StaticARP(IPB, MAC(IPB));</p>
+					
+
+					<p class="text">With these two calls executed, a match will be installed in the local ARP-tables that can be viewed on command "arp - a" </p>
+					
+					<p class="pic1"><img src="pic/mir_pic14.png" alt="arp -a"></p>
+					
+					<p class="text">In our local arp - table  of matches we set a match of IP - MACs for two machines. This is the right match, as correct  MACs are specified for the IP. </p>
+					<p class="warning">It's crucial to know the real state of things. </p>
+					
+					<p class="text">So, we're ready for conducting an attack of the type <span class="warning">ARP-spoofing</span> type. <br>
+					Oh, andanother thing before we start! Let's write the real MAC addresses on all three machines. This is easily done using the utility:  <br>
+					<a href="sources/__sheva740/miracle/02/files/gETlOCALmac/getLocMAC.asm" target="_blank">"sources/__sheva740/miracle/02/files/gETlOCALmac/getLocMAC.asm"</a>:</p>
+					
+					
+					<p class="pic1"><img src="pic/mir_pic15.png" alt="getLocMAC (1)"></p>
+					<p class="pic1"><img src="pic/mir_pic16.png" alt="getLocMAC (2)"></p>
+					<p class="pic1"><img src="pic/mir_pic17.png" alt="getLocMAC (3)"></p>
+					
+					<p class="text">Run it on all the machines. If you are unable to do it due to any reason (if you are too lazy for instance), use the utility: <br>
+					<a href="sources/__sheva740/miracle/02/files/sendARP/sendARP.asm" target="_blank">"sources/__sheva740/miracle/02/files/sendARP/sendARP.asm"</a>:</p>
+					
+					<p class="pic1"><img src="pic/mir_pic18.png" alt="sendARP"></p>
+					
+					<p class="text">This one seems to be done. Let's move on to the next function. </p><br>
+					
+					<h3><span class="warning">StartARPSpoof () function.   </span></h3>
+					<p class="text">Let's get naughty. ))) <br>
+					The purpose of this function is to run two threads. In these threads, ARP-replies are sent in an infinite loop. These ARP-replies substitute the IP-MAC matches in the ARP-tables of both machines for the ones we need. <br>
+					The SpoofThread () does the following: </p>
+					<ul>
+					<li>Sends ARP -   packet. </li>
+					<li>Executes StaticARP () - to save the true IP - MAC matches on the attacking machine. </li>
+					</ul>
+					
+					<p class="warning">Let's look at it in more detail. <br>
+					Thread "A" - we will persuade the IPB machine that  <br>
+					MAC(IPA) = MAC(IPAttack)<br>
+					Thread "B" - we will persuade the IPA machine that <br>
+					MAC(IPB) = MAC(IPAttack)</p>
+					<p class="text">How to execute this task? For starters, let's remind to ourselves the structure of the response ARP-packet. </p>
+					<p class="pic1"><img src="pic/mir_pic19.png" alt="arp package"></p>
+					<p class="text">So, we need to create ARP-replies of the following content in the "A" and "B" threads. </p>
+					<p class="pic1"><img src="pic/mir_pic20.png" alt="arp A"></p>
+					<p class="pic1"><img src="pic/mir_pic21.png" alt="arp B"></p>
+					
+					<p class="text">Each of the threads will send the packet using the SendingARP () function. Also, the StaticARP () function will be executed in every thread to keep the local ARP-table current. 
+After launching both threads, let's go to machines IPA and IPB, one at a time, and see what changed there. 
+The machine with IPA </p>
+					
+					<p class="pic1"><img src="pic/mir_pic22.png" alt="machine with IPA"></p>
+					<p class="text">The machine with IPB </p>
+					<p class="pic1"><img src="pic/mir_pic23.png" alt="machine with IPB"></p>
+					
+					<p class="text">Now let's depict the performance of our processes as a nice scheme. All for better understanding. ))) </p>
+					<p class="pic1"><img src="pic/mir_pic24.png" alt="working of processes"></p>
+					
+					<p class="text">And now for the main idea. What happens if we still want to run the program at this stage of development? What will happen if we type the following in the command line:  </p>
+					
+<PRE>
+ c:\... \files\arpspoof_sub1\src>arpspoof_sub1.exe -i 1 -s 192.168.1.2 192.168.1.3 
+</PRE>
+					
+					<p class="text">... and press Enter? 
+	 Let's suppose we did all that. What will we see? </p>
+					<p class="pic1"><img src="pic/mir_pic25.png" alt="enter enter =)"></p>
+					
+					<p class="text">We ran the program on the attacker's machine and moved to IPA. Here is what we see ... </p>
+					<p class="pic1"><img src="pic/mir_pic26.png" alt="go IPA"></p> 
+					
+					<p class="text">The ping stopped! Hooray! For better understanding, let's take another look at the diagram above. Earlier, before our intervention, IPA passed ICMP packets to IPB without intermediaries, and IPB aired responses towards IPA without intermediaries.   After our program is run, IPA thinks that the IPB machine has its MAC = MAC (IPAtack), sending its packets there. What's the deal with our IPAttack? Does it really receive these packets from IPA? The thing is, no one taught it to respond to them, so when we send a ping to IPB while working on IPA, it seems like the network is down. ))) </p>
+					<p class="pic1"><img src="pic/mir_pic27.png" alt="network down"></p>
+					
+					<p class="text">This is how you can annoy your neighbor when being in the same local network. But what happens if we stop the arpspoof_sub1.exe program on the IPAttack machine? Will the pings go from IPA to IPB as before? They will, but it's best to reboot to clear false information in the local ARP-tables of machines IPA and IPB. That's why it is best not to run the program at this stage of development, just like we warned. But there is no reason to get upset, we will eliminate this inconvenience in our next step. As for right now, not to overload you by accident, I will bow out. ))) <br>
+					Goodbye. </p><br>
+					
+					<p class="warning"><a href="mircle_1.html"><<< Part 1</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="mircle_3.html">Part 3 >>></a></p><br> 
+					
+					<p class="warning">Sources: <a href="sources/__sheva740/miracle/02/files" target="_blank">sources/__sheva740/miracle/02/files</a></p>
+
+<p class="warning"><br>______________________________<br>
+__sheva740<br> 
+2012<br><br>
+Inception E-Zine</p>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
