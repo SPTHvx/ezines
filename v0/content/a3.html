@@ -1,0 +1,65 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h5>The DLIT EPO techinque</h5><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+<pre>
+See viruses W32.nova / W32.juli / W32.dnl12 / W32.dread in VX Heavens for code examples.
+You can also read Virus Bulletin november 2010 issue for a detailed analysis of the viruses.  "Deelaed Learning" by Peter Ferrie.
+
+
+Time things
+I found this technique a quite long time ago.   This import mechanism has been
+available for more than 10 years!   I  took some time before even think to use
+it for an entrypoint obscuring virus.
+
+This import mechanism uses different  table  format that is not handled by the
+loader, so it is not binded  when  application  is loaded.    Instead  when an
+external function is required:    DLL is loaded, function pointer is retrieved
+by the use of some special code.   This mechanism  saves time when loading and
+also saves  memory  (only  if  DLL  was  not  loaded  before -  then  using of
+LoadLibraryA would return the base and no load occurs).
+
+
+DLIT
+Members and sizes:
+
+     Attributes     DWORD
+     DLL name       DWORD
+     DLL base       DWORD
+     Delay  IAT     DWORD
+     Bound  IAT     DWORD
+     Unload IT      DWORD
+     Time Stamp     DWORD
+
+
+Attributes is stated to be zero by PECOFF v8 documentation. However, that value sometimes is not zero.
+DLL name: pointer to DLL's name string.
+DLL base: pointer to where DLL's base address of the DLL is saved.
+Delay IAT: pointer to list of VAs.  VAs point to code for load the function.
+Bound IAT: pointer to list of API addresses.  This works if Time Stamp matches DLL's TimeDateStamp in FileHeader.  A file can contain BIAT but if Time Stamp is null then it is discarded.
+Unload IT: It is an exact copy of the Delay IAT before any modification.
+
+
+Different Mechanisms
+Delay IAT is perhaps the simpliest.   When the application requires an API, it
+calls corresponding function for load listed in the Delay IAT, then pointer is
+replaced  by  API address  (similar to Import Table:  the Import Address Table
+must be equal to Import Lookup Table.  The pointer in the IAT  (either pointer
+to API  name string or ordinal) is replaced by API function address)
+
+Bound IAT works only if  Time Stamp  matches DLL's FileHeader TimeStamp value.
+
+Unload  IAT is a copy  of the Delay IAT.  There is a function when called will
+replace the Delay IAT's contents using the Unload IAT contents.
+hh86
+</pre>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

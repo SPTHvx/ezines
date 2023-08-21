@@ -1,0 +1,21 @@
+body {margin:0;padding:0;font-family:verdana;font-size:9pt;}
+p {white-space:normal}
+a {color:#000000;text-decoration:none}
+a:hover {color:#ffffff;}
+div#menu ul#menulist li a {color:#FFFFFF}
+div.sidebarnavitem:hover{background-color:#000000;}
+div.sidebarnavitem a:hover{color:#FFFFFF}
+#wrapper {margin-left:auto;margin-right:auto;overflow:auto;margin-top:3em;}
+#w1 {margin-left:5px;margin-right:auto;overflow:auto;margin-top:3em;}
+#header {width:100%;height:150px;}
+#menu {text-align:center;width:900px;margin:0pt auto;}
+#middle {float:left;margin-top:50px;margin-left:50px;}
+#sidebar {width:300px;margin-top:50px;margin-left:50px;}
+#footer {width:100%;background-repeat:repeat-x;overflow:auto;}
+#footercontent {width:900px;margin:0pt auto;padding-bottom:10px;padding-top:10px;overflow:auto;}
+#endofpage {width:100%;background-color:#000000;color:#FFFFFF;font-size:7pt;margin-top:50px;}
+li {list-style-type:none;display:inline;text-align:center;color:#FFFFFF;}
+li:hover{background-color:#000000;}
+.label {color:#000000;width:250px;float:left;text-align:left;}
+.sublinkitem {border-bottom:1px dotted #bfbfbf;padding-top:4px;padding-bottom:4px;width:200px;}
+div.sidebarnavitem {border-bottom:1px #bfbfbf;padding-bottom:2px;text-align:left;margin-left:5px;}

@@ -1,0 +1,58 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h4>EPO in C LUA DLLs</h4><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+<pre>
+When for the first time I heard that LUA script files could use functions from
+DLL files, I  thought  how to infect them. First, I created a virus that could
+infect LUA script files to make it load the DLL of the virus. It was W32.Luna,
+but it was very simple thing, since the only that it does it to trick LUA.
+
+However, the DLLs  that  do export functions for the script files to use are a
+little bit more complicated than mine. ;)  They are often known as LUA C Libs.
+
+
+Those DLLs contain an export that is "openlib_MODULENAME" being MODULENAME the
+DLL's name (however, this not  always true).    It is usually the first export
+(ordinal 1, and  this  is not  always true, too).   This  function registers a
+structure (like an export table)  that  contains a  serie of pointers to names
+and functions - that LUA script files use.
+
+
+Export Table, looks like this:
+
+              DWORD offset FunctionName
+              DWORD offset FunctionAddress
+              ...
+              QWORD 0
+
+
+Finding ET
+Unfortunately, there is no address in the image structures for the exports, so
+we need to parse the code for that. But this is very easy. The registration of
+the export table happens (usually) when the first export  (openlib_MODULENAME)
+is called.   To  get  it, we must  first  find  a call to an API from LUA 5.1:
+luaL_openlib.  I believe the are some other APIs, too.
+
+But here is a declaration for that API:
+
+luaL_openlib: 
+         in   DWORD p1 //state
+         in   DWORD p2 //library name
+         in   DWORD p3 //export table address
+         in   DWORD p4 //up values
+
+The parameter we want to get is p3, obviously.  ;) Then you change the address
+in the export table to point to virus code and that is all.
+hh86
+</pre>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

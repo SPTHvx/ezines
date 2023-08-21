@@ -1,0 +1,80 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h4>The true Export/Import business</h4><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+<pre>
+I had this idea one year ago.    I was thinking of how you can supply code for
+applications.  For that, Windows uses DLLs. Obviously, you know what they are,
+and you know that they supply of code by export of functions.  A DLL is loaded
+into  the  application  memory and Windows  resolves  the imports, so that the
+application can use the code in the DLL by calling the function.
+
+The are two ways in which an application can import functions using the import
+table, one would be to import the functions by name, the second would be using
+the ordinals.  When Windows successfully finds the name or ordinal in the DLL,
+it gets  the  function  address  from the export address table, the address is
+copied  into  the import address table in the application and so it continues.
+Here is where I had the strange idea.   Windows doesn't check that the address
+in the export address table are actually valid.  :)  I mean, the address could
+be FFFFFFFF and Windows would anyway add to it the base address of the DLL and
+so it will be copied to the import address table.
+
+
+Waiter, there's code in my IAT!
+There are  viruses  that hook the export address table by changing an entry to
+make it point to the virus code.  But that is not the idea here.   If an entry
+can be invalid, we can put whatever  thing we want, and if we can do that then
+we can put a virus code there.  And would be the result?  Yes!  You can import
+code instead.
+
+
+Tricky Exports
+We  have  an  export address  table  that is actually the virus code.  We must
+import every DWORD value in the host.     To each value will be added the base
+address of the DLL in memory, so  we  achieve a level of encryption there when
+the virus gets into the import address table of the host.  So, we need to also
+set some code to decrypt (substract) the base address from every DWORD.   Here
+is a little problem.  We can't guess the base address in the decryptor for the
+DLL.  So, we must solve that first.     We could parse the PEB to find the DLL
+but that  would  require  a  lot  of  code  and I wanted it to be small, maybe
+so small that it could be  easy for an oligomorphic engine to create.  So, the
+solution was to export an address  00000001, then we only need to decrement it
+in the import address table and we have the DLL base address.  :)
+
+This is how the decryptor should look like:
+
+        mov     esi, offset iat
+        lodsd                                ;load DLL base address
+        dec     eax                          ;fix it
+        xchg    edx, eax
+        push    esi
+        push    count                        ;number of imported entries
+        pop     ecx
+
+decrypt:
+        sub     dword ptr [esi], edx
+        lodsd
+        loop    decrypt
+        pop     esi
+        jmp     esi                          ;jump to virus code
+
+
+EntryPoint Obscuring
+Yes, what about it?   A DLL file can export functions from itself, indeed.  It
+is something you don't see everyday.   Adding a new import table to host file,
+of which  import  address  table points whithin the import  address table of a
+previous import table.  You can overwrite that value.   You can infect EXEs in
+this way, too.    However, for that you would require to have a DLL with virus
+code.
+hh86
+</pre>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

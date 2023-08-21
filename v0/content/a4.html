@@ -1,0 +1,156 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h4>BTX encryption</h4><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+<pre>
+BTX encryption
+
+BTS
+Bit Test and Set
+This instruction test in bit base: the bit specified by offset.  Carry flag is
+set according to test, if bit was 0 then CF = 0 else CF = 1.   The bit is then
+set to 1.    This means that we can use BTS to set every bit individually from
+each virus value.  You can use it to set random bit to complete a bit string:
+
+
+V-value 1 byte bit string:
+             11101111
+
+V-value 1 byte bit string "encrypted" value:
+
+             10101010
+
+
+So we know that we must set bit at offset 6, 4, 2, 0 in DWORD BTS:
+
+        bts     dword ptr [bitbase], offset
+
+
+You could also use  full of zero so that there are no virus values, only large 
+amount of BTS instructions.
+
+
+BTR
+Bit Test and Reset
+This instruction test in bit base: the bit specified by offset.  Carry flag is
+set according to test, if bit was 0 then CF = 0 else CF = 1.   The bit is then
+set to 0.  This means that we can use BTR to unset every bit individually from
+each virus value.  A long full of 1 (then the "encrypted" would look like FFFF
+FFFFF ;) ) could be used.  Or an unset schema like BTS.
+
+
+BTC
+Bit Test and Complement
+This instruction test in bit base: the bit specified by offset.  Carry flag is
+set according to test, if bit was 0 then CF = 0 else CF = 1.   The bit is then
+complemented.   A complement is NOT on the bit, so if bit is 0 then it will be
+set to 1 or if bit was 1 it will be set to zero.  So, this is like having both
+BTS and BTR in one instruction!     This means your virus can take the unusual
+shape of:
+
+             FFFFFFFF
+             00000000
+             FFFFFFFF
+             FFFF0000
+             FFFFFFFF
+             0000FFFF
+             00FF00FF
+
+or
+             FFFFFFFF
+             00000000
+             FFFF1ED6
+             FFFF0000
+             FFFFFFFF
+             67DB6F7A
+             00FF00FF
+
+Registers Initialisation
+The problem with most decryptors outhere  is that they use too many registers,
+this technique only needs 1 register if not ESP.    The register points to the
+memory address where the virus will be decrypted.  A  register can be also set
+using BTS/BTR/BTC, but we must know the content of the register  before  using
+the instructions  or it will be transformed to a random value, a  crash  might
+happen if we touch invalid memory.
+
+If we use BTS - and BTR to obfuscate - we can set any register in this way:
+
+(bit offset values are decimal)
+
+        xor     eax, eax
+        btr     eax, 21
+        bts     eax, 22
+        btr     eax, 23
+        bts     eax, 14
+        btr     eax, 13
+        bts     eax, 12
+        btr     eax, 11
+
+EAX is now 00405000
+
+If we use BTC - and BTR to obfuscate - we can set any register in this way:
+
+(bit offset values are decimal)
+
+        or      eax, -1
+        btc     eax, 31
+        btr     eax, 30
+        btr     eax, 29
+        btc     eax, 28
+        btr     eax, 27
+        btr     eax, 26
+        btr     eax, 25
+        btc     eax, 24
+        btr     eax, 23
+        btr     eax, 21
+        btc     eax, 20
+        btr     eax, 19
+        btc     eax, 18
+        btr     eax, 17
+        btc     eax, 16
+        btr     eax, 15
+        btc     eax, 13
+        btr     eax, 11
+        btr     eax, 10
+        btc     eax, 9
+        btc     eax, 8
+        btr     eax, 7
+        btc     eax, 6
+        btr     eax, 5
+        btc     eax, 4
+        btr     eax, 3
+        btr     eax, 2
+        btr     eax, 1
+        btc     eax, 0
+
+EAX is now 00405000
+
+Another way to get the address is using CALL+POP, so we can support ASLR, too.
+Using the stack is another option if push every "encrypted" value.   ESP would
+be bit base and thus no register is initialised.
+
+For more  obfuscation  on the bits we want to set, we can  use  larger offset.
+How?  Very simple, using larger offset is just like using 0 to 31, but we must
+be careful: for instance, if bts 31 sets 00000000 to 80000000 then with larger
+offset we use bts 31 + 32.  From now on, we go from 1 to 32 using 31 as base.
+
+(bit offset values are decimal)
+
+        xor     eax, eax
+        bts     eax, 32 + 22
+        bts     eax, 32 + 14
+        bts     eax, 32 + 12
+
+EAX is now 00405000
+hh86
+</pre>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h4>Inversing a random numbers</h4>-<br><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="w1">
+
+<h2><a name="c0"></a>Abstract</h2>
+
+<p>It is desireable feature for a polymorphic virus to avoid linear memory access
+during decryption. In 2000 The Mental Driller proposed an algorithm, known as PRIDE [1]
+which could easily produce a large number of permutations. In this paper I would
+present another technique to randomize the memory access within decryption loop,
+based on the linear and inversive congruential random numbers generators which
+properties are well characterized.
+
+</p><h2><a name="c1"></a>Introduction</h2>
+
+<p>Several years ago <em>whale</em> asked me is it possible to construct a pair of pseudo-random
+numbers generators which could produce the same sequence in a direct and reverse order [2].
+At that time I was unable to answer the question, and suggested to generate a pseudo-random
+sequence in <em>encryption</em> part of the engine, store it to memory and use the resulting
+array from top to down; but when I recently flipped through the archives looking for some e-mail
+address I saw this conversation and decided to check the topic. I quickly found the effective
+and extremely simple solution to generate a pretty large number of RNGs with desired properties.
+
+</p><h2><a name="c2"></a>Getting to the point</h2>
+
+<p>The oldest and most widely used type of RNG algorithms is <em>linear congruential generator</em>:
+
+</p><p><img src="inverse_files/mimetex_014.gif" alt="x_{i+1} = a \cdot x_i + c\ \text{mod}\ m" align="middle"></p>
+
+<p>where <em>m</em> is the "modulus", <em>a</em> - "multiplier", <em>c</em> - "increment"
+and <img src="inverse_files/mimetex.gif" alt="x_0" align="middle"> is the "seed" are values that specify the generator. For example, many
+of the Z0MBiE's viruses including Mistfall [3] are using LCG with a = 214013, c = 2531011,
+
+<img src="inverse_files/mimetex_016.gif" alt="m = 2^{32}-1" align="middle"> (modulus with the size of machine word will simplify the arithmetics),
+while the initial seed for a generator being choosed randomly (virus writes prefer to seed
+the generators with the values returned by <tt>GetTickCount()</tt> function and/or <tt>RDTSC</tt>
+instruction.</p>
+
+<p>There are inverse of LCG which is called <em>inversive congruential generator</em>:
+
+</p><p><img src="inverse_files/mimetex_013.gif" alt="x_{i+1} = a^{-1}\cdot x_i + c\ \text{mod} m" align="middle"></p>
+
+<p>where <img src="inverse_files/mimetex_008.gif" alt="a^{-1}" align="middle"> is a <em>modular multiplicative inverse</em> of <em>a</em> modulo <em>m</em>:
+
+
+</p><p><img src="inverse_files/mimetex_015.gif" alt="a \cdot a^{-1}\text{ (mod m)} = 1" align="middle"></p>
+
+<p>and that is exactly what we need to reverse the sequence of "random" numbers.</p>
+
+<p>Suppose that we have <img src="inverse_files/mimetex_010.gif" alt="x_{n+1} = x_n \cdot a\text{ mod }m" align="middle"> and multiply it by
+<img src="inverse_files/mimetex_008.gif" alt="a^{-1}" align="middle">, <img src="inverse_files/mimetex_009.gif" alt="x_n \cdot a \cdot a^{-1}" align="middle">, since <img src="inverse_files/mimetex_006.gif" alt="a \cdot a^{-1} = 1" align="middle">
+this expression is equal to <img src="inverse_files/mimetex_005.gif" alt="x_n" align="middle">. All neccessary details once could find in Wiki [4].
+
+</p><h2><a name="c3"></a>Getting the inverse</h2>
+
+<p>The multiplicative inverse for the given <em>a</em> and <em>m</em> exists <strong>if, and
+only if</strong>, <em>a</em> and <em>m</em> are coprime (which is to say they have no common
+factors or that their greatest common divisor is equal to 1). Sadly, the number
+
+<img src="inverse_files/mimetex_007.gif" alt="2^{32}-1" align="middle"> is composite (product of 3, 5, 17, 257, 65537), so if we choose
+it as a modulus, we'll need to test all possible values of <em>a</em> whether it is
+divisible by the factors listed above. To avoid the tests we could select the prime
+<em>m</em> which mean that we could use any value of <em>a</em> and it will have no
+common divisors with <em>m</em> by definition.</p>
+
+<p>Surely it will reduce the overall number of possible generators, but the remaining
+generators are still numerous. We could even estimate our losses. The prime counting
+function <img src="inverse_files/mimetex_012.gif" alt="\pi(x)" align="middle"> proposed by Gauss and Legendre approximates the number of
+primes below any given <em>x</em> as <img src="inverse_files/mimetex_011.gif" alt="\frac{x}{\ln x}" align="middle">. So if we choose our
+
+<em>m</em> from 1024...2048 we'll get about 120 possible values for <em>m</em>. Since
+those numbers are small, this value could be counted exactly, but that's not the issue.
+The point here is that we'll get enough candidates anyway.</p>
+
+<p>Finally, we could find the inverse by using <em>extended Euclidian algorithm</em>:
+</p><pre class="c" style="font-family: monospace; color: rgb(0, 0, 102); border: thin solid rgb(194, 193, 177); background: none repeat scroll 0% 0% rgb(214, 213, 197);">uint32_t xgcd<span style="color: black;">(</span>uint32_t a<span style="color: rgb(51, 153, 51);">,</span> uint32_t b<span style="color: black;">)</span>
+
+<span style="color: black;">{</span>
+        uint32_t x<span style="color: rgb(51, 153, 51);">,</span> y<span style="color: rgb(51, 153, 51);">,</span> u<span style="color: rgb(51, 153, 51);">,</span> v<span style="color: rgb(51, 153, 51);">,</span> m<span style="color: rgb(51, 153, 51);">,</span> n<span style="color: rgb(51, 153, 51);">,</span> q<span style="color: rgb(51, 153, 51);">,</span> r<span style="color: rgb(51, 153, 51);">,</span> b0<span style="color: rgb(51, 153, 51);">;</span>
+
+        x <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: rgb(51, 153, 51);">;</span> y <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: rgb(51, 153, 51);">;</span> u <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: rgb(51, 153, 51);">;</span> v <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: rgb(51, 153, 51);">;</span> b0 <span style="color: rgb(51, 153, 51);">=</span> b<span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span>a <span style="color: rgb(51, 153, 51);">!=</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: black;">)</span> <span style="color: black;">{</span>
+                q <span style="color: rgb(51, 153, 51);">=</span> b <span style="color: rgb(51, 153, 51);">/</span> a<span style="color: rgb(51, 153, 51);">;</span>      r <span style="color: rgb(51, 153, 51);">=</span> b <span style="color: rgb(51, 153, 51);">%</span> a<span style="color: rgb(51, 153, 51);">;</span>
+
+                m <span style="color: rgb(51, 153, 51);">=</span> x <span style="color: rgb(51, 153, 51);">-</span> u <span style="color: rgb(51, 153, 51);">*</span> q<span style="color: rgb(51, 153, 51);">;</span>  n <span style="color: rgb(51, 153, 51);">=</span> y <span style="color: rgb(51, 153, 51);">-</span> v <span style="color: rgb(51, 153, 51);">*</span> q<span style="color: rgb(51, 153, 51);">;</span>
+
+                <span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span>m <span style="color: rgb(51, 153, 51);">&gt;</span> b0<span style="color: black;">)</span>	m <span style="color: rgb(51, 153, 51);">+=</span> b0<span style="color: rgb(51, 153, 51);">;</span>
+		<span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span>n <span style="color: rgb(51, 153, 51);">&gt;</span> b0<span style="color: black;">)</span>	n <span style="color: rgb(51, 153, 51);">+=</span> b0<span style="color: rgb(51, 153, 51);">;</span>
+
+                b <span style="color: rgb(51, 153, 51);">=</span> a<span style="color: rgb(51, 153, 51);">;</span>  a <span style="color: rgb(51, 153, 51);">=</span> r<span style="color: rgb(51, 153, 51);">;</span>  x <span style="color: rgb(51, 153, 51);">=</span> u<span style="color: rgb(51, 153, 51);">;</span>
+
+                y <span style="color: rgb(51, 153, 51);">=</span> v<span style="color: rgb(51, 153, 51);">;</span>  u <span style="color: rgb(51, 153, 51);">=</span> m<span style="color: rgb(51, 153, 51);">;</span>  v <span style="color: rgb(51, 153, 51);">=</span> n<span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: black;">}</span>
+        <span style="color: rgb(177, 177, 0);">return</span> x <span style="color: rgb(51, 153, 51);">%</span> b0<span style="color: rgb(51, 153, 51);">;</span>
+<span style="color: black;">}</span>
+<span style="color: black; font-style: italic;">//...</span>
+r <span style="color: rgb(51, 153, 51);">=</span> xgcd<span style="color: black;">(</span>a<span style="color: rgb(51, 153, 51);">,</span> m<span style="color: black;">)</span><span style="color: rgb(51, 153, 51);">;</span>
+
+&nbsp;</pre>
+
+<p>We could check the obtained value by testing whether <code>(a * r) % m == 1</code>, or by
+modifying the xgcd() function: <code>return b == 1 ? x % b0 : 0;</code>. But this check is
+redundant, since we knew that for any <em>a &lt; m</em> and prime <em>m</em>, there would
+be always an inverse <em>r</em> and that it is always unique in the multiplicative group
+
+<img src="inverse_files/mimetex_003.gif" alt="\mathbb{Z}_m" align="middle">.</p>
+
+<p>Now we could traverse the sequence of pseudo-random numbers back and forth with:</p>
+<pre class="c" style="font-family: monospace; color: rgb(0, 0, 102); border: thin solid rgb(194, 193, 177); background: none repeat scroll 0% 0% rgb(214, 213, 197);">uint32_t lcg<span style="color: black;">(</span>uint32_t x<span style="color: black;">)</span>
+<span style="color: black;">{</span>
+        <span style="color: rgb(177, 177, 0);">return</span> <span style="color: black;">(</span>x <span style="color: rgb(51, 153, 51);">*</span> a <span style="color: rgb(51, 153, 51);">+</span> c<span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">%</span> m<span style="color: rgb(51, 153, 51);">;</span>
+
+<span style="color: black;">}</span>
+&nbsp;
+uint32_t icg<span style="color: black;">(</span>int32_t x<span style="color: black;">)</span>
+<span style="color: black;">{</span>
+        x <span style="color: rgb(51, 153, 51);">-=</span> c<span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span>x <span style="color: rgb(51, 153, 51);">&lt;</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: black;">)</span>
+                x <span style="color: rgb(51, 153, 51);">+=</span> m<span style="color: rgb(51, 153, 51);">;</span>
+        <span style="color: rgb(177, 177, 0);">return</span> <span style="color: black;">(</span>r <span style="color: rgb(51, 153, 51);">*</span> x<span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">%</span> m<span style="color: rgb(51, 153, 51);">;</span>
+
+<span style="color: black;">}</span>
+&nbsp;</pre>
+
+<p>So, for the prime <em>m</em> (1024..2048) and <em>a</em> (1..m) (<em>a</em> could not
+be greater than <em>m</em>) we got 208 850 possible RNGs (this number must be multiplied by
+<em>c</em> to take into account all possible increments. Not so bad and still simple. One
+could use the <em>sieve of Eratosthenes</em> to find the prime numbers (with a bit of
+optimization the memory requirements for the numbers below <img src="inverse_files/mimetex_002.gif" alt="10^6" align="middle"> could be reduced
+down to 60Kb):</p>
+
+<pre class="c" style="font-family: monospace; color: rgb(0, 0, 102); border: thin solid rgb(194, 193, 177); background: none repeat scroll 0% 0% rgb(214, 213, 197);"><span style="color: rgb(128, 128, 128); font-style: italic;">/* http://www.fpx.de/fp/Software/Sieve.html */</span>
+<span style="color: rgb(51, 153, 51);">#define TEST(f,x)       (*(f+(x)/16)&amp;(1&lt;&lt;(((x)%16L)/2)))</span>
+<span style="color: rgb(51, 153, 51);">#define SET(f,x)        *(f+(x)/16)|=1&lt;&lt;(((x)%16L)/2)</span>
+&nbsp;
+uint8_t <span style="color: rgb(51, 153, 51);">*</span>make_primes<span style="color: black;">(</span><span style="color: rgb(153, 51, 51);">int</span> max<span style="color: black;">)</span>
+
+<span style="color: black;">{</span>
+        uint8_t <span style="color: rgb(51, 153, 51);">*</span>feld<span style="color: rgb(51, 153, 51);">;</span>
+        <span style="color: rgb(153, 51, 51);">int</span> size <span style="color: rgb(51, 153, 51);">=</span> <span style="color: black;">(</span>max <span style="color: rgb(51, 153, 51);">&gt;&gt;</span> <span style="color: rgb(0, 0, 221);">4</span><span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">+</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: rgb(51, 153, 51);">,</span> teste <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: rgb(51, 153, 51);">,</span> mom<span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span><span style="color: black;">(</span>feld <span style="color: rgb(51, 153, 51);">=</span> <span style="color: black;">(</span>uint8_t<span style="color: rgb(51, 153, 51);">*</span><span style="color: black;">)</span>malloc<span style="color: black;">(</span>size<span style="color: black;">)</span><span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">==</span> NULL<span style="color: black;">)</span>
+
+                <span style="color: rgb(177, 177, 0);">return</span> NULL<span style="color: rgb(51, 153, 51);">;</span>
+        bzero<span style="color: black;">(</span>feld<span style="color: rgb(51, 153, 51);">,</span> size<span style="color: black;">)</span><span style="color: rgb(51, 153, 51);">;</span>
+        <span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span><span style="color: black;">(</span>teste <span style="color: rgb(51, 153, 51);">+=</span> <span style="color: rgb(0, 0, 221);">2</span><span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">&lt;</span> max<span style="color: black;">)</span>
+
+                <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span><span style="color: rgb(51, 153, 51);">!</span> TEST<span style="color: black;">(</span>feld<span style="color: rgb(51, 153, 51);">,</span> teste<span style="color: black;">)</span><span style="color: black;">)</span>
+                        <span style="color: rgb(177, 177, 0);">for</span> <span style="color: black;">(</span>mom <span style="color: rgb(51, 153, 51);">=</span> <span style="color: rgb(0, 0, 221);">3L</span> <span style="color: rgb(51, 153, 51);">*</span> teste<span style="color: rgb(51, 153, 51);">;</span> mom <span style="color: rgb(51, 153, 51);">&lt;</span> max<span style="color: rgb(51, 153, 51);">;</span> mom <span style="color: rgb(51, 153, 51);">+=</span> teste <span style="color: rgb(51, 153, 51);">&lt;&lt;</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: black;">)</span>
+
+                                SET <span style="color: black;">(</span>feld<span style="color: rgb(51, 153, 51);">,</span> mom<span style="color: black;">)</span><span style="color: rgb(51, 153, 51);">;</span>
+        <span style="color: rgb(177, 177, 0);">return</span> feld<span style="color: rgb(51, 153, 51);">;</span>
+<span style="color: black;">}</span>
+
+&nbsp;
+<span style="color: rgb(153, 51, 51);">int</span> is_prime<span style="color: black;">(</span><span style="color: rgb(153, 51, 51);">int</span> n<span style="color: rgb(51, 153, 51);">,</span> uint8_t <span style="color: rgb(51, 153, 51);">*</span>feld<span style="color: black;">)</span>
+<span style="color: black;">{</span>
+
+        <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span>n <span style="color: rgb(51, 153, 51);">%</span> <span style="color: rgb(0, 0, 221);">2</span> <span style="color: rgb(51, 153, 51);">==</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: black;">)</span>
+                <span style="color: rgb(177, 177, 0);">return</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span><span style="color: rgb(51, 153, 51);">!</span>TEST<span style="color: black;">(</span>feld<span style="color: rgb(51, 153, 51);">,</span> n<span style="color: black;">)</span><span style="color: black;">)</span>
+                <span style="color: rgb(177, 177, 0);">return</span> <span style="color: rgb(0, 0, 221);">1</span><span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">return</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: rgb(51, 153, 51);">;</span>
+<span style="color: black;">}</span>
+&nbsp;
+<span style="color: rgb(153, 51, 51);">int</span> find_nearest_prime<span style="color: black;">(</span><span style="color: rgb(153, 51, 51);">int</span> n<span style="color: rgb(51, 153, 51);">,</span> uint8_t <span style="color: rgb(51, 153, 51);">*</span>feld<span style="color: rgb(51, 153, 51);">,</span> <span style="color: rgb(153, 51, 51);">int</span> max<span style="color: black;">)</span>
+
+<span style="color: black;">{</span>
+        <span style="color: rgb(153, 51, 51);">int</span> m <span style="color: rgb(51, 153, 51);">=</span> n <span style="color: rgb(51, 153, 51);">-</span> <span style="color: rgb(0, 0, 221);">2</span><span style="color: rgb(51, 153, 51);">;</span>
+        <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span>n <span style="color: rgb(51, 153, 51);">%</span> <span style="color: rgb(0, 0, 221);">2</span> <span style="color: rgb(51, 153, 51);">==</span> <span style="color: rgb(0, 0, 221);">0</span><span style="color: black;">)</span>
+
+                m<span style="color: rgb(51, 153, 51);">++;</span>
+        <span style="color: rgb(177, 177, 0);">while</span> <span style="color: black;">(</span><span style="color: black;">(</span>m <span style="color: rgb(51, 153, 51);">+=</span> <span style="color: rgb(0, 0, 221);">2</span><span style="color: black;">)</span> <span style="color: rgb(51, 153, 51);">&lt;</span> max<span style="color: black;">)</span>
+
+                <span style="color: rgb(177, 177, 0);">if</span> <span style="color: black;">(</span><span style="color: rgb(51, 153, 51);">!</span> TEST<span style="color: black;">(</span>feld<span style="color: rgb(51, 153, 51);">,</span> m<span style="color: black;">)</span><span style="color: black;">)</span>
+                        <span style="color: rgb(177, 177, 0);">return</span> m<span style="color: rgb(51, 153, 51);">;</span>
+
+        <span style="color: rgb(177, 177, 0);">return</span> n<span style="color: rgb(51, 153, 51);">;</span>
+<span style="color: black;">}</span>
+&nbsp;</pre>
+<p>As I already told in the description of Lacrimae virus, a max distance between any
+given <em>x</em> and nearest prime number in the range from one to <img src="inverse_files/mimetex_002.gif" alt="10^6" align="middle">
+would not exceed 113 [5].</p>
+
+<h2><a name="c4"></a>References</h2>
+<div>
+	The Mental Driller <li><a href="http://vxheavens.com/lib/vmd03.html#p121">"Advanced polymorphic engine construction"</a></li>, 29A#5, December 2000<br>
+	thread in <li><a href="http://virusnews.org.ua/fido/pvt.virii/05294.html">pvt.virii newsgroup</a></li>, 2003<br>
+	Z0mbie, <li><a href="http://vxheavens.com/src_view.php?file=z0mbie10d.zip">Mistfall</a></li> virus<br>
+	Wikipedia <li><a href="http://en.wikipedia.org/wiki/Modular_multiplicative_inverse">Modular multiplicative inverse</a></li><br>
+	herm1t <li><a href="http://eof-project.net/linuxunix.html#linuxlacrimae">"Code integration on Linux: Cooking the PIE"</a></li>, EOF-DR-RRLF, 2008<br>
+</div>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

