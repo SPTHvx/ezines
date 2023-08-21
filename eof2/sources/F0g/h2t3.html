@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+<link href="../../viewer/css/style2.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="menu">
+<div class="menuitem"><a href="../../viewer/html/sources.html">Return to previous menu</a></div>
+<div class="menuitem"><a target="_blank" href="./h2t3">Navigate to project folder</a></div>
+
+</div>
+
+<div class="title">FreeBSD.H2T3<br/></div>
+<div class="author">F0g<br/></div>
+
+
+<xmp>
+
+This is very simple infector for the FreeBSD. It infects all files in
+current directory.  The virus appends new  segment to the end of file
+by replacing PT_PHDR entry.
+
+The  code of virus consists of two parts:  the head and the tail. The
+head (in assembler) will  determine the  addresses and  sizes of both
+parts and define a wrapper for the system calls.  The head invoke the
+tail (passing  all  necessary parameters)  and return  control to the
+host program. All other functions:  search, read, modification, write
+etc  embodied in tail (in C), using the  system call function located
+in head.
+
+--
+F0g. mailto:f0g.mbox@gmail.com
+
+</xmp>
+</div>
+
+</body>
+</html>
