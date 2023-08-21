@@ -1,3 +1,0 @@
-
-ElfVirus is in \Binaries\Vecna\elfvirus.zip
-

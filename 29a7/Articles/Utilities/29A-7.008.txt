@@ -1,2 +1,0 @@
-
-IRC Bot is in \Binaries\Vecna\bot.zip

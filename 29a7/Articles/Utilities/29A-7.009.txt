@@ -1,2 +1,0 @@
-
-CPU is in \Binaries\Vecna\cpu.zip

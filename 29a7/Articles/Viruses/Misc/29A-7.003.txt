@@ -1,3 +1,0 @@
-
-VBS.Pretext and JS.Pretext is in \Binaries\roy g biv\pretext.zip
-

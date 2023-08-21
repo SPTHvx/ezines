@@ -1,2 +1,0 @@
-
-ELF Linker for TASM\MASM is in \Binaries\Vecna\linker.zip
